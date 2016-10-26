@@ -21,7 +21,7 @@ To make use of the software tools:
 
 		$ ar rcs libAraSim.a *.o
 
-3. Go to the AraRoot work area. Modify CMakeLists.txt according to the enclosed CMakeLists_example.txt. Point the include paths to where the softwares tools are installed. In particular, point the ARASIM_INCLUDE_DIR to the AraSim work area in #2.
+3. Go to the AraRoot work area. Modify CMakeLists.txt according to the enclosed CMakeLists_example.txt. Point the include paths to where the softwares tools are installed. In particular, point the ARASIM_INCLUDE_DIR to the AraSim work area in #2, and point the CURRENT_WORK_DIR to your current work directory.
 4. In CMakeLists.txt, add lines
 
 		$ add_executable(analysis analysis.cxx)
@@ -44,6 +44,8 @@ To reconstruct real data, do:
 
 		./build/analysis recoSetupFile_default.txt 0 ${PATH_TO_REAL_DATA}/eventXXXX.root ${PATH_TO_PEDESTAL_FILE}/pedestalValues.run00XXXX.dat
 		
+In the above examples, '0' is the run number given to the analysis runs. The analysis output will be a ROOT file named recoOut.${recoSetupFile}.run${RunNumber}.root
+
 # Configuring the reconstruction
 ----------
 All configuration parameters for the reconstruction are defined and explained in recoSettings.h. recoSetupFile_default.txt sets all parameters to the default values. To reconstruct with different parameters, modify recoSetupFile and pass it as an argument to analysis.
