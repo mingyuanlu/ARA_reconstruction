@@ -21,7 +21,13 @@ To make use of the software tools:
 
 		$ ar rcs libAraSim.a *.o
 
-3. Modify CMakeLists.txt according to the enclosed CMakeLists_example.txt. Point the include paths to where the softwares tools are installed. In particular, if you set up the common work area for AraRoot and AraSim as in #1, ${ARASIM_INCLUDE_DIR} should be the same as ${CURRENT_WORK_DIR}.
+3. Modify CMakeLists.txt according to the enclosed CMakeLists_example.txt. Point the include paths to where the softwares tools are installed. In particular, if you set up the common work area for AraRoot and AraSim as in #1, ${ARASIM_INCLUDE_DIR} should be the same as ${CURRENT_WORK_DIR}. Also, make sure the line
+
+		$ find_package(ROOT REQUIRED COMPONENTS MathMore Gui)
+
+	precedes the two instances of the command
+
+		$ ROOT_GENERATE_DICTIONARY(...)
 
 4. In CMakeLists.txt, add lines
 
