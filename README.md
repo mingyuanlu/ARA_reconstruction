@@ -16,12 +16,19 @@ Radio Interferometric Neutrino Reconstruction. This is a software that utilizes 
 ----------
 To make use of the software tools:
 
-1. Set up a working AraRoot copy. Set up a working AraSim copy.
-2. In the AraSim work area, create libAraSim.a with
+1. Set up a working AraRoot copy. Set up a working AraSim copy in the same directory, otherwise AraSim events analysis will not run properly.
+2. In this common work area, create libAraSim.a with
 
 		$ ar rcs libAraSim.a *.o
 
-3. Go to the AraRoot work area. Modify CMakeLists.txt according to the enclosed CMakeLists_example.txt. Point the include paths to where the softwares tools are installed. In particular, point the ARASIM_INCLUDE_DIR to the AraSim work area in #2, and point the CURRENT_WORK_DIR to your current work directory.
+3. Modify CMakeLists.txt according to the enclosed CMakeLists_example.txt. Point the include paths to where the softwares tools are installed. In particular, if you set up the common work area for AraRoot and AraSim as in #1, ${ARASIM_INCLUDE_DIR} should be the same as ${CURRENT_WORK_DIR}. Also, make sure the line
+
+		$ find_package(ROOT REQUIRED COMPONENTS MathMore Gui)
+
+	precedes the two instances of the command
+
+		$ ROOT_GENERATE_DICTIONARY(...)
+
 4. In CMakeLists.txt, add lines
 
 		$ add_executable(analysis analysis.cxx)
