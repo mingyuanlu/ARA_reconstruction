@@ -46,6 +46,7 @@ public:
    void initialize();
    void setAllData(
      double w
+   , int _eventTrigType
    , float zen_true, float azi_true, float zen_reco, float azi_reco, float r_true, float r_reco
    , int *usedChan
    , int idx, float xCorrValue
@@ -71,11 +72,16 @@ public:
    void setLikelihoodAndPValue(double _likelihood, double _pValue);
    void setInWindowSNR(float _inWindowSNR);
    void setUnmodSNR(float _unmodSNR);
-   void setFlag(float _flag);
+   void setFlag(int _flag);
    void duplicate(recoSettings *settings, recoData *old);
    void clear();
 
-   ClassDef(recoData, 1);
+//ClassDef 2
+
+   int eventTrigType; //Only applicable for real data. 0: RF trigger (excluding calpulser trigger), 1: Calpulser trigger, 2: Software trigger
+   void setEventTrigType(int _eventTrigType);
+
+   ClassDef(recoData, 2);
 };
 
 

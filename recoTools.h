@@ -369,6 +369,7 @@ int record3DZoomedDiffGetFlag(recoSettings *settings, recoData *summary, TH1F *d
 float getSpaceAngle(float theta1, float phi1, float theta2, float phi2);
 void stackXCorrAroundPeak(const TGraph *gr, TH1F *hist, float plusMinusTime);
 int doNchnlScan(const double eventWeight, const vector<TGraph *>& cleanEvent, TH2F *mnMap, int *nchnlArray, const int *chanMask, int *goodChan, const int nThresStep = 250, const double minThres = 0., const double maxThres = 10.);
+int doNchnlScan(const double eventWeight, const vector<TGraph *>& cleanEvent, TH2F *mnMap, TH2F *mnMap_V, TH2F *mnMap_H, int *nchnlArray, const int *chanMask, int *goodChan, const int nThresStep = 250, const double minThres = 0., const double maxThres = 10.);
 int computeMapLikelihoodAndPValue(const int nDir, const int nLayer, const char *fitFunc, const char *fitFuncFile, float *mapData, double& likelihood, double& pValue);
 #endif
 

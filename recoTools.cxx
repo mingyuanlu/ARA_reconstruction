@@ -8,7 +8,7 @@
  * In this example, we will use platform 0 
  *
  */
-//#include "evProcessTools.h"
+#include "evProcessTools.h"
 #include "recoTools.h"
 #include "TObject.h"
 
@@ -1092,7 +1092,8 @@ cerr<<"dataType undefined\n"; return -1; }
 
 TGraph *grNew[16];
 for(int ch=0; ch<nAnt*2; ch++){
-   grNew[ch] = evProcessTools::getNormalizedGraph(cleanEvent[ch]);
+   //grNew[ch] = evProcessTools::getNormalizedGraph(cleanEvent[ch]);
+   grNew[ch] = cleanEvent[ch];
 }
 
 cleanEvent.clear();
@@ -9735,6 +9736,32 @@ for(int step=0; step<nThresStep; step++){
 
 return 0;
 }
+
+int doNchnlScan(const double eventWeight, const vector<TGraph *>& cleanEvent, TH2F *mnMap, TH2F *mnMap_V, TH2F *mnMap_H, int *nchnlArray, const int *chanMask, int *goodChan, const int nThresStep, const double minThres, const double maxThres){
+
+double nchnl_threshold;
+//TH2F *mnMap = new TH2F("mnMap","mnMap",17,-0.5,16.5,nThresStep,minThres-((maxThres-minThres)/(double)nThresStep)*0.5,maxThres-((maxThres-minThres)/(double)nThresStep)*0.5);
+if(mnMap == NULL || mnMap_V == NULL || mnMap_H == NULL){ cerr<<"Need to pass 3 *TH2F to doNchnlScan\n"; return -1; }
+
+for(int step=0; step<nThresStep; step++){
+
+   nchnl_threshold = minThres + (double)step * (maxThres - minThres) / (double)nThresStep ;
+
+   getNchnlMask(cleanEvent, nchnl_threshold, nchnlArray, chanMask, goodChan);
+   
+   for(int n=0; n<17; n++){
+   if( nchnlArray[0] >= n ) mnMap->Fill(n, nchnl_threshold, eventWeight);
+   }
+   for(int n=0; n<9; n++){
+   if( nchnlArray[1] >= n ) mnMap_V->Fill(n, nchnl_threshold, eventWeight);
+   if( nchnlArray[2] >= n ) mnMap_H->Fill(n, nchnl_threshold, eventWeight);
+   }
+
+}
+
+return 0;
+}
+
 
 int computeMapLikelihoodAndPValue(const int nDir, const int nLayer, const char *fitFunc, const char *fitFuncFile, float *mapData, double& likelihood, double& pValue){
 

@@ -30,12 +30,15 @@ using namespace std;
    unmodSNR = 0.f;
    flag = 0;
 
+   eventTrigType = 0;
+
    }
 
    
 
    void recoData::setAllData(
      double w
+   , int _eventTrigType
    , float zen_true, float azi_true, float zen_reco, float azi_reco, float r_true, float r_reco
    , int *usedChan
    , int idx, float xCorrValue
@@ -87,6 +90,8 @@ using namespace std;
    unmodSNR = _unmodSNR;
 
    flag = _flag;
+
+   eventTrigType = _eventTrigType;
 
    }
 
@@ -188,12 +193,18 @@ using namespace std;
 
    }
 
-   void recoData::setFlag(float _flag){
+   void recoData::setFlag(int _flag){
 
    flag = _flag;
 
    }
-   
+  
+   void recoData::setEventTrigType(int _eventTrigType){
+
+   eventTrigType = _eventTrigType;
+  
+   }
+ 
    void recoData::duplicate(recoSettings *settings, recoData *old){
 
    int *_topMaxPixIdx         = (int*)calloc(old->topN, sizeof(int));
@@ -211,6 +222,7 @@ using namespace std;
    }
 
    setAllData( old->weight
+             , old->eventTrigType
              , old->trueZen,    old->trueAzi
              , old->recoZen,    old->recoAzi
              , old->trueRadius, old->recoRadius
@@ -284,4 +296,5 @@ using namespace std;
    inWindowSNR = 0.f;
    unmodSNR = 0.f;
    flag = 0;
+   eventTrigType = 0;
    }

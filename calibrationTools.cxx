@@ -161,7 +161,7 @@ return 0;
 
 int getAraSimStationGeometry(vector<vector<double> >& ant_loc){
 
-double zCenter = -190.;
+double zCenter = -180.;
 vector<double> xyz;
 
 /* TVpols */
@@ -223,7 +223,7 @@ return 0;
 
 int getAraSimStationGeometry(vector<vector<double> >& ant_loc, Detector *detector, Settings *settings){
 
-double zCenter = -190.;
+double zCenter = -180.;
 vector<double> xyz;
 double stationX = detector->stations[0].GetX();
 double stationY = detector->stations[0].GetY();

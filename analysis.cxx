@@ -274,8 +274,8 @@ else
 double delays[4][4] ={{0}};
 double pulserCorr[5]={0};
 
-/* Set station center to be  190m below ice surface */
-float stationCenterDepth = 190.f;
+/* Set station center to be  180m below ice surface */
+float stationCenterDepth = 180.f;
 
 vector<vector<double> > antLocation;
 
@@ -453,11 +453,14 @@ for (Long64_t ev=0; ev<numEntries; ev++){
 
    if(rawAtriEvPtr->isRFTrigger()){
       if(rawAtriEvPtr->isCalpulserEvent()){
+         summary->setEventTrigType( 1 );
          if(triggerCode[1] != 1) continue; 
          } else { // RF trigger
+         summary->setEventTrigType( 0 );
          if(triggerCode[0] != 1) continue; 
          }
    } else if (rawAtriEvPtr->isSoftwareTrigger()){
+      summary->setEventTrigType( 2 );
       if(triggerCode[2] != 1) continue;
    } else { cerr<<"Undefined trigger type!!\n"; continue; }
         
