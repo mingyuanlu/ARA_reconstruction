@@ -180,7 +180,8 @@ char dir_char[200];
 AraEventCalibrator *calib;
 vector<vector<double> > pulserLocation;
 AraGeomTool *geom;
-int cutWaveAlert;
+int cutWaveAlert, nonIncreasingSampleTimeAlert;
+double previous_times;
 double addDelay;
 double times, volts;
 double time_1, time_2, time_last;
@@ -470,6 +471,8 @@ for (Long64_t ev=0; ev<numEntries; ev++){
 //*************APPLYING DELAYS. CODE FROM T. MEURES*****************
       int stationId = realAtriEvPtr->stationId;
       cutWaveAlert = 0;
+      nonIncreasingSampleTimeAlert = 0;
+      previous_times = 0.;
       double stdDelay = 0.;
    
 
@@ -500,11 +503,11 @@ for (Long64_t ev=0; ev<numEntries; ev++){
 	  int pc = 0;
 
 	  //*** The first 20 samples can be corrupted. Therefore, we need to exclude them! ***//
-	  for(int p=0;p<gr_v_temp[a]->GetN();p++){
+      for(int p=0;p<gr_v_temp[a]->GetN();p++){
 	  gr_v_temp[a]->GetPoint(p, times, volts);
                        
-	  if(times>20.0) 			
-      {
+         if(times>20.0) 			
+         {
          if(stationId==3 && utime_runStart>=dropD4Time && (a%4==3)) 
          gr_v[a]->SetPoint(pc, times-addDelay, 0.); //Drop 2014 ARA03 D4
          else if(stationId==2 && a==15) gr_v[a]->SetPoint(pc, times-addDelay, 0.);//Drop ARA02 D4BH
@@ -513,21 +516,46 @@ for (Long64_t ev=0; ev<numEntries; ev++){
          average[a]+=volts;
          }
 		 pc++;
+         }
       }
-	  }
       /*** Zero-mean the waveforms on a channel-by-channel basis ***/
+      if( gr_v[a]->GetN() != 0){ 
+
+         average[a]/=(double)gr_v[a]->GetN();
+
+         gr_v[a]->GetPoint(0, times, volts);
+         gr_v[a]->SetPoint(0, times, volts-average[a]);
+         previous_times = times;
+  
+         for(pc=1; pc<gr_v[a]->GetN(); pc++){
+
+            gr_v[a]->GetPoint(pc, times, volts);
+
+            if( (times - previous_times) > 0.) 
+            gr_v[a]->SetPoint(pc, times, volts-average[a]); 
+            else {cerr<< "BAD EVENT Non-increasing sample time: " << event << " Channel: " << a << "this sample time: "<< times << "previous sample time: " << previous_times << endl;nonIncreasingSampleTimeAlert=1;}  
+    
+            previous_times = times;    
+
+         }//end of pc
+
+         } else {cerr<< "BAD EVENT type 2: " << event << " Channel: " << a << ", original number of points: " << gr_v_temp[a]->GetN() << endl;cutWaveAlert=1;/*continue;*/}
+
+/*
       average[a]/=(double)gr_v[a]->GetN();
       for(pc=0; pc<gr_v[a]->GetN(); pc++){
          gr_v[a]->GetPoint(pc, times, volts);
          gr_v[a]->SetPoint(pc, times, volts-average[a]);   
       }
       cout<<"gr_v_temp N:"<<gr_v_temp[a]->GetN()<<endl;             
+*/
       delete gr_v_temp[a];
    }//End looping channels
 
    double wInt;
    int maxSamp;
    if (cutWaveAlert == 1) { cerr<<"Event "<<ev<<" discarded due to cutWaveAlert\n"; continue; }
+   if (nonIncreasingSampleTimeAlert == 1) { cerr<<"Event "<<ev<<" discarded due to nonIncreasingSampleTimeAlert\n"; continue; }
 
    for(int ch=0; ch<16; ch++){
      
