@@ -400,7 +400,7 @@ if(settings->dataType == 1){
    cout<<"utime_runStart: "<<utime_runStart<<" dropD4Time: "<<dropD4Time<<endl;
    cout<<"Run time span: "<<utime_runEnd-utime_runStart<<endl;
 
-}
+}//end of if dataType = 1
 /*
  * Start looping events for analysis
  */
@@ -408,7 +408,11 @@ vector<TGraph *> cleanEvent;
 int recoEventCnt = 0;
 int recoFlagCnt = 0;
 double t, v, beginTime = 0.;
-int *maxPix = (int*)calloc(nDir*nLayer, sizeof(int));
+
+int *maxPix; 
+if(settings->skymapSearchMode == 0) maxPix = (int*)calloc(nDir*nLayer, sizeof(int));
+else                                maxPix = (int*)calloc(12*pow(2,settings->nSideExpEnd)*pow(2,settings->nSideExpEnd)*settings->nLayer, sizeof(int));
+
 int maxPixIdx = 0;   
 float *mapData = (float*)calloc(nDir*nLayer, sizeof(float));   
 char histName[200];
@@ -671,9 +675,9 @@ for (Long64_t ev=0; ev<numEntries; ev++){
 else {
 
 for (Long64_t ev=0; ev<numEntries; ev++){
-
+   //cout<<"Entering event loop\n";
    summary->clear();
-
+   //cout<<"Cleared previous summary\n";
    if(ev%1000 == 0) cout<<"*******************************Event got********************************: "<<ev<<endl;
 
    int string_i, antenna_i, AraRootChannel;
@@ -813,6 +817,7 @@ for (Long64_t ev=0; ev<numEntries; ev++){
    summary->setFlag( (settings->skymapSearchMode)
                     ? record3DZoomedDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist)
                     : record3DDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist) );
+   
    if(summary->flag > 0) recoFlagCnt++;
    maxPix[maxPixIdx]++;
    dataTree->Fill();
@@ -837,6 +842,7 @@ free(recoDelays_V);
 free(recoDelays_H);
 }
 delete settings;
+free(mapDataHist);
 free(mapData);
 
 cout<<"Successfully reached end of main()"<<endl;
