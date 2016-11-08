@@ -595,7 +595,16 @@ for (Long64_t ev=0; ev<numEntries; ev++){
    if      (settings->recoPolType == "vpol") nchnl_tmp = nchnlArray[1];
    else if (settings->recoPolType == "hpol") nchnl_tmp = nchnlArray[2];
    else                                      nchnl_tmp = nchnlArray[0];
-   if(nchnl_tmp < settings->nchnlCut){ cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl; continue; }
+
+   if(nchnl_tmp < settings->nchnlCut){ 
+   
+      cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl; 
+      unpaddedEvent.clear();
+      cleanEvent.clear();
+      delete realAtriEvPtr;
+      for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; }      
+      continue; 
+   }
    }
    else {    
    for(int i=0; i<16; i++) goodChan[i] = chanMask[i];
@@ -760,7 +769,16 @@ for (Long64_t ev=0; ev<numEntries; ev++){
    if      (settings->recoPolType == "vpol") nchnl_tmp = nchnlArray[1];
    else if (settings->recoPolType == "hpol") nchnl_tmp = nchnlArray[2];
    else                                      nchnl_tmp = nchnlArray[0];
-   if(nchnl_tmp < settings->nchnlCut){ cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl; continue; }
+
+   if(nchnl_tmp < settings->nchnlCut){ 
+      
+      cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl; 
+      unpaddedEvent.clear();
+      cleanEvent.clear();
+      for(int ch=0; ch<16; ch++){ delete gr_v[ch]; delete grWinPad[ch]; }      
+      continue; 
+ 
+   }
    }
    else {    
    for(int i=0; i<16; i++) goodChan[i] = chanMask[i];
