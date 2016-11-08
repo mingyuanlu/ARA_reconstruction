@@ -119,19 +119,21 @@ TFile *outputFile;
 string recoSetupFile = string( argv[1] );
 string runNum = string( argv[2] );
 string fitsFile_tmp;
+string fitsFileStr;
+string evStr;
 cout<<"recoStupFile: "<<recoSetupFile<<endl;
 if( !settings->readRecoSetupFile( recoSetupFile )){ 
    cerr<<"Will use default reco setup file\n"; 
    settings->readRecoSetupFile("recoSetupFile_default.txt");
    outputFile = new TFile(("recoOut.recoSetupFile_default.txt.run"+runNum+".root").c_str(),"RECREATE","recoOut");
-   fitsFile_tmp = "recoSkymap.recoSetupFile_default.txt.run" + runNum + ".fits";
+   fitsFile_tmp = "recoSkymap.recoSetupFile_default.txt.run" + runNum/* + ".fits"*/;
 } else {
    cout<<"Obtained new reoSetupFile\n";
    outputFile = new TFile(("recoOut."+recoSetupFile+".run"+runNum+".root").c_str(),"RECREATE","recoOut");
-   fitsFile_tmp = "recoSkymap." + recoSetupFile + ".run" + runNum + ".fits"; 
+   fitsFile_tmp = "recoSkymap." + recoSetupFile + ".run" + runNum/* + ".fits"*/; 
 }
 char fitsFile[200];
-sprintf(fitsFile, fitsFile_tmp.c_str());
+//sprintf(fitsFile, fitsFile_tmp.c_str());
 cout<<"New settings: "<<endl;
 cout<<"programFile: "<<settings->programFile<<endl;
 cout<<"nSideExp: "<<settings->nSideExp<<endl;
@@ -643,7 +645,11 @@ for (Long64_t ev=0; ev<numEntries; ev++){
    }
    } else {
    if(settings->getSkymapMode == 0){
-   
+ 
+      evStr = to_string(ev); 
+      fitsFileStr = fitsFile_tmp + ".ev" + evStr + ".fits";
+      sprintf(fitsFile, fitsFileStr.c_str());
+
       if(settings->skymapSearchMode == 0){ //no zoom mode
       maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
       if(settings->recordMapData == 1){
@@ -813,7 +819,11 @@ for (Long64_t ev=0; ev<numEntries; ev++){
    }
    } else {
    if(settings->getSkymapMode == 0){
-   
+
+      evStr = to_string(ev); 
+      fitsFileStr = fitsFile_tmp + ".ev" + evStr + ".fits";
+      sprintf(fitsFile, fitsFileStr.c_str());
+
       if(settings->skymapSearchMode == 0){ //no zoom mode
       maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
       if(settings->recordMapData == 1){
