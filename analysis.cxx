@@ -594,9 +594,9 @@ for (Long64_t ev=0; ev<numEntries; ev++){
    
    getNchnlMaskSat(unpaddedEvent, threshold, nchnlArray, chanMask, goodChan, numSatChan);
 
-   if      (settings->recoPolType == "vpol") nchnl_tmp = nchnlArray[1];
-   else if (settings->recoPolType == "hpol") nchnl_tmp = nchnlArray[2];
-   else                                      nchnl_tmp = nchnlArray[0];
+   if      (settings->nchnlFilter==1/*recoPolType == "vpol"*/) nchnl_tmp = nchnlArray[1];
+   else if (settings->nchnlFilter==2/*recoPolType == "hpol"*/) nchnl_tmp = nchnlArray[2];
+   else                                                        nchnl_tmp = nchnlArray[0];
 
    if(nchnl_tmp < settings->nchnlCut){ 
    
@@ -772,9 +772,9 @@ for (Long64_t ev=0; ev<numEntries; ev++){
    
    getNchnlMaskSat(unpaddedEvent, threshold, nchnlArray, chanMask, goodChan, numSatChan);
 
-   if      (settings->recoPolType == "vpol") nchnl_tmp = nchnlArray[1];
-   else if (settings->recoPolType == "hpol") nchnl_tmp = nchnlArray[2];
-   else                                      nchnl_tmp = nchnlArray[0];
+   if      (settings->nchnlFilter==1/*recoPolType == "vpol"*/) nchnl_tmp = nchnlArray[1];
+   else if (settings->nchnlFilter==2/*recoPolType == "hpol"*/) nchnl_tmp = nchnlArray[2];
+   else                                                        nchnl_tmp = nchnlArray[0];
 
    if(nchnl_tmp < settings->nchnlCut){ 
       
@@ -859,6 +859,8 @@ for (Long64_t ev=0; ev<numEntries; ev++){
 
 outputFile->Write();
 outputFile->Close();
+
+cout<<"numEntries: "<<numEntries<<" recoEventCnt: "<<recoEventCnt<<" trigEvCnt: "<<trigEvCnt<<endl;
 
 clfftTeardown();
 err = tearDown(&clEnv);   
