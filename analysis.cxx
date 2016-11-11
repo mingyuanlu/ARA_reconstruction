@@ -650,7 +650,10 @@ for (Long64_t ev=0; ev<numEntries; ev++){
    } else {
    if(settings->getSkymapMode == 0){
  
-      evStr = std::to_string(ev); 
+      //evStr = std::to_string(ev); 
+      stringstream ss;
+      ss << ev;
+      evStr = ss.str();
       fitsFileStr = fitsFile_tmp + ".ev" + evStr + ".fits";
       sprintf(fitsFile, fitsFileStr.c_str());
 
@@ -824,7 +827,10 @@ for (Long64_t ev=0; ev<numEntries; ev++){
    } else {
    if(settings->getSkymapMode == 0){
 
-      evStr = std::to_string(ev); 
+      //evStr = std::to_string(ev); 
+      stringstream ss;
+      ss << ev;
+      evStr = ss.str();
       fitsFileStr = fitsFile_tmp + ".ev" + evStr + ".fits";
       sprintf(fitsFile, fitsFileStr.c_str());
 
