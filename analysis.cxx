@@ -134,7 +134,7 @@ if( !settings->readRecoSetupFile( recoSetupFile )){
 } else {
    cout<<"Obtained new reoSetupFile\n";
    outputFile = new TFile(("recoOut."+recoSetupFile+".run"+runNum+".root").c_str(),"RECREATE","recoOut");
-   fitsFile_tmp = "skymaps/recoSkymap." + recoSetupFile + ".run" + runNum/* + ".fits"*/; 
+   fitsFile_tmp = "recoSkymap." + recoSetupFile + ".run" + runNum/* + ".fits"*/; 
 }
 char fitsFile[200];
 //sprintf(fitsFile, fitsFile_tmp.c_str());
