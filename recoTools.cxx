@@ -755,7 +755,7 @@ int nSamp;
 int nAnt = (int)cleanEvent.size()/2; // Divide by 2 for only one polarization
 //int totalNAnt = (int)cleanEvent.size();
 int unmaskedNChan=0;
-string pol = settings->recoPolType;
+string pol = string(settings->recoPolType);
 for(int ch=0; ch<2*nAnt; ch++) unmaskedNChan+=chanMask[ch];
 cout<<"unmaskedNChan: "<<unmaskedNChan<<" nAnt: "<<nAnt<<endl;
 float wInt;
@@ -1787,7 +1787,7 @@ cout<<"Entered reconstructCSW routine\n";
 int nSamp;
 int nAnt = (int)cleanEvent.size()/2; // Divide by 2 for only one polarization
 int unmaskedNChan=0;
-string pol = settings->recoPolType;
+string pol = string(settings->recoPolType);
 for(int ch=0; ch<2*nAnt; ch++) unmaskedNChan+=chanMask[ch];
 cout<<"unmaskedNChan: "<<unmaskedNChan<<" nAnt: "<<nAnt<<endl;
 float wInt;
@@ -3734,7 +3734,7 @@ cout<<"Entered reconstructXCorrEnvelopeGetMaxPix method\n";
 int nSamp;
 int nAnt = (int)cleanEvent.size()/2; // Divide by 2 for only one polarization
 int unmaskedNChan=0;
-string pol = settings->recoPolType;
+string pol = string(settings->recoPolType);
 for(int ch=0; ch<2*nAnt; ch++) unmaskedNChan+=chanMask[ch];
 cout<<"unmaskedNChan: "<<unmaskedNChan<<" nAnt: "<<nAnt<<endl;
 float wInt;
@@ -6284,7 +6284,7 @@ cout<<"Entered reconstruct3DXCorrEnvelopeGetMaxPixAndMapData method\n";
 int nSamp;
 //int nAnt = (int)cleanEvent.size()/2; // Divide by 2 for only one polarization
 int nAnt;// = (int)cleanEvent.size();
-string pol = settings->recoPolType;
+string pol = string(settings->recoPolType);
 if( pol == "vpol" || pol == "hpol" ) nAnt = (int)cleanEvent.size()/2; else  nAnt = (int)cleanEvent.size();
 int unmaskedNChan=0;
 for(int ch=0; ch<(int)cleanEvent.size(); ch++) unmaskedNChan+=chanMask[ch];
@@ -6849,7 +6849,7 @@ if(settings->computeLLHAndPValue == 1){
 cout<<"Computing map likelihood and p-value w.r.t. the referenc map..."<<endl;
 
 double pValue, likelihood;
-err = computeMapLikelihoodAndPValue(/*summary->onion*/nDir, /*summary->onion*/nLayer, settings->referenceMapFitFunc.c_str(), settings->referenceMapFitFile.c_str(), M, likelihood, pValue);
+err = computeMapLikelihoodAndPValue(/*summary->onion*/nDir, /*summary->onion*/nLayer, settings->referenceMapFitFunc/*.c_str()*/, settings->referenceMapFitFile/*.c_str()*/, M, likelihood, pValue);
 summary->setLikelihoodAndPValue(likelihood, pValue);
 cout<<"LLH: "<<likelihood<<" P Value: "<<pValue<<endl;
 }
@@ -6951,7 +6951,7 @@ cout<<"Entered reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode method\n";
 int nSamp;
 //int nAnt = (int)cleanEvent.size()/2; // Divide by 2 for only one polarization
 int nAnt;// = (int)cleanEvent.size();
-string pol = settings->recoPolType;
+string pol = string(settings->recoPolType);
 if( pol == "vpol" || pol == "hpol" ) nAnt = (int)cleanEvent.size()/2; else  nAnt = (int)cleanEvent.size();
 int unmaskedNChan=0;
 for(int ch=0; ch<(int)cleanEvent.size(); ch++) unmaskedNChan+=chanMask[ch];

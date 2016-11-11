@@ -123,14 +123,18 @@ string fitsFileStr;
 string evStr;
 cout<<"recoStupFile: "<<recoSetupFile<<endl;
 if( !settings->readRecoSetupFile( recoSetupFile )){ 
-   cerr<<"Will use default reco setup file\n"; 
-   settings->readRecoSetupFile("recoSetupFile_default.txt");
-   outputFile = new TFile(("recoOut.recoSetupFile_default.txt.run"+runNum+".root").c_str(),"RECREATE","recoOut");
-   fitsFile_tmp = "recoSkymap.recoSetupFile_default.txt.run" + runNum/* + ".fits"*/;
+
+   cerr<<"Error reading the recoSetupFile or invalid parameters !! Aborting now...\n";
+   return -1;
+   //cerr<<"Will use default reco setup file\n"; 
+   //settings->readRecoSetupFile("recoSetupFile_default.txt");
+   //outputFile = new TFile(("recoOut.recoSetupFile_default.txt.run"+runNum+".root").c_str(),"RECREATE","recoOut");
+   //fitsFile_tmp = "recoSkymap.recoSetupFile_default.txt.run" + runNum/* + ".fits"*/;
+
 } else {
    cout<<"Obtained new reoSetupFile\n";
    outputFile = new TFile(("recoOut."+recoSetupFile+".run"+runNum+".root").c_str(),"RECREATE","recoOut");
-   fitsFile_tmp = "recoSkymap." + recoSetupFile + ".run" + runNum/* + ".fits"*/; 
+   fitsFile_tmp = "skymaps/recoSkymap." + recoSetupFile + ".run" + runNum/* + ".fits"*/; 
 }
 char fitsFile[200];
 //sprintf(fitsFile, fitsFile_tmp.c_str());
@@ -364,7 +368,7 @@ if( settings->skymapSearchMode == 0){ //No zoom search
  * Set up reco environment. In this case, an OpenCL environment
  */
 recoEnvData clEnv;
-err = setupCLRecoEnv(&clEnv, settings->programFile.c_str());
+err = setupCLRecoEnv(&clEnv, settings->programFile/*.c_str()*/);
 if( err<0 ){
    cerr<<"Error setting up reco env\n"; return -1;
 }
@@ -646,7 +650,7 @@ for (Long64_t ev=0; ev<numEntries; ev++){
    } else {
    if(settings->getSkymapMode == 0){
  
-      evStr = to_string(ev); 
+      evStr = std::to_string(ev); 
       fitsFileStr = fitsFile_tmp + ".ev" + evStr + ".fits";
       sprintf(fitsFile, fitsFileStr.c_str());
 
@@ -820,7 +824,7 @@ for (Long64_t ev=0; ev<numEntries; ev++){
    } else {
    if(settings->getSkymapMode == 0){
 
-      evStr = to_string(ev); 
+      evStr = std::to_string(ev); 
       fitsFileStr = fitsFile_tmp + ".ev" + evStr + ".fits";
       sprintf(fitsFile, fitsFileStr.c_str());
 

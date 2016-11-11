@@ -4,6 +4,8 @@
 #include "TObject.h"
 #include <string>
 
+#define CSTRING_MAX 200
+
 using namespace std;
 
 class recoSettings : public TObject
@@ -56,13 +58,13 @@ public:
    nchnlThreshold:
       Default 0. The voltage threshold in unit of noise rms used to determine if a channel is good (that is, has signal).
    nchnlThreshold_A1:
-      Default 0. The nchnlThreshold value for A1 to reduce the noise rate to 1%, assuming nchnlFilter == 1 && nchnlCut == 4. This should be a value determined 
+      Default 0. The nchnlThreshold value for A1 to reduce the noise rate to 1%, assuming nchnlFilter == 1 && nchnlCut == 3. This should be a value determined 
       by examining RF data of A1.
    nchnlThreshold_A2:
-      Default 0. The nchnlThreshold value for A2 to reduce the noise rate to 1%, assuming nchnlFilter == 1 && nchnlCut == 4. This should be a value determined 
+      Default 0. The nchnlThreshold value for A2 to reduce the noise rate to 1%, assuming nchnlFilter == 1 && nchnlCut == 3. This should be a value determined 
       by examining RF data of A2.
    nchnlThreshold_A3:
-      Default 0. The nchnlThreshold value for A3 to reduce the noise rate to 1%, assuming nchnlFilter == 1 && nchnlCut == 4. This should be a value determined 
+      Default 0. The nchnlThreshold value for A3 to reduce the noise rate to 1%, assuming nchnlFilter == 1 && nchnlCut == 3. This should be a value determined 
       by examining RF data of A3.
    iceModel:
       Default 0. 0: depth-dependent IoR. Radiospline will be used to compute delays. 1: Bulk ice with a single IoR value of 1.76. Direct ray paths will be used 
@@ -82,20 +84,22 @@ public:
    referenceMapFitFunc:
       Default "". Function used to fit reference map test statistics distribution. Should be either "expo" or "gaus". 
    remark:
-      Default "". Any remark one wishes to add to the reco setup file. The remarks will then be carried along in the analysis output ROOT file.
+      Default "". Any remark one wishes to add to the reco setup file. The remarks will then be carried along in the analysis output ROOT file. Note that number of characters should not exceed CSTRING_MAX defined in recoSettings.h
 */
 
-   string programFile;
+   //string programFile;
+   char programFile[CSTRING_MAX];
    int nSideExp;
    int nLayer;
    int dataType;
-   char triggerCode[3];
+   char triggerCode[CSTRING_MAX];
    int layerAllocationMode;
    int skymapSearchMode;
    int beamformMethod;
    int recoVertexingMode;
    int getSkymapMode;
-   string recoPolType;
+   //string recoPolType;
+   char recoPolType[CSTRING_MAX];
 
    int nSideExpStart;
    int nSideExpEnd;
@@ -116,12 +120,15 @@ public:
    int recordMapData;
    //int computePValue;
    int computeLLHAndPValue;
-   string referenceMapFitFile;
-   string referenceMapFitFunc;
+   //string referenceMapFitFile;
+   //string referenceMapFitFunc;
+   char referenceMapFitFile[CSTRING_MAX];
+   char referenceMapFitFunc[CSTRING_MAX];
 
-   string remark;
+   //string remark;
+   char remark[CSTRING_MAX];
 
-   ClassDef(recoSettings, 1);
+   ClassDef(recoSettings, 2); //2: convert all string parameters to char
 
 };
 

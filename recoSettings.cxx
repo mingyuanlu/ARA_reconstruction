@@ -14,17 +14,19 @@ recoSettings::~recoSettings(){ /*default destructor*/ }
 
 void recoSettings::initialize(){
 
-  programFile = "kernel_3D_analysis.c";
+  //programFile = "kernel_3D_analysis.c";
+  snprintf(programFile, sizeof(programFile), "kernel_3D_analysis.c");
   nSideExp = 2;
   nLayer   = 1;
   dataType = 0;
-  sprintf(triggerCode,"111");
+  snprintf(triggerCode, sizeof(triggerCode), "111");
   layerAllocationMode = 0;
   skymapSearchMode = 0;
   beamformMethod = 0;
   recoVertexingMode = 0;
   getSkymapMode = 0;
-  recoPolType = "vpol";
+  //recoPolType = "vpol";
+  snprintf(recoPolType, sizeof(recoPolType), "vpol");
 
   nSideExpStart = 2;
   nSideExpEnd   = 8;
@@ -45,11 +47,14 @@ void recoSettings::initialize(){
   recordMapData = 0;
   //computePValue = 0;
   computeLLHAndPValue = 0;
-  referenceMapFitFile = "";
-  referenceMapFitFunc = "";
+  //referenceMapFitFile = "";
+  //referenceMapFitFunc = "";
+  snprintf(referenceMapFitFile, sizeof(referenceMapFitFile), "");
+  snprintf(referenceMapFitFunc, sizeof(referenceMapFitFunc), "");
 
-  remark = "Default.";
-  
+  //remark = "Default.";
+  snprintf(remark, sizeof(remark), "Default.");  
+
 }
 
 bool recoSettings::readRecoSetupFile(string recoSetupFile){
@@ -64,7 +69,8 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
          if(line[0] != "/"[0]){
             label = line.substr(0, line.find_first_of("="));
              
-            if(label == "programFile")              programFile         = line.substr(line.find_first_of("=")+1);
+            if(label == "programFile")              snprintf(programFile, sizeof(programFile), line.substr(line.find_first_of("=")+1).c_str() );
+                                                    //programFile         = line.substr(line.find_first_of("=")+1);
             else if(label == "nSideExp")            nSideExp            = atoi( line.substr(line.find_first_of("=")+1).c_str() ); 
             else if(label == "nLayer")              nLayer              = atoi( line.substr(line.find_first_of("=")+1).c_str() ); 
             else if(label == "dataType")            dataType            = atoi( line.substr(line.find_first_of("=")+1).c_str() );
@@ -76,7 +82,8 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
             else if(label == "beamformMethod")      beamformMethod      = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "recoVertexingMode")   recoVertexingMode   = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "getSkymapMode")       getSkymapMode       = atoi( line.substr(line.find_first_of("=")+1).c_str() );
-            else if(label == "recoPolType")         recoPolType         = line.substr(line.find_first_of("=")+1);
+            else if(label == "recoPolType")         snprintf(recoPolType, sizeof(recoPolType), line.substr(line.find_first_of("=")+1).c_str() );
+                                                    //recoPolType         = line.substr(line.find_first_of("=")+1);
             else if(label == "nSideExpStart")       nSideExpStart       = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "nSideExpEnd")         nSideExpEnd         = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "nchnlFilter")         nchnlFilter         = atoi( line.substr(line.find_first_of("=")+1).c_str() );
@@ -89,12 +96,15 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
             else if(label == "topN")                topN                = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "layerFirstRadius")    layerFirstRadius    = atof( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "layerLastRadius")     layerLastRadius     = atof( line.substr(line.find_first_of("=")+1).c_str() );
-            else if(label == "remark")              remark              = line.substr(line.find_first_of("=")+1);
+            else if(label == "remark")              snprintf(remark, sizeof(remark), line.substr(line.find_first_of("=")+1).c_str() );
+                                                    //remark              = line.substr(line.find_first_of("=")+1);
             else if(label == "recordMapData")       recordMapData       = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             //else if(label == "computePValue")       computePValue       = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "computeLLHAndPValue") computeLLHAndPValue = atoi( line.substr(line.find_first_of("=")+1).c_str() );
-            else if(label == "referenceMapFitFile") referenceMapFitFile = line.substr(line.find_first_of("=")+1);
-            else if(label == "referenceMapFitFunc") referenceMapFitFunc = line.substr(line.find_first_of("=")+1);
+            else if(label == "referenceMapFitFile") snprintf(referenceMapFitFile, sizeof(referenceMapFitFile), line.substr(line.find_first_of("=")+1).c_str() );
+                                                    //referenceMapFitFile = line.substr(line.find_first_of("=")+1);
+            else if(label == "referenceMapFitFunc") snprintf(referenceMapFitFunc, sizeof(referenceMapFitFunc), line.substr(line.find_first_of("=")+1).c_str() );
+                                                    //referenceMapFitFunc = line.substr(line.find_first_of("=")+1);
             else if(label != "") cerr<<"Undefined parameter detected. Label: "<<label<<endl;
          }  
       }
@@ -105,9 +115,9 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
       
       int errCnt = 0;//error count
 
-      ifstream pf(programFile.c_str());
+      ifstream pf(programFile/*.c_str()*/);
       if( pf.is_open() ) pf.close();
-      else{                                       cerr<<"Unable to open "<<pf<<endl; errCnt++; }
+      else{                                       cerr<<"Unable to open "<<programFile<<endl; errCnt++; }
       if( nSideExp < 1 ){                         cerr<<"nSideExp: "<<nSideExp<<endl; errCnt++; }
       if( nLayer < 1 ){                           cerr<<"nLayer: "<<nLayer<<endl; errCnt++; }
       if( (unsigned)(dataType-0) > 1){            cerr<<"dataType: "<<dataType<<endl; errCnt++; }
@@ -118,7 +128,7 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
       if( (unsigned)(beamformMethod-0) > 1){      cerr<<"beamformMethod: "<<beamformMethod<<endl; errCnt++; }
       if( recoVertexingMode != 0){                cerr<<"recoVertexingMode: "<<recoVertexingMode<<endl; errCnt++; } 
       if( (unsigned)(getSkymapMode-0) > 1){       cerr<<"getSkymapMode: "<<getSkymapMode<<endl; errCnt++; }
-      if( recoPolType != "vpol" && recoPolType != "hpol" && recoPolType != "both" )
+      if( string(recoPolType) != "vpol" && string(recoPolType) != "hpol" && string(recoPolType) != "both" )
         { cerr<<"Undefined recoPolType. Must be \"vpol\", \"hpol\", or \"both\"."<<endl; errCnt++; }
       if( nSideExpStart < 1 ){                    cerr<<"nSideExpStart: "<<nSideExpStart<<endl; errCnt++; }
       if( nSideExpEnd < 1 ){                      cerr<<"nSideExpEnd: "<<nSideExpEnd<<endl; errCnt++; }
@@ -137,7 +147,7 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
       //if( (unsigned)(computePValue-0) > 1){       cerr<<"computePValue: "<<computePValue<<endl; errCnt++; }
       if( (unsigned)(computeLLHAndPValue-0) > 1){ cerr<<"computeLLHAndPValue: "<<computeLLHAndPValue<<endl; errCnt++; }
       if( /*computePValue != 0 ||*/ computeLLHAndPValue != 0){
-         ifstream rmff(referenceMapFitFile.c_str());
+         ifstream rmff(referenceMapFitFile/*.c_str()*/);
          if( rmff.is_open() ) rmff.close();
          else{                                    cerr<<"referenceMapFitFile: "<<referenceMapFitFile<<endl; errCnt++; }
          if( referenceMapFitFunc == "" ){         cerr<<"referenceMapFitFunc: "<<referenceMapFitFunc<<endl; errCnt++; }
