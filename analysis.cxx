@@ -570,7 +570,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    else{wInt=0.625; maxSamp=2048;}
 
    /* Interpolate + apply windowing + zero-pad + equalize wf beginning  to maxSamp */
-   cout<<"N: "<<gr_v[ch]->GetN()<<endl; 
+   //cout<<"N: "<<gr_v[ch]->GetN()<<endl; 
    grInt[ch]       = FFTtools::getInterpolatedGraph(gr_v[ch], wInt);
    unpaddedEvent.push_back(grInt[ch]);
    /* Use a modified Hann window for now */
@@ -593,7 +593,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    if(nchnl_tmp < settings->nchnlCut){ 
    
-      cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl; 
+      //cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl; 
       unpaddedEvent.clear();
       cleanEvent.clear();
       delete realAtriEvPtr;
@@ -774,7 +774,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    if(nchnl_tmp < settings->nchnlCut){ 
       
-      cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl; 
+      //cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl; 
       unpaddedEvent.clear();
       cleanEvent.clear();
       for(int ch=0; ch<16; ch++){ delete gr_v[ch]; delete grWinPad[ch]; }      
