@@ -37,31 +37,11 @@
 ClassImp(recoSettings);
 ClassImp(recoData);
 
-//class recoSettings;
-//class recoData;
-
-//#define XCorr
-
-//#ifndef XCorr
-//#define CSW
-//#endif
-
-//#define GetMaxPixMode
-//#define GetMaxPixAndMapMode
-
-//#define constantN
-//#define nchnl
-
-//#define TOP_N 50 //top N max pixels in whole Healpix_Onion
-//#define N_LAYER 1 //Number of Healpix_Onion layers
-
 using namespace std;
 
 RawIcrrStationEvent *rawIcrrEvPtr;
 RawAtriStationEvent *rawAtriEvPtr;
 RawAraStationEvent *rawEvPtr;
-//UsefulIcrrStationEvent *realIcrrEvPtr;
-//UsefulAtriStationEvent *realAtriEvPtr;
 
 double getMean(TGraph *);
 /*
@@ -151,6 +131,7 @@ cout<<"nchnlFilter: "<<settings->nchnlFilter<<endl;
 TTree *recoSettingsTree = new TTree("recoSettingsTree", "recoSettingsTree");
 //TTree *onionTree = new TTree("onionTree", "onionTree");
 TTree *dataTree  = new TTree("dataTree",  "dataTree");
+TTree *runInfoTree = new TTree("runInfoTree", "runInfoTree");
 
 recoSettingsTree->Branch("settings", &settings);
 recoSettingsTree->Fill();
@@ -192,6 +173,7 @@ double addDelay;
 double times, volts;
 double time_1, time_2, time_last;
 int utime, utime_runStart, utime_runEnd;
+utime_runStart = utime_runEnd = 0;
 
 /*
  * Variables used in nchnlFilter > 0 case
@@ -203,7 +185,14 @@ int nchnl_tmp;
 
 /* End of conditional variables pre-declaration */
  
-Long64_t numEntries;
+int runEventCount, trigEventCount, recoEventCount;
+runEventCount = trigEventCount = recoEventCount = 0;
+runInfoTree->Branch("runEventCount",  &runEventCount);
+runInfoTree->Branch("trigEventCount", &trigEventCount);
+runInfoTree->Branch("recoEventCount", &recoEventCount);
+runInfoTree->Branch("utime_runStart", &utime_runStart);
+runInfoTree->Branch("utime_runEnd",   &utime_runEnd);
+
 
 if(settings->dataType == 1)//real events
 {
@@ -238,8 +227,8 @@ if(settings->dataType == 1)//real events
    eventTree->SetBranchAddress("event", &rawAtriEvPtr);
    cerr<<"Set Branch address to Atri\n";
    }
-   numEntries=eventTree->GetEntries();
-   cerr<<"isAtri "<<isAtriEvent<<" isIcrr "<<isIcrrEvent<<" number of entries is "<<numEntries<<endl;
+   runEventCount=eventTree->GetEntries();
+   cerr<<"isAtri "<<isAtriEvent<<" isIcrr "<<isIcrrEvent<<" number of entries is "<<runEventCount<<endl;
 
    /*
     * START LOADING GOOD PED
@@ -269,7 +258,7 @@ else if (settings->dataType == 0)//AraSim events
    cout<<"NNU: "<<AraSim_settings->NNU<<endl;
    printf("Station center X: %f Y: %f Z: %f\n",detector->stations[0].GetX(),detector->stations[0].GetY(),detector->stations[0].GetZ());
 
-   numEntries = chain2.GetEntries();
+   runEventCount = chain2.GetEntries();
   
 } 
 else
@@ -398,7 +387,7 @@ if(settings->dataType == 1){
  * Loop over events once to determine run start/end time 
  */
 
-   for(int ev=1; ev<numEntries; ev++){
+   for(int ev=1; ev<runEventCount/*numEntries*/; ev++){
       eventTree->GetEntry(ev);
       if(rawAtriEvPtr->unixTime < utime_runStart) utime_runStart=rawAtriEvPtr->unixTime;
       if(rawAtriEvPtr->unixTime > utime_runEnd  ) utime_runEnd  =rawAtriEvPtr->unixTime;
@@ -411,7 +400,7 @@ if(settings->dataType == 1){
  * Start looping events for analysis
  */
 vector<TGraph *> cleanEvent;
-int recoEventCnt = 0;
+//int recoEventCnt = 0;
 int recoFlagCnt = 0;
 double t, v, beginTime = 0.;
 
@@ -442,19 +431,19 @@ if(settings->nchnlFilter > 0){
    //int nchnlArray[3];
    //int nchnl_tmp;
 }
-int trigEvCnt = 0;
+//int trigEvCnt = 0;
 int triggerCode[3];
 for(int i=0; i<3; i++){ triggerCode[i] = settings->triggerCode[i] - '0'; cout<<"triggerCode "<<i<<": "<<triggerCode[i]<<endl; }
 
-cout<<"numEntries: "<<numEntries<<endl;
+cout<<"runEventCount: "<<runEventCount<<endl;
 
 recoData *summary = new recoData();
 dataTree->Branch("summary", &summary);
 
 if(settings->dataType == 1){
 
-trigEvCnt = numEntries;
-for (Long64_t ev=0; ev<numEntries; ev++){
+trigEventCount = runEventCount;
+for (Long64_t ev=0; ev<runEventCount; ev++){
 
    summary->clear();
    
@@ -636,7 +625,7 @@ for (Long64_t ev=0; ev<numEntries; ev++){
     summary->setInWindowSNR(snrArray[index[2]]);
     summary->setUnmodSNR(unmodSNRArray[index[2]]);
 
-    recoEventCnt++;
+    recoEventCount++;
 
 
 
@@ -696,7 +685,7 @@ for (Long64_t ev=0; ev<numEntries; ev++){
 
 else {
 
-for (Long64_t ev=0; ev<numEntries; ev++){
+for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    //cout<<"Entering event loop\n";
    summary->clear();
    //cout<<"Cleared previous summary\n";
@@ -707,7 +696,7 @@ for (Long64_t ev=0; ev<numEntries; ev++){
    chain2.GetEntry(ev);
    if(report->stations[0].Global_Pass > 0){ 
    
-      trigEvCnt++;
+      trigEventCount++;
       dx = event->Nu_Interaction[0].posnu.GetX()-detector->stations[0].GetX();
       dy = event->Nu_Interaction[0].posnu.GetY()-detector->stations[0].GetY();
       dz = event->Nu_Interaction[0].posnu.GetZ()-detector->stations[0].GetZ() + stationCenterDepth;
@@ -815,7 +804,7 @@ for (Long64_t ev=0; ev<numEntries; ev++){
    summary->setInWindowSNR(snrArray[index[2]]);
    summary->setUnmodSNR(unmodSNRArray[index[2]]);
 
-   recoEventCnt++;
+   recoEventCount++;
 
    if(settings->beamformMethod == 1){  
    if(settings->getSkymapMode == 0){ 
@@ -867,10 +856,12 @@ for (Long64_t ev=0; ev<numEntries; ev++){
 
 }//end of dataType == 0
 
+cout<<"runEventCount: "<<runEventCount<<" recoEventCount: "<<recoEventCount<<" trigEventCount: "<<trigEventCount<<endl;
+
+runInfoTree->Fill();
+
 outputFile->Write();
 outputFile->Close();
-
-cout<<"numEntries: "<<numEntries<<" recoEventCnt: "<<recoEventCnt<<" trigEvCnt: "<<trigEvCnt<<endl;
 
 clfftTeardown();
 err = tearDown(&clEnv);   
