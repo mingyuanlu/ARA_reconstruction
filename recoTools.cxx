@@ -129,6 +129,7 @@ int setupCLRecoEnv(recoEnvData *clEnv, const char *programFile){
    else if (kernel_name=="getMaxPixInfoEachLayer") clEnv->getMaxPixInfoEachLayer =clEnv->kernels[i];
    //else if (kernel_name=="getRecoDelays") getRecoDelays=kernels[i];
    else if (kernel_name=="computeNormalizedCoherence") clEnv->computeNormalizedCoherence =clEnv->kernels[i];
+   else if (kernel_name=="computeXCorrCoef_overlapCorrection") clEnv->computeXCorrCoef_overlapCorrection =clEnv->kernels[i];
    else { cerr<<"Invalid kernel name!\n"; return -1; }
 
    }
