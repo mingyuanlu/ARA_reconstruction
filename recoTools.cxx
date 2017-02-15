@@ -7411,10 +7411,10 @@ for(int ch=0; ch<nAnt; ch++){
 }
 
 cl_mem beginTimeByChannelBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(double)*nAnt,
-                                  beginTimeByChannel_temp, &err)
+                                  beginTimeByChannel_temp, &err);
 
 cl_mem wfNBinsBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(int)*nAnt,
-                       wfNBins_temp, &err)
+                       wfNBins_temp, &err);
 
 clSetKernelArg(clEnv->computeXCorrCoef_overlapCorrection, 0, sizeof(cl_mem), &CijBuffer);
 clSetKernelArg(clEnv->computeXCorrCoef_overlapCorrection, 1, sizeof(cl_mem), &xCorrEnvBuffer);
