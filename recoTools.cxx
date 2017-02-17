@@ -72,7 +72,7 @@ int setupCLRecoEnv(recoSettings *settings, recoEnvData *clEnv, const char *progr
        }//end of if max_compute_units > settings->openCLMaxNumberOfCores
      }//end of if settings->openCLMaxNumberOfCores != 0
    } else if (string(settings->openCLDeviceType) == "gpu"){
-     cerr<"GPU device not supported yet\n"; return -1;
+     cerr<<"GPU device not supported yet\n"; return -1;
      //err = clGetDeviceIDs(clEnv->platforms[0], CL_DEVICE_TYPE_GPU, num_devices, clEnv->devices, NULL);
    }
    if(err<0){ cerr<<"No device found"<<endl; return -1; }
