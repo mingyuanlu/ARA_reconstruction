@@ -21,28 +21,28 @@ public:
    ~recoSettings();
    void initialize();
    bool readRecoSetupFile(string recoSetupFile);
-   
+
    /*
-  
+
    programFile:
       Default kernel_3D_analysis.c. Program file defining OpenCL kernels.
-   nSideExp: 
+   nSideExp:
       Default 2. Number of pixels on a skympa = 12 * 2^nSideExp * 2^nSideExp
-   nLayer: 
+   nLayer:
       Default 1. Number of "layers" in the Healpix_Onion. I.e., number of skymaps at different radial distances.
-   dataType: 
+   dataType:
       Default 0. 0: AraSim events. 1: real events.
    triggerCode:
-      Default 111. This is a three digit code specifying what kind of events to reco. Only meaningful when analyzing real data. 
-      1st digit: RF non-calpulser trigger. 2nd digit: RF calpulser trigger. 3rd digit: software trigger. 0: do not reco. 1: do reco 
-   layerAllocationMode: 
+      Default 111. This is a three digit code specifying what kind of events to reco. Only meaningful when analyzing real data.
+      1st digit: RF non-calpulser trigger. 2nd digit: RF calpulser trigger. 3rd digit: software trigger. 0: do not reco. 1: do reco
+   layerAllocationMode:
       Default 0. 0: nonlinear separation betweem layers. 1: linear separation between layers.
-   skymapSearchMode: 
+   skymapSearchMode:
       Default 0. 0: one pixelation throughout the entire search. 1: multi-step grid search with increasing pixelation - aka zoom approach.
    beamformMethod:
       Default 0. 0: cross-correlation coherence method. 1: coherently-summed waveforms (CSW) method.
    recoVertexingMode:
-      Default 0. 0: reco vertex = pixel with max beam value. 
+      Default 0. 0: reco vertex = pixel with max beam value.
    getSkymapMode:
       Default 0. 0: save skymap giving the reco vertex. 1: do not save.
    recoPolType:
@@ -58,16 +58,16 @@ public:
    nchnlThreshold:
       Default 0. The voltage threshold in unit of noise rms used to determine if a channel is good (that is, has signal).
    nchnlThreshold_A1:
-      Default 0. The nchnlThreshold value for A1 to reduce the noise rate to 1%, assuming nchnlFilter == 1 && nchnlCut == 3. This should be a value determined 
+      Default 0. The nchnlThreshold value for A1 to reduce the noise rate to 1%, assuming nchnlFilter == 1 && nchnlCut == 3. This should be a value determined
       by examining RF data of A1.
    nchnlThreshold_A2:
-      Default 0. The nchnlThreshold value for A2 to reduce the noise rate to 1%, assuming nchnlFilter == 1 && nchnlCut == 3. This should be a value determined 
+      Default 0. The nchnlThreshold value for A2 to reduce the noise rate to 1%, assuming nchnlFilter == 1 && nchnlCut == 3. This should be a value determined
       by examining RF data of A2.
    nchnlThreshold_A3:
-      Default 0. The nchnlThreshold value for A3 to reduce the noise rate to 1%, assuming nchnlFilter == 1 && nchnlCut == 3. This should be a value determined 
+      Default 0. The nchnlThreshold value for A3 to reduce the noise rate to 1%, assuming nchnlFilter == 1 && nchnlCut == 3. This should be a value determined
       by examining RF data of A3.
    iceModel:
-      Default 0. 0: depth-dependent IoR. Radiospline will be used to compute delays. 1: Bulk ice with a single IoR value of 1.76. Direct ray paths will be used 
+      Default 0. 0: depth-dependent IoR. Radiospline will be used to compute delays. 1: Bulk ice with a single IoR value of 1.76. Direct ray paths will be used
       to compute delays.
    topN:
       Default 50. Number of pixels with the most beam values to be selected.
@@ -82,7 +82,11 @@ public:
    referenceMapFitFile:
       Default "". ROOT file containing the fits to reference map test statistics.
    referenceMapFitFunc:
-      Default "". Function used to fit reference map test statistics distribution. Should be either "expo" or "gaus". 
+      Default "". Function used to fit reference map test statistics distribution. Should be either "expo" or "gaus".
+   openCLDeviceType:
+      Default "cpu". Specifies which OpenCL devices to looks for in the platform. Currently only a single CPU is supported. In the future, should implement CPU, GPU, and a combination of both.
+   openCLMaxNumberOfCores:
+      Default 0. The upper limit of CPU cores to use in the OpenCL device. This uses the "Device fission extensions" of OpenCL and as I understand applies only to CPU devices. At default (0), no fission will be made and the program will in principle try to use up all given cores. 
    remark:
       Default "". Any remark one wishes to add to the reco setup file. The remarks will then be carried along in the analysis output ROOT file. Note that number of characters should not exceed CSTRING_MAX defined in recoSettings.h
 */
@@ -125,15 +129,14 @@ public:
    char referenceMapFitFile[CSTRING_MAX];
    char referenceMapFitFunc[CSTRING_MAX];
 
+   char openCLDeviceType[CSTRING_MAX];
+   int openCLMaxNumberOfCores;
+
    //string remark;
    char remark[CSTRING_MAX];
 
-   ClassDef(recoSettings, 2); //2: convert all string parameters to char
-
+   ClassDef(recoSettings, 3); //2: convert all string parameters to char
+                              //3: add openCLDeviceType and openCLMaxNumberOfDevices parameters
 };
 
-#endif   
-
-
-
-
+#endif

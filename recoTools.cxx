@@ -25,7 +25,7 @@ TGraph *sillygr = new TGraph();
 #endif
 */
 
-int setupCLRecoEnv(recoEnvData *clEnv, const char *programFile){
+int setupCLRecoEnv(recoSettings *settings, recoEnvData *clEnv, const char *programFile){
 
    cl_int i, err;
    cl_uint num_platforms=2;
@@ -36,7 +36,7 @@ int setupCLRecoEnv(recoEnvData *clEnv, const char *programFile){
    char *program_log;
    char name_data[1024];
    cl_uint ref_count;
-
+   cl_uint max_compute_units;
 /*
  * Get platform and devices
  */
@@ -45,7 +45,36 @@ int setupCLRecoEnv(recoEnvData *clEnv, const char *programFile){
    clGetPlatformInfo(clEnv->platforms[0], CL_PLATFORM_NAME, sizeof(name_data), &name_data, NULL);
    cout<<"Platform 0 name: "<<name_data<<endl;
    clEnv->devices = (cl_device_id*)malloc(sizeof(cl_device_id)*num_devices);
-   err = clGetDeviceIDs(clEnv->platforms[0], CL_DEVICE_TYPE_CPU, num_devices, clEnv->devices, NULL);
+
+   if(settings->openCLDeviceType == "cpu"){
+
+     err = clGetDeviceIDs(clEnv->platforms[0], CL_DEVICE_TYPE_CPU, num_devices, clEnv->devices, NULL);
+
+     if(settings->openCLMaxNumberOfCores != 0){
+
+       err = clGetDeviceInfo(clEnv->devices[0], CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(max_compute_units), &max_compute_units, NULL);
+
+       if( max_compute_units > settings->openCLMaxNumberOfCores){
+
+         const cl_device_partition_property properties[3] = {
+         CL_DEVICE_PARTITION_BY_COUNTS,
+         settings->openCLMaxNumberOfCores, // Use only up to openCLMaxNumberOfCores compute units
+         CL_DEVICE_PARTITION_BY_COUNTS_LIST_END
+         };
+
+         cl_device_id subdevice_id;
+         err = clCreateSubDevices(clEnv->devices, properties, 1, &subdevice_id, NULL);
+         if (err != CL_SUCCESS) {
+           fprintf(stderr, "failed to create sub device %d!\n", err);
+           return -1;
+         }
+         clEnv->devices = &subdevice_id; //assign the device used in clEnv to the subdevice
+       }//end of if max_compute_units > settings->openCLMaxNumberOfCores
+     }//end of if settings->openCLMaxNumberOfCores != 0
+   } else if (settings->openCLDeviceType == "gpu"){
+     cerr<"GPU device not supported yet\n"; return -1;
+     //err = clGetDeviceIDs(clEnv->platforms[0], CL_DEVICE_TYPE_GPU, num_devices, clEnv->devices, NULL);
+   }
    if(err<0){ cerr<<"No device found"<<endl; return -1; }
 
 /*

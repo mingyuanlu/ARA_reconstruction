@@ -104,8 +104,6 @@ struct recoEnvData{
    cl_kernel         computeCoherence;
    cl_kernel         computeNormalizedCoherence;
 
-   cl_kernel         computeXCorrCoef_overlapCorrection;
-
    /* Bandpass kernel */
    cl_kernel         bandPassFilter;
 
@@ -321,9 +319,8 @@ int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(recoSettings *settings, vector
                     float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask,
                     recoData *summary, char *filename, float *mapData);
 int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_overlapCorrection(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
-                    float *recoDelays, float *recoDelays_V, float *recoDelays_H,
-                    const double *beginTimeByChannel, const int *wfNBins,
-                    const int *chanMask, recoData *summary, char *filename, float *mapData);
+                    float *recoDelays, float *recoDelays_V, float *recoDelays_H, const double *beginTimeByChannel, const int *wfNBins, const int *chanMask,
+                    recoData *summary, char *filename, float *mapData);
 int reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                     const float stationCenterDepth, const vector<vector<double> >& antLocation,
                     float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask,
