@@ -269,7 +269,7 @@ public:
 */
 float getMeanDelay( vector<float>& solvedDelay);
 float getMeanDelay_passByValue( vector<float> solvedDelay);
-int setupCLRecoEnv(recoEnvData *clEnv, const char *programFile);
+int setupCLRecoEnv(recoSettings *settings, recoEnvData *clEnv, const char *programFile);
 int reconstructCSW(unsigned int dataType, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                 float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                 int nDir, string pol, const int *chanMask, char *filename);

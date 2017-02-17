@@ -357,7 +357,7 @@ if( settings->skymapSearchMode == 0){ //No zoom search
  * Set up reco environment. In this case, an OpenCL environment
  */
 recoEnvData clEnv;
-err = setupCLRecoEnv(&clEnv, settings->programFile/*.c_str()*/);
+err = setupCLRecoEnv(settings, &clEnv, settings->programFile/*.c_str()*/);
 if( err<0 ){
    cerr<<"Error setting up reco env\n"; return -1;
 }
@@ -651,8 +651,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       sprintf(fitsFile, fitsFileStr.c_str());
 
       if(settings->skymapSearchMode == 0){ //no zoom mode
-      //maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
-      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_overlapCorrection(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, beginTimeByChannel, wfNBins, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
+      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
       if(settings->recordMapData == 1){
       for(int pix=0; pix<nDir*nLayer; pix++) mapDataHist[pix]->Fill(mapData[pix]);
       }
