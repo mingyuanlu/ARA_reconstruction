@@ -103,6 +103,7 @@ struct recoEnvData{
    cl_kernel         computeXCorrCoef;
    cl_kernel         computeCoherence;
    cl_kernel         computeNormalizedCoherence;
+   cl_kernel         computeXCorrCoef_overlapCorrection;
 
    /* Bandpass kernel */
    cl_kernel         bandPassFilter;

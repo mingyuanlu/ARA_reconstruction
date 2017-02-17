@@ -46,7 +46,7 @@ int setupCLRecoEnv(recoSettings *settings, recoEnvData *clEnv, const char *progr
    cout<<"Platform 0 name: "<<name_data<<endl;
    clEnv->devices = (cl_device_id*)malloc(sizeof(cl_device_id)*num_devices);
 
-   if(settings->openCLDeviceType == "cpu"){
+   if(string(settings->openCLDeviceType) == "cpu"){
 
      err = clGetDeviceIDs(clEnv->platforms[0], CL_DEVICE_TYPE_CPU, num_devices, clEnv->devices, NULL);
 
@@ -63,7 +63,7 @@ int setupCLRecoEnv(recoSettings *settings, recoEnvData *clEnv, const char *progr
          };
 
          cl_device_id subdevice_id;
-         err = clCreateSubDevices(clEnv->devices, properties, 1, &subdevice_id, NULL);
+         err = clCreateSubDevices(clEnv->devices[0], properties, 1, &subdevice_id, NULL);
          if (err != CL_SUCCESS) {
            fprintf(stderr, "failed to create sub device %d!\n", err);
            return -1;
@@ -71,7 +71,7 @@ int setupCLRecoEnv(recoSettings *settings, recoEnvData *clEnv, const char *progr
          clEnv->devices = &subdevice_id; //assign the device used in clEnv to the subdevice
        }//end of if max_compute_units > settings->openCLMaxNumberOfCores
      }//end of if settings->openCLMaxNumberOfCores != 0
-   } else if (settings->openCLDeviceType == "gpu"){
+   } else if (string(settings->openCLDeviceType) == "gpu"){
      cerr<"GPU device not supported yet\n"; return -1;
      //err = clGetDeviceIDs(clEnv->platforms[0], CL_DEVICE_TYPE_GPU, num_devices, clEnv->devices, NULL);
    }
