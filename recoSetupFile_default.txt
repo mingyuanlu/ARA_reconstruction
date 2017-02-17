@@ -18,21 +18,23 @@ nSideExpEnd=8
 
 nchnlFilter=0
 nchnlCut=0
-nchnlThreshold=0 
-nchnlThreshold_A1=0 
-nchnlThreshold_A2=0 
-nchnlThreshold_A3=0 
+nchnlThreshold=0
+nchnlThreshold_A1=0
+nchnlThreshold_A2=0
+nchnlThreshold_A3=0
 
 iceModel=0
-topN=50 
+topN=50
 
-layerFirstRadius=40 
+layerFirstRadius=40
 layerLastRadius=5000
 
 recordMapData=0
 computeLLHAndPValue=0
 //referenceMapFitFile=
-//referenceMapFitFunc= 
+//referenceMapFitFunc=
+
+openCLDeviceType=cpu
+openCLMaxNumberOfCores=0
 
 remark=This is the default recoSetupFile. All parameters are set to be identical to the recoSettings class initialization.
-
