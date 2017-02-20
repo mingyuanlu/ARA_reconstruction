@@ -202,7 +202,7 @@ runInfoTree->Branch("utime_runEnd",   &utime_runEnd);
 /*if(settings->dataType == 1)//real events
 {
 */
-   fp = TFile::Open( argv[3] );
+   fp = TFile::Open( argv[1] );
    if ( !fp ) { cerr<<"can't open file"<<endl; return -1; }
 
    eventTree = (TTree*) fp->Get("eventTree");
@@ -238,7 +238,7 @@ runInfoTree->Branch("utime_runEnd",   &utime_runEnd);
    /*
     * START LOADING GOOD PED
     */
-   sprintf(dir_char,argv[4]);
+   sprintf(dir_char,argv[2]);
    printf("ped file is %s\n",dir_char);
    calib = AraEventCalibrator::Instance();
    calib->setAtriPedFile(dir_char,rawEvPtr->stationId);
@@ -611,7 +611,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    getNchnlMaskSat(unpaddedEvent, threshold, nchnlArray, chanMask, goodChan, numSatChan);
 
-   if      (settings->nchnlFilter==1/*recoPolType == "vpol"*/) nchnl_tmp = nchnlArray[1];
+   if      (settings->nchnlFilter==1/*recoPolType == "vpol"*///) nchnl_tmp = nchnlArray[1];
  // else if (settings->nchnlFilter==2/*recoPolType == "hpol"*/) nchnl_tmp = nchnlArray[2];
  /*   else                                                        nchnl_tmp = nchnlArray[0];
 
@@ -656,7 +656,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    if(settings->beamformMethod == 1){
    if(settings->getSkymapMode == 0){
-       err = reconstructCSW(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, fitsFile/*argv[5]*/);
+       err = reconstructCSW(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, fitsFile/*argv[5]*///);
    /*}
    else{
        maxPixIdx = reconstructCSWGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, summary);
