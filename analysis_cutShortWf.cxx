@@ -370,6 +370,7 @@ if( err<0 ){
    TGraph *grNormWinPad[16];
    TGraph *gr_fft[16];
    TGraph *grHilbert[16];
+   TGraph *grInt_temp[16];
 
 if(settings->dataType == 1){
 /*
@@ -555,6 +556,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    double wInt;
    int maxSamp;
+   int cutShortSampleAmount;
    if (cutWaveAlert == 1) { cerr<<"Event "<<ev<<" discarded due to cutWaveAlert\n"; continue; }
    if (nonIncreasingSampleTimeAlert == 1) { cerr<<"Event "<<ev<<" discarded due to nonIncreasingSampleTimeAlert\n"; continue; }
 
@@ -570,18 +572,23 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    for(int ch=0; ch<16; ch++){
 
 
-   if(ch<8){wInt=0.4; maxSamp=2048;}
-   else{wInt=0.625; maxSamp=2048;}
+   if(ch<8){wInt=0.4; maxSamp=2048; cutShortSampleAmount=600;}
+   else{wInt=0.625; maxSamp=2048; cutShortSampleAmount=384;}
 
    /* Interpolate + apply windowing + zero-pad + equalize wf beginning  to maxSamp */
    //cout<<"N: "<<gr_v[ch]->GetN()<<endl;
-   grInt[ch]       = FFTtools::getInterpolatedGraph(gr_v[ch], wInt);
+   grInt_temp[ch]       = FFTtools::getInterpolatedGraph(gr_v[ch], wInt);
+   for(int s=0; s<grInt_temp->GetN()-cutShortSampleAmount; s++){
+     grInt_temp->GetPoint(s, times, volts);
+     grInt->SetPoint(s, times, volts);
+   }
    unpaddedEvent.push_back(grInt[ch]);
    /* Use a modified Hann window for now */
    grWinPad[ch]     = evProcessTools::getWindowedAndPaddedEqualBeginGraph(grInt[ch], maxSamp, beginTime);
    /* The task of normalizing wf should be the responsibility of each reco method */
    cleanEvent.push_back(grWinPad[ch]);
 
+   delete grInt_temp[ch];
    delete gr_v[ch];
    }//end of ch
 
@@ -651,8 +658,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       sprintf(fitsFile, fitsFileStr.c_str());
 
       if(settings->skymapSearchMode == 0){ //no zoom mode
-      //maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
-      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_overlapCorrection(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, beginTimeByChannel, wfNBins,  goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
+      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
       if(settings->recordMapData == 1){
       for(int pix=0; pix<nDir*nLayer; pix++) mapDataHist[pix]->Fill(mapData[pix]);
       }
@@ -886,7 +892,7 @@ return 0;
 }
 
 double getMean(TGraph *gr){
-
+ 
 double v, t, mean;
 mean=0;
 
