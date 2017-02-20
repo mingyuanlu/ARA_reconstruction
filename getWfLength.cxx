@@ -243,7 +243,7 @@ runInfoTree->Branch("utime_runEnd",   &utime_runEnd);
    calib = AraEventCalibrator::Instance();
    calib->setAtriPedFile(dir_char,rawEvPtr->stationId);
    //************END OF LOADING GOOD PED************
-}
+//}
 /*
 else if (settings->dataType == 0)//AraSim events
 {
