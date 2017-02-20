@@ -191,12 +191,13 @@ int nchnl_tmp;
 
 int runEventCount, trigEventCount, recoEventCount;
 runEventCount = trigEventCount = recoEventCount = 0;
+/*
 runInfoTree->Branch("runEventCount",  &runEventCount);
 runInfoTree->Branch("trigEventCount", &trigEventCount);
 runInfoTree->Branch("recoEventCount", &recoEventCount);
 runInfoTree->Branch("utime_runStart", &utime_runStart);
 runInfoTree->Branch("utime_runEnd",   &utime_runEnd);
-
+*/
 
 /*if(settings->dataType == 1)//real events
 {
@@ -312,7 +313,7 @@ int nAnt;
 cout<<"nAnt: "<<nAnt<<endl;
 
 /* Set top N max pixels in whole Healpix_Onion */
-int topN = settings->topN;
+//int topN = settings->topN;
 
 int nSideExp;
 int nLayer, nDir;
@@ -710,7 +711,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
 cout<<"runEventCount: "<<runEventCount<<" recoEventCount: "<<recoEventCount<<" trigEventCount: "<<trigEventCount<<endl;
 
-runInfoTree->Fill();
+//runInfoTree->Fill();
 
 outputFile->Write();
 outputFile->Close();
