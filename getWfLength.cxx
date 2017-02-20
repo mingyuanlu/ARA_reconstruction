@@ -455,7 +455,7 @@ for(int i=0; i<3; i++){ triggerCode[i] = settings->triggerCode[i] - '0'; cout<<"
 cout<<"runEventCount: "<<runEventCount<<endl;
 
 recoData *summary = new recoData();
-dataTree->Branch("summary", &summary);
+//dataTree->Branch("summary", &summary);
 
 //if(settings->dataType == 1){
 
@@ -713,8 +713,8 @@ cout<<"runEventCount: "<<runEventCount<<" recoEventCount: "<<recoEventCount<<" t
 
 //runInfoTree->Fill();
 
-outputFile->Write();
-outputFile->Close();
+//outputFile->Write();
+//outputFile->Close();
 /*
 clfftTeardown();
 err = tearDown(&clEnv);
@@ -728,7 +728,7 @@ free(recoDelays_V);
 free(recoDelays_H);
 }
 */
-delete settings;
+//delete settings;
 //free(mapDataHist);
 //free(mapData);
 
