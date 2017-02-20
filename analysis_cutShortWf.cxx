@@ -578,9 +578,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    /* Interpolate + apply windowing + zero-pad + equalize wf beginning  to maxSamp */
    //cout<<"N: "<<gr_v[ch]->GetN()<<endl;
    grInt_temp[ch]       = FFTtools::getInterpolatedGraph(gr_v[ch], wInt);
-   for(int s=0; s<grInt_temp->GetN()-cutShortSampleAmount; s++){
-     grInt_temp->GetPoint(s, times, volts);
-     grInt->SetPoint(s, times, volts);
+   for(int s=0; s<grInt_temp[ch]->GetN()-cutShortSampleAmount; s++){
+     grInt_temp[ch]->GetPoint(s, times, volts);
+     grInt[ch]->SetPoint(s, times, volts);
    }
    unpaddedEvent.push_back(grInt[ch]);
    /* Use a modified Hann window for now */
@@ -892,7 +892,7 @@ return 0;
 }
 
 double getMean(TGraph *gr){
- 
+
 double v, t, mean;
 mean=0;
 
