@@ -571,17 +571,19 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    for(int ch=0; ch<16; ch++){
 
-
    if(ch<8){wInt=0.4; maxSamp=2048; cutShortSampleAmount=600;}
    else{wInt=0.625; maxSamp=2048; cutShortSampleAmount=384;}
 
    /* Interpolate + apply windowing + zero-pad + equalize wf beginning  to maxSamp */
    //cout<<"N: "<<gr_v[ch]->GetN()<<endl;
    grInt_temp[ch]       = FFTtools::getInterpolatedGraph(gr_v[ch], wInt);
+   cout<<"grInt_temp->GetN(): "<<grInt_temp[ch]->GetN()<<" minus cutShortSampleAmount: "<<grInt_temp[ch]->GetN()-cutShortSampleAmount<<endl;
    for(int s=0; s<grInt_temp[ch]->GetN()-cutShortSampleAmount; s++){
      grInt_temp[ch]->GetPoint(s, times, volts);
      grInt[ch]->SetPoint(s, times, volts);
    }
+   cout<<"grInt->GetN(): "<<grInt[ch]->GetN()<<endl;
+
    unpaddedEvent.push_back(grInt[ch]);
    /* Use a modified Hann window for now */
    grWinPad[ch]     = evProcessTools::getWindowedAndPaddedEqualBeginGraph(grInt[ch], maxSamp, beginTime);
