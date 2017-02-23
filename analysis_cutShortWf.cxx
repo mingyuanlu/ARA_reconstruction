@@ -578,12 +578,12 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    //cout<<"N: "<<gr_v[ch]->GetN()<<endl;
    grInt_temp[ch]       = FFTtools::getInterpolatedGraph(gr_v[ch], wInt);
    grInt[ch] = new TGraph();
-   cout<<"grInt_temp->GetN(): "<<grInt_temp[ch]->GetN()<<" minus cutShortSampleAmount: "<<grInt_temp[ch]->GetN()-cutShortSampleAmount<<endl;
+   //cout<<"grInt_temp->GetN(): "<<grInt_temp[ch]->GetN()<<" minus cutShortSampleAmount: "<<grInt_temp[ch]->GetN()-cutShortSampleAmount<<endl;
    for(int s=0; s<grInt_temp[ch]->GetN()-cutShortSampleAmount; s++){
      grInt_temp[ch]->GetPoint(s, times, volts);
      grInt[ch]->SetPoint(s, times, volts);
    }
-   cout<<"grInt->GetN(): "<<grInt[ch]->GetN()<<endl;
+   //cout<<"grInt->GetN(): "<<grInt[ch]->GetN()<<endl;
 
    unpaddedEvent.push_back(grInt[ch]);
    /* Use a modified Hann window for now */
