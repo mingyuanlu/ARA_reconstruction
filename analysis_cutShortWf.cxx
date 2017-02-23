@@ -577,6 +577,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    /* Interpolate + apply windowing + zero-pad + equalize wf beginning  to maxSamp */
    //cout<<"N: "<<gr_v[ch]->GetN()<<endl;
    grInt_temp[ch]       = FFTtools::getInterpolatedGraph(gr_v[ch], wInt);
+   grInt[ch] = new TGraph();
    cout<<"grInt_temp->GetN(): "<<grInt_temp[ch]->GetN()<<" minus cutShortSampleAmount: "<<grInt_temp[ch]->GetN()-cutShortSampleAmount<<endl;
    for(int s=0; s<grInt_temp[ch]->GetN()-cutShortSampleAmount; s++){
      grInt_temp[ch]->GetPoint(s, times, volts);
