@@ -68,7 +68,7 @@ int setupCLRecoEnv(recoSettings *settings, recoEnvData *clEnv, const char *progr
            fprintf(stderr, "failed to create sub device %d!\n", err);
            return -1;
          }
-         clEnv->devices = &subdevice_id; //assign the device used in clEnv to the subdevice
+         clEnv->devices[0] = &subdevice_id; //assign the device used in clEnv to the subdevice
        }//end of if max_compute_units > settings->openCLMaxNumberOfCores
      }//end of if settings->openCLMaxNumberOfCores != 0
    } else if (string(settings->openCLDeviceType) == "gpu"){
