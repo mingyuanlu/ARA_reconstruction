@@ -6732,6 +6732,8 @@ cl_mem xCorrEnvBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_ME
 
 float *sqrtWfPwr = (float*)calloc(nAnt, sizeof(float));
 float pwr=0.f;
+
+cout<<"Wf Power: ";
 for(int ant=0; ant<nAnt; ant++){
    pwr = 0.;
    for(int s=0; s<nSamp; s++){
@@ -6739,7 +6741,9 @@ for(int ant=0; ant<nAnt; ant++){
    }
    sqrtWfPwr[ant] = sqrt(pwr);
    //sqrtWfPwr[ant] = 1.f;
+   cout<<ant<<": "<<sqrtWfPwr[ant]<<" ";
 }
+cout<<endl;
 cout<<"Done sqrtWfPwr\n";
 
 cl_mem sqrtWfPwrBuffer  = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(float)*nAnt,
