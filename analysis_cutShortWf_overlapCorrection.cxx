@@ -370,6 +370,7 @@ if( err<0 ){
    TGraph *grNormWinPad[16];
    TGraph *gr_fft[16];
    TGraph *grHilbert[16];
+   TGraph *grInt_temp[16];
 
 if(settings->dataType == 1){
 /*
@@ -448,7 +449,7 @@ trigEventCount = runEventCount;
 for (Long64_t ev=0; ev<runEventCount; ev++){
 
   if(recoEventCount==100) break;
-  
+
    summary->clear();
 
    if(ev%100 == 0) cout<<"*******************************Event got********************************: "<<ev<<endl;
@@ -557,6 +558,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    double wInt;
    int maxSamp;
+   int cutShortSampleAmount;
    if (cutWaveAlert == 1) { cerr<<"Event "<<ev<<" discarded due to cutWaveAlert\n"; continue; }
    if (nonIncreasingSampleTimeAlert == 1) { cerr<<"Event "<<ev<<" discarded due to nonIncreasingSampleTimeAlert\n"; continue; }
 
@@ -565,25 +567,35 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       gr_v[ch]->GetPoint(0,t,v);
       beginTimeByChannel[ch] = t;
       if( t<beginTime ) beginTime = t ;
-      wfNBins[ch] = gr_v[ch]->GetN();
+      //wfNBins[ch] = gr_v[ch]->GetN();
 
    }
 
    for(int ch=0; ch<16; ch++){
 
-
-   if(ch<8){wInt=0.4; maxSamp=2048;}
-   else{wInt=0.625; maxSamp=2048;}
+   if(ch<8){wInt=0.4; maxSamp=2048; cutShortSampleAmount=600;}
+   else{wInt=0.625; maxSamp=2048; cutShortSampleAmount=384;}
 
    /* Interpolate + apply windowing + zero-pad + equalize wf beginning  to maxSamp */
    //cout<<"N: "<<gr_v[ch]->GetN()<<endl;
-   grInt[ch]       = FFTtools::getInterpolatedGraph(gr_v[ch], wInt);
-   unpaddedEvent.push_back(grInt[ch]);
+   grInt_temp[ch]       = FFTtools::getInterpolatedGraph(gr_v[ch], wInt);
+   unpaddedEvent.push_back(grInt_temp[ch]);
+   grInt[ch] = new TGraph();
+   //cout<<"grInt_temp->GetN(): "<<grInt_temp[ch]->GetN()<<" minus cutShortSampleAmount: "<<grInt_temp[ch]->GetN()-cutShortSampleAmount<<endl;
+   for(int s=0; s<grInt_temp[ch]->GetN()-cutShortSampleAmount; s++){
+     grInt_temp[ch]->GetPoint(s, times, volts);
+     grInt[ch]->SetPoint(s, times, volts);
+   }
+   //cout<<"grInt->GetN(): "<<grInt[ch]->GetN()<<endl;
+   wfNBins[ch] = grInt[ch]->GetN();
+
+   //unpaddedEvent.push_back(grInt[ch]);
    /* Use a modified Hann window for now */
    grWinPad[ch]     = evProcessTools::getWindowedAndPaddedEqualBeginGraph(grInt[ch], maxSamp, beginTime);
    /* The task of normalizing wf should be the responsibility of each reco method */
    cleanEvent.push_back(grWinPad[ch]);
 
+   //delete grInt_temp[ch];
    delete gr_v[ch];
    }//end of ch
 
@@ -603,7 +615,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       unpaddedEvent.clear();
       cleanEvent.clear();
       delete realAtriEvPtr;
-      for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; }
+      for(int ch=0; ch<16; ch++){ delete grInt_temp[ch]; delete grInt[ch]; delete grWinPad[ch]; }
       continue;
    }
    }
@@ -683,7 +695,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    cleanEvent.clear();
    delete realAtriEvPtr;
    //delete summary;
-   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; }
+   for(int ch=0; ch<16; ch++){ delete grInt_temp[ch]; delete grInt[ch]; delete grWinPad[ch]; }
    }//end of ev loop
 
    fp->Close();
