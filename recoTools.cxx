@@ -7403,6 +7403,9 @@ for(int ant=0; ant<nAnt; ant++){
    for(int s=0; s<nSamp; s++){
       pwr += (voltsFlat[ant*nSamp + s] * voltsFlat[ant*nSamp + s]);
    }
+   if(pol=="vpol" || pol=="both") pwr /= (float)wfNBins[ant];
+   else                           pwr /= (float)wfNBins[nAnt+ant];
+
    sqrtWfPwr[ant] = sqrt(pwr);
    //sqrtWfPwr[ant] = 1.f;
 }
