@@ -448,7 +448,7 @@ trigEventCount = runEventCount;
 for (Long64_t ev=0; ev<runEventCount; ev++){
 
   if(recoEventCount==100) break;
-  
+
    summary->clear();
 
    if(ev%100 == 0) cout<<"*******************************Event got********************************: "<<ev<<endl;
@@ -578,6 +578,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    /* Interpolate + apply windowing + zero-pad + equalize wf beginning  to maxSamp */
    //cout<<"N: "<<gr_v[ch]->GetN()<<endl;
    grInt[ch]       = FFTtools::getInterpolatedGraph(gr_v[ch], wInt);
+   cout<<"N bins difference: "<<grInt[ch]->GetN() - wfNBins[ch]<<endl;
    unpaddedEvent.push_back(grInt[ch]);
    /* Use a modified Hann window for now */
    grWinPad[ch]     = evProcessTools::getWindowedAndPaddedEqualBeginGraph(grInt[ch], maxSamp, beginTime);
