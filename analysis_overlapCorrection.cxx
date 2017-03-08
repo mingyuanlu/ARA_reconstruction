@@ -565,7 +565,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       gr_v[ch]->GetPoint(0,t,v);
       beginTimeByChannel[ch] = t;
       if( t<beginTime ) beginTime = t ;
-      wfNBins[ch] = gr_v[ch]->GetN();
+      //wfNBins[ch] = gr_v[ch]->GetN();
 
    }
 
@@ -578,7 +578,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    /* Interpolate + apply windowing + zero-pad + equalize wf beginning  to maxSamp */
    //cout<<"N: "<<gr_v[ch]->GetN()<<endl;
    grInt[ch]       = FFTtools::getInterpolatedGraph(gr_v[ch], wInt);
-   cout<<"N bins difference: "<<grInt[ch]->GetN() - wfNBins[ch]<<endl;
+   //cout<<"N bins difference: "<<grInt[ch]->GetN() - wfNBins[ch]<<endl;
+   wfNBins[ch] = grInt[ch]->GetN();
    unpaddedEvent.push_back(grInt[ch]);
    /* Use a modified Hann window for now */
    grWinPad[ch]     = evProcessTools::getWindowedAndPaddedEqualBeginGraph(grInt[ch], maxSamp, beginTime);
