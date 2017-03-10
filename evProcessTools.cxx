@@ -253,7 +253,7 @@ TGraph *evProcessTools::getScaledGraph(TGraph *gr)
   mean  = statsArray[0];
   sigma = statsArray[1];
 
-  if( sigma == 0 ) return gr; //No waveform
+  //if( sigma == 0 ) return gr; //No waveform
 
   int nSamp = gr->GetN();
   double times, volts;
@@ -262,7 +262,8 @@ TGraph *evProcessTools::getScaledGraph(TGraph *gr)
   for(int i=0; i<nSamp; i++){
     gr->GetPoint(i, times, volts);
     newX[i] = times;
-    newY[i] = (volts - mean) / sigma;
+    if( sigma==0 ) newY[i] = 0.;
+    else newY[i] = (volts - mean) / sigma;
   }
 
   TGraph *grNew = new TGraph(nSamp, newX, newY);
