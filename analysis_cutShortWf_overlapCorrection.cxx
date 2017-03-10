@@ -590,7 +590,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    //cout<<"grInt->GetN(): "<<grInt[ch]->GetN()<<endl;
    wfNBins[ch] = grInt[ch]->GetN();
 
-   grScaled[ch] = evProcessTools::getScaledGraph(grInt);
+   grScaled[ch] = evProcessTools::getScaledGraph(grInt[ch]);
    //unpaddedEvent.push_back(grInt[ch]);
    /* Use a modified Hann window for now */
    grWinPad[ch]     = evProcessTools::getWindowedAndPaddedEqualBeginGraph(/*grInt[ch]*/grScaled[ch], maxSamp, beginTime);
