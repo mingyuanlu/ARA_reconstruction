@@ -582,7 +582,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    //cout<<"N bins difference: "<<grInt[ch]->GetN() - wfNBins[ch]<<endl;
    wfNBins[ch] = grInt[ch]->GetN();
    unpaddedEvent.push_back(grInt[ch]);
-   //grScaled[ch] = evProcessTools::getScaledGraph(grInt[ch]);
+   grScaled[ch] = evProcessTools::getScaledGraph(grInt[ch]);
    /* Use a modified Hann window for now */
    grWinPad[ch]     = evProcessTools::getWindowedAndPaddedEqualBeginGraph(grInt[ch]/*grScaled[ch]*/, maxSamp, beginTime);
    /* The task of normalizing wf should be the responsibility of each reco method */
@@ -607,7 +607,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       unpaddedEvent.clear();
       cleanEvent.clear();
       delete realAtriEvPtr;
-      for(int ch=0; ch<16; ch++){ delete grInt[ch]; /*delete grScaled[ch];*/ delete grWinPad[ch]; }
+      for(int ch=0; ch<16; ch++){ delete grInt[ch]; /*delete grScaled[ch];*/ delete grWinPad[ch]; delete grScaled[ch]; }
       continue;
    }
    }
@@ -688,7 +688,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    cleanEvent.clear();
    delete realAtriEvPtr;
    //delete summary;
-   for(int ch=0; ch<16; ch++){ delete grInt[ch]; /*delete grScaled[ch];*/ delete grWinPad[ch]; }
+   for(int ch=0; ch<16; ch++){ delete grInt[ch]; /*delete grScaled[ch];*/ delete grWinPad[ch]; delete grScaled[ch]; }
    }//end of ev loop
 
    fp->Close();
