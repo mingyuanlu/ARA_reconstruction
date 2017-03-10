@@ -42,6 +42,7 @@ using namespace std;
 #include <sys/types.h>
 #include <dirent.h>
 #include <vector>
+#include "recoTools.h"
 
 #ifndef EVPROCESSTOOLS_H
 #define EVPROCESSTOOLS_H
@@ -51,12 +52,12 @@ class evProcessTools{
 public:
 
 static std::vector<double> getMaximumCorrelationSum(
-	std::vector<TGraph*> gr, 
-	std::vector<std::vector<double> > ant_loc, 
-	Double_t *corrSum, 
-	std::vector<std::vector<double> > *delayMaps, 
-	std::vector<std::vector< double > > *cohSumWave/*, TGraph * corrExample*/, 
-	int stationId, 
+	std::vector<TGraph*> gr,
+	std::vector<std::vector<double> > ant_loc,
+	Double_t *corrSum,
+	std::vector<std::vector<double> > *delayMaps,
+	std::vector<std::vector< double > > *cohSumWave/*, TGraph * corrExample*/,
+	int stationId,
 	int plot
 	);
 static Double_t integratePower(TH1D* histo);
@@ -75,6 +76,7 @@ static std::vector<double> getCrudeReconstruction(vector<vector< double > > dela
 static TGraph *cwCleaner(TGraph *grWaveIn, Double_t minFreq, Double_t maxFreq, double reduction);
 static TGraph *getBartlettAndPaddedGraph(TGraph *gr, const int maxSample);
 static TGraph *getWindowedAndPaddedEqualBeginGraph(TGraph *gr, const int maxSample, const double beginTime);
+static TGraph *getScaledGraph(TGraph *gr);
 static TGraph *getNormalizedGraph(TGraph *gr);
 static TGraph *universalCleaner(TGraph *grWaveIn, std::vector< double> cwSingleVec );
 static double getSimpleFFT(std::vector<TGraph*> gr, vector<vector< double > > * FFTpower, vector<vector<double> > * FFTfreq);

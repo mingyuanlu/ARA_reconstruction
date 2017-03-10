@@ -7406,8 +7406,8 @@ for(int ant=0; ant<nAnt; ant++){
    if(pol=="vpol" || pol=="both") pwr /= (float)wfNBins[ant];
    else                           pwr /= (float)wfNBins[nAnt+ant];
 
-   sqrtWfPwr[ant] = sqrt(pwr);
-   //sqrtWfPwr[ant] = 1.f;
+   //sqrtWfPwr[ant] = sqrt(pwr);
+   sqrtWfPwr[ant] = 1.f;
 }
 cout<<"Done sqrtWfPwr\n";
 
