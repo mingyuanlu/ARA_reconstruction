@@ -577,7 +577,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    else{wInt=0.625; maxSamp=2048;}
 
    /* Interpolate + apply windowing + zero-pad + equalize wf beginning  to maxSamp */
-   //cout<<"N: "<<gr_v[ch]->GetN()<<endl;
+   cout<<"N: "<<gr_v[ch]->GetN()<<endl;
    grInt[ch]       = FFTtools::getInterpolatedGraph(gr_v[ch], wInt);
    //cout<<"N bins difference: "<<grInt[ch]->GetN() - wfNBins[ch]<<endl;
    wfNBins[ch] = grInt[ch]->GetN();
