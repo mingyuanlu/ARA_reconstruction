@@ -257,7 +257,7 @@ TGraph *getScaledGraph(TGraph *gr)
 
   int nSamp = gr->GetN();
   double times, volts;
-  double newX[nSamp], newY[nSam];
+  double newX[nSamp], newY[nSamp];
 
   for(int i=0; i<nSamp; i++){
     gr->GetPoint(i, times, volts);
