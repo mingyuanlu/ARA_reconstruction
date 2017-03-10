@@ -453,7 +453,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    summary->clear();
 
    if(ev%100 == 0) cout<<"*******************************Event got********************************: "<<ev<<endl;
-
+    cout<<"Event: "<<ev<<endl;
    eventTree->GetEntry(ev);
 
    if(rawAtriEvPtr->isRFTrigger()){
