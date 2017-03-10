@@ -590,7 +590,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    delete gr_v[ch];
    }//end of ch
-
+   cout<<"593\n";
 
    numSatChan = 0;
    if(settings->nchnlFilter > 0){
@@ -603,7 +603,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    if(nchnl_tmp < settings->nchnlCut){
 
-      //cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl;
+      cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl;
       unpaddedEvent.clear();
       cleanEvent.clear();
       delete realAtriEvPtr;
@@ -612,6 +612,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    }
    }
    else {
+     cout<<"615\n";
    for(int i=0; i<16; i++) goodChan[i] = chanMask[i];
    }
 
