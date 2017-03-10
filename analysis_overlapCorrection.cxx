@@ -607,7 +607,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       unpaddedEvent.clear();
       cleanEvent.clear();
       delete realAtriEvPtr;
-      for(int ch=0; ch<16; ch++){ delete grInt[ch]; /*delete grScaled[ch];*/ delete grWinPad[ch]; delete grScaled[ch]; }
+      for(int ch=0; ch<16; ch++){ delete grScaled[ch]; delete grInt[ch]; /*delete grScaled[ch];*/ delete grWinPad[ch];  }
       continue;
    }
    }
@@ -625,6 +625,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
     //recoData *summary = new recoData();
 /*
     if(settings->dataType == 0){
+
     summary->setWeight(event->Nu_Interaction[0].weight);
     summary->setTrueRadius(r_true);
     summary->setTrueDir(zen_true*180./M_PI, azi_true*180./M_PI);
@@ -688,7 +689,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    cleanEvent.clear();
    delete realAtriEvPtr;
    //delete summary;
-   for(int ch=0; ch<16; ch++){ delete grInt[ch]; /*delete grScaled[ch];*/ delete grWinPad[ch]; delete grScaled[ch]; }
+   for(int ch=0; ch<16; ch++){ delete grScaled[ch]; delete grInt[ch]; /*delete grScaled[ch];*/ delete grWinPad[ch]; }
    }//end of ev loop
 
    fp->Close();
