@@ -244,7 +244,7 @@ TGraph *evProcessTools::getWindowedAndPaddedEqualBeginGraph(TGraph *gr, const in
    return grNew;
 }
 
-TGraph *getScaledGraph(TGraph *gr)
+TGraph *evProcessTools::getScaledGraph(TGraph *gr)
 {
   double statsArray[2] = {0.};
   double sigma, mean;
