@@ -578,7 +578,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    //cout<<"N: "<<gr_v[ch]->GetN()<<endl;
    grInt[ch]       = FFTtools::getInterpolatedGraph(gr_v[ch], wInt);
    unpaddedEvent.push_back(grInt[ch]);
-   grScaled[ch] = evProcessTools::getScaledGraph(grInt);
+   grScaled[ch] = evProcessTools::getScaledGraph(grInt[ch]);
    /* Use a modified Hann window for now */
    grWinPad[ch]     = evProcessTools::getWindowedAndPaddedEqualBeginGraph(/*grInt[ch]*/grScaled[ch], maxSamp, beginTime);
    /* The task of normalizing wf should be the responsibility of each reco method */
