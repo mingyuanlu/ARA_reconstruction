@@ -594,7 +594,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    /* The task of normalizing wf should be the responsibility of each reco method */
    cleanEvent.push_back(grWinPad[ch]);
 
-   delete grInt_temp[ch];
+   delete grScaled[ch];
+   //delete grInt_temp[ch];
    delete gr_v[ch];
    }//end of ch
 
@@ -614,7 +615,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       unpaddedEvent.clear();
       cleanEvent.clear();
       delete realAtriEvPtr;
-      for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; }
+      for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grInt_temp[ch];}
       continue;
    }
    }
@@ -693,7 +694,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    cleanEvent.clear();
    delete realAtriEvPtr;
    //delete summary;
-   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; }
+   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grInt_temp[ch]; }
    }//end of ev loop
 
    fp->Close();
