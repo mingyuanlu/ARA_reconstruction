@@ -381,11 +381,11 @@ int nLayer, nDir;
    TGraph *gr_fft[16];
    TGraph *grHilbert[16];
 
-   TGraph *grCumulativePwrPercent[16][10];
+   TGraph *grCumulativePwrPercent[16][100];
    TMultiGraph *mg[16];
    float totalPwr;
    for(int ch=0; ch<16; ch++) mg[ch] = new TMultiGraph();
-   
+
 //if(settings->dataType == 1){
 /*
    int cutWaveAlert;
@@ -468,7 +468,7 @@ recoData *summary = new recoData();
 trigEventCount = runEventCount;
 for (Long64_t ev=0; ev<runEventCount; ev++){
 
-  if(recoEventCount == 10) break;
+  if(recoEventCount == 100) break;
 
    summary->clear();
 
@@ -763,7 +763,7 @@ free(recoDelays_H);
 
 TCanvas c1("c1","c1",800,600);
 c1.Divide(4,4);
-for(int ch=0; ch<16; ch++){
+for(int ch=0; ch<15; ch++){
   c1.cd(ch+1);
   mg[ch]->Draw("AL");
 }
