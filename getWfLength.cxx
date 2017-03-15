@@ -384,7 +384,8 @@ int nLayer, nDir;
    TGraph *grCumulativePwrPercent[16][10];
    TMultiGraph *mg[16];
    float totalPwr;
-
+   for(int ch=0; ch<16; ch++) mg[ch] = new TMultiGraph();
+   
 //if(settings->dataType == 1){
 /*
    int cutWaveAlert;
@@ -620,7 +621,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
      grCumulativePwrPercent[ch][recoEventCount]->SetPoint(s,t,v);
    }
    cout<<"622\n";
-   mg[ch] = new TMultiGraph();
+   //mg[ch] = new TMultiGraph();
    mg[ch]->Add(grCumulativePwrPercent[ch][recoEventCount]);
    cout<<"624\n";
    /* Use a modified Hann window for now */
