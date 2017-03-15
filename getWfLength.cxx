@@ -19,6 +19,7 @@
 #include "TCanvas.h"
 #include "TTree.h"
 #include "TObject.h"
+#include "TMultiGraph.h"
 
 #include "calibrationTools.h"
 #include "calibrationToolsVs3.h"
@@ -380,6 +381,10 @@ int nLayer, nDir;
    TGraph *gr_fft[16];
    TGraph *grHilbert[16];
 
+   TGraph *grCumulativePwrPercent[16][10];
+   TMultiGraph *mg[16];
+   float totalPwr;
+
 //if(settings->dataType == 1){
 /*
    int cutWaveAlert;
@@ -462,6 +467,8 @@ recoData *summary = new recoData();
 trigEventCount = runEventCount;
 for (Long64_t ev=0; ev<runEventCount; ev++){
 
+  if(recoEventCount == 10) break;
+
    summary->clear();
 
    if(ev%100 == 0) cout<<"*******************************Event got********************************: "<<ev<<endl;
@@ -480,7 +487,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    } else if (rawAtriEvPtr->isSoftwareTrigger()){
       summary->setEventTrigType( 2 );
       cout<<"****************Soft Trigger !! ************************\n";
-      //if(triggerCode[2] != 1) continue;
+      /*if(triggerCode[2] != 1) */continue;
    } else { cerr<<"Undefined trigger type!!\n"; continue; }
 
 
@@ -597,6 +604,22 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    grInt[ch]       = FFTtools::getInterpolatedGraph(gr_v[ch], wInt);
    unpaddedEvent.push_back(grInt[ch]);
    cout<<"unpaddedEvent waveform "<< ch <<" length: "<<grInt[ch]->GetN()<<endl;
+
+   totalPwr = 0.f;
+   for(int s=0; s<grInt->GetN(); s++){
+     grInt->GetPoint(s,t,v)
+     totalPwr += v*v;
+     grCumulativePwrPercent[ch][recoEventCount]->SetPoint(s,t,totalPwr);
+   }
+
+   for(int s=0; s<grCumulativePwrPercent[ch][recoEventCount]->GetN(); s++){
+     grCumulativePwrPercent[ch][recoEventCount]->GetPoint(s,t,v);
+     v /= totalPwr;
+     grCumulativePwrPercent[ch][recoEventCount]->SetPoint(s,t,v);
+   }
+
+   mg[ch]->Add(grCumulativePwrPercent[ch][recoEventCount]);
+
    /* Use a modified Hann window for now */
    grWinPad[ch]     = evProcessTools::getWindowedAndPaddedEqualBeginGraph(grInt[ch], maxSamp, beginTime);
    /* The task of normalizing wf should be the responsibility of each reco method */
@@ -604,6 +627,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    delete gr_v[ch];
    }//end of ch
+
+
 
 /*
    numSatChan = 0;
@@ -644,15 +669,15 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
     }
 */
     //summary->setOnion(onion);
-    /*
+/*
     summary->setTopN(topN);
     summary->setRecoChan(goodChan);
     summary->setInWindowSNR(snrArray[index[2]]);
     summary->setUnmodSNR(unmodSNRArray[index[2]]);
-
+*/
     recoEventCount++;
 
-
+/*
 
    if(settings->beamformMethod == 1){
    if(settings->getSkymapMode == 0){
@@ -731,6 +756,14 @@ free(recoDelays_H);
 //delete settings;
 //free(mapDataHist);
 //free(mapData);
+
+TCanvas c1("c1","c1",800,600);
+c1.Divide(4,4);
+for(int ch=0; ch<16; ch++){
+  c1.cd(ch+1);
+  mg[ch]->Draw("AL");
+}
+c1.SaveAs("cumulativePowerPercent.C");
 
 cout<<"Successfully reached end of main()"<<endl;
 return 0;
