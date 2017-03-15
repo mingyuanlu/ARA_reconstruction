@@ -620,6 +620,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
      grCumulativePwrPercent[ch][recoEventCount]->SetPoint(s,t,v);
    }
    cout<<"622\n";
+   mg[ch] = new TMultiGraph();
    mg[ch]->Add(grCumulativePwrPercent[ch][recoEventCount]);
    cout<<"624\n";
    /* Use a modified Hann window for now */
