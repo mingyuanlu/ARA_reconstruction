@@ -605,6 +605,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    unpaddedEvent.push_back(grInt[ch]);
    cout<<"unpaddedEvent waveform "<< ch <<" length: "<<grInt[ch]->GetN()<<endl;
 
+   grCumulativePwrPercent[ch][recoEventCount] = new TGraph();
    totalPwr = 0.f;
    for(int s=0; s<grInt[ch]->GetN(); s++){
      grInt[ch]->GetPoint(s,t,v);
