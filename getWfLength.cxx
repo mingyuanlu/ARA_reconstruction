@@ -380,6 +380,7 @@ int nLayer, nDir;
    TGraph *grNormWinPad[16];
    TGraph *gr_fft[16];
    TGraph *grHilbert[16];
+   TGraph *grRandom[16];
 
    TGraph *grCumulativePwrPercent[16][100];
    TMultiGraph *mg[16];
@@ -608,22 +609,30 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    cout<<"recoEventCount: "<<recoEventCount<<endl;
    grCumulativePwrPercent[ch][recoEventCount] = new TGraph();
    totalPwr = 0.f;
-   cout<<"610\n";
+
+   /* Replace grInt with random voltage waveform to check the power scaling with waveform
+    * length.
+    */
+   int nSamp = grInt[ch]->GetN();
+   delete grInt[ch];
+   grInt[ch] = evProcessTools::getRandomVoltageGraph(nSamp, wInt, 1., recoEventCount);
+
+
    for(int s=0; s<grInt[ch]->GetN(); s++){
      grInt[ch]->GetPoint(s,t,v);
      totalPwr += v*v;
      grCumulativePwrPercent[ch][recoEventCount]->SetPoint(s,t,totalPwr);
    }
-   cout<<"616\n";
+
    for(int s=0; s<grCumulativePwrPercent[ch][recoEventCount]->GetN(); s++){
      grCumulativePwrPercent[ch][recoEventCount]->GetPoint(s,t,v);
      v /= totalPwr;
      grCumulativePwrPercent[ch][recoEventCount]->SetPoint(s,t,v);
    }
-   cout<<"622\n";
+
    //mg[ch] = new TMultiGraph();
    mg[ch]->Add(grCumulativePwrPercent[ch][recoEventCount]);
-   cout<<"624\n";
+
    /* Use a modified Hann window for now */
    grWinPad[ch]     = evProcessTools::getWindowedAndPaddedEqualBeginGraph(grInt[ch], maxSamp, beginTime);
    /* The task of normalizing wf should be the responsibility of each reco method */

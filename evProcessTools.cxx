@@ -297,6 +297,21 @@ TGraph *evProcessTools::getNormalizedGraph(TGraph *gr)
 
 }
 
+TGraph *evProcessTools::getRandomVoltageGraph(const int nSamp, const double wInt, const double range, const int seed){
+
+  TRandom3 *rnd = new TRandom3();
+  rnd->SetSeed(seed);
+  double x[nSamp], y[nSamp];
+
+  for(int i=0; i<nSamp; i++){
+    y[i] = (2.*rnd->Rndm() - 1) * range;
+    x[i] = wInt*i;
+  }
+
+  TGraph *grRnd = new TGraph(nSamp, x, y);
+
+  return grRnd;
+}
 
 TH1D *evProcessTools::makeffthisto(TGraph *gr, char* name, Double_t intSample)
 {
