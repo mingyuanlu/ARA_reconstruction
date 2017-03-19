@@ -20,6 +20,7 @@
 #include "TTree.h"
 #include "TObject.h"
 #include "TMultiGraph.h"
+#include "TRandom3.h"
 
 #include "calibrationTools.h"
 #include "calibrationToolsVs3.h"
@@ -464,6 +465,8 @@ cout<<"runEventCount: "<<runEventCount<<endl;
 recoData *summary = new recoData();
 //dataTree->Branch("summary", &summary);
 
+TRandom3 *rnd = new TRandom3();
+
 //if(settings->dataType == 1){
 
 trigEventCount = runEventCount;
@@ -595,6 +598,10 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    }
 
+
+   //TRandom3 *rnd = new TRandom3();
+   //rnd->SetSeed(recoEventCount);
+
    for(int ch=0; ch<16; ch++){
 
 
@@ -615,7 +622,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
     */
    int nSamp = grInt[ch]->GetN();
    delete grInt[ch];
-   grInt[ch] = evProcessTools::getRandomVoltageGraph(nSamp, wInt, 1., recoEventCount);
+   grInt[ch] = evProcessTools::getRandomVoltageGraph(nSamp, wInt, 1., rnd);
 
 
    for(int s=0; s<grInt[ch]->GetN(); s++){

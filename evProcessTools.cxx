@@ -297,10 +297,10 @@ TGraph *evProcessTools::getNormalizedGraph(TGraph *gr)
 
 }
 
-TGraph *evProcessTools::getRandomVoltageGraph(const int nSamp, const double wInt, const double range, const int seed){
+TGraph *evProcessTools::getRandomVoltageGraph(const int nSamp, const double wInt, const double range, TRandom3 *rnd){
 
-  TRandom3 *rnd = new TRandom3();
-  rnd->SetSeed(seed);
+  //TRandom3 *rnd = new TRandom3();
+  //rnd->SetSeed(seed);
   double x[nSamp], y[nSamp];
 
   for(int i=0; i<nSamp; i++){

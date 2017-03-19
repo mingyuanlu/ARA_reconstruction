@@ -79,7 +79,7 @@ static TGraph *getBartlettAndPaddedGraph(TGraph *gr, const int maxSample);
 static TGraph *getWindowedAndPaddedEqualBeginGraph(TGraph *gr, const int maxSample, const double beginTime);
 static TGraph *getScaledGraph(TGraph *gr);
 static TGraph *getNormalizedGraph(TGraph *gr);
-static TGraph *getRandomVoltageGraph(const int nSamp, const double wInt, const double range, const int seed = 0);
+static TGraph *getRandomVoltageGraph(const int nSamp, const double wInt, const double range, TRandom3 *rnd);
 static TGraph *universalCleaner(TGraph *grWaveIn, std::vector< double> cwSingleVec );
 static double getSimpleFFT(std::vector<TGraph*> gr, vector<vector< double > > * FFTpower, vector<vector<double> > * FFTfreq);
 static int peakFinder(TGraph *gr, int numberOfPeaks, int range, double *peakPos, double *peakHight, double threshold, int precision);
