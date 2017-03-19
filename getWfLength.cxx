@@ -383,7 +383,7 @@ int nLayer, nDir;
    TGraph *grHilbert[16];
    TGraph *grRandom[16];
 
-   TGraph *grCumulativePwrPercent[16][100];
+   TGraph *grCumulativePwrPercent[16][50];
    TMultiGraph *mg[16];
    float totalPwr;
    for(int ch=0; ch<16; ch++) mg[ch] = new TMultiGraph();
@@ -472,7 +472,7 @@ TRandom3 *rnd = new TRandom3();
 trigEventCount = runEventCount;
 for (Long64_t ev=0; ev<runEventCount; ev++){
 
-  if(recoEventCount == 100) break;
+  if(recoEventCount == 50) break;
 
    summary->clear();
 
