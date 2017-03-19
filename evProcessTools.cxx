@@ -305,7 +305,7 @@ TGraph *evProcessTools::getRandomVoltageGraph(const int nSamp, const double wInt
 
   for(int i=0; i<nSamp; i++){
     y[i] = (2.*rnd->Rndm() - 1) * range;
-    if(nSamp==0)cout<<y[i]<<endl;
+    if(i==0)cout<<y[i]<<endl;
     x[i] = wInt*i;
   }
 
