@@ -376,7 +376,7 @@ if( err<0 ){
    TGraph *gr_fft[16];
    TGraph *grHilbert[16];
 
-   TFile rndWfFile("randomVoltageWf_wfLen900_wInt0.4_range1.root","READ");
+   TFile rndWfFile("randomVoltageWf_wfLen900_wInt0.4_range1.2.root","READ");
    char grName[200];
 
 if(settings->dataType == 1){
