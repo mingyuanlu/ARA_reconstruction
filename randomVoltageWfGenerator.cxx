@@ -2,7 +2,7 @@
 #include "evProcessTools.h"
 #include "TGraph.h"
 #include "TFile.h"
-#include "TRandom3"
+#include "TRandom3.h"
 
 int main(int argc, char** argv){
 
@@ -19,7 +19,7 @@ int main(int argc, char** argv){
   for(int ch=0; ch<nchan; ch++){
 
     gr[ch] = evProcessTools::getRandomVoltageGraph(wfLen, wInt, range, rnd);
-    snprintf(grName,"gr_%d",ch);
+    snprintf(grName,sizeof(char)*200,"gr_%d",ch);
     gr[ch]->SetName(grName);
     gr[ch]->Write();
   }
