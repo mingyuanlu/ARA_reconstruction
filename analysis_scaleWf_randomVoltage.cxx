@@ -450,6 +450,8 @@ if(settings->dataType == 1){
 trigEventCount = runEventCount;
 for (Long64_t ev=0; ev<runEventCount; ev++){
 
+   if(recoEventCount == 1) break;
+
    summary->clear();
 
    if(ev%100 == 0) cout<<"*******************************Event got********************************: "<<ev<<endl;

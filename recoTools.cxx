@@ -6781,6 +6781,14 @@ clEnqueueReadBuffer(clEnv->queue, CijBuffer, CL_TRUE, 0, sizeof(float)*nLayer*nD
 
 cout<<"Done computeXCorrCoef\n";
 
+for(int i=0; i<nLayer; i++){
+  for(int j=0; j<nDir; j++){
+    for(int k=0; k<nBaseline; k++){
+      cout<<"layer: "<<i<<" dir: "<<j<<" baseline: "<<k<<" Cij: "<<Cij[i*nDir*nBaseline + j*nBaseline + k]<<endl;
+    }
+  }
+}
+
 /*
  * Sum Cij's of all baselines in each reco direction to obtain coherence M(r-hat)
  */
@@ -6806,6 +6814,12 @@ clFinish(clEnv->queue);
 clEnqueueReadBuffer(clEnv->queue, MBuffer, CL_TRUE, 0, sizeof(float)*nLayer*nDir, M, 0, NULL, NULL);
 
 cout<<"Done computeNormalizedCoherence\n";
+
+for(int i=0; i<nLayer; i++){
+  for(int j=0; j<nDir; j++){
+    cout<<"layer: "<<i<<" dir: "<<j<<" M: "<<M[i*nDir + j]<<endl;
+  }
+}
 
 /*
  * Loop over M to find the max coherence and its pix index
