@@ -707,7 +707,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    cleanEvent.clear();
    delete realAtriEvPtr;
    //delete summary;
-   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grInt_temp[ch]; }
+   for(int ch=0; ch<16; ch++){ /*delete grInt[ch];*/ delete grWinPad[ch]; delete grInt_temp[ch]; }
    }//end of ev loop
 
    fp->Close();
