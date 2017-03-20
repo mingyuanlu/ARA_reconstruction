@@ -58,6 +58,10 @@ if(argc < 3){ cerr<<"Insufficient arguments. Usage: 1.recoSetupFile 2. Run Numbe
 
 int err;
 gROOT->ProcessLine("#include <vector>");
+
+TCanvas c1("c1","c1",800,600);
+c1.Divide(4,4);
+
 /*
  * Specify the channels to be used in the analysis
  * 1: use, 0: don't use
@@ -444,7 +448,7 @@ cout<<"runEventCount: "<<runEventCount<<endl;
 recoData *summary = new recoData();
 dataTree->Branch("summary", &summary);
 
-TRandom3 *rnd = new TRandom3();
+TRandom3 *rnd = new TRandom3(4357);
 
 if(settings->dataType == 1){
 
@@ -592,6 +596,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    }
    delete grInt[ch];
    grInt[ch] = evProcessTools::getRandomVoltageGraph(grScaled[ch]->GetN()-cutShortSampleAmount, wInt, 1., rnd);
+   c1.cd(ch+1);
+   grInt[ch]->Draw("AL");
    //cout<<"grInt->GetN(): "<<grInt[ch]->GetN()<<endl;
    wfNBins[ch] = grInt[ch]->GetN();
    //unpaddedEvent.push_back(grInt[ch]);
@@ -900,6 +906,8 @@ free(recoDelays_H);
 delete settings;
 free(mapDataHist);
 free(mapData);
+
+c1.SaveAs("randomVoltageWf_cutShortWf.C");
 
 cout<<"Successfully reached end of main()"<<endl;
 return 0;

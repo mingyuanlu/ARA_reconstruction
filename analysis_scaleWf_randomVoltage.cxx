@@ -58,6 +58,10 @@ if(argc < 3){ cerr<<"Insufficient arguments. Usage: 1.recoSetupFile 2. Run Numbe
 
 int err;
 gROOT->ProcessLine("#include <vector>");
+
+TCanvas c1("c1","c1",800,600);
+c1.Divide(4,4);
+
 /*
  * Specify the channels to be used in the analysis
  * 1: use, 0: don't use
@@ -443,7 +447,7 @@ cout<<"runEventCount: "<<runEventCount<<endl;
 recoData *summary = new recoData();
 dataTree->Branch("summary", &summary);
 
-TRandom3 *rnd = new TRandom3();
+TRandom3 *rnd = new TRandom3(4357);
 
 if(settings->dataType == 1){
 
@@ -585,6 +589,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    unpaddedEvent.push_back(grInt[ch]);
    //grScaled[ch] = evProcessTools::getScaledGraph(grInt[ch]);
    grScaled[ch] = evProcessTools::getRandomVoltageGraph(wfNBins[ch], wInt, 1., rnd);
+   c1.cd(ch+1);
+   grScaled[ch]->Draw("AL");
    /* Use a modified Hann window for now */
    grWinPad[ch]     = evProcessTools::getWindowedAndPaddedEqualBeginGraph(/*grInt[ch]*/grScaled[ch], maxSamp, beginTime);
    /* The task of normalizing wf should be the responsibility of each reco method */
@@ -888,6 +894,8 @@ free(recoDelays_H);
 delete settings;
 free(mapDataHist);
 free(mapData);
+
+c1.SaveAs("randomVoltageWf.C");
 
 cout<<"Successfully reached end of main()"<<endl;
 return 0;
