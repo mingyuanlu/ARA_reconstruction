@@ -15,7 +15,7 @@ int main(int argc, char** argv){
   double range = atof(argv[3]); // +-range
   TGraph *gr[nchan];
 
-  TRandom3 *rnd = new TRandom3();
+  TRandom3 *rnd = new TRandom3(100);
   char grName[200];
 
   for(int ch=0; ch<nchan; ch++){
