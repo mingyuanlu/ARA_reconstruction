@@ -6,6 +6,8 @@
 
 int main(int argc, char** argv){
 
+  if(argc<5) cerr<<"Usage: 1.wfLen 2.wInt 3.range 4.ROOT filename"<<endl;
+
   TFile fp(argv[4],"RECREATE");
   const int nchan = 16;
   int wfLen = atoi(argv[1]); //number of samples
