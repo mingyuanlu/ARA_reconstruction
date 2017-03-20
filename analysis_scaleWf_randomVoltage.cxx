@@ -376,6 +376,9 @@ if( err<0 ){
    TGraph *gr_fft[16];
    TGraph *grHilbert[16];
 
+   TFile rndWfFile("randomVoltageWf_wfLen900_wInt0.4_range1.root","READ");
+   char grName[200];
+
 if(settings->dataType == 1){
 /*
    int cutWaveAlert;
@@ -588,7 +591,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    wfNBins[ch] = grInt[ch]->GetN();
    unpaddedEvent.push_back(grInt[ch]);
    //grScaled[ch] = evProcessTools::getScaledGraph(grInt[ch]);
-   grScaled[ch] = evProcessTools::getRandomVoltageGraph(wfNBins[ch], wInt, 1., rnd);
+   //grScaled[ch] = evProcessTools::getRandomVoltageGraph(wfNBins[ch], wInt, 1., rnd);
+   snprintf(grName,sizeof(char)*200,"gr_%d",ch);
+   grScaled[ch] = (TGraph*)rndWfFile.Get(grName);
    c1.cd(ch+1);
    grScaled[ch]->Draw("AL");
    /* Use a modified Hann window for now */

@@ -377,6 +377,14 @@ if( err<0 ){
    TGraph *grHilbert[16];
    TGraph *grInt_temp[16];
 
+/*
+ * Using random voltage waveforms from an external ROOT file. The ROOT file can be generated using
+ * randomVoltageWfGenerator.cxx
+ */
+
+   TFile rndWfFile("randomVoltageWf_wfLen900_wInt0.4_range1.root","READ");
+   char grName[200];
+
 if(settings->dataType == 1){
 /*
    int cutWaveAlert;
@@ -587,15 +595,17 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    //cout<<"N: "<<gr_v[ch]->GetN()<<endl;
    grInt_temp[ch]       = FFTtools::getInterpolatedGraph(gr_v[ch], wInt);
    unpaddedEvent.push_back(grInt_temp[ch]);
-   grScaled[ch] = evProcessTools::getScaledGraph(grInt_temp[ch]);
+   //grScaled[ch] = evProcessTools::getScaledGraph(grInt_temp[ch]);
+   snprintf(grName,sizeof(char)*200,"gr_%d",ch);
+   grScaled[ch] = (TGraph*)rndWfFile.Get(grName);
    grInt[ch] = new TGraph();
    //cout<<"grInt_temp->GetN(): "<<grInt_temp[ch]->GetN()<<" minus cutShortSampleAmount: "<<grInt_temp[ch]->GetN()-cutShortSampleAmount<<endl;
    for(int s=0; s<grScaled[ch]->GetN()-cutShortSampleAmount; s++){
      grScaled[ch]->GetPoint(s, times, volts);
      grInt[ch]->SetPoint(s, times, volts);
    }
-   delete grInt[ch];
-   grInt[ch] = evProcessTools::getRandomVoltageGraph(grScaled[ch]->GetN()-cutShortSampleAmount, wInt, 1., rnd);
+   //delete grInt[ch];
+   //grInt[ch] = evProcessTools::getRandomVoltageGraph(grScaled[ch]->GetN()-cutShortSampleAmount, wInt, 1., rnd);
    c1.cd(ch+1);
    grInt[ch]->Draw("AL");
    //cout<<"grInt->GetN(): "<<grInt[ch]->GetN()<<endl;
