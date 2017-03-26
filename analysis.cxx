@@ -58,12 +58,12 @@ if(argc < 3){ cerr<<"Insufficient arguments. Usage: 1.recoSetupFile 2. Run Numbe
 
 int err;
 gROOT->ProcessLine("#include <vector>");
-/* 
+/*
  * Specify the channels to be used in the analysis
  * 1: use, 0: don't use
  */
 
-int chanMask[16] = {  1 //chan 0  D1TV 
+int chanMask[16] = {  1 //chan 0  D1TV
                      ,1 //chan 1  D2TV
                      ,1 //chan 2  D3TV
                      ,1 //chan 3  D4TV
@@ -78,9 +78,9 @@ int chanMask[16] = {  1 //chan 0  D1TV
                      ,1 //chan 12 D1BH
                      ,1 //chan 13 D2BH
                      ,1 //chan 14 D3BH
-                     ,1 //chan 15 D4BH                
+                     ,1 //chan 15 D4BH
                    };
-  
+
 
 
 recoSettings *settings = new recoSettings();
@@ -102,11 +102,11 @@ string fitsFile_tmp;
 string fitsFileStr;
 string evStr;
 cout<<"recoStupFile: "<<recoSetupFile<<endl;
-if( !settings->readRecoSetupFile( recoSetupFile )){ 
+if( !settings->readRecoSetupFile( recoSetupFile )){
 
    cerr<<"Error reading the recoSetupFile or invalid parameters !! Aborting now...\n";
    return -1;
-   //cerr<<"Will use default reco setup file\n"; 
+   //cerr<<"Will use default reco setup file\n";
    //settings->readRecoSetupFile("recoSetupFile_default.txt");
    //outputFile = new TFile(("recoOut.recoSetupFile_default.txt.run"+runNum+".root").c_str(),"RECREATE","recoOut");
    //fitsFile_tmp = "recoSkymap.recoSetupFile_default.txt.run" + runNum/* + ".fits"*/;
@@ -114,7 +114,7 @@ if( !settings->readRecoSetupFile( recoSetupFile )){
 } else {
    cout<<"Obtained new reoSetupFile\n";
    outputFile = new TFile(("recoOut."+recoSetupFile+".run"+runNum+".root").c_str(),"RECREATE","recoOut");
-   fitsFile_tmp = "recoSkymap." + recoSetupFile + ".run" + runNum/* + ".fits"*/; 
+   fitsFile_tmp = "recoSkymap." + recoSetupFile + ".run" + runNum/* + ".fits"*/;
 }
 char fitsFile[200];
 //sprintf(fitsFile, fitsFile_tmp.c_str());
@@ -137,7 +137,7 @@ recoSettingsTree->Branch("settings", &settings);
 recoSettingsTree->Fill();
 
 TH1F *dZenDist = new TH1F("recoZenDiff", "recoZenDiff", 360, -180, 180);
-TH1F *dAziDist = new TH1F("recoAziDiff", "recoAziDiff", 720, -360, 360); 
+TH1F *dAziDist = new TH1F("recoAziDiff", "recoAziDiff", 720, -360, 360);
 TH2F *recoTrueZenDist = new TH2F("recoTrueZenDist", "recoTrueZenDist", 180, 0, 180, 180, 0, 180);
 TH2F *recoTrueAziDist = new TH2F("recoTrueAziDist", "recoTrueAziDist", 360, 0, 360, 360, 0, 360);
 
@@ -145,10 +145,10 @@ float radius, r_xy;
 float dx, dy, dz;
 float r_true, zen_true, azi_true;
 
-/* 
+/*
  * Variables used in dataType == 0 case
  */
- 
+
 TChain chain("AraTree"), chain2("AraTree2");
 Settings *AraSim_settings = 0;
 Detector *detector = 0;
@@ -159,7 +159,7 @@ Trigger  *trigger  = 0;
 /*
  * Variables used in dataType == 1 case
  */
- 
+
 TFile *fp;
 TTree *eventTree;
 int isIcrrEvent, isAtriEvent;
@@ -184,7 +184,7 @@ int nchnlArray[3];
 int nchnl_tmp;
 
 /* End of conditional variables pre-declaration */
- 
+
 int runEventCount, trigEventCount, recoEventCount;
 runEventCount = trigEventCount = recoEventCount = 0;
 runInfoTree->Branch("runEventCount",  &runEventCount);
@@ -200,22 +200,22 @@ if(settings->dataType == 1)//real events
    fp = TFile::Open( argv[3] );
    if ( !fp ) { cerr<<"can't open file"<<endl; return -1; }
 
-   eventTree = (TTree*) fp->Get("eventTree"); 
+   eventTree = (TTree*) fp->Get("eventTree");
    if ( !eventTree ){ cerr<<"can't find eventTree"<<endl; return -1; }
    cout<<"evenTree Nentries: "<<eventTree->GetEntries()<<endl;
 
    //Now check the electronics type of the station
    isIcrrEvent=0;
    isAtriEvent=0;
-   
+
    //Check an event in the run Tree and see if it is station1 or TestBed (stationId<2)
    eventTree->SetBranchAddress("event",&rawEvPtr);
    eventTree->GetEntry(0);
-   
+
    if((rawEvPtr->stationId)<2){ isIcrrEvent=1; isAtriEvent=0; }
    else                       { isIcrrEvent=0; isAtriEvent=1; }
    eventTree->ResetBranchAddresses();
-   
+
    //Now set the appropriate branch addresses
    //The Icrr case
    if(isIcrrEvent){
@@ -241,7 +241,7 @@ if(settings->dataType == 1)//real events
 }
 else if (settings->dataType == 0)//AraSim events
 {
-   
+
    for(int i=3; i<argc; i++){
       chain.Add( argv[i] );
       chain2.Add( argv[i] );
@@ -259,8 +259,8 @@ else if (settings->dataType == 0)//AraSim events
    printf("Station center X: %f Y: %f Z: %f\n",detector->stations[0].GetX(),detector->stations[0].GetY(),detector->stations[0].GetZ());
 
    runEventCount = chain2.GetEntries();
-  
-} 
+
+}
 else
 { cerr<<"Undefined dataType!\n"; return -1; }
 
@@ -279,7 +279,7 @@ if(settings->dataType == 1){
 
    //vector<vector<double> > pulserLocation;
    err = calibrateGeometryAndDelays(rawEvPtr, delays, pulserCorr, stationCenterDepth, antLocation, pulserLocation);
-   if( err<0 ){ cerr<<"Error calibrating geometry and delays\n"; return -1; } 
+   if( err<0 ){ cerr<<"Error calibrating geometry and delays\n"; return -1; }
 
 } else {
 
@@ -287,7 +287,7 @@ if(settings->dataType == 1){
    if( err<0 ){ cerr<<"Error loading AraSim geometry\n"; return -1; }
 
 }
-/* 
+/*
  * Start computing reco delays using RadioSpline
  */
 
@@ -304,7 +304,7 @@ if(settings->dataType == 1){
 cout<<"nAnt: "<<nAnt<<endl;
 
 /* Set top N max pixels in whole Healpix_Onion */
-int topN = settings->topN; 
+int topN = settings->topN;
 
 int nSideExp;
 int nLayer, nDir;
@@ -339,7 +339,7 @@ if( settings->skymapSearchMode == 0){ //No zoom search
                                             onion, recoDelays, recoDelays_V, recoDelays_H);
    } else { cerr<<"Undefined iceModel parameter\n"; return -1; }
    if( err<0 ){ cerr<<"Error computing reco delays\n"; return -1; }
-	
+
 } else {// zoom search mode
 
    //Dir = 12 * pow(2, settings->nSideExpEnd) * pow(2, settings->nSideExpEnd);
@@ -352,7 +352,7 @@ if( settings->skymapSearchMode == 0){ //No zoom search
    }
 */
 }
-	
+
 /*
  * Set up reco environment. In this case, an OpenCL environment
  */
@@ -361,7 +361,7 @@ err = setupCLRecoEnv(&clEnv, settings->programFile/*.c_str()*/);
 if( err<0 ){
    cerr<<"Error setting up reco env\n"; return -1;
 }
-	
+
 
    TGraph *gr_v_temp[16];
    TGraph *gr_v[16];
@@ -377,14 +377,14 @@ if(settings->dataType == 1){
    double addDelay;
    double times, volts;
    double time_1, time_2, time_last;
-   
+
    int utime, utime_runStart, utime_runEnd;
 */
    eventTree->GetEntry(0);
    utime_runStart=utime_runEnd=rawAtriEvPtr->unixTime;
 
-/* 
- * Loop over events once to determine run start/end time 
+/*
+ * Loop over events once to determine run start/end time
  */
 
    for(int ev=1; ev<runEventCount/*numEntries*/; ev++){
@@ -404,12 +404,12 @@ vector<TGraph *> cleanEvent;
 int recoFlagCnt = 0;
 double t, v, beginTime = 0.;
 
-int *maxPix; 
+int *maxPix;
 if(settings->skymapSearchMode == 0) maxPix = (int*)calloc(nDir*nLayer, sizeof(int));
 else                                maxPix = (int*)calloc(12*pow(2,settings->nSideExpEnd)*pow(2,settings->nSideExpEnd)*settings->nLayer, sizeof(int));
 
-int maxPixIdx = 0;   
-float *mapData = (float*)calloc(nDir*nLayer, sizeof(float));   
+int maxPixIdx = 0;
+float *mapData = (float*)calloc(nDir*nLayer, sizeof(float));
 char histName[200];
 TH1F **mapDataHist = (TH1F**)malloc(nDir*nLayer*sizeof(TH1F*));
 if(settings->recordMapData == 1){
@@ -421,7 +421,7 @@ if(settings->recordMapData == 1){
    }
 }
 int index[16]={0};
-float snrArray[16], unmodSNRArray[16];  
+float snrArray[16], unmodSNRArray[16];
 vector<TGraph *> unpaddedEvent;
 TH1F *snrDist = new TH1F("snrDist","snrDist",100,0,50);
 int goodChan[16];
@@ -446,43 +446,47 @@ trigEventCount = runEventCount;
 for (Long64_t ev=0; ev<runEventCount; ev++){
 
    summary->clear();
-   
+
    if(ev%100 == 0) cout<<"*******************************Event got********************************: "<<ev<<endl;
 
    eventTree->GetEntry(ev);
 
+   cout<<"Code loop ev: "<<ev<<" eventId: "<<rawAtriEvPtr->eventId<<" eventNumber: "<<rawAtriEvPtr->eventNumber<<endl;
+   summary->setEventId(rawAtriEvPtr->eventId);
+   summary->setEventNumber(rawAtriEvPtr->eventNumber);
+
    if(rawAtriEvPtr->isRFTrigger()){
       if(rawAtriEvPtr->isCalpulserEvent()){
          summary->setEventTrigType( 1 );
-         if(triggerCode[1] != 1) continue; 
+         if(triggerCode[1] != 1) continue;
          } else { // RF trigger
          summary->setEventTrigType( 0 );
-         if(triggerCode[0] != 1) continue; 
+         if(triggerCode[0] != 1) continue;
          }
    } else if (rawAtriEvPtr->isSoftwareTrigger()){
       summary->setEventTrigType( 2 );
       if(triggerCode[2] != 1) continue;
    } else { cerr<<"Undefined trigger type!!\n"; continue; }
-        
-         
 
-   UsefulAtriStationEvent *realAtriEvPtr = new UsefulAtriStationEvent( rawAtriEvPtr, AraCalType::kLatestCalib); 
+
+
+   UsefulAtriStationEvent *realAtriEvPtr = new UsefulAtriStationEvent( rawAtriEvPtr, AraCalType::kLatestCalib);
 //*************APPLYING DELAYS. CODE FROM T. MEURES*****************
       int stationId = realAtriEvPtr->stationId;
       cutWaveAlert = 0;
       nonIncreasingSampleTimeAlert = 0;
       previous_times = 0.;
       double stdDelay = 0.;
-   
+
 
    double average[16]={0.};
-   
+
    for(int a=0;a<16;a++)
    {//Loop the 16 channels
       //cout<<"*** Channel "<<a<<"***"<<endl;
       addDelay = 0.0;
       //*** Now we add the cable delays from the file and the forgotten antenna feedthrough (4,8,12 ns). ***//
-	  if(a/4==0){addDelay+=(4.0  + delays[a%4][3]);} 
+	  if(a/4==0){addDelay+=(4.0  + delays[a%4][3]);}
 	  if(a/4==1){addDelay+=(12.0 + delays[a%4][3]);}
 	  if(a/4==2){addDelay+=(0.0  + delays[a%4][3]);}
 	  if(a/4==3){addDelay+=(8.0  + delays[a%4][3]);}
@@ -504,37 +508,37 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 	  //*** The first 20 samples can be corrupted. Therefore, we need to exclude them! ***//
       for(int p=0;p<gr_v_temp[a]->GetN();p++){
 	  gr_v_temp[a]->GetPoint(p, times, volts);
-                       
-         if(times>20.0) 			
+
+         if(times>20.0)
          {
-         if(stationId==3 && utime_runStart>=dropD4Time && (a%4==3)) 
+         if(stationId==3 && utime_runStart>=dropD4Time && (a%4==3))
          gr_v[a]->SetPoint(pc, times-addDelay, 0.); //Drop 2014 ARA03 D4
          else if(stationId==2 && a==15) gr_v[a]->SetPoint(pc, times-addDelay, 0.);//Drop ARA02 D4BH
          else {
-         gr_v[a]->SetPoint(pc, times - addDelay, volts);  
+         gr_v[a]->SetPoint(pc, times - addDelay, volts);
          average[a]+=volts;
          }
 		 pc++;
          }
       }
       /*** Zero-mean the waveforms on a channel-by-channel basis ***/
-      if( gr_v[a]->GetN() != 0){ 
+      if( gr_v[a]->GetN() != 0){
 
          average[a]/=(double)gr_v[a]->GetN();
 
          gr_v[a]->GetPoint(0, times, volts);
          gr_v[a]->SetPoint(0, times, volts-average[a]);
          previous_times = times;
-  
+
          for(pc=1; pc<gr_v[a]->GetN(); pc++){
 
             gr_v[a]->GetPoint(pc, times, volts);
 
-            if( (times - previous_times) > 0.) 
-            gr_v[a]->SetPoint(pc, times, volts-average[a]); 
-            else {cerr<< "BAD EVENT Non-increasing sample time: " << event << " Channel: " << a << "this sample time: "<< times << "previous sample time: " << previous_times << endl;nonIncreasingSampleTimeAlert=1;}  
-    
-            previous_times = times;    
+            if( (times - previous_times) > 0.)
+            gr_v[a]->SetPoint(pc, times, volts-average[a]);
+            else {cerr<< "BAD EVENT Non-increasing sample time: " << event << " Channel: " << a << "this sample time: "<< times << "previous sample time: " << previous_times << endl;nonIncreasingSampleTimeAlert=1;}
+
+            previous_times = times;
 
          }//end of pc
 
@@ -544,9 +548,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       average[a]/=(double)gr_v[a]->GetN();
       for(pc=0; pc<gr_v[a]->GetN(); pc++){
          gr_v[a]->GetPoint(pc, times, volts);
-         gr_v[a]->SetPoint(pc, times, volts-average[a]);   
+         gr_v[a]->SetPoint(pc, times, volts-average[a]);
       }
-      cout<<"gr_v_temp N:"<<gr_v_temp[a]->GetN()<<endl;             
+      cout<<"gr_v_temp N:"<<gr_v_temp[a]->GetN()<<endl;
 */
       delete gr_v_temp[a];
    }//End looping channels
@@ -557,7 +561,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    if (nonIncreasingSampleTimeAlert == 1) { cerr<<"Event "<<ev<<" discarded due to nonIncreasingSampleTimeAlert\n"; continue; }
 
    for(int ch=0; ch<16; ch++){
-     
+
       gr_v[ch]->GetPoint(0,t,v);
       if( t<beginTime ) beginTime = t ;
 
@@ -570,41 +574,41 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    else{wInt=0.625; maxSamp=2048;}
 
    /* Interpolate + apply windowing + zero-pad + equalize wf beginning  to maxSamp */
-   //cout<<"N: "<<gr_v[ch]->GetN()<<endl; 
+   //cout<<"N: "<<gr_v[ch]->GetN()<<endl;
    grInt[ch]       = FFTtools::getInterpolatedGraph(gr_v[ch], wInt);
    unpaddedEvent.push_back(grInt[ch]);
    /* Use a modified Hann window for now */
    grWinPad[ch]     = evProcessTools::getWindowedAndPaddedEqualBeginGraph(grInt[ch], maxSamp, beginTime);
    /* The task of normalizing wf should be the responsibility of each reco method */
    cleanEvent.push_back(grWinPad[ch]);
-  
+
    delete gr_v[ch];
    }//end of ch
 
 
-   numSatChan = 0;   
+   numSatChan = 0;
    if(settings->nchnlFilter > 0){
-   
+
    getNchnlMaskSat(unpaddedEvent, threshold, nchnlArray, chanMask, goodChan, numSatChan);
 
    if      (settings->nchnlFilter==1/*recoPolType == "vpol"*/) nchnl_tmp = nchnlArray[1];
    else if (settings->nchnlFilter==2/*recoPolType == "hpol"*/) nchnl_tmp = nchnlArray[2];
    else                                                        nchnl_tmp = nchnlArray[0];
 
-   if(nchnl_tmp < settings->nchnlCut){ 
-   
-      //cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl; 
+   if(nchnl_tmp < settings->nchnlCut){
+
+      //cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl;
       unpaddedEvent.clear();
       cleanEvent.clear();
       delete realAtriEvPtr;
-      for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; }      
-      continue; 
+      for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; }
+      continue;
    }
    }
-   else {    
+   else {
    for(int i=0; i<16; i++) goodChan[i] = chanMask[i];
    }
-    
+
     getChannelSNR(unpaddedEvent, snrArray);
     TMath::Sort(16,snrArray,index);
 
@@ -612,7 +616,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
     TMath::Sort(16,unmodSNRArray,index);
 
     //recoData *summary = new recoData();
-/*    
+/*
     if(settings->dataType == 0){
     summary->setWeight(event->Nu_Interaction[0].weight);
     summary->setTrueRadius(r_true);
@@ -629,17 +633,17 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
 
 
-   if(settings->beamformMethod == 1){  
-   if(settings->getSkymapMode == 0){ 
-       err = reconstructCSW(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, fitsFile/*argv[5]*/); 
+   if(settings->beamformMethod == 1){
+   if(settings->getSkymapMode == 0){
+       err = reconstructCSW(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, fitsFile/*argv[5]*/);
    }
    else{
        maxPixIdx = reconstructCSWGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, summary);
    }
    } else {
    if(settings->getSkymapMode == 0){
- 
-      //evStr = std::to_string(ev); 
+
+      //evStr = std::to_string(ev);
       stringstream ss;
       ss << ev;
       evStr = ss.str();
@@ -652,13 +656,13 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       for(int pix=0; pix<nDir*nLayer; pix++) mapDataHist[pix]->Fill(mapData[pix]);
       }
       } else { //zoom search mode
-      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode(settings, cleanEvent, &clEnv, stationCenterDepth, antLocation, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile);      
+      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode(settings, cleanEvent, &clEnv, stationCenterDepth, antLocation, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile);
       }
    } else {
       maxPixIdx = reconstructXCorrEnvelopeGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, goodChan/*chanMask*/, summary);
-    
+
    }
-  
+
    }
    if( err<0 || maxPixIdx<0){ cerr<<"Error reconstructing\n"; return -1; }
 
@@ -694,25 +698,25 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    int string_i, antenna_i, AraRootChannel;
 
    chain2.GetEntry(ev);
-   if(report->stations[0].Global_Pass > 0){ 
-   
+   if(report->stations[0].Global_Pass > 0){
+
       trigEventCount++;
       dx = event->Nu_Interaction[0].posnu.GetX()-detector->stations[0].GetX();
       dy = event->Nu_Interaction[0].posnu.GetY()-detector->stations[0].GetY();
       dz = event->Nu_Interaction[0].posnu.GetZ()-detector->stations[0].GetZ() + stationCenterDepth;
       r_xy   = sqrt( dx*dx + dy*dy );
       r_true = sqrt( dx*dx + dy*dy + dz*dz );
-      zen_true = atan( r_xy / dz );  
+      zen_true = atan( r_xy / dz );
       if(dz<0) zen_true += M_PI;
       azi_true = atan( dy / dx );
       if(dx<0) azi_true += M_PI;
       else if (dy<0) azi_true += 2*M_PI;
       cout<<"r_true: "<<r_true<<" zen_true: "<<zen_true*180./M_PI<<" azi_true: "<<azi_true*180./M_PI<<endl;
-          
+
    } else continue;
-   
+
    double average[16]={0.};
- 
+
    for(int a=0;a<16;a++)
    {
       string_i  = detector->getStringfromArbAntID(0, a);
@@ -733,7 +737,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       /*** Zero-mean the waveforms on a channel-by-channel basis ***/
       if(gr_v[AraRootChannel-1]->GetN() != 0) average[AraRootChannel-1]/=(double)gr_v[AraRootChannel-1]->GetN();
       else cout<<"********Zero samples!!! *** ch:"<<AraRootChannel-1<<" n_samp: "<<gr_v[AraRootChannel-1]->GetN()<<endl;
-    
+
       for(pc=0; pc<gr_v[AraRootChannel-1]->GetN(); pc++){
          gr_v[AraRootChannel-1]->GetPoint(pc, times, volts);
          gr_v[AraRootChannel-1]->SetPoint(pc, times, volts-average[AraRootChannel-1]);
@@ -743,9 +747,9 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    double wInt;
    int maxSamp;
-  
+
    for(int ch=0; ch<16; ch++){
-     
+
       gr_v[ch]->GetPoint(0,t,v);
       if( t<beginTime ) beginTime = t ;
 
@@ -763,29 +767,29 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    }//end of ch
 
-   numSatChan = 0;   
+   numSatChan = 0;
    if(settings->nchnlFilter > 0){
-   
+
    getNchnlMaskSat(unpaddedEvent, threshold, nchnlArray, chanMask, goodChan, numSatChan);
 
    if      (settings->nchnlFilter==1/*recoPolType == "vpol"*/) nchnl_tmp = nchnlArray[1];
    else if (settings->nchnlFilter==2/*recoPolType == "hpol"*/) nchnl_tmp = nchnlArray[2];
    else                                                        nchnl_tmp = nchnlArray[0];
 
-   if(nchnl_tmp < settings->nchnlCut){ 
-      
-      //cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl; 
+   if(nchnl_tmp < settings->nchnlCut){
+
+      //cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl;
       unpaddedEvent.clear();
       cleanEvent.clear();
-      for(int ch=0; ch<16; ch++){ delete gr_v[ch]; delete grWinPad[ch]; }      
-      continue; 
- 
+      for(int ch=0; ch<16; ch++){ delete gr_v[ch]; delete grWinPad[ch]; }
+      continue;
+
    }
    }
-   else {    
+   else {
    for(int i=0; i<16; i++) goodChan[i] = chanMask[i];
    }
-    
+
    getChannelSNR(unpaddedEvent, snrArray);
    TMath::Sort(16,snrArray,index);
 
@@ -806,9 +810,9 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    recoEventCount++;
 
-   if(settings->beamformMethod == 1){  
-   if(settings->getSkymapMode == 0){ 
-       err = reconstructCSW(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, fitsFile/*argv[5]*/); 
+   if(settings->beamformMethod == 1){
+   if(settings->getSkymapMode == 0){
+       err = reconstructCSW(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, fitsFile/*argv[5]*/);
    }
    else{
        maxPixIdx = reconstructCSWGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, summary);
@@ -816,7 +820,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    } else {
    if(settings->getSkymapMode == 0){
 
-      //evStr = std::to_string(ev); 
+      //evStr = std::to_string(ev);
       stringstream ss;
       ss << ev;
       evStr = ss.str();
@@ -829,13 +833,13 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       for(int pix=0; pix<nDir*nLayer; pix++) mapDataHist[pix]->Fill(mapData[pix]);
       }
       } else {//zoom search mode
-      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode(settings, cleanEvent, &clEnv, stationCenterDepth, antLocation, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile);  
+      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode(settings, cleanEvent, &clEnv, stationCenterDepth, antLocation, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile);
       }
    } else {
       maxPixIdx = reconstructXCorrEnvelopeGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, goodChan/*chanMask*/, summary);
-    
+
    }
-  
+
    }
    if( err<0 || maxPixIdx<0){ cerr<<"Error reconstructing\n"; return -1; }
 
@@ -844,7 +848,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    summary->setFlag( (settings->skymapSearchMode)
                     ? record3DZoomedDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist)
                     : record3DDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist) );
-   
+
    if(summary->flag > 0) recoFlagCnt++;
    maxPix[maxPixIdx]++;
    dataTree->Fill();
@@ -864,7 +868,7 @@ outputFile->Write();
 outputFile->Close();
 
 clfftTeardown();
-err = tearDown(&clEnv);   
+err = tearDown(&clEnv);
 delete summary;
 if(settings->skymapSearchMode == 0){
 delete onion;

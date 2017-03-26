@@ -9,9 +9,9 @@ using namespace std;
 
    recoData::recoData(){ recoData::initialize(); }
    recoData::~recoData(){ /* default destructor */ }
- 
+
    void recoData::initialize(){
-   
+
    weight = 0.;
    trueZen = trueAzi = recoZen = recoAzi = 0.f;
    trueRadius = recoRadius = 0.f;
@@ -32,12 +32,16 @@ using namespace std;
 
    eventTrigType = 0;
 
+   eventId = 0;
+   eventNumber = 0;
+
    }
 
-   
+
 
    void recoData::setAllData(
-     double w
+     int _eventId, int _eventNumber
+   , double w
    , int _eventTrigType
    , float zen_true, float azi_true, float zen_reco, float azi_reco, float r_true, float r_reco
    , int *usedChan
@@ -52,6 +56,8 @@ using namespace std;
    , int _flag)
    {
 
+   eventId = _eventId;
+   eventNumber = _eventNumber;
    weight = w;
    trueZen = zen_true;
    trueAzi = azi_true;
@@ -70,7 +76,7 @@ using namespace std;
    topN = _topN;
 
    topMaxPixIdx.clear();
-   topMaxPixCoherence.clear(); 
+   topMaxPixCoherence.clear();
    for(int i=0; i<topN; i++){
       topMaxPixIdx.push_back( _topMaxPixIdx[i] );
       topMaxPixCoherence.push_back( _topMaxPixCoherence[i] );
@@ -130,7 +136,7 @@ using namespace std;
    void recoData::setRecoChan(int *usedChan){
 
    for(int i=0; i<16; i++) recoChan[i] = usedChan[i];
- 
+
    }
 
    void recoData::setMaxPixInfo(int idx, float xCorrValue){
@@ -186,7 +192,7 @@ using namespace std;
    inWindowSNR = _inWindowSNR;
 
    }
-  
+
    void recoData::setUnmodSNR(float _unmodSNR){
 
    unmodSNR = _unmodSNR;
@@ -198,13 +204,25 @@ using namespace std;
    flag = _flag;
 
    }
-  
+
    void recoData::setEventTrigType(int _eventTrigType){
 
    eventTrigType = _eventTrigType;
-  
+
    }
- 
+
+   void recoData::setEventId(int _eventId){
+
+   eventId = _eventId;
+
+   }
+
+   void recoData::setEventNumber(int _eventNumber){
+
+   eventNumber = _eventNumber;
+
+   }
+
    void recoData::duplicate(recoSettings *settings, recoData *old){
 
    int *_topMaxPixIdx         = (int*)calloc(old->topN, sizeof(int));
@@ -221,7 +239,8 @@ using namespace std;
       _maxPixCoherenceEachLayer[i] = old->maxPixCoherenceEachLayer[i];
    }
 
-   setAllData( old->weight
+   setAllData(old->eventId      old->eventNumber
+             , old->weight
              , old->eventTrigType
              , old->trueZen,    old->trueAzi
              , old->recoZen,    old->recoAzi
@@ -257,7 +276,7 @@ using namespace std;
    topN = old->topN;
 
    topMaxPixIdx.clear();
-   topMaxPixCoherence.clear(); 
+   topMaxPixCoherence.clear();
    for(int i=0; i<topN; i++){
       topMaxPixIdx.push_back( _topMaxPixIdx[i] );
       topMaxPixCoherence.push_back( _topMaxPixCoherence[i] );
@@ -289,7 +308,7 @@ using namespace std;
    topN = 0;
    topMaxPixIdx.clear();
    topMaxPixCoherence.clear();
-   maxPixIdxEachLayer.clear();   
+   maxPixIdxEachLayer.clear();
    maxPixCoherenceEachLayer.clear();
    likelihood = 0.;
    pValue = 0.;
@@ -297,4 +316,6 @@ using namespace std;
    unmodSNR = 0.f;
    flag = 0;
    eventTrigType = 0;
+   eventId = 0;
+   eventNumber = 0;
    }
