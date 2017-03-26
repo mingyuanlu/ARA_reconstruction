@@ -239,7 +239,7 @@ using namespace std;
       _maxPixCoherenceEachLayer[i] = old->maxPixCoherenceEachLayer[i];
    }
 
-   setAllData(old->eventId      old->eventNumber
+   setAllData(old->eventId,     old->eventNumber
              , old->weight
              , old->eventTrigType
              , old->trueZen,    old->trueAzi

@@ -46,7 +46,7 @@ public:
 
    void initialize();
    void setAllData(
-     int _eventId, int _eventNumber;
+     int _eventId, int _eventNumber
    , double w
    , int _eventTrigType
    , float zen_true, float azi_true, float zen_reco, float azi_reco, float r_true, float r_reco
