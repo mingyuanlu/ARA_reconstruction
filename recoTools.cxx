@@ -6585,8 +6585,10 @@ for(int i=0; i<nBaseline; i++){
 char sillygrname[200];
 char histName[200];
 
-TH1F *xCorrPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
-TH1F *envPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
+//TH1F *xCorrPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
+//TH1F *envPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
+TH1F *xCorrPeakHist[64];
+TH1F *envPeakHist[64];
 TFile *xCorrPeakFile;
 xCorrPeakFile = TFile::Open("xCorrEnvPeakFile.root","UPDATE");
 if( !xCorrPeakFile ){
@@ -6735,8 +6737,8 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 }
 
 xCorrPeakFile->Close();
-free(xCorrPeakHist);
-free(envPeakHist);
+//free(xCorrPeakHist);
+//free(envPeakHist);
 delete xCorrPeakFile;
 
 cl_mem xCorrEnvBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
