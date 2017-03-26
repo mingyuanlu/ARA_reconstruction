@@ -6618,6 +6618,7 @@ if( !xCorrPeakFile ){
 }
 
 int peakBin;
+double x, y;
 
 for(int baseline=0; baseline<nBaseline; baseline++){
 
@@ -6635,8 +6636,9 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    TGraph *xCorrGraph = new TGraph(nSamp, dt, xCorrValue);
 
    FFTtools::getPeakSqVal(xCorrGraph, &peakBin);
-   xCorrPeakHist[baseline]->Fill(xCorrGraph->GetBinCenter(peakBin));
-   cout<<"xCorr Peak Bin: "<<peakBin<<" Peak Sq Value: "<<xCorrGraph->GetBinCenter(peakBin)<<endl;
+   xCorrGraph->GetPoint(peakBin,x,y);
+   xCorrPeakHist[baseline]->Fill(x);
+   cout<<"xCorr Peak Bin: "<<peakBin<<" Peak Sq Value: "<<y<<endl;
 
    //cvs.cd(1);
    //xCorrGraph->Draw("AL");
@@ -6644,8 +6646,9 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    TGraph* envelope = FFTtools::getHilbertEnvelope( xCorrGraph );
 
    peakBin = FFTtools::getPeakBin(envelope);
-   envPeakHist[baseline]->Fill(envelope->GetBinCenter(peakBin));
-   cout<<"env Peak Bin: "<<peakBin<<" Peak Vlue: "<<envelope->GetBinCenter(peakBin)<<endl;
+   envelope->GetPoint(peakBin,x,y);
+   envPeakHist[baseline]->Fill(x);
+   cout<<"env Peak Bin: "<<peakBin<<" Peak Value: "<<y<<endl;
 /*
    sprintf(envelopename,"xCorrEnvelope_2014_A3_burn_RF_chan%d_%d.C", ant1, ant2);
    cvs.cd();
