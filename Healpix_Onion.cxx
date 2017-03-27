@@ -16,7 +16,7 @@ using namespace std;
    layerRadii.push_back(3000);
 
    }
-   
+
    Healpix_Onion::Healpix_Onion(int _nSideExp, int _nLayer){
 
    nSideExp = _nSideExp;
@@ -28,7 +28,7 @@ using namespace std;
 
   for(int i=1; i<=nLayer; i++){
 
-   layerRadii.push_back( (float)i * 5000.f / (float)nLayer); //for testing 3D calpulser reco
+   layerRadii.push_back( (float)i * /*5000.f*/42.f / (float)nLayer); //for testing 3D calpulser reco
 
    }
 
@@ -53,6 +53,3 @@ using namespace std;
    return layerRadii[ getLayerNumber(pixNum) ];
 
    }
-
-
-
