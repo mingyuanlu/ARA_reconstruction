@@ -6609,9 +6609,9 @@ cout<<"6608\n";
   }
 } else {
 //if( !xCorrPeakFile->IsOpen() ){
-
+cout<<"6612\n";
   xCorrPeakFile = TFile::Open("xCorrEnvPeakFile.root","UPDATE");
-
+cout<<"6614\n";
   for(int i=0; i<nBaseline; i++){
 
     snprintf(histName,sizeof(char)*200,"xCorrPeakPeakHist_chan%d_%d",i/nAnt,i%nAnt);
@@ -6639,7 +6639,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    }
 
    TGraph *xCorrGraph = new TGraph(nSamp, dt, xCorrValue);
-
+cout<<"6642\n";
    FFTtools::getPeakSqVal(xCorrGraph, &peakBin);
    xCorrGraph->GetPoint(peakBin,x,y);
    xCorrPeakHist[baseline]->Fill(x);
