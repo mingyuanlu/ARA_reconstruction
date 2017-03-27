@@ -6595,6 +6595,8 @@ xCorrPeakFile = new TFile("xCorrEnvPeakFile.root"); //if file exists, it will st
 
 if( xCorrPeakFile->IsZombie() ){
 
+  xCorrPeakFile->Close();
+  delete xCorrPeakFile;
   xCorrPeakFile = new TFile("xCorrEnvPeakFile.root","RECREATE");
 
   for(int i=0; i<nBaseline; i++){
@@ -6610,6 +6612,8 @@ if( xCorrPeakFile->IsZombie() ){
 } else {
 //if( !xCorrPeakFile->IsOpen() ){
 
+  xCorrPeakFile->Close();
+  delete xCorrPeakFile;
   xCorrPeakFile = new TFile("xCorrEnvPeakFile.root","UPDATE");
 
   for(int i=0; i<nBaseline; i++){
