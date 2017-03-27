@@ -6644,6 +6644,7 @@ cout<<"6642\n";
 cout<<"6644\n";
    xCorrGraph->GetPoint(peakBin,x,y);
 cout<<"6646\n";
+cout<<"x: "<<x<<" baseline: "<<baseline<<endl;
    xCorrPeakHist[baseline]->Fill(x);
    cout<<"xCorr Peak Bin: "<<peakBin<<" Peak Sq Value: "<<y<<endl;
 
