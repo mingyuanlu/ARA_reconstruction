@@ -6590,11 +6590,13 @@ char histName[200];
 TH1F *xCorrPeakHist[64];
 TH1F *envPeakHist[64];
 TFile *xCorrPeakFile;
+cout<<"6593\n";
 xCorrPeakFile = TFile::Open("xCorrEnvPeakFile.root","UPDATE");
+cout<<"6595\n";
 if( !xCorrPeakFile ){
 
   xCorrPeakFile = new TFile("xCorrEnvPeakFile.root","RECREATE");
-
+cout<<"6599\n";
   for(int i=0; i<nBaseline; i++){
 
     snprintf(histName,sizeof(char)*200,"xCorrPeakHist_chan%d_%d",i/nAnt,i%nAnt);
@@ -6603,7 +6605,7 @@ if( !xCorrPeakFile ){
     snprintf(histName,sizeof(char)*200,"envPeakHist_chan%d_%d",i/nAnt,i%nAnt);
     envPeakHist[i] = new TH1F(histName,histName,10000,0,1000);
     envPeakHist[i]->Write();
-
+cout<<"6608\n";
   }
 } else {
 
@@ -6616,7 +6618,7 @@ if( !xCorrPeakFile ){
 
   }
 }
-
+cout<<"6621\n";
 int peakBin;
 double x, y;
 
