@@ -6614,9 +6614,9 @@ cout<<"6612\n";
 cout<<"6614\n";
   for(int i=0; i<nBaseline; i++){
 
-    snprintf(histName,sizeof(char)*200,"xCorrPeakPeakHist_chan%d_%d",i/nAnt,i%nAnt);
+    snprintf(histName,sizeof(char)*200,"xCorrPeakHist_chan%d_%d",i/nAnt,i%nAnt);
     xCorrPeakHist[i] = (TH1F*)xCorrPeakFile->Get(histName);
-    snprintf(histName,sizeof(char)*200,"envPeakPeakHist_chan%d_%d",i/nAnt,i%nAnt);
+    snprintf(histName,sizeof(char)*200,"envPeakHist_chan%d_%d",i/nAnt,i%nAnt);
     envPeakHist[i] = (TH1F*)xCorrPeakFile->Get(histName);
 
   }
