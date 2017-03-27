@@ -6640,7 +6640,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 
    TGraph *xCorrGraph = new TGraph(nSamp, dt, xCorrValue);
 cout<<"6642\n";
-   FFTtools::getPeakSqVal(xCorrGraph, &peakBin);
+   y = FFTtools::getPeakSqVal(xCorrGraph, &peakBin);
    xCorrGraph->GetPoint(peakBin,x,y);
    xCorrPeakHist[baseline]->Fill(x);
    cout<<"xCorr Peak Bin: "<<peakBin<<" Peak Sq Value: "<<y<<endl;
