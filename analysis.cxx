@@ -649,7 +649,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       stringstream ss;
       ss << ev;
       evStr = ss.str();
-      fitsFileStr = fitsFile_tmp + ".ev" + evStr + ".fits";
+      fitsFileStr = fitsFile_tmp + /*".ev" + evStr +*/ ".fits";
       sprintf(fitsFile, fitsFileStr.c_str());
 
       if(settings->skymapSearchMode == 0){ //no zoom mode

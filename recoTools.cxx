@@ -6600,10 +6600,10 @@ if( xCorrPeakFile->IsZombie() ){
   for(int i=0; i<nBaseline; i++){
 
     snprintf(histName,sizeof(char)*200,"xCorrPeakHist_chan%d_%d",i/nAnt,i%nAnt);
-    xCorrPeakHist[i] = new TH1F(histName,histName,10000,0,1000);
+    xCorrPeakHist[i] = new TH1F(histName,histName,2500,0,1000);
     xCorrPeakHist[i]->Write();
     snprintf(histName,sizeof(char)*200,"envPeakHist_chan%d_%d",i/nAnt,i%nAnt);
-    envPeakHist[i] = new TH1F(histName,histName,10000,0,1000);
+    envPeakHist[i] = new TH1F(histName,histName,2500,0,1000);
     envPeakHist[i]->Write();
 
   }
