@@ -6590,13 +6590,13 @@ char histName[200];
 TH1F *xCorrPeakHist[64];
 TH1F *envPeakHist[64];
 TFile *xCorrPeakFile;
-cout<<"6593\n";
+
 xCorrPeakFile = new TFile("xCorrEnvPeakFile.root"); //if file exists, it will stay unopened
-cout<<"6595\n";
+
 if( xCorrPeakFile->IsZombie() ){
 
   xCorrPeakFile = new TFile("xCorrEnvPeakFile.root","RECREATE");
-cout<<"6599\n";
+
   for(int i=0; i<nBaseline; i++){
 
     snprintf(histName,sizeof(char)*200,"xCorrPeakHist_chan%d_%d",i/nAnt,i%nAnt);
@@ -6605,13 +6605,13 @@ cout<<"6599\n";
     snprintf(histName,sizeof(char)*200,"envPeakHist_chan%d_%d",i/nAnt,i%nAnt);
     envPeakHist[i] = new TH1F(histName,histName,10000,0,1000);
     envPeakHist[i]->Write();
-cout<<"6608\n";
+
   }
 } else {
 //if( !xCorrPeakFile->IsOpen() ){
-cout<<"6612\n";
+
   xCorrPeakFile = new TFile("xCorrEnvPeakFile.root","UPDATE");
-cout<<"6614\n";
+
   for(int i=0; i<nBaseline; i++){
 
     snprintf(histName,sizeof(char)*200,"xCorrPeakHist_chan%d_%d",i/nAnt,i%nAnt);
@@ -6621,7 +6621,7 @@ cout<<"6614\n";
 
   }
 }
-cout<<"6621\n";
+
 int peakBin;
 double x, y;
 
@@ -6639,14 +6639,10 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    }
 
    TGraph *xCorrGraph = new TGraph(nSamp, dt, xCorrValue);
-cout<<"6642\n";
    y = FFTtools::getPeakSqVal(xCorrGraph, &peakBin);
-cout<<"6644\n";
    xCorrGraph->GetPoint(peakBin,x,y);
-cout<<"6646\n";
-cout<<"x: "<<x<<" baseline: "<<baseline<<endl;
    xCorrPeakHist[baseline]->Fill(x);
-   cout<<"xCorr Peak Bin: "<<peakBin<<" Peak Sq Value: "<<y<<endl;
+   //cout<<"xCorr Peak Bin: "<<peakBin<<" Peak Sq Value: "<<y<<endl;
 
    //cvs.cd(1);
    //xCorrGraph->Draw("AL");
@@ -6656,7 +6652,7 @@ cout<<"x: "<<x<<" baseline: "<<baseline<<endl;
    peakBin = FFTtools::getPeakBin(envelope);
    envelope->GetPoint(peakBin,x,y);
    envPeakHist[baseline]->Fill(x);
-   cout<<"env Peak Bin: "<<peakBin<<" Peak Value: "<<y<<endl;
+   //cout<<"env Peak Bin: "<<peakBin<<" Peak Value: "<<y<<endl;
 /*
    sprintf(envelopename,"xCorrEnvelope_2014_A3_burn_RF_chan%d_%d.C", ant1, ant2);
    cvs.cd();
