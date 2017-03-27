@@ -6591,7 +6591,7 @@ TH1F *xCorrPeakHist[64];
 TH1F *envPeakHist[64];
 TFile *xCorrPeakFile;
 cout<<"6593\n";
-xCorrPeakFile = TFile::Open("xCorrEnvPeakFile.root","NEW"); //if file exists, it will stay unopened
+xCorrPeakFile = new TFile("xCorrEnvPeakFile.root","NEW"); //if file exists, it will stay unopened
 cout<<"6595\n";
 if( xCorrPeakFile->IsOpen() ){
 
@@ -6610,7 +6610,7 @@ cout<<"6608\n";
 } else {
 //if( !xCorrPeakFile->IsOpen() ){
 cout<<"6612\n";
-  xCorrPeakFile = TFile::Open("xCorrEnvPeakFile.root","UPDATE");
+  xCorrPeakFile = new TFile("xCorrEnvPeakFile.root","UPDATE");
 cout<<"6614\n";
   for(int i=0; i<nBaseline; i++){
 
