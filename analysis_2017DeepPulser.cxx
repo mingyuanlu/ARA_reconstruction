@@ -357,7 +357,7 @@ if( settings->skymapSearchMode == 0){ //No zoom search
  * Set up reco environment. In this case, an OpenCL environment
  */
 recoEnvData clEnv;
-err = setupCLRecoEnv(&clEnv, settings->programFile/*.c_str()*/);
+err = setupCLRecoEnv(settings, &clEnv, settings->programFile/*.c_str()*/);
 if( err<0 ){
    cerr<<"Error setting up reco env\n"; return -1;
 }

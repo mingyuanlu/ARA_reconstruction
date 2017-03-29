@@ -40,7 +40,7 @@ void recoSettings::initialize(){
 
   iceModel = 0;
   topN     = 50;
-  
+
   layerFirstRadius = 40;
   layerLastRadius = 5000;
 
@@ -52,8 +52,11 @@ void recoSettings::initialize(){
   snprintf(referenceMapFitFile, sizeof(referenceMapFitFile), "");
   snprintf(referenceMapFitFunc, sizeof(referenceMapFitFunc), "");
 
+  snprintf(openCLDeviceType, sizeof(openCLDeviceType), "cpu");
+  openCLMaxNumberOfCores = 0;
+
   //remark = "Default.";
-  snprintf(remark, sizeof(remark), "Default.");  
+  snprintf(remark, sizeof(remark), "Default.");
 
 }
 
@@ -62,17 +65,17 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
    if(recoSetupFile == ""){ cerr<<"No reco setup file provided!\n"; return false; }
    ifstream sf(recoSetupFile.c_str());
    string line, label;
-   
+
    if( sf.is_open() ){
       while( sf.good() ){
          getline(sf, line);
          if(line[0] != "/"[0]){
             label = line.substr(0, line.find_first_of("="));
-             
+
             if(label == "programFile")              snprintf(programFile, sizeof(programFile), line.substr(line.find_first_of("=")+1).c_str() );
                                                     //programFile         = line.substr(line.find_first_of("=")+1);
-            else if(label == "nSideExp")            nSideExp            = atoi( line.substr(line.find_first_of("=")+1).c_str() ); 
-            else if(label == "nLayer")              nLayer              = atoi( line.substr(line.find_first_of("=")+1).c_str() ); 
+            else if(label == "nSideExp")            nSideExp            = atoi( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "nLayer")              nLayer              = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "dataType")            dataType            = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "triggerCode"){        triggerCode[0]      = line.substr(line.find_first_of("=")+1).at(0);
                                                     triggerCode[1]      = line.substr(line.find_first_of("=")+1).at(1);
@@ -105,14 +108,16 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
                                                     //referenceMapFitFile = line.substr(line.find_first_of("=")+1);
             else if(label == "referenceMapFitFunc") snprintf(referenceMapFitFunc, sizeof(referenceMapFitFunc), line.substr(line.find_first_of("=")+1).c_str() );
                                                     //referenceMapFitFunc = line.substr(line.find_first_of("=")+1);
+            else if(label == "openCLDeviceType")    snprintf(openCLDeviceType, sizeof(openCLDeviceType), line.substr(line.find_first_of("=")+1).c_str());
+            else if(label == "openCLMaxNumberOfCores") openCLMaxNumberOfCores = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label != "") cerr<<"Undefined parameter detected. Label: "<<label<<endl;
-         }  
+         }
       }
-     
+
        sf.close();
 
       /* Parameters sanity checks */
-      
+
       int errCnt = 0;//error count
 
       ifstream pf(programFile/*.c_str()*/);
@@ -126,14 +131,14 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
       if( (unsigned)(layerAllocationMode-0) > 1){ cerr<<"layerAllocationMode: "<<layerAllocationMode<<endl; errCnt++; }
       if( (unsigned)(skymapSearchMode-0) > 1){    cerr<<"skymapSearchMode: "<<skymapSearchMode<<endl; errCnt++; }
       if( (unsigned)(beamformMethod-0) > 1){      cerr<<"beamformMethod: "<<beamformMethod<<endl; errCnt++; }
-      if( recoVertexingMode != 0){                cerr<<"recoVertexingMode: "<<recoVertexingMode<<endl; errCnt++; } 
+      if( recoVertexingMode != 0){                cerr<<"recoVertexingMode: "<<recoVertexingMode<<endl; errCnt++; }
       if( (unsigned)(getSkymapMode-0) > 1){       cerr<<"getSkymapMode: "<<getSkymapMode<<endl; errCnt++; }
       if( string(recoPolType) != "vpol" && string(recoPolType) != "hpol" && string(recoPolType) != "both" )
         { cerr<<"Undefined recoPolType. Must be \"vpol\", \"hpol\", or \"both\"."<<endl; errCnt++; }
       if( nSideExpStart < 1 ){                    cerr<<"nSideExpStart: "<<nSideExpStart<<endl; errCnt++; }
       if( nSideExpEnd < 1 ){                      cerr<<"nSideExpEnd: "<<nSideExpEnd<<endl; errCnt++; }
       if( (unsigned)(nchnlFilter-0) > 3){         cerr<<"nchnlFilter: "<<nchnlFilter<<endl; errCnt++; }
-      if( (unsigned)(nchnlCut-0) > 16){           cerr<<"nchnlCut: "<<nchnlCut<<endl; errCnt++; } 
+      if( (unsigned)(nchnlCut-0) > 16){           cerr<<"nchnlCut: "<<nchnlCut<<endl; errCnt++; }
       if( nchnlThreshold < 0){                    cerr<<"nchnlThreshold: "<<nchnlThreshold<<endl; errCnt++; }
       if( nchnlThreshold_A1 < 0){                 cerr<<"nchnlThreshold_A1: "<<nchnlThreshold_A1<<endl; errCnt++; }
       if( nchnlThreshold_A2 < 0){                 cerr<<"nchnlThreshold_A2: "<<nchnlThreshold_A2<<endl; errCnt++; }
@@ -152,10 +157,11 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
          else{                                    cerr<<"referenceMapFitFile: "<<referenceMapFitFile<<endl; errCnt++; }
          if( referenceMapFitFunc == "" ){         cerr<<"referenceMapFitFunc: "<<referenceMapFitFunc<<endl; errCnt++; }
       }
-      
+      if( string(openCLDeviceType) != "cpu" && string(openCLDeviceType) != "gpu"){ cerr<<"Undefined openCLDeviceType. Must be \"cpu\" or \"gpu\"."<<endl; errCnt++; }
+      if( openCLMaxNumberOfCores < 0 ){           cerr<<"openCLMaxNumberOfCores"<<openCLMaxNumberOfCores<<endl; errCnt++; }
       if(errCnt > 0) return false;
-    
+
    } else { cerr<<"Unable to open "<<sf<<endl; return false; }
 
 return true;
-} 
+}
