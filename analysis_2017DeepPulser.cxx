@@ -460,7 +460,11 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       (rawAtriEvPtr->unixTime > deepPulserString1EndTime_2017 && rawAtriEvPtr->unixTime < deepPulserString22StartTime_2017)
       ||
       (rawAtriEvPtr->unixTime > deepPulserString22EndTime_2017)
-   ) continue;
+   ) {
+     cout<<"Skipping event not in deep pulser period....\n";
+     continue;
+   }
+   else cout<<"Reconstructing this event.......\n";
 
    summary->setEventId(rawAtriEvPtr->eventId);
    summary->setEventNumber(rawAtriEvPtr->eventNumber);
