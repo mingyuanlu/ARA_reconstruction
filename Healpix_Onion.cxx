@@ -28,7 +28,7 @@ using namespace std;
 
   for(int i=1; i<=nLayer; i++){
 
-   layerRadii.push_back( (float)i * /*5000.f*/42.f / (float)nLayer); //for testing 3D calpulser reco
+   layerRadii.push_back( (float)i * 5000.f /*42.f*/ / (float)nLayer); //for testing 3D calpulser reco
 
    }
 
