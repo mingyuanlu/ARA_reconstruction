@@ -445,7 +445,8 @@ if(settings->dataType == 1){
 trigEventCount = runEventCount;
 for (Long64_t ev=0; ev<runEventCount; ev++){
 
-   //if(recoEventCount == 100) break;
+   if(settings->maxNumberOfReco >= 0)
+      if(recoEventCount == settings->maxNumberOfReco) break;
 
    summary->clear();
 

@@ -86,7 +86,7 @@ public:
    openCLDeviceType:
       Default "cpu". Specifies which OpenCL devices to looks for in the platform. Currently only a single CPU is supported. In the future, should implement CPU, GPU, and a combination of both.
    openCLMaxNumberOfCores:
-      Default 0. The upper limit of CPU cores to use in the OpenCL device. This uses the "Device fission extensions" of OpenCL and as I understand applies only to CPU devices. At default (0), no fission will be made and the program will in principle try to use up all given cores. 
+      Default 0. The upper limit of CPU cores to use in the OpenCL device. This uses the "Device fission extensions" of OpenCL and as I understand applies only to CPU devices. At default (0), no fission will be made and the program will in principle try to use up all given cores.
    remark:
       Default "". Any remark one wishes to add to the reco setup file. The remarks will then be carried along in the analysis output ROOT file. Note that number of characters should not exceed CSTRING_MAX defined in recoSettings.h
 */
@@ -135,7 +135,10 @@ public:
    //string remark;
    char remark[CSTRING_MAX];
 
-   ClassDef(recoSettings, 3); //2: convert all string parameters to char
+   //ClassDef 4
+   int maxNumberOfReco;
+
+   ClassDef(recoSettings, 4); //2: convert all string parameters to char
                               //3: add openCLDeviceType and openCLMaxNumberOfDevices parameters
 };
 
