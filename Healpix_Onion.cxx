@@ -26,9 +26,10 @@ using namespace std;
    layerRadii.clear();
    float r=0.f;
 
-  for(int i=1; i<=nLayer; i++){
+  for(int i=0; i<nLayer; i++){
 
-   layerRadii.push_back( (float)i * /*5000.f*/ 3000.f /*42.f*/ / (float)nLayer); //for testing 3D calpulser reco
+   //layerRadii.push_back( (float)i * /*5000.f*/ 3000.f /*42.f*/ / (float)nLayer); //for testing 3D calpulser reco
+   layerRadii.push_back( layerFirstRadius + (float)i * (layerLastRadius - layerFirstRadius) / (float)(nLayer - 1) );
 
    }
 

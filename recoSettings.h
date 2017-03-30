@@ -72,9 +72,9 @@ public:
    topN:
       Default 50. Number of pixels with the most beam values to be selected.
    layerFirstRadius:
-      Default 40. The radial distance in meters of the first layer in the Healpix_Onion. Note only when nLayer >=2 will this value be used.
+      Default 40. The radial distance in meters of the first layer in the Healpix_Onion.
    layerLastRadius:
-      Default 5000. The radial distance in meters of the last layer in the Healpix_Onion. Note only when nLayer >=2 will this value be used.
+      Default 5000. The radial distance in meters of the last layer in the Healpix_Onion.
    recordMapData:
       Default 0. 0: do not record map data histograms. 1: do record map data histograms and save to final output ROOT file
    computeLLHAndPValue:
