@@ -318,7 +318,7 @@ if( settings->skymapSearchMode == 0){ //No zoom search
    nSideExp = settings->nSideExp;
    nLayer = settings->nLayer;
    nDir = 12 * pow(2, nSideExp) * pow(2, nSideExp);
-   onion = new Healpix_Onion(nSideExp, nLayer);
+   onion = new Healpix_Onion(nSideExp, nLayer, settings->layerFirstRadius, settings->layerLastRadius);
 
 
    if(nDir*nLayer < topN) {

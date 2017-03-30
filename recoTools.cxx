@@ -7482,7 +7482,7 @@ int *rank;
 nSideExp = settings->nSideExpStart;
 nDir = 12 * pow(2, nSideExp) * pow(2, nSideExp);
 nLayer = settings->nLayer;
-Healpix_Onion *onion = new Healpix_Onion(nSideExp, nLayer);
+Healpix_Onion *onion = new Healpix_Onion(nSideExp, nLayer, settings->layerFirstRadius, settings->layerFirstRadius);
 //Healpix_Onion onion(nSideExp, nLayer);
 
 if(pol == "both" ){
@@ -7636,7 +7636,7 @@ for(nSideExp = settings->nSideExpStart+1; nSideExp <= settings->nSideExpEnd; nSi
    M = NULL;
    rank = NULL;
 
-   onion = new Healpix_Onion(nSideExp, nLayer);
+   onion = new Healpix_Onion(nSideExp, nLayer, settings->layerFirstRadius, settings->layerFirstRadius);
    nDir = NPIX_NESTED; //defined in recoTools.h
 
 
@@ -9695,7 +9695,7 @@ int record3DDiffGetFlag(recoSettings *settings, recoData *summary, TH1F *dZenDis
    int nDir = hpBase.Npix();
    pointing pt;
 
-   Healpix_Onion onion(nSideExp, nLayer);
+   Healpix_Onion onion(nSideExp, nLayer, settings->layerFirstRadius, settings->layerFirstRadius);
 
    cout<<"maxPixIdx: "<<summary->maxPixIdx<<" maxPixIdx on the skymap: "<<summary->maxPixIdx%nDir<<endl;
    pt = hpBase.pix2ang( summary->maxPixIdx % nDir );
@@ -9746,7 +9746,7 @@ int record3DZoomedDiffGetFlag(recoSettings *settings, recoData *summary, TH1F *d
    int nDir = hpBase.Npix();
    pointing pt;
 
-   Healpix_Onion onion(nSideExp, nLayer);
+   Healpix_Onion onion(nSideExp, nLayer, settings->layerFirstRadius, settings->layerFirstRadius);
 
    cout<<"maxPixIdx: "<<summary->maxPixIdx<<" maxPixIdx on the skymap: "<<summary->maxPixIdx%nDir<<endl;
    pt = hpBase.pix2ang( summary->maxPixIdx % nDir );
