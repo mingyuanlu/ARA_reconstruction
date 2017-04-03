@@ -694,6 +694,10 @@ else {
 
 for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    //cout<<"Entering event loop\n";
+
+   if(settings->maxNumberOfReco >= 0)
+      if(recoEventCount == settings->maxNumberOfReco) break;
+
    summary->clear();
    //cout<<"Cleared previous summary\n";
    if(ev%1000 == 0) cout<<"*******************************Event got********************************: "<<ev<<endl;
