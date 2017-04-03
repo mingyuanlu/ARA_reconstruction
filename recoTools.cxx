@@ -6612,6 +6612,7 @@ for(int i=0; i<nBaseline; i++){
 */
 //static int lock;
 char sillygrname[200];
+/*
 char histName[200];
 
 //TH1F *xCorrPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
@@ -6657,7 +6658,7 @@ if( xCorrPeakFile->IsZombie() ){
 
 int peakBin;
 double x, y;
-
+*/
 for(int baseline=0; baseline<nBaseline; baseline++){
 
 
@@ -6672,20 +6673,21 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    }
 
    TGraph *xCorrGraph = new TGraph(nSamp, dt, xCorrValue);
+/*
    y = FFTtools::getPeakSqVal(xCorrGraph, &peakBin);
    xCorrGraph->GetPoint(peakBin,x,y);
    xCorrPeakHist[baseline]->Fill(x);
-   //cout<<"xCorr Peak Bin: "<<peakBin<<" Peak Sq Value: "<<y<<endl;
+*/   //cout<<"xCorr Peak Bin: "<<peakBin<<" Peak Sq Value: "<<y<<endl;
 
    //cvs.cd(1);
    //xCorrGraph->Draw("AL");
 
    TGraph* envelope = FFTtools::getHilbertEnvelope( xCorrGraph );
-
+/*
    peakBin = FFTtools::getPeakBin(envelope);
    envelope->GetPoint(peakBin,x,y);
    envPeakHist[baseline]->Fill(x);
-   //cout<<"env Peak Bin: "<<peakBin<<" Peak Value: "<<y<<endl;
+*/   //cout<<"env Peak Bin: "<<peakBin<<" Peak Value: "<<y<<endl;
 /*
    sprintf(envelopename,"xCorrEnvelope_2014_A3_burn_RF_chan%d_%d.C", ant1, ant2);
    cvs.cd();
@@ -6767,20 +6769,20 @@ for(int baseline=0; baseline<nBaseline; baseline++){
   sillygr[baseline]->Draw("AL");
   cvs.SaveAs(sillygrname);
 */
-
+/*
   xCorrPeakHist[baseline]->Write();
   envPeakHist[baseline]->Write();
-
+*/
   delete xCorrGraph;
   delete envelope;
 
 }
-
+/*
 xCorrPeakFile->Close();
 //free(xCorrPeakHist);
 //free(envPeakHist);
 delete xCorrPeakFile;
-
+*/
 cl_mem xCorrEnvBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
                                        sizeof(float)*nBaseline*nSamp,
                                        xCorrTime, &err);
