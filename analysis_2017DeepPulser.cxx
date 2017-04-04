@@ -391,6 +391,9 @@ if(settings->dataType == 1){
       eventTree->GetEntry(ev);
       if(rawAtriEvPtr->unixTime < utime_runStart) utime_runStart=rawAtriEvPtr->unixTime;
       if(rawAtriEvPtr->unixTime > utime_runEnd  ) utime_runEnd  =rawAtriEvPtr->unixTime;
+
+      printf("unixTime: %d\tunixTimeUs: %d\ttimeStamp: %d\teventId: %d\teventNumber: %d\tppsNumber: %d\n", rawAtriEvPtr->unixTime, rawAtriEvPtr->unixTimeUs, rawAtriEvPtr->timeStamp, rawAtriEvPtr->eventId, rawAtriEvPtr->eventNumber, rawAtriEvPtr->ppsNumber);
+
    }
    cout<<"utime_runStart: "<<utime_runStart<<" dropD4Time: "<<dropD4Time<<endl;
    cout<<"Run time span: "<<utime_runEnd-utime_runStart<<endl;
@@ -467,7 +470,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    }
    else cout<<"Reconstructing this event.......\n";
 
-   summary->setEventId(rawAtriEvPtr->eventId);
+      summary->setEventId(rawAtriEvPtr->eventId);
    summary->setEventNumber(rawAtriEvPtr->eventNumber);
 
    if(rawAtriEvPtr->isRFTrigger()){
