@@ -392,6 +392,7 @@ if(settings->dataType == 1){
       if(rawAtriEvPtr->unixTime < utime_runStart) utime_runStart=rawAtriEvPtr->unixTime;
       if(rawAtriEvPtr->unixTime > utime_runEnd  ) utime_runEnd  =rawAtriEvPtr->unixTime;
 
+      printf("RF:%d\tCal:%d\tSoft:%d\n",rawAtriEvPtr->isRFTrigger(),rawAtriEvPtr->isCalpulserEvent(),rawAtriEvPtr->isSoftwareTrigger());
       printf("unixTime: %d\tunixTimeUs: %d\ttimeStamp: %d\teventId: %d\teventNumber: %d\tppsNumber: %d\n", rawAtriEvPtr->unixTime, rawAtriEvPtr->unixTimeUs, rawAtriEvPtr->timeStamp, rawAtriEvPtr->eventId, rawAtriEvPtr->eventNumber, rawAtriEvPtr->ppsNumber);
 
    }
