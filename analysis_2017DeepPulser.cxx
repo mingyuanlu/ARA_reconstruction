@@ -470,12 +470,12 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
      continue;
    }
 */
-   if((rawAtriEvPtr->timeStamp < deepPulserString22StartTimeStamp_2017)
+   if((rawAtriEvPtr->timeStamp < deepPulserString1StartTimeStamp_2017)
+      ||
+      //(rawAtriEvPtr->timeStamp > deepPulserString1EndTimeStamp_2017)
+      (rawAtriEvPtr->timeStamp > deepPulserString1EndTimeStamp_2017 && rawAtriEvPtr->timeStamp < deepPulserString22StartTimeStamp_2017)
       ||
       (rawAtriEvPtr->timeStamp > deepPulserString22EndTimeStamp_2017)
-      //(rawAtriEvPtr->unixTime > deepPulserString1EndTime_2017 && rawAtriEvPtr->unixTime < deepPulserString22StartTime_2017)
-      //||
-      //(rawAtriEvPtr->unixTime > deepPulserString22EndTime_2017)
    ) {
      cout<<"Skipping event not in deep pulser period....\n";
      continue;
