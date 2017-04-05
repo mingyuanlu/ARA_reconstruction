@@ -392,8 +392,8 @@ if(settings->dataType == 1){
       if(rawAtriEvPtr->unixTime < utime_runStart) utime_runStart=rawAtriEvPtr->unixTime;
       if(rawAtriEvPtr->unixTime > utime_runEnd  ) utime_runEnd  =rawAtriEvPtr->unixTime;
 
-      printf("RF:%d\tCal:%d\tSoft:%d\n",rawAtriEvPtr->isRFTrigger(),rawAtriEvPtr->isCalpulserEvent(),rawAtriEvPtr->isSoftwareTrigger());
-      printf("unixTime: %d\tunixTimeUs: %d\ttimeStamp: %d\teventId: %d\teventNumber: %d\tppsNumber: %d\n", rawAtriEvPtr->unixTime, rawAtriEvPtr->unixTimeUs, rawAtriEvPtr->timeStamp, rawAtriEvPtr->eventId, rawAtriEvPtr->eventNumber, rawAtriEvPtr->ppsNumber);
+      //printf("RF:%d\tCal:%d\tSoft:%d\n",rawAtriEvPtr->isRFTrigger(),rawAtriEvPtr->isCalpulserEvent(),rawAtriEvPtr->isSoftwareTrigger());
+      //printf("unixTime: %d\tunixTimeUs: %d\ttimeStamp: %d\teventId: %d\teventNumber: %d\tppsNumber: %d\n", rawAtriEvPtr->unixTime, rawAtriEvPtr->unixTimeUs, rawAtriEvPtr->timeStamp, rawAtriEvPtr->eventId, rawAtriEvPtr->eventNumber, rawAtriEvPtr->ppsNumber);
 
    }
    cout<<"utime_runStart: "<<utime_runStart<<" dropD4Time: "<<dropD4Time<<endl;
@@ -459,12 +459,23 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    eventTree->GetEntry(ev);
 
    cout<<"Code loop ev: "<<ev<<" eventId: "<<rawAtriEvPtr->eventId<<" eventNumber: "<<rawAtriEvPtr->eventNumber<<endl;
-
+/*
    if((rawAtriEvPtr->unixTime < deepPulserString1StartTime_2017)
       ||
       (rawAtriEvPtr->unixTime > deepPulserString1EndTime_2017 && rawAtriEvPtr->unixTime < deepPulserString22StartTime_2017)
       ||
       (rawAtriEvPtr->unixTime > deepPulserString22EndTime_2017)
+   ) {
+     cout<<"Skipping event not in deep pulser period....\n";
+     continue;
+   }
+*/
+   if((rawAtriEvPtr->timeStamp < deepPulserString1StartTimeStamp_2017)
+      ||
+      (rawAtriEvPtr->timeStamp > deepPulserString1EndTimeStamp_2017)
+      //(rawAtriEvPtr->unixTime > deepPulserString1EndTime_2017 && rawAtriEvPtr->unixTime < deepPulserString22StartTime_2017)
+      //||
+      //(rawAtriEvPtr->unixTime > deepPulserString22EndTime_2017)
    ) {
      cout<<"Skipping event not in deep pulser period....\n";
      continue;

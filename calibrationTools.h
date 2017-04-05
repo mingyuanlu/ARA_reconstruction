@@ -34,9 +34,14 @@ using namespace std;
 //Unix timestamp of 2017 Jan 24 23:48- Jan 25 00:00 (UTC) IC deep pulser string 1 shallow pulser operation. This is in ARA2 run8573
 #define deepPulserString1StartTime_2017 1485301680
 #define deepPulserString1EndTime_2017 1485302400
-//Unix timestamp of 2017 Jan 25 00:01- Jan 25 00:19 (UTC) IC deep pulser string 22 shallow pulser operation. This is in ARA2 run8573
+//Unix time (sec) of 2017 Jan 25 00:01- Jan 25 00:19 (UTC) IC deep pulser string 22 shallow pulser operation. This is in ARA2 run8573
 #define deepPulserString22StartTime_2017 1485302460
 #define deepPulserString22EndTime_2017 1485303540
+//Start/End timestamp of the above pulses
+#define deepPulserString1StartTimeStamp_2017 27847600
+#define deepPulserString1EndTimeStamp_2017 27854200
+#define deepPulserString22StartTimeStamp_2017 39803400
+#define deepPulserString22EndTimeStamp_2017 39809200
 
 //void invertGraph(TGraph *gr);
 int calibrateGeometryAndDelays(const RawAraStationEvent *rawAtriEvPtr,
