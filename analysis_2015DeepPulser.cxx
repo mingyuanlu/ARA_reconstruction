@@ -444,6 +444,9 @@ cout<<"runEventCount: "<<runEventCount<<endl;
 recoData *summary = new recoData();
 dataTree->Branch("summary", &summary);
 
+TCanvas c1("c1","c1",800,600);
+TH1F *hist = new TH1F("hist","hist",1000,0,1e8)
+
 if(settings->dataType == 1){
 
 trigEventCount = runEventCount;
@@ -474,18 +477,19 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       ||
       (rawAtriEvPtr->unixTime > 1420510620)
       //(rawAtriEvPtr->timeStamp < /*deepPulserString1StartTimeStamp_2017*/5435e3)
-      ||
+      //||
       //(rawAtriEvPtr->timeStamp > deepPulserString1EndTimeStamp_2017)
-      (/*rawAtriEvPtr->timeStamp > *//*deepPulserString1EndTimeStamp_2017*//*5530e3 &&*/ rawAtriEvPtr->timeStamp < /*deepPulserString22StartTimeStamp_2017*/8160e3)
-      ||
-      (rawAtriEvPtr->timeStamp > /*deepPulserString22EndTimeStamp_2017*/8940e3)
+      //(/*rawAtriEvPtr->timeStamp > *//*deepPulserString1EndTimeStamp_2017*//*5530e3 &&*/ rawAtriEvPtr->timeStamp < /*deepPulserString22StartTimeStamp_2017*/8160e3)
+      //||
+      //(rawAtriEvPtr->timeStamp > /*deepPulserString22EndTimeStamp_2017*/8940e3)
    ) {
      cout<<"Skipping event not in deep pulser period....\n";
      continue;
    }
    else cout<<"Reconstructing this event.......\n";
 
-      summary->setEventId(rawAtriEvPtr->eventId);
+   hist->Fill(rawAtriEvPtr->timeStamp);
+   summary->setEventId(rawAtriEvPtr->eventId);
    summary->setEventNumber(rawAtriEvPtr->eventNumber);
 
    if(rawAtriEvPtr->isRFTrigger()){
@@ -912,6 +916,8 @@ free(recoDelays_H);
 delete settings;
 free(mapDataHist);
 free(mapData);
+
+c1.SaveAs("testHist.C");
 
 cout<<"Successfully reached end of main()"<<endl;
 return 0;
