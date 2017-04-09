@@ -445,7 +445,7 @@ recoData *summary = new recoData();
 dataTree->Branch("summary", &summary);
 
 TCanvas c1("c1","c1",800,600);
-TH1F *hist = new TH1F("hist","hist",1000,0,1e8)
+TH1F *hist = new TH1F("hist","hist",1000,0,1e8);
 
 if(settings->dataType == 1){
 
