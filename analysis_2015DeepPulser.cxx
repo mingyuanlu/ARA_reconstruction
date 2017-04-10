@@ -485,9 +485,18 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
      continue;
    }
 */
-   if((rawAtriEvPtr->unixTime < 1420510020)
-      ||
-      (rawAtriEvPtr->unixTime > 1420510620)
+   if( !(
+        (rawAtriEvPtr->unixTime > 1420510020)
+        &&
+        (rawAtriEvPtr->unixTime < 1420510620)
+        &&
+        (rawAtriEvPtr->timeStamp > 8160e3)
+        &&
+        (rawAtriEvPtr->timeStamp < 8940e3)
+      )
+      //(rawAtriEvPtr->unixTime < 1420510020)
+      //||
+      //(rawAtriEvPtr->unixTime > 1420510620)
       //(rawAtriEvPtr->timeStamp < /*deepPulserString1StartTimeStamp_2017*/5435e3)
       //||
       //(rawAtriEvPtr->timeStamp > deepPulserString1EndTimeStamp_2017)
