@@ -487,13 +487,13 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    }
 */
    if( !(
-        (rawAtriEvPtr->unixTime > 1420510020)
+        (rawAtriEvPtr->unixTime > 1420510680)
         &&
-        (rawAtriEvPtr->unixTime < 1420510620)
+        (rawAtriEvPtr->unixTime < 1420511340)
         &&
-        (rawAtriEvPtr->timeStamp > 8160e3)
+        (rawAtriEvPtr->timeStamp > 8240e3)
         &&
-        (rawAtriEvPtr->timeStamp < 8940e3)
+        (rawAtriEvPtr->timeStamp < 9100e3)
       )
       //(rawAtriEvPtr->unixTime < 1420510020)
       //||
@@ -528,7 +528,6 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       if(triggerCode[2] != 1) continue;
    } else { cerr<<"Undefined trigger type!!\n"; continue; }
 
-cout<<"eventTrigType: "<<summary->eventTrigType<<endl;
 
    UsefulAtriStationEvent *realAtriEvPtr = new UsefulAtriStationEvent( rawAtriEvPtr, AraCalType::kLatestCalib);
 //*************APPLYING DELAYS. CODE FROM T. MEURES*****************
