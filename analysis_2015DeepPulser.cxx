@@ -458,6 +458,7 @@ cout<<"runEventCount: "<<runEventCount<<endl;
 
 recoData *summary = new recoData();
 dataTree->Branch("summary", &summary);
+int tempCount=0;
 
 if(settings->dataType == 1){
 
@@ -507,7 +508,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
      cout<<"Skipping event not in deep pulser period....\n";
      continue;
    }
-   else cout<<"Reconstructing this event.......\n";
+   else {cout<<"Reconstructing this event.......\n";
+   tempCount++;
+ }
 
    summary->setEventId(rawAtriEvPtr->eventId);
    summary->setEventNumber(rawAtriEvPtr->eventNumber);
@@ -936,7 +939,7 @@ free(recoDelays_H);
 delete settings;
 free(mapDataHist);
 free(mapData);
-
+cout<<"tempCount: "<<tempCount<<endl;
 cout<<"Successfully reached end of main()"<<endl;
 return 0;
 }
