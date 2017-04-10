@@ -399,9 +399,9 @@ if(settings->dataType == 1){
       //printf("RF:%d\tCal:%d\tSoft:%d\n",rawAtriEvPtr->isRFTrigger(),rawAtriEvPtr->isCalpulserEvent(),rawAtriEvPtr->isSoftwareTrigger());
       //printf("unixTime: %d\tunixTimeUs: %d\ttimeStamp: %d\teventId: %d\teventNumber: %d\tppsNumber: %d\n", rawAtriEvPtr->unixTime, rawAtriEvPtr->unixTimeUs, rawAtriEvPtr->timeStamp, rawAtriEvPtr->eventId, rawAtriEvPtr->eventNumber, rawAtriEvPtr->ppsNumber);
 
-      if((rawAtriEvPtr->unixTime < 1420510020)
-         ||
-         (rawAtriEvPtr->unixTime > 1420510620)
+      if((rawAtriEvPtr->unixTime > 1420510020)
+         &&
+         (rawAtriEvPtr->unixTime < 1420510620)
       ) hist->Fill(rawAtriEvPtr->timeStamp);
 
    }
