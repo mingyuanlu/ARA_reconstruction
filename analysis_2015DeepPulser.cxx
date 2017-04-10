@@ -922,6 +922,7 @@ delete settings;
 free(mapDataHist);
 free(mapData);
 
+hist->Draw();
 c1.SaveAs("testHist.C");
 
 cout<<"Successfully reached end of main()"<<endl;
