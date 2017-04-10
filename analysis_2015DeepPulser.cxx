@@ -371,6 +371,9 @@ if( err<0 ){
    TGraph *gr_fft[16];
    TGraph *grHilbert[16];
 
+   TCanvas c1("c1","c1",800,600);
+   TH1F *hist = new TH1F("hist","hist",1000,0,1e8);
+
 if(settings->dataType == 1){
 /*
    int cutWaveAlert;
@@ -387,8 +390,6 @@ if(settings->dataType == 1){
  * Loop over events once to determine run start/end time
  */
 
-   TCanvas c1("c1","c1",800,600);
-   TH1F *hist = new TH1F("hist","hist",1000,0,1e8);
 
    for(int ev=1; ev<runEventCount/*numEntries*/; ev++){
       eventTree->GetEntry(ev);
