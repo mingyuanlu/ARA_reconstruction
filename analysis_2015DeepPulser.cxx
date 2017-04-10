@@ -387,6 +387,9 @@ if(settings->dataType == 1){
  * Loop over events once to determine run start/end time
  */
 
+   TCanvas c1("c1","c1",800,600);
+   TH1F *hist = new TH1F("hist","hist",1000,0,1e8);
+
    for(int ev=1; ev<runEventCount/*numEntries*/; ev++){
       eventTree->GetEntry(ev);
       if(rawAtriEvPtr->unixTime < utime_runStart) utime_runStart=rawAtriEvPtr->unixTime;
@@ -394,6 +397,11 @@ if(settings->dataType == 1){
 
       //printf("RF:%d\tCal:%d\tSoft:%d\n",rawAtriEvPtr->isRFTrigger(),rawAtriEvPtr->isCalpulserEvent(),rawAtriEvPtr->isSoftwareTrigger());
       //printf("unixTime: %d\tunixTimeUs: %d\ttimeStamp: %d\teventId: %d\teventNumber: %d\tppsNumber: %d\n", rawAtriEvPtr->unixTime, rawAtriEvPtr->unixTimeUs, rawAtriEvPtr->timeStamp, rawAtriEvPtr->eventId, rawAtriEvPtr->eventNumber, rawAtriEvPtr->ppsNumber);
+
+      if((rawAtriEvPtr->unixTime < 1420510020)
+         ||
+         (rawAtriEvPtr->unixTime > 1420510620)
+      ) hist->Fill(rawAtriEvPtr->timeStamp);
 
    }
    cout<<"utime_runStart: "<<utime_runStart<<" dropD4Time: "<<dropD4Time<<endl;
@@ -444,9 +452,6 @@ cout<<"runEventCount: "<<runEventCount<<endl;
 recoData *summary = new recoData();
 dataTree->Branch("summary", &summary);
 
-TCanvas c1("c1","c1",800,600);
-TH1F *hist = new TH1F("hist","hist",1000,0,1e8);
-
 if(settings->dataType == 1){
 
 trigEventCount = runEventCount;
@@ -488,7 +493,6 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    }
    else cout<<"Reconstructing this event.......\n";
 
-   hist->Fill(rawAtriEvPtr->timeStamp);
    summary->setEventId(rawAtriEvPtr->eventId);
    summary->setEventNumber(rawAtriEvPtr->eventNumber);
 
