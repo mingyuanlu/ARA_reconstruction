@@ -474,7 +474,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    eventTree->GetEntry(ev);
 
-   cout<<"Code loop ev: "<<ev<<" eventId: "<<rawAtriEvPtr->eventId<<" eventNumber: "<<rawAtriEvPtr->eventNumber<<endl;
+   //cout<<"Code loop ev: "<<ev<<" eventId: "<<rawAtriEvPtr->eventId<<" eventNumber: "<<rawAtriEvPtr->eventNumber<<endl;
 /*
    if((rawAtriEvPtr->unixTime < deepPulserString1StartTime_2017)
       ||
@@ -505,7 +505,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       //||
       //(rawAtriEvPtr->timeStamp > /*deepPulserString22EndTimeStamp_2017*/8940e3)
    ) {
-     cout<<"Skipping event not in deep pulser period....\n";
+     //cout<<"Skipping event not in deep pulser period....\n";
      continue;
    }
    else {cout<<"Reconstructing this event.......\n";
@@ -528,7 +528,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       if(triggerCode[2] != 1) continue;
    } else { cerr<<"Undefined trigger type!!\n"; continue; }
 
-
+cout<<"eventTrigType: "<<summary->eventTrigType<<endl;
 
    UsefulAtriStationEvent *realAtriEvPtr = new UsefulAtriStationEvent( rawAtriEvPtr, AraCalType::kLatestCalib);
 //*************APPLYING DELAYS. CODE FROM T. MEURES*****************
