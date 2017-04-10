@@ -407,6 +407,8 @@ if(settings->dataType == 1){
    }
    cout<<"utime_runStart: "<<utime_runStart<<" dropD4Time: "<<dropD4Time<<endl;
    cout<<"Run time span: "<<utime_runEnd-utime_runStart<<endl;
+   hist->Draw();
+   c1.SaveAs("testHist.C");
 
 }//end of if dataType = 1
 /*
@@ -921,9 +923,6 @@ free(recoDelays_H);
 delete settings;
 free(mapDataHist);
 free(mapData);
-
-hist->Draw();
-c1.SaveAs("testHist.C");
 
 cout<<"Successfully reached end of main()"<<endl;
 return 0;
