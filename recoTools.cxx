@@ -6990,13 +6990,17 @@ int NBinsY = (-5.-(-35.))/0.4581;
 
 TH2F *skymapHist = new TH2F("skymapHist","skymapHist",NBinsX,220,250,NBinsY,-35,-5);
 TH2F *countHist = new TH2F("countHist","countHist",NBinsX,220,250,NBinsY,-35,-5);
+double theta;
 
 for(int pix=0; pix<hpBase.Npix(); pix++){
 
    pt = hpBase.pix2ang( pix );
-cout<<"MArr: "<<MArr[pix]<<"phi: "<<pt.phi*180.f/TMath::Pi()<<"theta :"<< pt.theta*180.f/TMath::Pi()<<endl;
-   skymapHist->Fill(pt.phi*180.f/TMath::Pi(), pt.theta*180.f/TMath::Pi(), MArr[pix]);
-   countHist->Fill(pt.phi*180.f/TMath::Pi(), pt.theta*180.f/TMath::Pi());
+cout<<"MArr: "<<MArr[pix]<<"phi: "<<pt.phi*180.f/TMath::Pi()<<"theta :"<<90.- pt.theta*180.f/TMath::Pi()<<endl;
+
+
+
+   skymapHist->Fill(pt.phi*180.f/TMath::Pi(), 90.-pt.theta*180.f/TMath::Pi(), MArr[pix]);
+   countHist->Fill(pt.phi*180.f/TMath::Pi(), 90.-pt.theta*180.f/TMath::Pi());
 
 }
 
