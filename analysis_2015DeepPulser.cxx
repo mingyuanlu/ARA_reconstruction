@@ -470,7 +470,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    summary->clear();
 
-   if(ev%100 == 0) cout<<"*******************************Event got********************************: "<<ev<<endl;
+   //if(ev%100 == 0) cout<<"*******************************Event got********************************: "<<ev<<endl;
 
    eventTree->GetEntry(ev);
 
@@ -508,7 +508,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
      //cout<<"Skipping event not in deep pulser period....\n";
      continue;
    }
-   else {cout<<"Reconstructing this event.......\n";
+   else {//cout<<"Reconstructing this event.......\n";
    tempCount++;
  }
 
