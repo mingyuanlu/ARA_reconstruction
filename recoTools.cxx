@@ -6985,8 +6985,8 @@ Healpix_Base hpBase = Healpix_Base(pow(2,nSideExp), NEST/*RING*/, SET_NSIDE);
 
 pointing pt;
 
-int NBinsX = (250.-220.)/0.4581;
-int NBinsY = (-5.-(-35.))/0.4581;
+int NBinsX = 0.5*(250.-220.)/0.4581;
+int NBinsY = 0.5*(-5.-(-35.))/0.4581;
 
 TH2F *skymapHist = new TH2F("skymapHist","skymapHist",NBinsX,220,250,NBinsY,-35,-5);
 TH2F *countHist = new TH2F("countHist","countHist",NBinsX,220,250,NBinsY,-35,-5);
