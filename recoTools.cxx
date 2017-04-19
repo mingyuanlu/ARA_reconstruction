@@ -7003,6 +7003,7 @@ for(int pix=0; pix<hpBase.Npix(); pix++){
 for(int xbin=1; xbin<=NBinsX; xbin++){
    for(int ybin=1; ybin<=NBinsY; ybin++){
 
+   if(countHist->GetBinContent(xbin,ybin)!=0)
    skymapHist->SetBinContent(xbin,ybin, skymapHist->GetBinContent(xbin,ybin)/(double)countHist->GetBinContent(xbin,ybin));
 
 
