@@ -5049,13 +5049,13 @@ cout<<"Memories deallocated\n";
 return maxPixIdx;
 }
 /*
-int reconstruct3DXCorrEnvelopeGetMaxPixAndMap(unsigned int dataType, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
+int CorrEnvelopeGetMaxPixAndMap(unsigned int dataType, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                 float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                 string pol, const int *chanMask, recoData *summary, char *filename,
                 TH1F *xCorrAroundPeakHist[] )
 {
 
-cout<<"Entered reconstruct3DXCorrEnvelopeGetMaxPixAndMap method\n";
+cout<<"Entered CorrEnvelopeGetMaxPixAndMap method\n";
 int nSamp;
 int nAnt = (int)cleanEvent.size()/2; // Divide by 2 for only one polarization
 int unmaskedNChan=0;
@@ -5639,13 +5639,13 @@ return maxPixIdx;
 }
 */
 /*
-int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(unsigned int dataType, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
+int CorrEnvelopeGetMaxPixAndMapData(unsigned int dataType, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                 float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                 string pol, const int *chanMask, recoData *summary, char *filename, float *mapData,
                 TH1F *xCorrAroundPeakHist[], TGraph *sillygr[] )
 {
 
-cout<<"Entered reconstruct3DXCorrEnvelopeGetMaxPixAndMapData method\n";
+cout<<"Entered CorrEnvelopeGetMaxPixAndMapData method\n";
 int nSamp;
 //int nAnt = (int)cleanEvent.size()/2; // Divide by 2 for only one polarization
 int nAnt;// = (int)cleanEvent.size();
@@ -6979,6 +6979,42 @@ fitsOut.create(filename);
 
 write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
 cout<<"Healpix map written\n";
+
+//int nSideExp = 7;
+Healpix_Base hpBase = Healpix_Base(pow(2,nSideExp), NEST/*RING*/, SET_NSIDE);
+
+pointing pt;
+
+int NBinsX = (250.-220.)/0.4581;
+int NBinsY = (-5.-(-35.))/0.4581;
+
+TH2F *skymapHist = new TH2F("skymapHist","skymapHist",220,250,NBinsX,-35,-5,NBinsY);
+TH2F *countHist = new TH2F("countHist","countHist",220,250,NBinsX,-35,-5,NBinsY);
+
+for(int pix=0; pix<hpBase.Npix(); pix++){
+
+   pt = hpBase.pix2ang( pix );
+
+   skymapHist->Fill(pt.phi*180.f/TMath::Pi(), pt.theta*180.f/TMath::Pi(), MArr[pix]);
+   countHist->Fill(pt.phi*180.f/TMath::Pi(), pt.theta*180.f/TMath::Pi());
+
+}
+
+for(int xbin=1; xbin<=NBinsX; xbin++){
+   for(int ybin=1; ybin<=NBinsY; ybin++){
+
+   skymapHist->SetBinContent(xbin,ybin, skymapHist->GetBinContent(xbin,ybin)/(double)countHist->GetBinContent(xbin,ybin));
+
+
+   }
+}
+
+
+TCanvas *c1 = new TCanvas("c1","c1",800,800);
+skymapHist->Draw("colz");
+c1->SaveAs("testSkymapHist.C");
+
+
 /*
 arr<float> MEachLayerArr;
 

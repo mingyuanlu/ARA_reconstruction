@@ -465,7 +465,7 @@ if(settings->dataType == 1){
 trigEventCount = runEventCount;
 for (Long64_t ev=0; ev<runEventCount; ev++){
 
-  if(settings->maxNumberOfReco >= 0)
+   if(settings->maxNumberOfReco >= 0)
      if(recoEventCount == settings->maxNumberOfReco) break;
 
    summary->clear();
@@ -486,7 +486,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
      continue;
    }
 */
-   if( !(
+   if( /*!(
         (rawAtriEvPtr->unixTime > 1420510680)
         &&
         (rawAtriEvPtr->unixTime < 1420511340)
@@ -494,13 +494,13 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
         (rawAtriEvPtr->timeStamp > 8240e3)
         &&
         (rawAtriEvPtr->timeStamp < 9100e3)
-      )
+      )*/
       //(rawAtriEvPtr->unixTime < 1420510020)
       //||
       //(rawAtriEvPtr->unixTime > 1420510620)
-      //(rawAtriEvPtr->timeStamp < /*deepPulserString1StartTimeStamp_2017*/5435e3)
-      //||
-      //(rawAtriEvPtr->timeStamp > deepPulserString1EndTimeStamp_2017)
+      (rawAtriEvPtr->timeStamp < /*deepPulserString1StartTimeStamp_2017*//*5435e3*/5410e3)
+      ||
+      (rawAtriEvPtr->timeStamp > /*deepPulserString1EndTimeStamp_2017*/5535e3)
       //(/*rawAtriEvPtr->timeStamp > *//*deepPulserString1EndTimeStamp_2017*//*5530e3 &&*/ rawAtriEvPtr->timeStamp < /*deepPulserString22StartTimeStamp_2017*/8160e3)
       //||
       //(rawAtriEvPtr->timeStamp > /*deepPulserString22EndTimeStamp_2017*/8940e3)
@@ -514,6 +514,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    summary->setEventId(rawAtriEvPtr->eventId);
    summary->setEventNumber(rawAtriEvPtr->eventNumber);
+   if(rawAtriEvPtr->eventNumber != 12472) continue;
 
    if(rawAtriEvPtr->isRFTrigger()){
       if(rawAtriEvPtr->isCalpulserEvent()){
