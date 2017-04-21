@@ -6981,8 +6981,8 @@ write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
 cout<<"Healpix map written\n";
 
 //int nSideExp = 7;
-Healpix_Base hpBase = Healpix_Base(pow(2,nSideExp), NEST/*RING*/, SET_NSIDE);
-
+//Healpix_Base hpBase = Healpix_Base(pow(2,nSideExp), NEST/*RING*/, SET_NSIDE);
+/*
 pointing pt;
 
 int NBinsX = 0.5*(250.-220.)/0.4581;
@@ -7018,7 +7018,7 @@ for(int xbin=1; xbin<=NBinsX; xbin++){
 TCanvas *c1 = new TCanvas("c1","c1",800,800);
 skymapHist->Draw("colz");
 c1->SaveAs("testSkymapHist.C");
-
+*/
 
 /*
 arr<float> MEachLayerArr;
