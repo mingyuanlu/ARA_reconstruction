@@ -6655,10 +6655,10 @@ if( xCorrPeakFile->IsZombie() ){
 
   }
 }
-
+*/
 int peakBin;
 double x, y;
-*/
+
 for(int baseline=0; baseline<nBaseline; baseline++){
 
 
