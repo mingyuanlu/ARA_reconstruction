@@ -6612,7 +6612,7 @@ for(int i=0; i<nBaseline; i++){
 */
 //static int lock;
 char sillygrname[200];
-/*
+
 char histName[200];
 
 //TH1F *xCorrPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
@@ -6620,14 +6620,16 @@ char histName[200];
 TH1F *xCorrPeakHist[64];
 TH1F *envPeakHist[64];
 TFile *xCorrPeakFile;
+char xCorrEnvPeakFileName[200];
+snprintf(xCorrEnvPeakFileName,sizeof(char)*200,"xCorrEnvPeakFile_2017DeepPulser_IC22S.root");
 
-xCorrPeakFile = new TFile("xCorrEnvPeakFile.root"); //if file exists, it will stay unopened
+xCorrPeakFile = new TFile(xCorrEnvPeakFileName); //if file exists, it will stay unopened
 
 if( xCorrPeakFile->IsZombie() ){
 
   xCorrPeakFile->Close();
   delete xCorrPeakFile;
-  xCorrPeakFile = new TFile("xCorrEnvPeakFile.root","RECREATE");
+  xCorrPeakFile = new TFile(xCorrEnvPeakFileName,"RECREATE");
 
   for(int i=0; i<nBaseline; i++){
 
@@ -6644,7 +6646,7 @@ if( xCorrPeakFile->IsZombie() ){
 
   xCorrPeakFile->Close();
   delete xCorrPeakFile;
-  xCorrPeakFile = new TFile("xCorrEnvPeakFile.root","UPDATE");
+  xCorrPeakFile = new TFile(xCorrEnvPeakFileName,"UPDATE");
 
   for(int i=0; i<nBaseline; i++){
 
@@ -6655,7 +6657,7 @@ if( xCorrPeakFile->IsZombie() ){
 
   }
 }
-*/
+
 int peakBin;
 double x, y;
 //TFile *dtFile = new TFile("dtFile.txt","UPDATE");
@@ -6678,7 +6680,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 
    y = FFTtools::getPeakSqVal(xCorrGraph, &peakBin);
    xCorrGraph->GetPoint(peakBin,x,y);
-   //xCorrPeakHist[baseline]->Fill(x);
+   xCorrPeakHist[baseline]->Fill(x);
    //cout<<"xCorr Peak Bin: "<<peakBin<<" Peak Sq Value: "<<y<<endl;
 
    if(baseline!=nBaseline-1){
@@ -6693,11 +6695,11 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    //xCorrGraph->Draw("AL");
 
    TGraph* envelope = FFTtools::getHilbertEnvelope( xCorrGraph );
-/*
+
    peakBin = FFTtools::getPeakBin(envelope);
    envelope->GetPoint(peakBin,x,y);
    envPeakHist[baseline]->Fill(x);
-*/   //cout<<"env Peak Bin: "<<peakBin<<" Peak Value: "<<y<<endl;
+   //cout<<"env Peak Bin: "<<peakBin<<" Peak Value: "<<y<<endl;
 
    //sprintf(envelopename,"xCorrEnvelope_2014_A3_burn_RF_chan%d_%d.C", ant1, ant2);
    //sprintf(envelopename,"xCorrSumGraph_baseline%d_chan%d_%d.C",baseline,ant1,ant2);
@@ -6788,12 +6790,12 @@ for(int baseline=0; baseline<nBaseline; baseline++){
   delete envelope;
 
 }
-/*
+
 xCorrPeakFile->Close();
 //free(xCorrPeakHist);
 //free(envPeakHist);
 delete xCorrPeakFile;
-*/
+
 //dtFile->Close();
 fclose(dtFile);
 
