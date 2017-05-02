@@ -295,7 +295,7 @@ for(int ant=0; ant<antLocation.size(); ant++){
 
     cout<<"pos: "<<pos<<" "<<antLocation[ant][pos]<<endl;
 
-  }  
+  }
 }
 
 /*
@@ -469,7 +469,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    eventTree->GetEntry(ev);
 
-   cout<<"Code loop ev: "<<ev<<" eventId: "<<rawAtriEvPtr->eventId<<" eventNumber: "<<rawAtriEvPtr->eventNumber<<endl;
+   //cout<<"Code loop ev: "<<ev<<" eventId: "<<rawAtriEvPtr->eventId<<" eventNumber: "<<rawAtriEvPtr->eventNumber<<endl;
 /*
    if((rawAtriEvPtr->unixTime < deepPulserString1StartTime_2017)
       ||
@@ -488,7 +488,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       ||
       (rawAtriEvPtr->timeStamp > deepPulserString22EndTimeStamp_2017)
    ) {
-     cout<<"Skipping event not in deep pulser period....\n";
+     //cout<<"Skipping event not in deep pulser period....\n";
      continue;
    }
    else cout<<"Reconstructing this event.......\n";
