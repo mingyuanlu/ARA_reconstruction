@@ -328,6 +328,13 @@ int computeRecoDelaysWithConstantN(const int nAnt, const float zCenter, const ve
                                      //const float radius, const int nSideExp,
                                      Healpix_Onion *onion,
                                      float *recoDelays, float *recoDelays_V, float *recoDelays_H);
+
+int computeRecoDelaysWithConstantNForSinglePixel(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
+                                     //const float radius, const int nSideExp,
+                                     Healpix_Onion *onion,
+                                     float *recoDelays, float *recoDelays_V, float *recoDelays_H,
+                                     const int pix);
+
 int computeZoomedRecoDelaysWithConstantN(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
                                      //const float radius, const int nSideExp,
                                      Healpix_Onion *onion,
@@ -344,6 +351,13 @@ int compute3DRecoDelaysWithRadioSpline(const int nAnt, const float zCenter, cons
                                       //const float radius, const int nSideExp,
                                       Healpix_Onion *onion,
                                       float *recoDelays, float *recoDelays_V, float *recoDelays_H);
+
+int compute3DRecoDelaysWithRadioSplineForSinglePixel(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
+                                      //const float radius, const int nSideExp,
+                                      Healpix_Onion *onion,
+                                      float *recoDelays, float *recoDelays_V, float *recoDelays_H,
+                                      const int pix)
+
 int compute3DZoomedRecoDelaysWithRadioSpline(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
                                      //const float radius, const int nSideExp,
                                      Healpix_Onion *onion,
