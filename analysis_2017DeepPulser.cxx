@@ -672,7 +672,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
     recoEventCount++;
 
-
+    FILE *dtFile = fopen("dtFile.txt","a+");
+    fprintf(dtFile, "%d\n", ev);
+    fclose(dtFile);
 
    if(settings->beamformMethod == 1){
    if(settings->getSkymapMode == 0){
