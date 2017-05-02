@@ -6686,8 +6686,9 @@ for(int baseline=0; baseline<nBaseline; baseline++){
      fprintf(stderr, "%d,", baseline);
      fprintf(stderr, "%f\n", x);
    }
-      //cvs.cd(1);
-   //xCorrGraph->Draw("AL");
+   //cvs.cd(1);
+   cvs.cd();
+   xCorrGraph->Draw("AL");
 
    TGraph* envelope = FFTtools::getHilbertEnvelope( xCorrGraph );
 /*
@@ -6695,15 +6696,16 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    envelope->GetPoint(peakBin,x,y);
    envPeakHist[baseline]->Fill(x);
 */   //cout<<"env Peak Bin: "<<peakBin<<" Peak Value: "<<y<<endl;
-/*
-   sprintf(envelopename,"xCorrEnvelope_2014_A3_burn_RF_chan%d_%d.C", ant1, ant2);
-   cvs.cd();
+
+   //sprintf(envelopename,"xCorrEnvelope_2014_A3_burn_RF_chan%d_%d.C", ant1, ant2);
+   sprintf(envelopename,"xCorrSumGraph_baseline%d_chan%d_%d.C",baseline,ant1,ant2);
+   //cvs.cd();
    //envelope->Draw("AL");
    envelope->SetLineColor(kRed);
-   xCorrGraph->Draw("AL");
+   //xCorrGraph->Draw("AL");
    envelope->Draw("Lsame");
    cvs.SaveAs(envelopename);
-*/
+
 /*
    if( ant1 == 0 && ant2 == 3){
    cvs.cd(1);
