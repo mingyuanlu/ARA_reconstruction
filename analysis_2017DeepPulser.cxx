@@ -740,8 +740,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    for(int k=0; k<nAnt; k++){
 
-     fprintf(dtFile_radioSpline, "%f,", postDelays_radioSpline);
-     fprintf(dtFile_constantN, "%f,", postDelays_constantN);
+     fprintf(dtFile_radioSpline, "%d,%f,", k, postDelays_radioSpline[k]);
+     fprintf(dtFile_constantN, "%d,%f,", k, postDelays_constantN[k]);
 
    }
 
