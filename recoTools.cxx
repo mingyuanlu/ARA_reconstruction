@@ -6658,7 +6658,8 @@ if( xCorrPeakFile->IsZombie() ){
 */
 int peakBin;
 double x, y;
-TFile *dtFile = new TFile("dtFile.txt","UPDATE");
+//TFile *dtFile = new TFile("dtFile.txt","UPDATE");
+FILE *dtFile = fopen("dtFile.txt","a+");
 
 for(int baseline=0; baseline<nBaseline; baseline++){
 
@@ -6793,7 +6794,8 @@ xCorrPeakFile->Close();
 //free(envPeakHist);
 delete xCorrPeakFile;
 */
-dtFile->Close();
+//dtFile->Close();
+fclose(dtFile);
 
 cl_mem xCorrEnvBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
                                        sizeof(float)*nBaseline*nSamp,
