@@ -321,7 +321,7 @@ int nSideExp;
 int nLayer, nDir;
 float *recoDelays, *recoDelays_V, *recoDelays_H;
 float *postDelays_radioSpline, *postDelays_radioSpline_V, *postDelays_radioSpline_H,
-      *postDelays_constantN, *postDelays_constantN_V, postDelays_constantN_H;
+      *postDelays_constantN, *postDelays_constantN_V, *postDelays_constantN_H;
 Healpix_Onion *onion;
 
 if( settings->skymapSearchMode == 0){ //No zoom search
