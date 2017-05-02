@@ -287,6 +287,17 @@ if(settings->dataType == 1){
    if( err<0 ){ cerr<<"Error loading AraSim geometry\n"; return -1; }
 
 }
+
+for(int ant=0; ant<antLocation.size(); ant++){
+
+  cout<<"ant: "<<ant<<endl;
+  for(int pos=0; pos<antLocation[ant].size(); pos++){
+
+    cout<<"pos: "<<pos<<" "<<antLocation[ant][pos]<<endl;
+
+  }  
+}
+
 /*
  * Start computing reco delays using RadioSpline
  */
