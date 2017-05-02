@@ -6673,13 +6673,20 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    }
 
    TGraph *xCorrGraph = new TGraph(nSamp, dt, xCorrValue);
-/*
+
    y = FFTtools::getPeakSqVal(xCorrGraph, &peakBin);
    xCorrGraph->GetPoint(peakBin,x,y);
-   xCorrPeakHist[baseline]->Fill(x);
-*/   //cout<<"xCorr Peak Bin: "<<peakBin<<" Peak Sq Value: "<<y<<endl;
+   //xCorrPeakHist[baseline]->Fill(x);
+   //cout<<"xCorr Peak Bin: "<<peakBin<<" Peak Sq Value: "<<y<<endl;
 
-   //cvs.cd(1);
+   if(baseline!=nBaseline-1){
+      fprintf(stderr, "%d,", baseline);
+      fprintf(stderr, "%f,", x);
+   } else {
+     fprintf(stderr, "%d,", baseline);
+     fprintf(stderr, "%f\n", x);
+   }
+      //cvs.cd(1);
    //xCorrGraph->Draw("AL");
 
    TGraph* envelope = FFTtools::getHilbertEnvelope( xCorrGraph );
