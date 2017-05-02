@@ -6658,6 +6658,7 @@ if( xCorrPeakFile->IsZombie() ){
 */
 int peakBin;
 double x, y;
+TFile *dtFile = new TFile("dtFile.txt","UPDATE");
 
 for(int baseline=0; baseline<nBaseline; baseline++){
 
@@ -6680,15 +6681,15 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    //cout<<"xCorr Peak Bin: "<<peakBin<<" Peak Sq Value: "<<y<<endl;
 
    if(baseline!=nBaseline-1){
-      fprintf(stderr, "%d,", baseline);
-      fprintf(stderr, "%f,", x);
+      fprintf(dtFile, "%d,", baseline);
+      fprintf(dtFile, "%f,", x);
    } else {
-     fprintf(stderr, "%d,", baseline);
-     fprintf(stderr, "%f\n", x);
+     fprintf(dtFile, "%d,", baseline);
+     fprintf(dtFile, "%f\n", x);
    }
    //cvs.cd(1);
-   cvs.cd();
-   xCorrGraph->Draw("AL");
+   //cvs.cd();
+   //xCorrGraph->Draw("AL");
 
    TGraph* envelope = FFTtools::getHilbertEnvelope( xCorrGraph );
 /*
@@ -6698,13 +6699,13 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 */   //cout<<"env Peak Bin: "<<peakBin<<" Peak Value: "<<y<<endl;
 
    //sprintf(envelopename,"xCorrEnvelope_2014_A3_burn_RF_chan%d_%d.C", ant1, ant2);
-   sprintf(envelopename,"xCorrSumGraph_baseline%d_chan%d_%d.C",baseline,ant1,ant2);
+   //sprintf(envelopename,"xCorrSumGraph_baseline%d_chan%d_%d.C",baseline,ant1,ant2);
    //cvs.cd();
    //envelope->Draw("AL");
-   envelope->SetLineColor(kRed);
+   //envelope->SetLineColor(kRed);
    //xCorrGraph->Draw("AL");
-   envelope->Draw("Lsame");
-   cvs.SaveAs(envelopename);
+   //envelope->Draw("Lsame");
+   //cvs.SaveAs(envelopename);
 
 /*
    if( ant1 == 0 && ant2 == 3){
@@ -6792,6 +6793,8 @@ xCorrPeakFile->Close();
 //free(envPeakHist);
 delete xCorrPeakFile;
 */
+dtFile->Close();
+
 cl_mem xCorrEnvBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
                                        sizeof(float)*nBaseline*nSamp,
                                        xCorrTime, &err);
