@@ -682,6 +682,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
     fprintf(dtFile_radioSpline, "%d,", ev);
     fprintf(dtFile_constantN, "%d,", ev);
 
+    fclose(dtFile);
+
    if(settings->beamformMethod == 1){
    if(settings->getSkymapMode == 0){
        err = reconstructCSW(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, fitsFile/*argv[5]*/);
@@ -740,13 +742,17 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    for(int k=0; k<nAnt; k++){
 
+     if(k!=nAnt-1){
      fprintf(dtFile_radioSpline, "%d,%f,", k, postDelays_radioSpline[k]);
      fprintf(dtFile_constantN, "%d,%f,", k, postDelays_constantN[k]);
-
+     } else {
+     fprintf(dtFile_radioSpline, "%d,%f\n", k, postDelays_radioSpline[k]);
+     fprintf(dtFile_constantN, "%d,%f\n", k, postDelays_constantN[k]);
+     }
    }
 
-   fprintf(dtFile_radioSpline, "\n");
-   fprintf(dtFile_constantN, "\n");
+   fclose(dtFile_radioSpline);
+   fclose(dtFile_constantN);
 
    free(postDelays_radioSpline);
    free(postDelays_radioSpline_V);
