@@ -751,9 +751,6 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
      }
    }
 
-   fclose(dtFile_radioSpline);
-   fclose(dtFile_constantN);
-
    free(postDelays_radioSpline);
    free(postDelays_radioSpline_V);
    free(postDelays_radioSpline_H);
@@ -966,6 +963,9 @@ free(recoDelays_H);
 delete settings;
 free(mapDataHist);
 free(mapData);
+
+fclose(dtFile_radioSpline);
+fclose(dtFile_constantN);
 
 cout<<"Successfully reached end of main()"<<endl;
 return 0;
