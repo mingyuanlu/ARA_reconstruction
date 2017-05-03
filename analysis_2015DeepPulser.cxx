@@ -309,6 +309,8 @@ int topN = settings->topN;
 int nSideExp;
 int nLayer, nDir;
 float *recoDelays, *recoDelays_V, *recoDelays_H;
+float *postDelays_radioSpline, *postDelays_radioSpline_V, *postDelays_radioSpline_H,
+      *postDelays_constantN, *postDelays_constantN_V, *postDelays_constantN_H;
 Healpix_Onion *onion;
 
 if( settings->skymapSearchMode == 0){ //No zoom search
@@ -460,6 +462,10 @@ recoData *summary = new recoData();
 dataTree->Branch("summary", &summary);
 int tempCount=0;
 
+FILE *dtFile /*= fopen("dtFile.txt","a+")*/;
+FILE *dtFile_radioSpline = fopen("dtFile_radioSpline.txt","a+");
+FILE *dtFile_constantN = fopen("dtFile_constantN.txt","a+");
+
 if(settings->dataType == 1){
 
 trigEventCount = runEventCount;
@@ -514,7 +520,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    summary->setEventId(rawAtriEvPtr->eventId);
    summary->setEventNumber(rawAtriEvPtr->eventNumber);
-   if(rawAtriEvPtr->eventNumber != 12472) continue;
+   //if(rawAtriEvPtr->eventNumber != 12472) continue;
 
    if(rawAtriEvPtr->isRFTrigger()){
       if(rawAtriEvPtr->isCalpulserEvent()){
@@ -691,7 +697,12 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
     recoEventCount++;
 
+    dtFile = fopen("dtFile.txt","a+");
+    fprintf(dtFile, "%d,", ev);
+    fprintf(dtFile_radioSpline, "%d,", ev);
+    fprintf(dtFile_constantN, "%d,", ev);
 
+    fclose(dtFile);
 
    if(settings->beamformMethod == 1){
    if(settings->getSkymapMode == 0){
@@ -733,6 +744,39 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
                     : record3DDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist) );
    if(summary->flag > 0) recoFlagCnt++;
    maxPix[maxPixIdx]++;
+
+   postDelays_radioSpline = (float*)malloc(sizeof(float)*nAnt);
+   postDelays_radioSpline_V = (float*)malloc(sizeof(float)*nAnt/2);
+   postDelays_radioSpline_H = (float*)malloc(sizeof(float)*nAnt/2);
+   postDelays_constantN = (float*)malloc(sizeof(float)*nAnt);
+   postDelays_constantN_V = (float*)malloc(sizeof(float)*nAnt/2);
+   postDelays_constantN_H = (float*)malloc(sizeof(float)*nAnt/2);
+
+   compute3DRecoDelaysWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation,
+                                        //radius, nSideExp,
+                                        onion, postDelays_radioSpline, postDelays_radioSpline_V, postDelays_radioSpline_H, maxPixIdx);
+
+   compute3DRecoDelaysWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation,
+                                         //radius, nSideExp,
+                                         onion, postDelays_constantN, postDelays_constantN_V, postDelays_constantN_H, maxPixIdx);
+
+   for(int k=0; k<nAnt; k++){
+
+     if(k!=nAnt-1){
+     fprintf(dtFile_radioSpline, "%d,%f,", k, postDelays_radioSpline[k]);
+     fprintf(dtFile_constantN, "%d,%f,", k, postDelays_constantN[k]);
+     } else {
+     fprintf(dtFile_radioSpline, "%d,%f\n", k, postDelays_radioSpline[k]);
+     fprintf(dtFile_constantN, "%d,%f\n", k, postDelays_constantN[k]);
+     }
+   }
+
+   free(postDelays_radioSpline);
+   free(postDelays_radioSpline_V);
+   free(postDelays_radioSpline_H);
+   free(postDelays_constantN);
+   free(postDelays_constantN_V);
+   free(postDelays_constantN_H);
 
    dataTree->Fill();
 
@@ -940,6 +984,10 @@ delete settings;
 free(mapDataHist);
 free(mapData);
 cout<<"tempCount: "<<tempCount<<endl;
+
+fclose(dtFile_radioSpline);
+fclose(dtFile_constantN);
+
 cout<<"Successfully reached end of main()"<<endl;
 return 0;
 }

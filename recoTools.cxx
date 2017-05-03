@@ -6621,7 +6621,7 @@ TH1F *xCorrPeakHist[64];
 TH1F *envPeakHist[64];
 TFile *xCorrPeakFile;
 char xCorrEnvPeakFileName[200];
-snprintf(xCorrEnvPeakFileName,sizeof(char)*200,"xCorrEnvPeakFile_2017DeepPulser_IC1S.root");
+snprintf(xCorrEnvPeakFileName,sizeof(char)*200,"xCorrEnvPeakFile_2015DeepPulser_IC22S.root");
 
 xCorrPeakFile = new TFile(xCorrEnvPeakFileName); //if file exists, it will stay unopened
 
