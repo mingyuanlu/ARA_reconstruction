@@ -457,7 +457,7 @@ cout<<"runEventCount: "<<runEventCount<<endl;
 recoData *summary = new recoData();
 dataTree->Branch("summary", &summary);
 
-FILE *dtFile = fopen("dtFile.txt","a+");
+FILE *dtFile /*= fopen("dtFile.txt","a+")*/;
 FILE *dtFile_radioSpline = fopen("dtFile_radioSpline.txt","a+");
 FILE *dtFile_constantN = fopen("dtFile_constantN.txt","a+");
 
@@ -499,7 +499,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    }
    else cout<<"Reconstructing this event.......\n";
 
-      summary->setEventId(rawAtriEvPtr->eventId);
+   summary->setEventId(rawAtriEvPtr->eventId);
    summary->setEventNumber(rawAtriEvPtr->eventNumber);
 
    if(rawAtriEvPtr->isRFTrigger()){
@@ -678,6 +678,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
     recoEventCount++;
 
+    dtFile = fopen("dtFile.txt","a+");
     fprintf(dtFile, "%d,", ev);
     fprintf(dtFile_radioSpline, "%d,", ev);
     fprintf(dtFile_constantN, "%d,", ev);
