@@ -6796,10 +6796,10 @@ xCorrPeakFile->Close();
 //free(xCorrPeakHist);
 //free(envPeakHist);
 delete xCorrPeakFile;
-*/
+
 //dtFile->Close();
 fclose(dtFile);
-
+*/
 cl_mem xCorrEnvBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
                                        sizeof(float)*nBaseline*nSamp,
                                        xCorrTime, &err);
