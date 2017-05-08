@@ -6617,6 +6617,7 @@ char histName[200];
 
 //TH1F *xCorrPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
 //TH1F *envPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
+/*
 TH1F *xCorrPeakHist[64];
 TH1F *envPeakHist[64];
 TFile *xCorrPeakFile;
@@ -6657,11 +6658,11 @@ if( xCorrPeakFile->IsZombie() ){
 
   }
 }
-
+*/
 int peakBin;
 double x, y;
 //TFile *dtFile = new TFile("dtFile.txt","UPDATE");
-FILE *dtFile = fopen("dtFile.txt","a+");
+//FILE *dtFile = fopen("dtFile.txt","a+");
 
 for(int baseline=0; baseline<nBaseline; baseline++){
 
@@ -6677,7 +6678,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    }
 
    TGraph *xCorrGraph = new TGraph(nSamp, dt, xCorrValue);
-
+/*
    y = FFTtools::getPeakSqVal(xCorrGraph, &peakBin);
    xCorrGraph->GetPoint(peakBin,x,y);
    xCorrPeakHist[baseline]->Fill(x);
@@ -6690,16 +6691,16 @@ for(int baseline=0; baseline<nBaseline; baseline++){
      fprintf(dtFile, "%d,", baseline);
      fprintf(dtFile, "%f\n", x);
    }
-   //cvs.cd(1);
+*/   //cvs.cd(1);
    //cvs.cd();
    //xCorrGraph->Draw("AL");
 
    TGraph* envelope = FFTtools::getHilbertEnvelope( xCorrGraph );
-
+/*
    peakBin = FFTtools::getPeakBin(envelope);
    envelope->GetPoint(peakBin,x,y);
    envPeakHist[baseline]->Fill(x);
-   //cout<<"env Peak Bin: "<<peakBin<<" Peak Value: "<<y<<endl;
+*/  //cout<<"env Peak Bin: "<<peakBin<<" Peak Value: "<<y<<endl;
 
    //sprintf(envelopename,"xCorrEnvelope_2014_A3_burn_RF_chan%d_%d.C", ant1, ant2);
    //sprintf(envelopename,"xCorrSumGraph_baseline%d_chan%d_%d.C",baseline,ant1,ant2);
@@ -6782,20 +6783,20 @@ for(int baseline=0; baseline<nBaseline; baseline++){
   sillygr[baseline]->Draw("AL");
   cvs.SaveAs(sillygrname);
 */
-
+/*
   xCorrPeakHist[baseline]->Write();
   envPeakHist[baseline]->Write();
-
+*/
   delete xCorrGraph;
   delete envelope;
 
 }
-
+/*
 xCorrPeakFile->Close();
 //free(xCorrPeakHist);
 //free(envPeakHist);
 delete xCorrPeakFile;
-
+*/
 //dtFile->Close();
 fclose(dtFile);
 
