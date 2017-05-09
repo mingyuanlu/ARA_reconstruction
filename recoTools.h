@@ -58,7 +58,7 @@
 #define speedOfLight 0.3 // m/ns
 #define nIce 1.76 // ~-180m
 
-//#define REFERENCE_MAP_FIT_FILE "testFitFuntFile.root" 
+//#define REFERENCE_MAP_FIT_FILE "testFitFuntFile.root"
 //#define REFERENCE_MAP_FIT_FILE "testFitFuncFile_2013_A3_pulserSweep_run410-430.root"
 
 //#define REFERENCE_MAP_FIT_FILE "testFitFuncFile_2014_ARA03_run3623.root"
@@ -95,15 +95,15 @@ struct recoEnvData{
 
    /* CSW kernels */
    cl_kernel         shiftWf;
-   cl_kernel         sumWf;   
+   cl_kernel         sumWf;
    cl_kernel         wfPwr;
 
    /* XCorr kernels */
    cl_kernel         xCorrWf;
    cl_kernel         computeXCorrCoef;
-   cl_kernel         computeCoherence;  
+   cl_kernel         computeCoherence;
    cl_kernel         computeNormalizedCoherence;
-   
+
    /* Bandpass kernel */
    cl_kernel         bandPassFilter;
 
@@ -113,8 +113,8 @@ struct recoEnvData{
 
 /*
     static cl_kernel         shiftwf;
-    static cl_kernel         sumwf;   
-    static cl_kernel         wfpwr; 
+    static cl_kernel         sumwf;
+    static cl_kernel         wfpwr;
 */
    clfftPlanHandle  planHandle;
    clfftSetupData   fftSetup;
@@ -128,7 +128,7 @@ protected:
 
 public:
 
-   
+
 
    int nSideExp;
    int nLayer;
@@ -159,14 +159,14 @@ public:
    nDir = hpBase.Npix();
    layerRadii.clear();
    float r=0.f;
-   
+
    //while( r<= 5000.f ){
 
    //   r += 5000.f / (float)nLayer;
    //   layerRadii.push_back( r );
 
    //}
-   
+
 
    for(int i=1; i<=nLayer; i++){
 
@@ -174,7 +174,7 @@ public:
    layerRadii.push_back( (float)i * 3000.f / (float)nLayer); //for testing 3D calpulser reco
 
    }
-   
+
    if( (int)layerRadii.size() != nLayer ) cerr<<"Warning!! layerRadii.size(): "<<layerRadii.size()<<" nLayer: "<<nLayer<<endl;
 
    }
@@ -193,7 +193,7 @@ public:
 
    float getLayerRadius(int pixNum){
 
-   return layerRadii[ getLayerNumber(pixNum) ]; 
+   return layerRadii[ getLayerNumber(pixNum) ];
 
    }
 
@@ -210,10 +210,10 @@ protected:
 public:
 
    double weight;
-   // Ideally in degrees 
+   // Ideally in degrees
    float trueZen, trueAzi, recoZen, recoAzi;
    float trueRadius, recoRadius;
-   int recoChan[16]; //channels actually used in the reco   
+   int recoChan[16]; //channels actually used in the reco
    int maxPixIdx;
    float maxPixCoherence; //max pix coherence value
    int topN;                               //size of topMaxPixIdx
@@ -231,7 +231,7 @@ public:
 
    recoData();
    ~recoData();
- 
+
    void initialize();
    void setAllData(
      double w
@@ -268,7 +268,7 @@ public:
 */
 float getMeanDelay( vector<float>& solvedDelay);
 float getMeanDelay_passByValue( vector<float> solvedDelay);
-int setupCLRecoEnv(recoEnvData *clEnv, const char *programFile);
+int setupCLRecoEnv(recoSettings *settings, recoEnvData *clEnv, const char *programFile);
 int reconstructCSW(unsigned int dataType, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                 float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                 int nDir, string pol, const int *chanMask, char *filename);
@@ -316,11 +316,11 @@ int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(unsigned int dataType, vector<
                     TH1F *xCorrAroundPeakHist[], TGraph *sillygr[]);
 */
 int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
-                    float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask, 
+                    float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask,
                     recoData *summary, char *filename, float *mapData);
 int reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                     const float stationCenterDepth, const vector<vector<double> >& antLocation,
-                    float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask, 
+                    float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask,
                     recoData *summary, char *filename);
 
 int tearDown(recoEnvData *clEnv);
@@ -328,7 +328,14 @@ int computeRecoDelaysWithConstantN(const int nAnt, const float zCenter, const ve
                                      //const float radius, const int nSideExp,
                                      Healpix_Onion *onion,
                                      float *recoDelays, float *recoDelays_V, float *recoDelays_H);
-int computeZoomedRecoDelaysWithConstantN(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc, 
+
+int computeRecoDelaysWithConstantNForSinglePixel(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
+                                     //const float radius, const int nSideExp,
+                                     Healpix_Onion *onion,
+                                     float *recoDelays, float *recoDelays_V, float *recoDelays_H,
+                                     const int pix);
+
+int computeZoomedRecoDelaysWithConstantN(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
                                      //const float radius, const int nSideExp,
                                      Healpix_Onion *onion,
                                      float *recoDelays, float *recoDelays_V, float *recoDelays_H,
@@ -344,7 +351,14 @@ int compute3DRecoDelaysWithRadioSpline(const int nAnt, const float zCenter, cons
                                       //const float radius, const int nSideExp,
                                       Healpix_Onion *onion,
                                       float *recoDelays, float *recoDelays_V, float *recoDelays_H);
-int compute3DZoomedRecoDelaysWithRadioSpline(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc, 
+
+int compute3DRecoDelaysWithRadioSplineForSinglePixel(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
+                                      //const float radius, const int nSideExp,
+                                      Healpix_Onion *onion,
+                                      float *recoDelays, float *recoDelays_V, float *recoDelays_H,
+                                      const int pix);
+
+int compute3DZoomedRecoDelaysWithRadioSpline(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
                                      //const float radius, const int nSideExp,
                                      Healpix_Onion *onion,
                                      float *recoDelays, float *recoDelays_V, float *recoDelays_H,
@@ -372,4 +386,3 @@ int doNchnlScan(const double eventWeight, const vector<TGraph *>& cleanEvent, TH
 int doNchnlScan(const double eventWeight, const vector<TGraph *>& cleanEvent, TH2F *mnMap, TH2F *mnMap_V, TH2F *mnMap_H, int *nchnlArray, const int *chanMask, int *goodChan, const int nThresStep = 250, const double minThres = 0., const double maxThres = 10.);
 int computeMapLikelihoodAndPValue(const int nDir, const int nLayer, const char *fitFunc, const char *fitFuncFile, float *mapData, double& likelihood, double& pValue);
 #endif
-

@@ -1,11 +1,11 @@
-/* 
- * On different machine, should run get_info once to determine how many platforms, how many devices, 
+/*
+ * On different machine, should run get_info once to determine how many platforms, how many devices,
  * what types of devices are available. Then should decide on which platform and which devices to use.
  * This example code is based on the cobaltgpu@icecube.wisc.edu server, which has 2 platforms:
  * Platform 0: 1 AMD CPU device
- * Platform 1: 4 Nvidia GPU devices  
- * 
- * In this example, we will use platform 0 
+ * Platform 1: 4 Nvidia GPU devices
+ *
+ * In this example, we will use platform 0
  *
  */
 #include "evProcessTools.h"
@@ -25,7 +25,7 @@ TGraph *sillygr = new TGraph();
 #endif
 */
 
-int setupCLRecoEnv(recoEnvData *clEnv, const char *programFile){
+int setupCLRecoEnv(recoSettings *settings, recoEnvData *clEnv, const char *programFile){
 
    cl_int i, err;
    cl_uint num_platforms=2;
@@ -36,8 +36,8 @@ int setupCLRecoEnv(recoEnvData *clEnv, const char *programFile){
    char *program_log;
    char name_data[1024];
    cl_uint ref_count;
-
-/* 
+   cl_uint max_compute_units;
+/*
  * Get platform and devices
  */
    clEnv->platforms = (cl_platform_id*)malloc(sizeof(cl_platform_id)*num_platforms); //already know there are 2 platforms in total
@@ -45,13 +45,42 @@ int setupCLRecoEnv(recoEnvData *clEnv, const char *programFile){
    clGetPlatformInfo(clEnv->platforms[0], CL_PLATFORM_NAME, sizeof(name_data), &name_data, NULL);
    cout<<"Platform 0 name: "<<name_data<<endl;
    clEnv->devices = (cl_device_id*)malloc(sizeof(cl_device_id)*num_devices);
-   err = clGetDeviceIDs(clEnv->platforms[0], CL_DEVICE_TYPE_CPU, num_devices, clEnv->devices, NULL);
+
+   if(string(settings->openCLDeviceType) == "cpu"){
+
+     err = clGetDeviceIDs(clEnv->platforms[0], CL_DEVICE_TYPE_CPU, num_devices, clEnv->devices, NULL);
+
+     if(settings->openCLMaxNumberOfCores != 0){
+
+       err = clGetDeviceInfo(clEnv->devices[0], CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(max_compute_units), &max_compute_units, NULL);
+
+       if( max_compute_units > settings->openCLMaxNumberOfCores){
+
+         const cl_device_partition_property properties[3] = {
+         CL_DEVICE_PARTITION_BY_COUNTS,
+         settings->openCLMaxNumberOfCores, // Use only up to openCLMaxNumberOfCores compute units
+         CL_DEVICE_PARTITION_BY_COUNTS_LIST_END
+         };
+
+         cl_device_id subdevice_id;
+         err = clCreateSubDevices(clEnv->devices[0], properties, 1, &subdevice_id, NULL);
+         if (err != CL_SUCCESS) {
+           fprintf(stderr, "failed to create sub device %d!\n", err);
+           return -1;
+         }
+         clEnv->devices[0] = subdevice_id; //assign the device used in clEnv to the subdevice
+       }//end of if max_compute_units > settings->openCLMaxNumberOfCores
+     }//end of if settings->openCLMaxNumberOfCores != 0
+   } else if (string(settings->openCLDeviceType) == "gpu"){
+     cerr<<"GPU device not supported yet\n"; return -1;
+     //err = clGetDeviceIDs(clEnv->platforms[0], CL_DEVICE_TYPE_GPU, num_devices, clEnv->devices, NULL);
+   }
    if(err<0){ cerr<<"No device found"<<endl; return -1; }
 
 /*
  * Create context
  */
-   clEnv->context = clCreateContext(NULL, num_devices, clEnv->devices, NULL, NULL, &err);  
+   clEnv->context = clCreateContext(NULL, num_devices, clEnv->devices, NULL, NULL, &err);
    clGetContextInfo(clEnv->context, CL_CONTEXT_REFERENCE_COUNT, sizeof(ref_count), &ref_count, NULL);
    cout<<"context reference count: "<<ref_count<<endl;
 
@@ -67,19 +96,19 @@ int setupCLRecoEnv(recoEnvData *clEnv, const char *programFile){
    fread(program_buffer, sizeof(char), program_size, program_handle);
    fclose(program_handle);
 
-/* 
+/*
  * Create and build program
  * Program is built one device at a time in this example
  */
    clEnv->program = clCreateProgramWithSource(clEnv->context, 1 //assume only 1 program source code
                                     , (const char**)&program_buffer
-                                    , &program_size, &err); 
+                                    , &program_size, &err);
    for(i=0; i<num_devices; i++){
 
-      err = clBuildProgram(clEnv->program, 1, &clEnv->devices[i], NULL, NULL, NULL); 
-      if(err<0){ 
+      err = clBuildProgram(clEnv->program, 1, &clEnv->devices[i], NULL, NULL, NULL);
+      if(err<0){
       clGetProgramBuildInfo(clEnv->program, clEnv->devices[i], CL_PROGRAM_BUILD_LOG,
-                            0, NULL, &log_size); 
+                            0, NULL, &log_size);
       program_log=(char*)malloc(log_size);
       clGetProgramBuildInfo(clEnv->program, clEnv->devices[i], CL_PROGRAM_BUILD_LOG,
                             log_size, program_log, NULL);
@@ -96,7 +125,7 @@ int setupCLRecoEnv(recoEnvData *clEnv, const char *programFile){
    if(err<0){ cerr<<"No kernel found"<<endl; return -1; }
    cout<<"Number of kernels: "<<num_kernels<<endl;
    clEnv->kernels=(cl_kernel*)malloc(sizeof(cl_kernel)*num_kernels);
-   clCreateKernelsInProgram(clEnv->program, num_kernels, clEnv->kernels, NULL); 
+   clCreateKernelsInProgram(clEnv->program, num_kernels, clEnv->kernels, NULL);
 
 /*
  * Create command queue on device 0
@@ -114,7 +143,7 @@ int setupCLRecoEnv(recoEnvData *clEnv, const char *programFile){
    //cl_kernel getRecoDelays;
 
    for(int i=0; i<num_kernels; i++){
-   clGetKernelInfo(clEnv->kernels[i], CL_KERNEL_FUNCTION_NAME, 
+   clGetKernelInfo(clEnv->kernels[i], CL_KERNEL_FUNCTION_NAME,
                 sizeof(name_data), name_data, NULL);
    cout<<"Kernel "<<i<<" name: "<<name_data<<endl;
    string kernel_name(name_data);
@@ -141,16 +170,16 @@ int setupCLRecoEnv(recoEnvData *clEnv, const char *programFile){
    err = clfftSetup(&clEnv->fftSetup);
 
    free(program_buffer);
-   return 0;   
+   return 0;
 }
 
 
 
 //   recoData::recoData(){ recoData::initialize(); }
 //   recoData::~recoData(){ /* default destructor */ }
-/* 
+/*
    void recoData::initialize(){
-   
+
    weight = 0.;
    trueZen = trueAzi = recoZen = recoAzi = 0.f;
    trueRadius = recoRadius = 0.f;
@@ -171,7 +200,7 @@ int setupCLRecoEnv(recoEnvData *clEnv, const char *programFile){
 
    }
 
-   
+
 
    void recoData::setAllData(
      double w
@@ -206,7 +235,7 @@ int setupCLRecoEnv(recoEnvData *clEnv, const char *programFile){
    topN = _topN;
 
    topMaxPixIdx.clear();
-   topMaxPixCoherence.clear(); 
+   topMaxPixCoherence.clear();
    for(int i=0; i<topN; i++){
       topMaxPixIdx.push_back( _topMaxPixIdx[i] );
       topMaxPixCoherence.push_back( _topMaxPixCoherence[i] );
@@ -264,7 +293,7 @@ int setupCLRecoEnv(recoEnvData *clEnv, const char *programFile){
    void recoData::setRecoChan(int *usedChan){
 
    for(int i=0; i<16; i++) recoChan[i] = usedChan[i];
- 
+
    }
 
    void recoData::setMaxPixInfo(int idx, float xCorrValue){
@@ -322,7 +351,7 @@ int setupCLRecoEnv(recoEnvData *clEnv, const char *programFile){
    inWindowSNR = _inWindowSNR;
 
    }
-  
+
    void recoData::setUnmodSNR(float _unmodSNR){
 
    unmodSNR = _unmodSNR;
@@ -385,7 +414,7 @@ int setupCLRecoEnv(recoEnvData *clEnv, const char *programFile){
    topN = old->topN;
 
    topMaxPixIdx.clear();
-   topMaxPixCoherence.clear(); 
+   topMaxPixCoherence.clear();
    for(int i=0; i<topN; i++){
       topMaxPixIdx.push_back( _topMaxPixIdx[i] );
       topMaxPixCoherence.push_back( _topMaxPixCoherence[i] );
@@ -417,7 +446,7 @@ int setupCLRecoEnv(recoEnvData *clEnv, const char *programFile){
    topN = 0;
    topMaxPixIdx.clear();
    topMaxPixCoherence.clear();
-   maxPixIdxEachLayer.clear();   
+   maxPixIdxEachLayer.clear();
    maxPixCoherenceEachLayer.clear();
    likelihood = 0.;
    pValue = 0.;
@@ -430,7 +459,7 @@ int setupCLRecoEnv(recoEnvData *clEnv, const char *programFile){
 int reconstructCSW(unsigned int dataType, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                 float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                 int nDir, string pol, const int *chanMask, char *filename)
-{ 
+{
 
 cout<<"Entered reconstructCSW method\n";
 int nSamp;
@@ -447,7 +476,7 @@ else if ( pol == "hpol" ) wInt = 0.625f;
 else { cerr<<"recoPolType undefined\n"; return -1; }
 } else {
 cerr<<"dataType undefined\n"; return -1; }
-/* 
+/*
  * Normalize wf
  */
 
@@ -485,7 +514,7 @@ if( pol == "vpol" ){
             cleanEvent[ch]->GetPoint(s,t,v);
             /* Bartlett window applied in main analysis code */
             //voltsFlat[nSamp*ch + s] = static_cast<float>(v * FFTtools::bartlettWindow(s, nSamp));
-            voltsFlat[nSamp*ch + s] = static_cast<float>(v); 
+            voltsFlat[nSamp*ch + s] = static_cast<float>(v);
          }
       } else {
          for(int s=0; s<nSamp; s++){
@@ -497,12 +526,12 @@ if( pol == "vpol" ){
 } else if ( pol == "hpol" ){
 
    /* Using the 1st hpol wf for nSamp. Should make sure all hpol channels have the same nSamp. FIXME */
-   nSamp = cleanEvent[nAnt]->GetN();   
+   nSamp = cleanEvent[nAnt]->GetN();
    voltsFlat = (float*)calloc(nAnt*nSamp, sizeof(float));
    if(voltsFlat == NULL){ cerr<<"Null pointer to voltsFlat\n"; return -1; }
 
    for(int ch=0; ch<nAnt; ch++){
-      
+
       if( chanMask[ch+nAnt] ){
          for(int s=0; s<nSamp; s++){
             cleanEvent[ch+nAnt]->GetPoint(s,t,v);
@@ -513,7 +542,7 @@ if( pol == "vpol" ){
       } else {
          for(int s=0; s<nSamp; s++){
             voltsFlat[nSamp*ch + s] = 0.f;
-         }             
+         }
       }
    }
 
@@ -565,9 +594,9 @@ err = clfftSetPlanScale(clEnv->planHandle, CLFFT_FORWARD, 1.f);
 err = clfftSetPlanBatchSize(clEnv->planHandle, batchSize);
 err = clfftSetPlanInStride(clEnv->planHandle, fftDim, clInStride);
 err = clfftSetPlanOutStride(clEnv->planHandle, fftDim, clOutStride);
-err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist); 
+err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist);
 err = clfftSetResultLocation(clEnv->planHandle, CLFFT_OUTOFPLACE);
-err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL); 
+err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL);
 cout<<"Plan prepared\n";
 /* The plan is now ready to be executed */
 cl_mem voltsFlatBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*nSamp*sizeof(float), NULL, &err);
@@ -576,17 +605,17 @@ err = clEnqueueWriteBuffer(clEnv->queue, voltsFlatBuffer, CL_TRUE, 0, nAnt*nSamp
 cl_mem intensityRBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
                          NULL, &err);
 cl_mem intensityCBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
-                         NULL, &err); 
+                         NULL, &err);
 cl_mem outBuffers[2] = {intensityRBuffer, intensityCBuffer};
 
 cout<<"Enqueueing FFT\n";
-err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL, 
+err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL,
                             &voltsFlatBuffer, outBuffers, NULL);
 err = clFinish(clEnv->queue);
-clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r, 
-                    0, NULL, NULL); 
+clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r,
+                    0, NULL, NULL);
 clEnqueueReadBuffer(clEnv->queue, outBuffers[1], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_c,
-                    0, NULL, NULL); 
+                    0, NULL, NULL);
 cout<<"FFT done\n";
 /*
  * Clean up CLFFT
@@ -611,9 +640,9 @@ for(int i=0; i<nDir; i++){
    for(int j=0; j<nAnt; j++){
    cout<<recoDelays_V[i*nAnt+j]<<"\t";
    }
-  cout<<endl; 
+  cout<<endl;
 } cout<<endl;
-*/ 
+*/
 }
 else if (pol == "hpol" )
 recoDelaysBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(float)*nAnt*nDir,
@@ -637,16 +666,16 @@ cout<<"ShiftedR/CBuffer created\n";
 clSetKernelArg(clEnv->shiftWf, 0, sizeof(cl_mem), &shiftedRBuffer  );
 clSetKernelArg(clEnv->shiftWf, 1, sizeof(cl_mem), &shiftedCBuffer  );
 clSetKernelArg(clEnv->shiftWf, 2, sizeof(cl_mem), &recoDelaysBuffer);
-clSetKernelArg(clEnv->shiftWf, 3, sizeof(cl_mem), &intensityRBuffer );      
-clSetKernelArg(clEnv->shiftWf, 4, sizeof(cl_mem), &intensityCBuffer );      
+clSetKernelArg(clEnv->shiftWf, 3, sizeof(cl_mem), &intensityRBuffer );
+clSetKernelArg(clEnv->shiftWf, 4, sizeof(cl_mem), &intensityCBuffer );
 clSetKernelArg(clEnv->shiftWf, 5, sizeof(float),  &wInt);
 
 unsigned int workDim=3;
 size_t globalWorkSize[3]={(size_t)nDir, (size_t)nAnt, (size_t)nSamp};
 clEnqueueNDRangeKernel(clEnv->queue, clEnv->shiftWf, workDim, NULL, globalWorkSize, NULL, 0, NULL, NULL);
 clFinish(clEnv->queue);
-clEnqueueReadBuffer(clEnv->queue, shiftedRBuffer, CL_TRUE, 0, sizeof(float)*nDir*nAnt*nSamp, shifted_data_r, 0, NULL, NULL); 
-clEnqueueReadBuffer(clEnv->queue, shiftedCBuffer, CL_TRUE, 0, sizeof(float)*nDir*nAnt*nSamp, shifted_data_c, 0, NULL, NULL); 
+clEnqueueReadBuffer(clEnv->queue, shiftedRBuffer, CL_TRUE, 0, sizeof(float)*nDir*nAnt*nSamp, shifted_data_r, 0, NULL, NULL);
+clEnqueueReadBuffer(clEnv->queue, shiftedCBuffer, CL_TRUE, 0, sizeof(float)*nDir*nAnt*nSamp, shifted_data_c, 0, NULL, NULL);
 cout<<"Shifted wfs\n";
 
 /*
@@ -665,8 +694,8 @@ cl_mem beamCBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_C
 
 clSetKernelArg(clEnv->sumWf, 0, sizeof(cl_mem), &beamRBuffer);
 clSetKernelArg(clEnv->sumWf, 1, sizeof(cl_mem), &beamCBuffer);
-clSetKernelArg(clEnv->sumWf, 2, sizeof(cl_mem), &shiftedRBuffer); 
-clSetKernelArg(clEnv->sumWf, 3, sizeof(cl_mem), &shiftedCBuffer); 
+clSetKernelArg(clEnv->sumWf, 2, sizeof(cl_mem), &shiftedRBuffer);
+clSetKernelArg(clEnv->sumWf, 3, sizeof(cl_mem), &shiftedCBuffer);
 clSetKernelArg(clEnv->sumWf, 4, sizeof(int),    &nAnt  );
 
 workDim=2;
@@ -701,8 +730,8 @@ clFinish(clEnv->queue);
 clEnqueueReadBuffer(clEnv->queue, pwrBuffer, CL_TRUE, 0, sizeof(float)*nDir, beamPwr, 0, NULL, NULL);
 cout<<"Beam pwr computed\n";
 
-/* 
- * Write FITS file 
+/*
+ * Write FITS file
  */
 cout<<"Creating Healpix map and writing to FITS....\n";
 arr<float> beamPwrArr = arr<float>(&beamPwr[0], (size_t)nDir);
@@ -716,8 +745,8 @@ fitsOut.create(filename);
 write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
 cout<<"Healpix map written\n";
 
-/* 
- * Deallocate memories 
+/*
+ * Deallocate memories
  */
 
 cout<<"Deallocating memories...\n";
@@ -748,7 +777,7 @@ return 0;
 int reconstructCSW(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                 float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                 int nDir, const int *chanMask, char *filename)
-{ 
+{
 
 cout<<"Entered reconstructCSW method\n";
 int nSamp;
@@ -767,7 +796,7 @@ else if ( pol == "hpol" ) wInt = 0.625f;
 else { cerr<<"recoPolType undefined\n"; return -1; }
 } else {
 cerr<<"dataType undefined\n"; return -1; }
-/* 
+/*
  * Normalize wf
  */
 
@@ -805,7 +834,7 @@ if( pol == "vpol" ){
             cleanEvent[ch]->GetPoint(s,t,v);
             /* Bartlett window applied in main analysis code */
             //voltsFlat[nSamp*ch + s] = static_cast<float>(v * FFTtools::bartlettWindow(s, nSamp));
-            voltsFlat[nSamp*ch + s] = static_cast<float>(v); 
+            voltsFlat[nSamp*ch + s] = static_cast<float>(v);
          }
       } else {
          for(int s=0; s<nSamp; s++){
@@ -817,12 +846,12 @@ if( pol == "vpol" ){
 } else if ( pol == "hpol" ){
 
    /* Using the 1st hpol wf for nSamp. Should make sure all hpol channels have the same nSamp. FIXME */
-   nSamp = cleanEvent[nAnt]->GetN();   
+   nSamp = cleanEvent[nAnt]->GetN();
    voltsFlat = (float*)calloc(nAnt*nSamp, sizeof(float));
    if(voltsFlat == NULL){ cerr<<"Null pointer to voltsFlat\n"; return -1; }
 
    for(int ch=0; ch<nAnt; ch++){
-      
+
       if( chanMask[ch+nAnt] ){
          for(int s=0; s<nSamp; s++){
             cleanEvent[ch+nAnt]->GetPoint(s,t,v);
@@ -833,7 +862,7 @@ if( pol == "vpol" ){
       } else {
          for(int s=0; s<nSamp; s++){
             voltsFlat[nSamp*ch + s] = 0.f;
-         }             
+         }
       }
    }
 
@@ -885,9 +914,9 @@ err = clfftSetPlanScale(clEnv->planHandle, CLFFT_FORWARD, 1.f);
 err = clfftSetPlanBatchSize(clEnv->planHandle, batchSize);
 err = clfftSetPlanInStride(clEnv->planHandle, fftDim, clInStride);
 err = clfftSetPlanOutStride(clEnv->planHandle, fftDim, clOutStride);
-err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist); 
+err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist);
 err = clfftSetResultLocation(clEnv->planHandle, CLFFT_OUTOFPLACE);
-err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL); 
+err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL);
 cout<<"Plan prepared\n";
 /* The plan is now ready to be executed */
 cl_mem voltsFlatBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*nSamp*sizeof(float), NULL, &err);
@@ -896,17 +925,17 @@ err = clEnqueueWriteBuffer(clEnv->queue, voltsFlatBuffer, CL_TRUE, 0, nAnt*nSamp
 cl_mem intensityRBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
                          NULL, &err);
 cl_mem intensityCBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
-                         NULL, &err); 
+                         NULL, &err);
 cl_mem outBuffers[2] = {intensityRBuffer, intensityCBuffer};
 
 cout<<"Enqueueing FFT\n";
-err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL, 
+err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL,
                             &voltsFlatBuffer, outBuffers, NULL);
 err = clFinish(clEnv->queue);
-clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r, 
-                    0, NULL, NULL); 
+clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r,
+                    0, NULL, NULL);
 clEnqueueReadBuffer(clEnv->queue, outBuffers[1], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_c,
-                    0, NULL, NULL); 
+                    0, NULL, NULL);
 cout<<"FFT done\n";
 /*
  * Clean up CLFFT
@@ -931,9 +960,9 @@ for(int i=0; i<nDir; i++){
    for(int j=0; j<nAnt; j++){
    cout<<recoDelays_V[i*nAnt+j]<<"\t";
    }
-  cout<<endl; 
+  cout<<endl;
 } cout<<endl;
-*/ 
+*/
 }
 else if (pol == "hpol" )
 recoDelaysBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(float)*nAnt*nDir,
@@ -957,16 +986,16 @@ cout<<"ShiftedR/CBuffer created\n";
 clSetKernelArg(clEnv->shiftWf, 0, sizeof(cl_mem), &shiftedRBuffer  );
 clSetKernelArg(clEnv->shiftWf, 1, sizeof(cl_mem), &shiftedCBuffer  );
 clSetKernelArg(clEnv->shiftWf, 2, sizeof(cl_mem), &recoDelaysBuffer);
-clSetKernelArg(clEnv->shiftWf, 3, sizeof(cl_mem), &intensityRBuffer );      
-clSetKernelArg(clEnv->shiftWf, 4, sizeof(cl_mem), &intensityCBuffer );      
+clSetKernelArg(clEnv->shiftWf, 3, sizeof(cl_mem), &intensityRBuffer );
+clSetKernelArg(clEnv->shiftWf, 4, sizeof(cl_mem), &intensityCBuffer );
 clSetKernelArg(clEnv->shiftWf, 5, sizeof(float),  &wInt);
 
 unsigned int workDim=3;
 size_t globalWorkSize[3]={(size_t)nDir, (size_t)nAnt, (size_t)nSamp};
 clEnqueueNDRangeKernel(clEnv->queue, clEnv->shiftWf, workDim, NULL, globalWorkSize, NULL, 0, NULL, NULL);
 clFinish(clEnv->queue);
-clEnqueueReadBuffer(clEnv->queue, shiftedRBuffer, CL_TRUE, 0, sizeof(float)*nDir*nAnt*nSamp, shifted_data_r, 0, NULL, NULL); 
-clEnqueueReadBuffer(clEnv->queue, shiftedCBuffer, CL_TRUE, 0, sizeof(float)*nDir*nAnt*nSamp, shifted_data_c, 0, NULL, NULL); 
+clEnqueueReadBuffer(clEnv->queue, shiftedRBuffer, CL_TRUE, 0, sizeof(float)*nDir*nAnt*nSamp, shifted_data_r, 0, NULL, NULL);
+clEnqueueReadBuffer(clEnv->queue, shiftedCBuffer, CL_TRUE, 0, sizeof(float)*nDir*nAnt*nSamp, shifted_data_c, 0, NULL, NULL);
 cout<<"Shifted wfs\n";
 
 /*
@@ -985,8 +1014,8 @@ cl_mem beamCBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_C
 
 clSetKernelArg(clEnv->sumWf, 0, sizeof(cl_mem), &beamRBuffer);
 clSetKernelArg(clEnv->sumWf, 1, sizeof(cl_mem), &beamCBuffer);
-clSetKernelArg(clEnv->sumWf, 2, sizeof(cl_mem), &shiftedRBuffer); 
-clSetKernelArg(clEnv->sumWf, 3, sizeof(cl_mem), &shiftedCBuffer); 
+clSetKernelArg(clEnv->sumWf, 2, sizeof(cl_mem), &shiftedRBuffer);
+clSetKernelArg(clEnv->sumWf, 3, sizeof(cl_mem), &shiftedCBuffer);
 clSetKernelArg(clEnv->sumWf, 4, sizeof(int),    &nAnt  );
 
 workDim=2;
@@ -1021,8 +1050,8 @@ clFinish(clEnv->queue);
 clEnqueueReadBuffer(clEnv->queue, pwrBuffer, CL_TRUE, 0, sizeof(float)*nDir, beamPwr, 0, NULL, NULL);
 cout<<"Beam pwr computed\n";
 
-/* 
- * Write FITS file 
+/*
+ * Write FITS file
  */
 cout<<"Creating Healpix map and writing to FITS....\n";
 arr<float> beamPwrArr = arr<float>(&beamPwr[0], (size_t)nDir);
@@ -1036,8 +1065,8 @@ fitsOut.create(filename);
 write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
 cout<<"Healpix map written\n";
 
-/* 
- * Deallocate memories 
+/*
+ * Deallocate memories
  */
 
 cout<<"Deallocating memories...\n";
@@ -1068,7 +1097,7 @@ return 0;
 int reconstructCSW_Serial(unsigned int dataType, vector<TGraph *>& cleanEvent,
                 float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                 int nDir, string pol, const int *chanMask, char *filename)
-                { 
+                {
 
 cout<<"Entered reconstructCSW_Serial method\n";
 int nSamp;
@@ -1086,7 +1115,7 @@ else { cerr<<"recoPolType undefined\n"; return -1; }
 } else {
 cerr<<"dataType undefined\n"; return -1; }
 
-/* 
+/*
  * Normalize wf
  */
 
@@ -1129,7 +1158,7 @@ if( pol == "vpol" ){
             /* Bartlett window applied in main analysis code */
             //voltsFlat[nSamp*ch + s] = static_cast<float>(v * FFTtools::bartlettWindow(s, nSamp));
             //cout<<"v: "<<v<<endl;
-            voltsFlat[aug*nSamp*ch + s] = static_cast<float>(v); 
+            voltsFlat[aug*nSamp*ch + s] = static_cast<float>(v);
             }
             else{
             voltsFlat[aug*nSamp*ch + s] = 0.f;
@@ -1145,12 +1174,12 @@ if( pol == "vpol" ){
 } else if ( pol == "hpol" ){
 
    /* Using the 1st hpol wf for nSamp. Should make sure all hpol channels have the same nSamp. FIXME */
-   nSamp = cleanEvent[nAnt]->GetN();   
+   nSamp = cleanEvent[nAnt]->GetN();
    voltsFlat = (float*)calloc(nAnt*nSamp*aug, sizeof(float));
    if(voltsFlat == NULL){ cerr<<"Null pointer to voltsFlat\n"; return -1; }
 
    for(int ch=0; ch<nAnt; ch++){
-      
+
       if( chanMask[ch+nAnt] ){
          for(int s=0; s<aug*nSamp; s++){
 
@@ -1163,11 +1192,11 @@ if( pol == "vpol" ){
             else{
             voltsFlat[aug*nSamp*ch + s] = 0.f;
             }
-         } 
+         }
       } else {
          for(int s=0; s<aug*nSamp; s++){
             voltsFlat[aug*nSamp*ch + s] = 0.f;
-         }             
+         }
       }
    }
 
@@ -1221,9 +1250,9 @@ err = clfftSetPlanScale(clEnv->planHandle, CLFFT_FORWARD, 1.f);
 err = clfftSetPlanBatchSize(clEnv->planHandle, batchSize);
 err = clfftSetPlanInStride(clEnv->planHandle, fftDim, clInStride);
 err = clfftSetPlanOutStride(clEnv->planHandle, fftDim, clOutStride);
-err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist); 
+err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist);
 err = clfftSetResultLocation(clEnv->planHandle, CLFFT_OUTOFPLACE);
-err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL); 
+err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL);
 cout<<"Plan prepared\n";
 */
 /* The plan is now ready to be executed */
@@ -1234,17 +1263,17 @@ err = clEnqueueWriteBuffer(clEnv->queue, voltsFlatBuffer, CL_TRUE, 0, nAnt*nSamp
 cl_mem intensityRBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
                          NULL, &err);
 cl_mem intensityCBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
-                         NULL, &err); 
+                         NULL, &err);
 cl_mem outBuffers[2] = {intensityRBuffer, intensityCBuffer};
 
 cout<<"Enqueueing FFT\n";
-err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL, 
+err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL,
                             &voltsFlatBuffer, outBuffers, NULL);
 err = clFinish(clEnv->queue);
-clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r, 
-                    0, NULL, NULL); 
+clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r,
+                    0, NULL, NULL);
 clEnqueueReadBuffer(clEnv->queue, outBuffers[1], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_c,
-                    0, NULL, NULL); 
+                    0, NULL, NULL);
 cout<<"FFT done\n";
 */
 /*
@@ -1290,16 +1319,16 @@ cout<<"ShiftedR/CBuffer created\n";
 clSetKernelArg(clEnv->shiftWf, 0, sizeof(cl_mem), &shiftedRBuffer  );
 clSetKernelArg(clEnv->shiftWf, 1, sizeof(cl_mem), &shiftedCBuffer  );
 clSetKernelArg(clEnv->shiftWf, 2, sizeof(cl_mem), &recoDelaysBuffer);
-clSetKernelArg(clEnv->shiftWf, 3, sizeof(cl_mem), &intensityRBuffer );      
-clSetKernelArg(clEnv->shiftWf, 4, sizeof(cl_mem), &intensityCBuffer );      
+clSetKernelArg(clEnv->shiftWf, 3, sizeof(cl_mem), &intensityRBuffer );
+clSetKernelArg(clEnv->shiftWf, 4, sizeof(cl_mem), &intensityCBuffer );
 clSetKernelArg(clEnv->shiftWf, 5, sizeof(float),  &wInt);
 
 unsigned int workDim=3;
 size_t globalWorkSize[3]={(size_t)nDir, (size_t)nAnt, (size_t)nSamp};
 clEnqueueNDRangeKernel(clEnv->queue, clEnv->shiftWf, workDim, NULL, globalWorkSize, NULL, 0, NULL, NULL);
 clFinish(clEnv->queue);
-clEnqueueReadBuffer(clEnv->queue, shiftedRBuffer, CL_TRUE, 0, sizeof(float)*nDir*nAnt*nSamp, shifted_data_r, 0, NULL, NULL); 
-clEnqueueReadBuffer(clEnv->queue, shiftedCBuffer, CL_TRUE, 0, sizeof(float)*nDir*nAnt*nSamp, shifted_data_c, 0, NULL, NULL); 
+clEnqueueReadBuffer(clEnv->queue, shiftedRBuffer, CL_TRUE, 0, sizeof(float)*nDir*nAnt*nSamp, shifted_data_r, 0, NULL, NULL);
+clEnqueueReadBuffer(clEnv->queue, shiftedCBuffer, CL_TRUE, 0, sizeof(float)*nDir*nAnt*nSamp, shifted_data_c, 0, NULL, NULL);
 */
 cout<<"About to allocate shifted_data\n";
 int extendedNSamp = aug*nSamp;
@@ -1319,20 +1348,20 @@ for(int i=0; i<nDir; i++){
    if( (k+delaysBin >= 0 ) &&
        (k+delaysBin <= (extendedNSamp-1))
      )
-   {  
+   {
         //cout<<"voltsFlat: "<<voltsFlat[j*extendedNSamp + k +delaysBin]<<endl;
-        shifted_data[i*nAnt*extendedNSamp+j*extendedNSamp+k] = voltsFlat[j*extendedNSamp + k + delaysBin]; 
+        shifted_data[i*nAnt*extendedNSamp+j*extendedNSamp+k] = voltsFlat[j*extendedNSamp + k + delaysBin];
    }
    else {
         //cout<<delaysBin<<"\t"<<k+delaysBin<<"\t"<<extendedNSamp-1<<endl;
         shifted_data[i*nAnt*extendedNSamp+j*extendedNSamp+k] = 0.f;
         //cout<<"Shifting out of range\n";
-   }   
+   }
    }
 
 
    }
-} 
+}
 cout<<"Shifted wfs\n";
 
 /*
@@ -1352,8 +1381,8 @@ cl_mem beamCBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_C
 
 clSetKernelArg(clEnv->sumWf, 0, sizeof(cl_mem), &beamRBuffer);
 clSetKernelArg(clEnv->sumWf, 1, sizeof(cl_mem), &beamCBuffer);
-clSetKernelArg(clEnv->sumWf, 2, sizeof(cl_mem), &shiftedRBuffer); 
-clSetKernelArg(clEnv->sumWf, 3, sizeof(cl_mem), &shiftedCBuffer); 
+clSetKernelArg(clEnv->sumWf, 2, sizeof(cl_mem), &shiftedRBuffer);
+clSetKernelArg(clEnv->sumWf, 3, sizeof(cl_mem), &shiftedCBuffer);
 clSetKernelArg(clEnv->sumWf, 4, sizeof(int),    &nAnt  );
 
 workDim=2;
@@ -1369,15 +1398,15 @@ float *beam_data = (float*)calloc(nDir*extendedNSamp,sizeof(float));
 for(int i=0; i<nDir; i++){
    for(int j=0; j<extendedNSamp; j++){
       for(int k=0; k<nAnt; k++){
- 
-      //cout<<"shifted_data: "<<shifted_data[i*nAnt*extendedNSamp + k*extendedNSamp + j]<<endl;   
+
+      //cout<<"shifted_data: "<<shifted_data[i*nAnt*extendedNSamp + k*extendedNSamp + j]<<endl;
       beam_data[i*extendedNSamp+j] += shifted_data[i*nAnt*extendedNSamp + k*extendedNSamp + j];
 
       }
       beam_data[i*extendedNSamp+j] /= (float)nAnt;
    }
 }
-   
+
 
 cout<<"Beam made\n";
 
@@ -1409,14 +1438,14 @@ for(int i=0; i<nDir; i++){
    for(int j=0; j<extendedNSamp; j++){
    //cout<<beam_data[i*extendedNSamp + j]<<endl;
    beamPwr[i] += (beam_data[i*extendedNSamp + j] * beam_data[i*extendedNSamp + j]);
-   }  
-   
-}   
+   }
+
+}
 
 cout<<"Beam pwr computed\n";
 
-/* 
- * Write FITS file 
+/*
+ * Write FITS file
  */
 cout<<"Creating Healpix map and writing to FITS....\n";
 arr<float> beamPwrArr = arr<float>(&beamPwr[0], (size_t)nDir);
@@ -1430,8 +1459,8 @@ fitsOut.create(filename);
 write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
 cout<<"Healpix map written\n";
 
-/* 
- * Deallocate memories 
+/*
+ * Deallocate memories
  */
 
 cout<<"Deallocating memories...\n";
@@ -1464,7 +1493,7 @@ return 0;
 int reconstructCSWGetMaxPix(unsigned int dataType, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                 float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                 int nDir, string pol, const int *chanMask, recoData *summary)
-{ 
+{
 
 cout<<"Entered reconstructCSW routine\n";
 int nSamp;
@@ -1502,7 +1531,7 @@ if( pol == "vpol" ){
             cleanEvent[ch]->GetPoint(s,t,v);
             /* Bartlett window applied in main analysis code */
             //voltsFlat[nSamp*ch + s] = static_cast<float>(v * FFTtools::bartlettWindow(s, nSamp));
-            voltsFlat[nSamp*ch + s] = static_cast<float>(v); 
+            voltsFlat[nSamp*ch + s] = static_cast<float>(v);
          }
       } else {
          for(int s=0; s<nSamp; s++){
@@ -1514,7 +1543,7 @@ if( pol == "vpol" ){
 } else if ( pol == "hpol" ){
 
    /* Using the 1st hpol wf for nSamp. Should make sure all hpol channels have the same nSamp. FIXME */
-   nSamp = cleanEvent[nAnt]->GetN();   
+   nSamp = cleanEvent[nAnt]->GetN();
    voltsFlat = (float*)calloc(nAnt*nSamp, sizeof(float));
    if(voltsFlat == NULL){ cerr<<"Null pointer to voltsFlat\n"; return -1; }
 
@@ -1529,7 +1558,7 @@ if( pol == "vpol" ){
       } else {
          for(int s=0; s<nSamp; s++){
             voltsFlat[nSamp*ch + s] = 0.f;
-         }             
+         }
       }
    }
 
@@ -1581,9 +1610,9 @@ err = clfftSetPlanScale(clEnv->planHandle, CLFFT_FORWARD, 1.f);
 err = clfftSetPlanBatchSize(clEnv->planHandle, batchSize);
 err = clfftSetPlanInStride(clEnv->planHandle, fftDim, clInStride);
 err = clfftSetPlanOutStride(clEnv->planHandle, fftDim, clOutStride);
-err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist); 
+err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist);
 err = clfftSetResultLocation(clEnv->planHandle, CLFFT_OUTOFPLACE);
-err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL); 
+err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL);
 cout<<"Plan prepared\n";
 /* The plan is now ready to be executed */
 cl_mem voltsFlatBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*nSamp*sizeof(float), NULL, &err);
@@ -1592,17 +1621,17 @@ err = clEnqueueWriteBuffer(clEnv->queue, voltsFlatBuffer, CL_TRUE, 0, nAnt*nSamp
 cl_mem intensityRBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
                          NULL, &err);
 cl_mem intensityCBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
-                         NULL, &err); 
+                         NULL, &err);
 cl_mem outBuffers[2] = {intensityRBuffer, intensityCBuffer};
 
 cout<<"Enqueueing FFT\n";
-err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL, 
+err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL,
                             &voltsFlatBuffer, outBuffers, NULL);
 err = clFinish(clEnv->queue);
-clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r, 
-                    0, NULL, NULL); 
+clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r,
+                    0, NULL, NULL);
 clEnqueueReadBuffer(clEnv->queue, outBuffers[1], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_c,
-                    0, NULL, NULL); 
+                    0, NULL, NULL);
 cout<<"FFT done\n";
 /*
  * Clean up CLFFT
@@ -1627,9 +1656,9 @@ for(int i=0; i<nDir; i++){
    for(int j=0; j<nAnt; j++){
    cout<<recoDelays_V[i*nAnt+j]<<"\t";
    }
-  cout<<endl; 
+  cout<<endl;
 } cout<<endl;
-*/ 
+*/
 }
 else if (pol == "hpol" )
 recoDelaysBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(float)*nAnt*nDir,
@@ -1653,16 +1682,16 @@ cout<<"ShiftedR/CBuffer created\n";
 clSetKernelArg(clEnv->shiftWf, 0, sizeof(cl_mem), &shiftedRBuffer  );
 clSetKernelArg(clEnv->shiftWf, 1, sizeof(cl_mem), &shiftedCBuffer  );
 clSetKernelArg(clEnv->shiftWf, 2, sizeof(cl_mem), &recoDelaysBuffer);
-clSetKernelArg(clEnv->shiftWf, 3, sizeof(cl_mem), &intensityRBuffer );      
-clSetKernelArg(clEnv->shiftWf, 4, sizeof(cl_mem), &intensityCBuffer );      
+clSetKernelArg(clEnv->shiftWf, 3, sizeof(cl_mem), &intensityRBuffer );
+clSetKernelArg(clEnv->shiftWf, 4, sizeof(cl_mem), &intensityCBuffer );
 clSetKernelArg(clEnv->shiftWf, 5, sizeof(float),  &wInt);
 
 unsigned int workDim=3;
 size_t globalWorkSize[3]={(size_t)nDir, (size_t)nAnt, (size_t)nSamp};
 clEnqueueNDRangeKernel(clEnv->queue, clEnv->shiftWf, workDim, NULL, globalWorkSize, NULL, 0, NULL, NULL);
 clFinish(clEnv->queue);
-clEnqueueReadBuffer(clEnv->queue, shiftedRBuffer, CL_TRUE, 0, sizeof(float)*nDir*nAnt*nSamp, shifted_data_r, 0, NULL, NULL); 
-clEnqueueReadBuffer(clEnv->queue, shiftedCBuffer, CL_TRUE, 0, sizeof(float)*nDir*nAnt*nSamp, shifted_data_c, 0, NULL, NULL); 
+clEnqueueReadBuffer(clEnv->queue, shiftedRBuffer, CL_TRUE, 0, sizeof(float)*nDir*nAnt*nSamp, shifted_data_r, 0, NULL, NULL);
+clEnqueueReadBuffer(clEnv->queue, shiftedCBuffer, CL_TRUE, 0, sizeof(float)*nDir*nAnt*nSamp, shifted_data_c, 0, NULL, NULL);
 cout<<"Shifted wfs\n";
 
 /*
@@ -1681,8 +1710,8 @@ cl_mem beamCBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_C
 
 clSetKernelArg(clEnv->sumWf, 0, sizeof(cl_mem), &beamRBuffer);
 clSetKernelArg(clEnv->sumWf, 1, sizeof(cl_mem), &beamCBuffer);
-clSetKernelArg(clEnv->sumWf, 2, sizeof(cl_mem), &shiftedRBuffer); 
-clSetKernelArg(clEnv->sumWf, 3, sizeof(cl_mem), &shiftedCBuffer); 
+clSetKernelArg(clEnv->sumWf, 2, sizeof(cl_mem), &shiftedRBuffer);
+clSetKernelArg(clEnv->sumWf, 3, sizeof(cl_mem), &shiftedCBuffer);
 clSetKernelArg(clEnv->sumWf, 4, sizeof(int),    &nAnt  );
 
 workDim=2;
@@ -1729,12 +1758,12 @@ for(int idx=0; idx<nDir; idx++){
       max = beamPwr[idx];
       maxPixIdx = idx;
    }
-} 
+}
 
 summary->setMaxPixInfo(maxPixIdx, max);
 
-/* 
- * Write FITS file 
+/*
+ * Write FITS file
  */
 /*
 cout<<"Creating Halpix map and writing to FITS....\n";
@@ -1749,8 +1778,8 @@ fitsOut.create(filename);
 write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
 cout<<"Healpix map written\n";
 */
-/* 
- * Deallocate memories 
+/*
+ * Deallocate memories
  */
 
 cout<<"Deallocating memories...\n";
@@ -1781,7 +1810,7 @@ return maxPixIdx;
 int reconstructCSWGetMaxPix(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                 float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                 int nDir, const int *chanMask, recoData *summary)
-{ 
+{
 
 cout<<"Entered reconstructCSW routine\n";
 int nSamp;
@@ -1821,7 +1850,7 @@ if( pol == "vpol" ){
             cleanEvent[ch]->GetPoint(s,t,v);
             /* Bartlett window applied in main analysis code */
             //voltsFlat[nSamp*ch + s] = static_cast<float>(v * FFTtools::bartlettWindow(s, nSamp));
-            voltsFlat[nSamp*ch + s] = static_cast<float>(v); 
+            voltsFlat[nSamp*ch + s] = static_cast<float>(v);
          }
       } else {
          for(int s=0; s<nSamp; s++){
@@ -1833,7 +1862,7 @@ if( pol == "vpol" ){
 } else if ( pol == "hpol" ){
 
    /* Using the 1st hpol wf for nSamp. Should make sure all hpol channels have the same nSamp. FIXME */
-   nSamp = cleanEvent[nAnt]->GetN();   
+   nSamp = cleanEvent[nAnt]->GetN();
    voltsFlat = (float*)calloc(nAnt*nSamp, sizeof(float));
    if(voltsFlat == NULL){ cerr<<"Null pointer to voltsFlat\n"; return -1; }
 
@@ -1848,7 +1877,7 @@ if( pol == "vpol" ){
       } else {
          for(int s=0; s<nSamp; s++){
             voltsFlat[nSamp*ch + s] = 0.f;
-         }             
+         }
       }
    }
 
@@ -1900,9 +1929,9 @@ err = clfftSetPlanScale(clEnv->planHandle, CLFFT_FORWARD, 1.f);
 err = clfftSetPlanBatchSize(clEnv->planHandle, batchSize);
 err = clfftSetPlanInStride(clEnv->planHandle, fftDim, clInStride);
 err = clfftSetPlanOutStride(clEnv->planHandle, fftDim, clOutStride);
-err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist); 
+err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist);
 err = clfftSetResultLocation(clEnv->planHandle, CLFFT_OUTOFPLACE);
-err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL); 
+err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL);
 cout<<"Plan prepared\n";
 /* The plan is now ready to be executed */
 cl_mem voltsFlatBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*nSamp*sizeof(float), NULL, &err);
@@ -1911,17 +1940,17 @@ err = clEnqueueWriteBuffer(clEnv->queue, voltsFlatBuffer, CL_TRUE, 0, nAnt*nSamp
 cl_mem intensityRBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
                          NULL, &err);
 cl_mem intensityCBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
-                         NULL, &err); 
+                         NULL, &err);
 cl_mem outBuffers[2] = {intensityRBuffer, intensityCBuffer};
 
 cout<<"Enqueueing FFT\n";
-err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL, 
+err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL,
                             &voltsFlatBuffer, outBuffers, NULL);
 err = clFinish(clEnv->queue);
-clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r, 
-                    0, NULL, NULL); 
+clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r,
+                    0, NULL, NULL);
 clEnqueueReadBuffer(clEnv->queue, outBuffers[1], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_c,
-                    0, NULL, NULL); 
+                    0, NULL, NULL);
 cout<<"FFT done\n";
 /*
  * Clean up CLFFT
@@ -1946,9 +1975,9 @@ for(int i=0; i<nDir; i++){
    for(int j=0; j<nAnt; j++){
    cout<<recoDelays_V[i*nAnt+j]<<"\t";
    }
-  cout<<endl; 
+  cout<<endl;
 } cout<<endl;
-*/ 
+*/
 }
 else if (pol == "hpol" )
 recoDelaysBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(float)*nAnt*nDir,
@@ -1972,16 +2001,16 @@ cout<<"ShiftedR/CBuffer created\n";
 clSetKernelArg(clEnv->shiftWf, 0, sizeof(cl_mem), &shiftedRBuffer  );
 clSetKernelArg(clEnv->shiftWf, 1, sizeof(cl_mem), &shiftedCBuffer  );
 clSetKernelArg(clEnv->shiftWf, 2, sizeof(cl_mem), &recoDelaysBuffer);
-clSetKernelArg(clEnv->shiftWf, 3, sizeof(cl_mem), &intensityRBuffer );      
-clSetKernelArg(clEnv->shiftWf, 4, sizeof(cl_mem), &intensityCBuffer );      
+clSetKernelArg(clEnv->shiftWf, 3, sizeof(cl_mem), &intensityRBuffer );
+clSetKernelArg(clEnv->shiftWf, 4, sizeof(cl_mem), &intensityCBuffer );
 clSetKernelArg(clEnv->shiftWf, 5, sizeof(float),  &wInt);
 
 unsigned int workDim=3;
 size_t globalWorkSize[3]={(size_t)nDir, (size_t)nAnt, (size_t)nSamp};
 clEnqueueNDRangeKernel(clEnv->queue, clEnv->shiftWf, workDim, NULL, globalWorkSize, NULL, 0, NULL, NULL);
 clFinish(clEnv->queue);
-clEnqueueReadBuffer(clEnv->queue, shiftedRBuffer, CL_TRUE, 0, sizeof(float)*nDir*nAnt*nSamp, shifted_data_r, 0, NULL, NULL); 
-clEnqueueReadBuffer(clEnv->queue, shiftedCBuffer, CL_TRUE, 0, sizeof(float)*nDir*nAnt*nSamp, shifted_data_c, 0, NULL, NULL); 
+clEnqueueReadBuffer(clEnv->queue, shiftedRBuffer, CL_TRUE, 0, sizeof(float)*nDir*nAnt*nSamp, shifted_data_r, 0, NULL, NULL);
+clEnqueueReadBuffer(clEnv->queue, shiftedCBuffer, CL_TRUE, 0, sizeof(float)*nDir*nAnt*nSamp, shifted_data_c, 0, NULL, NULL);
 cout<<"Shifted wfs\n";
 
 /*
@@ -2000,8 +2029,8 @@ cl_mem beamCBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_C
 
 clSetKernelArg(clEnv->sumWf, 0, sizeof(cl_mem), &beamRBuffer);
 clSetKernelArg(clEnv->sumWf, 1, sizeof(cl_mem), &beamCBuffer);
-clSetKernelArg(clEnv->sumWf, 2, sizeof(cl_mem), &shiftedRBuffer); 
-clSetKernelArg(clEnv->sumWf, 3, sizeof(cl_mem), &shiftedCBuffer); 
+clSetKernelArg(clEnv->sumWf, 2, sizeof(cl_mem), &shiftedRBuffer);
+clSetKernelArg(clEnv->sumWf, 3, sizeof(cl_mem), &shiftedCBuffer);
 clSetKernelArg(clEnv->sumWf, 4, sizeof(int),    &nAnt  );
 
 workDim=2;
@@ -2048,12 +2077,12 @@ for(int idx=0; idx<nDir; idx++){
       max = beamPwr[idx];
       maxPixIdx = idx;
    }
-} 
+}
 
 summary->setMaxPixInfo(maxPixIdx, max);
 
-/* 
- * Write FITS file 
+/*
+ * Write FITS file
  */
 /*
 cout<<"Creating Halpix map and writing to FITS....\n";
@@ -2068,8 +2097,8 @@ fitsOut.create(filename);
 write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
 cout<<"Healpix map written\n";
 */
-/* 
- * Deallocate memories 
+/*
+ * Deallocate memories
  */
 
 cout<<"Deallocating memories...\n";
@@ -2100,7 +2129,7 @@ return maxPixIdx;
 int reconstructXCorr(unsigned int dataType, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                 float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                 int nDir, string pol, const int *chanMask, char *filename)
-{ 
+{
 
 cout<<"Entered reconstructXCorr method\n";
 int nSamp;
@@ -2108,7 +2137,7 @@ int nAnt = (int)cleanEvent.size()/2; // Divide by 2 for only one polarization
 int unmaskedNChan=0;
 for(int ch=0; ch<2*nAnt; ch++) unmaskedNChan+=chanMask[ch];
 cout<<"unmaskedNChan: "<<unmaskedNChan<<" nAnt: "<<nAnt<<endl;
-float wInt; 
+float wInt;
 if( dataType == 0 ) wInt = 0.5f; //AraSim event
 else if( dataType == 1 ){ //real event
 if( pol == "vpol" ) wInt = 0.4f;
@@ -2137,7 +2166,7 @@ if( pol == "vpol" ){
             cleanEvent[ch]->GetPoint(s,t,v);
 	    /* Bartlett window applied in main analysis code */
 	    //voltsFlat[nSamp*ch + s] = static_cast<float>(v * FFTtools::bartlettWindow(s, nSamp));
-	    voltsFlat[nSamp*ch + s] = static_cast<float>(v); 
+	    voltsFlat[nSamp*ch + s] = static_cast<float>(v);
          }
       } else {
          for(int s=0; s<nSamp; s++){
@@ -2149,7 +2178,7 @@ if( pol == "vpol" ){
 } else if ( pol == "hpol" ){
 
    /* Using the 1st hpol wf for nSamp. Should make sure all hpol channels have the same nSamp. FIXME */
-   nSamp = cleanEvent[nAnt]->GetN();   
+   nSamp = cleanEvent[nAnt]->GetN();
    voltsFlat = (float*)calloc(nAnt*nSamp, sizeof(float));
    if(voltsFlat == NULL){ cerr<<"Null pointer to voltsFlat\n"; return -1; }
 
@@ -2164,7 +2193,7 @@ if( pol == "vpol" ){
       } else {
          for(int s=0; s<nSamp; s++){
             voltsFlat[nSamp*ch + s] = 0.f;
-         }             
+         }
       }
    }
 
@@ -2216,9 +2245,9 @@ err = clfftSetPlanScale(clEnv->planHandle, CLFFT_FORWARD, 1.f);
 err = clfftSetPlanBatchSize(clEnv->planHandle, batchSize);
 err = clfftSetPlanInStride(clEnv->planHandle, fftDim, clInStride);
 err = clfftSetPlanOutStride(clEnv->planHandle, fftDim, clOutStride);
-err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist); 
+err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist);
 err = clfftSetResultLocation(clEnv->planHandle, CLFFT_OUTOFPLACE);
-err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL); 
+err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL);
 cout<<"Plan prepared\n";
 /* The plan is now ready to be executed */
 cl_mem voltsFlatBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*nSamp*sizeof(float), NULL, &err);
@@ -2227,17 +2256,17 @@ err = clEnqueueWriteBuffer(clEnv->queue, voltsFlatBuffer, CL_TRUE, 0, nAnt*nSamp
 cl_mem intensityRBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
                          NULL, &err);
 cl_mem intensityCBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
-                         NULL, &err); 
+                         NULL, &err);
 cl_mem outBuffers[2] = {intensityRBuffer, intensityCBuffer};
 
 cout<<"Enqueueing FFT\n";
-err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL, 
+err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL,
                             &voltsFlatBuffer, outBuffers, NULL);
 err = clFinish(clEnv->queue);
-clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r, 
-                    0, NULL, NULL); 
+clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r,
+                    0, NULL, NULL);
 clEnqueueReadBuffer(clEnv->queue, outBuffers[1], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_c,
-                    0, NULL, NULL); 
+                    0, NULL, NULL);
 cout<<"FFT done\n";
 /*
  * Clean up CLFFT
@@ -2313,7 +2342,7 @@ inDist  = planarHermOutputSize;
 outDist = nSamp;
 batchSize = nBaseline;
 
-/* 
+/*
  * Prepare plan
  */
 
@@ -2339,8 +2368,8 @@ err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_BACKWARD, 1, &clEnv->queue,
 err = clFinish(clEnv->queue);
 clEnqueueReadBuffer(clEnv->queue, xCorrTimeBuffer, CL_TRUE, 0, sizeof(float)*nBaseline*nSamp, xCorrTime, 0, NULL, NULL);
 
-/* 
- * Clean up FFT 
+/*
+ * Clean up FFT
  */
 
 err = clfftDestroyPlan(&clEnv->planHandle);
@@ -2421,8 +2450,8 @@ clEnqueueReadBuffer(clEnv->queue, MBuffer, CL_TRUE, 0, sizeof(float)*nDir, M, 0,
 
 cout<<"Done computeCoherence\n";
 
-/* 
- * Write FITS file 
+/*
+ * Write FITS file
  */
 cout<<"Creating Healpix map and writing to FITS....\n";
 arr<float> MArr = arr<float>(&M[0], (size_t)nDir);
@@ -2436,8 +2465,8 @@ fitsOut.create(filename);
 write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
 cout<<"Healpix map written\n";
 
-/* 
- * Deallocate memories 
+/*
+ * Deallocate memories
  */
 
 cout<<"Deallocating memories...\n";
@@ -2471,7 +2500,7 @@ return 0;
 int reconstructXCorrEnvelope(unsigned int dataType, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                 float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                 int nDir, string pol, const int *chanMask, char *filename)
-{ 
+{
 
 cout<<"Entered reconstructXCorrEnvelope method\n";
 int nSamp;
@@ -2508,7 +2537,7 @@ if( pol == "vpol" ){
             cleanEvent[ch]->GetPoint(s,t,v);
 	    /* Bartlett window applied in main analysis code */
 	    //voltsFlat[nSamp*ch + s] = static_cast<float>(v * FFTtools::bartlettWindow(s, nSamp));
-	    voltsFlat[nSamp*ch + s] = static_cast<float>(v); 
+	    voltsFlat[nSamp*ch + s] = static_cast<float>(v);
          }
       } else {
          for(int s=0; s<nSamp; s++){
@@ -2520,7 +2549,7 @@ if( pol == "vpol" ){
 } else if ( pol == "hpol" ){
 
    /* Using the 1st hpol wf for nSamp. Should make sure all hpol channels have the same nSamp. FIXME */
-   nSamp = cleanEvent[nAnt]->GetN();   
+   nSamp = cleanEvent[nAnt]->GetN();
    voltsFlat = (float*)calloc(nAnt*nSamp, sizeof(float));
    if(voltsFlat == NULL){ cerr<<"Null pointer to voltsFlat\n"; return -1; }
 
@@ -2535,7 +2564,7 @@ if( pol == "vpol" ){
       } else {
          for(int s=0; s<nSamp; s++){
             voltsFlat[nSamp*ch + s] = 0.f;
-         }             
+         }
       }
    }
 
@@ -2587,9 +2616,9 @@ err = clfftSetPlanScale(clEnv->planHandle, CLFFT_FORWARD, 1.f);
 err = clfftSetPlanBatchSize(clEnv->planHandle, batchSize);
 err = clfftSetPlanInStride(clEnv->planHandle, fftDim, clInStride);
 err = clfftSetPlanOutStride(clEnv->planHandle, fftDim, clOutStride);
-err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist); 
+err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist);
 err = clfftSetResultLocation(clEnv->planHandle, CLFFT_OUTOFPLACE);
-err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL); 
+err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL);
 cout<<"Plan prepared\n";
 /* The plan is now ready to be executed */
 cl_mem voltsFlatBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*nSamp*sizeof(float), NULL, &err);
@@ -2598,17 +2627,17 @@ err = clEnqueueWriteBuffer(clEnv->queue, voltsFlatBuffer, CL_TRUE, 0, nAnt*nSamp
 cl_mem intensityRBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
                          NULL, &err);
 cl_mem intensityCBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
-                         NULL, &err); 
+                         NULL, &err);
 cl_mem outBuffers[2] = {intensityRBuffer, intensityCBuffer};
 
 cout<<"Enqueueing FFT\n";
-err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL, 
+err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL,
                             &voltsFlatBuffer, outBuffers, NULL);
 err = clFinish(clEnv->queue);
-clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r, 
-                    0, NULL, NULL); 
+clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r,
+                    0, NULL, NULL);
 clEnqueueReadBuffer(clEnv->queue, outBuffers[1], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_c,
-                    0, NULL, NULL); 
+                    0, NULL, NULL);
 cout<<"FFT done\n";
 /*
  * Clean up CLFFT
@@ -2684,7 +2713,7 @@ inDist  = planarHermOutputSize;
 outDist = nSamp;
 batchSize = nBaseline;
 
-/* 
+/*
  * Prepare plan
  */
 
@@ -2710,8 +2739,8 @@ err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_BACKWARD, 1, &clEnv->queue,
 err = clFinish(clEnv->queue);
 clEnqueueReadBuffer(clEnv->queue, xCorrTimeBuffer, CL_TRUE, 0, sizeof(float)*nBaseline*nSamp, xCorrTime, 0, NULL, NULL);
 
-/* 
- * Clean up FFT 
+/*
+ * Clean up FFT
  */
 
 err = clfftDestroyPlan(&clEnv->planHandle);
@@ -2738,7 +2767,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    xCorrValue[s] = xCorrTime[nSamp*baseline + s];
 
    }
- 
+
    TGraph *xCorrGraph = new TGraph(nSamp, dt, xCorrValue);
 
    //cvs.cd(1);
@@ -2748,19 +2777,19 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 
    //cvs.cd(2);
    //envelope->Draw("AL");
-   
+
    //cvs.SaveAs("xCorrEnvelope.C");
-   
+
    for(int s=0; s<nSamp; s++){
 
    envelope->GetPoint(s,t_temp,v_temp);
    xCorrTime[nSamp*baseline + s] = static_cast<float>(v_temp);
 
    }
-  
+
   delete xCorrGraph;
   delete envelope;
-   
+
 }
 
 cl_mem xCorrEnvBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
@@ -2843,8 +2872,8 @@ clEnqueueReadBuffer(clEnv->queue, MBuffer, CL_TRUE, 0, sizeof(float)*nDir, M, 0,
 
 cout<<"Done computeCoherence\n";
 
-/* 
- * Write FITS file 
+/*
+ * Write FITS file
  */
 cout<<"Creating Healpix map and writing to FITS....\n";
 arr<float> MArr = arr<float>(&M[0], (size_t)nDir);
@@ -2858,8 +2887,8 @@ fitsOut.create(filename);
 write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
 cout<<"Healpix map written\n";
 
-/* 
- * Deallocate memories 
+/*
+ * Deallocate memories
  */
 
 cout<<"Deallocating memories...\n";
@@ -2893,7 +2922,7 @@ return 0;
 int reconstructXCorrGetMaxPix(unsigned int dataType, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                 float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                 int nDir, string pol, const int *chanMask, recoData *summary)
-{ 
+{
 
 cout<<"Entered reconstructXCorrGetMaxPix method\n";
 int nSamp;
@@ -2930,7 +2959,7 @@ if( pol == "vpol" ){
             cleanEvent[ch]->GetPoint(s,t,v);
             /* Bartlett window applied in main analysis code */
             //voltsFlat[nSamp*ch + s] = static_cast<float>(v * FFTtools::bartlettWindow(s, nSamp));
-            voltsFlat[nSamp*ch + s] = static_cast<float>(v); 
+            voltsFlat[nSamp*ch + s] = static_cast<float>(v);
          }
       } else {
          for(int s=0; s<nSamp; s++){
@@ -2942,7 +2971,7 @@ if( pol == "vpol" ){
 } else if ( pol == "hpol" ){
 
    /* Using the 1st hpol wf for nSamp. Should make sure all hpol channels have the same nSamp. FIXME */
-   nSamp = cleanEvent[nAnt]->GetN();   
+   nSamp = cleanEvent[nAnt]->GetN();
    voltsFlat = (float*)calloc(nAnt*nSamp, sizeof(float));
    if(voltsFlat == NULL){ cerr<<"Null pointer to voltsFlat\n"; return -1; }
 
@@ -2957,7 +2986,7 @@ if( pol == "vpol" ){
       } else {
          for(int s=0; s<nSamp; s++){
             voltsFlat[nSamp*ch + s] = 0.f;
-         }             
+         }
       }
    }
 
@@ -3009,9 +3038,9 @@ err = clfftSetPlanScale(clEnv->planHandle, CLFFT_FORWARD, 1.f);
 err = clfftSetPlanBatchSize(clEnv->planHandle, batchSize);
 err = clfftSetPlanInStride(clEnv->planHandle, fftDim, clInStride);
 err = clfftSetPlanOutStride(clEnv->planHandle, fftDim, clOutStride);
-err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist); 
+err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist);
 err = clfftSetResultLocation(clEnv->planHandle, CLFFT_OUTOFPLACE);
-err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL); 
+err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL);
 cout<<"Plan prepared\n";
 /* The plan is now ready to be executed */
 cl_mem voltsFlatBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*nSamp*sizeof(float), NULL, &err);
@@ -3020,17 +3049,17 @@ err = clEnqueueWriteBuffer(clEnv->queue, voltsFlatBuffer, CL_TRUE, 0, nAnt*nSamp
 cl_mem intensityRBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
                          NULL, &err);
 cl_mem intensityCBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
-                         NULL, &err); 
+                         NULL, &err);
 cl_mem outBuffers[2] = {intensityRBuffer, intensityCBuffer};
 
 cout<<"Enqueueing FFT\n";
-err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL, 
+err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL,
                             &voltsFlatBuffer, outBuffers, NULL);
 err = clFinish(clEnv->queue);
-clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r, 
-                    0, NULL, NULL); 
+clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r,
+                    0, NULL, NULL);
 clEnqueueReadBuffer(clEnv->queue, outBuffers[1], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_c,
-                    0, NULL, NULL); 
+                    0, NULL, NULL);
 cout<<"FFT done\n";
 /*
  * Clean up CLFFT
@@ -3106,7 +3135,7 @@ inDist  = planarHermOutputSize;
 outDist = nSamp;
 batchSize = nBaseline;
 
-/* 
+/*
  * Prepare plan
  */
 
@@ -3132,8 +3161,8 @@ err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_BACKWARD, 1, &clEnv->queue,
 err = clFinish(clEnv->queue);
 clEnqueueReadBuffer(clEnv->queue, xCorrTimeBuffer, CL_TRUE, 0, sizeof(float)*nBaseline*nSamp, xCorrTime, 0, NULL, NULL);
 
-/* 
- * Clean up FFT 
+/*
+ * Clean up FFT
  */
 
 err = clfftDestroyPlan(&clEnv->planHandle);
@@ -3226,12 +3255,12 @@ for(int idx=0; idx<nDir; idx++){
       max = M[idx];
       maxPixIdx = idx;
    }
-} 
+}
 
 summary->setMaxPixInfo(maxPixIdx, max);
 
-/* 
- * Write FITS file 
+/*
+ * Write FITS file
  */
 /*
 cout<<"Creating Healpix map and writing to FITS....\n";
@@ -3241,7 +3270,7 @@ Healpix_Map<float> skyMap = Healpix_Map<float>(MArr, RING);
 fitshandle fitsOut;
 #ifdef CSW
 char filename[] = "testCSWSkyMap.fits";
-#else 
+#else
 char filename[] = "testXCorrSkyMap.fits";
 #endif
 remove(filename);
@@ -3250,8 +3279,8 @@ fitsOut.create(filename);
 write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
 cout<<"Healpix map written\n";
 */
-/* 
- * Deallocate memories 
+/*
+ * Deallocate memories
  */
 
 cout<<"Deallocating memories...\n";
@@ -3285,7 +3314,7 @@ return maxPixIdx;
 int reconstructXCorrEnvelopeGetMaxPix(unsigned int dataType, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                 float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                 int nDir, string pol, const int *chanMask, recoData *summary)
-{ 
+{
 
 cout<<"Entered reconstructXCorrEnvelopeGetMaxPix method\n";
 int nSamp;
@@ -3322,7 +3351,7 @@ if( pol == "vpol" ){
             cleanEvent[ch]->GetPoint(s,t,v);
             /* Bartlett window applied in main analysis code */
             //voltsFlat[nSamp*ch + s] = static_cast<float>(v * FFTtools::bartlettWindow(s, nSamp));
-            voltsFlat[nSamp*ch + s] = static_cast<float>(v); 
+            voltsFlat[nSamp*ch + s] = static_cast<float>(v);
          }
       } else {
          for(int s=0; s<nSamp; s++){
@@ -3334,7 +3363,7 @@ if( pol == "vpol" ){
 } else if ( pol == "hpol" ){
 
    /* Using the 1st hpol wf for nSamp. Should make sure all hpol channels have the same nSamp. FIXME */
-   nSamp = cleanEvent[nAnt]->GetN();   
+   nSamp = cleanEvent[nAnt]->GetN();
    voltsFlat = (float*)calloc(nAnt*nSamp, sizeof(float));
    if(voltsFlat == NULL){ cerr<<"Null pointer to voltsFlat\n"; return -1; }
 
@@ -3349,7 +3378,7 @@ if( pol == "vpol" ){
       } else {
          for(int s=0; s<nSamp; s++){
             voltsFlat[nSamp*ch + s] = 0.f;
-         }             
+         }
       }
    }
 
@@ -3401,9 +3430,9 @@ err = clfftSetPlanScale(clEnv->planHandle, CLFFT_FORWARD, 1.f);
 err = clfftSetPlanBatchSize(clEnv->planHandle, batchSize);
 err = clfftSetPlanInStride(clEnv->planHandle, fftDim, clInStride);
 err = clfftSetPlanOutStride(clEnv->planHandle, fftDim, clOutStride);
-err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist); 
+err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist);
 err = clfftSetResultLocation(clEnv->planHandle, CLFFT_OUTOFPLACE);
-err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL); 
+err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL);
 cout<<"Plan prepared\n";
 /* The plan is now ready to be executed */
 cl_mem voltsFlatBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*nSamp*sizeof(float), NULL, &err);
@@ -3412,17 +3441,17 @@ err = clEnqueueWriteBuffer(clEnv->queue, voltsFlatBuffer, CL_TRUE, 0, nAnt*nSamp
 cl_mem intensityRBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
                          NULL, &err);
 cl_mem intensityCBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
-                         NULL, &err); 
+                         NULL, &err);
 cl_mem outBuffers[2] = {intensityRBuffer, intensityCBuffer};
 
 cout<<"Enqueueing FFT\n";
-err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL, 
+err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL,
                             &voltsFlatBuffer, outBuffers, NULL);
 err = clFinish(clEnv->queue);
-clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r, 
-                    0, NULL, NULL); 
+clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r,
+                    0, NULL, NULL);
 clEnqueueReadBuffer(clEnv->queue, outBuffers[1], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_c,
-                    0, NULL, NULL); 
+                    0, NULL, NULL);
 cout<<"FFT done\n";
 /*
  * Clean up CLFFT
@@ -3498,7 +3527,7 @@ inDist  = planarHermOutputSize;
 outDist = nSamp;
 batchSize = nBaseline;
 
-/* 
+/*
  * Prepare plan
  */
 
@@ -3524,8 +3553,8 @@ err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_BACKWARD, 1, &clEnv->queue,
 err = clFinish(clEnv->queue);
 clEnqueueReadBuffer(clEnv->queue, xCorrTimeBuffer, CL_TRUE, 0, sizeof(float)*nBaseline*nSamp, xCorrTime, 0, NULL, NULL);
 
-/* 
- * Clean up FFT 
+/*
+ * Clean up FFT
  */
 
 err = clfftDestroyPlan(&clEnv->planHandle);
@@ -3552,7 +3581,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    xCorrValue[s] = xCorrTime[nSamp*baseline + s];
 
    }
- 
+
    TGraph *xCorrGraph = new TGraph(nSamp, dt, xCorrValue);
 
    //cvs.cd(1);
@@ -3562,19 +3591,19 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 
    //cvs.cd(2);
    //envelope->Draw("AL");
-   
+
    //cvs.SaveAs("xCorrEnvelope.C");
-   
+
    for(int s=0; s<nSamp; s++){
 
    envelope->GetPoint(s,t_temp,v_temp);
    xCorrTime[nSamp*baseline + s] = static_cast<float>(v_temp);
 
    }
-  
+
   delete xCorrGraph;
   delete envelope;
-   
+
 }
 
 cl_mem xCorrEnvBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
@@ -3669,12 +3698,12 @@ for(int idx=0; idx<nDir; idx++){
       max = M[idx];
       maxPixIdx = idx;
    }
-} 
+}
 
 summary->setMaxPixInfo(maxPixIdx, max);
 
-/* 
- * Write FITS file 
+/*
+ * Write FITS file
  */
 /*
 cout<<"Creating Healpix map and writing to FITS....\n";
@@ -3684,7 +3713,7 @@ Healpix_Map<float> skyMap = Healpix_Map<float>(MArr, RING);
 fitshandle fitsOut;
 #ifdef CSW
 char filename[] = "testCSWSkyMap.fits";
-#else 
+#else
 char filename[] = "testXCorrSkyMap.fits";
 #endif
 remove(filename);
@@ -3693,8 +3722,8 @@ fitsOut.create(filename);
 write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
 cout<<"Healpix map written\n";
 */
-/* 
- * Deallocate memories 
+/*
+ * Deallocate memories
  */
 
 cout<<"Deallocating memories...\n";
@@ -3728,7 +3757,7 @@ return maxPixIdx;
 int reconstructXCorrEnvelopeGetMaxPix(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                 float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                 int nDir, const int *chanMask, recoData *summary)
-{ 
+{
 
 cout<<"Entered reconstructXCorrEnvelopeGetMaxPix method\n";
 int nSamp;
@@ -3767,7 +3796,7 @@ if( pol == "vpol" ){
             cleanEvent[ch]->GetPoint(s,t,v);
             /* Bartlett window applied in main analysis code */
             //voltsFlat[nSamp*ch + s] = static_cast<float>(v * FFTtools::bartlettWindow(s, nSamp));
-            voltsFlat[nSamp*ch + s] = static_cast<float>(v); 
+            voltsFlat[nSamp*ch + s] = static_cast<float>(v);
          }
       } else {
          for(int s=0; s<nSamp; s++){
@@ -3779,7 +3808,7 @@ if( pol == "vpol" ){
 } else if ( pol == "hpol" ){
 
    /* Using the 1st hpol wf for nSamp. Should make sure all hpol channels have the same nSamp. FIXME */
-   nSamp = cleanEvent[nAnt]->GetN();   
+   nSamp = cleanEvent[nAnt]->GetN();
    voltsFlat = (float*)calloc(nAnt*nSamp, sizeof(float));
    if(voltsFlat == NULL){ cerr<<"Null pointer to voltsFlat\n"; return -1; }
 
@@ -3794,7 +3823,7 @@ if( pol == "vpol" ){
       } else {
          for(int s=0; s<nSamp; s++){
             voltsFlat[nSamp*ch + s] = 0.f;
-         }             
+         }
       }
    }
 
@@ -3846,9 +3875,9 @@ err = clfftSetPlanScale(clEnv->planHandle, CLFFT_FORWARD, 1.f);
 err = clfftSetPlanBatchSize(clEnv->planHandle, batchSize);
 err = clfftSetPlanInStride(clEnv->planHandle, fftDim, clInStride);
 err = clfftSetPlanOutStride(clEnv->planHandle, fftDim, clOutStride);
-err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist); 
+err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist);
 err = clfftSetResultLocation(clEnv->planHandle, CLFFT_OUTOFPLACE);
-err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL); 
+err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL);
 cout<<"Plan prepared\n";
 /* The plan is now ready to be executed */
 cl_mem voltsFlatBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*nSamp*sizeof(float), NULL, &err);
@@ -3857,17 +3886,17 @@ err = clEnqueueWriteBuffer(clEnv->queue, voltsFlatBuffer, CL_TRUE, 0, nAnt*nSamp
 cl_mem intensityRBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
                          NULL, &err);
 cl_mem intensityCBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
-                         NULL, &err); 
+                         NULL, &err);
 cl_mem outBuffers[2] = {intensityRBuffer, intensityCBuffer};
 
 cout<<"Enqueueing FFT\n";
-err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL, 
+err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL,
                             &voltsFlatBuffer, outBuffers, NULL);
 err = clFinish(clEnv->queue);
-clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r, 
-                    0, NULL, NULL); 
+clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r,
+                    0, NULL, NULL);
 clEnqueueReadBuffer(clEnv->queue, outBuffers[1], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_c,
-                    0, NULL, NULL); 
+                    0, NULL, NULL);
 cout<<"FFT done\n";
 /*
  * Clean up CLFFT
@@ -3943,7 +3972,7 @@ inDist  = planarHermOutputSize;
 outDist = nSamp;
 batchSize = nBaseline;
 
-/* 
+/*
  * Prepare plan
  */
 
@@ -3969,8 +3998,8 @@ err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_BACKWARD, 1, &clEnv->queue,
 err = clFinish(clEnv->queue);
 clEnqueueReadBuffer(clEnv->queue, xCorrTimeBuffer, CL_TRUE, 0, sizeof(float)*nBaseline*nSamp, xCorrTime, 0, NULL, NULL);
 
-/* 
- * Clean up FFT 
+/*
+ * Clean up FFT
  */
 
 err = clfftDestroyPlan(&clEnv->planHandle);
@@ -3997,7 +4026,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    xCorrValue[s] = xCorrTime[nSamp*baseline + s];
 
    }
- 
+
    TGraph *xCorrGraph = new TGraph(nSamp, dt, xCorrValue);
 
    //cvs.cd(1);
@@ -4007,19 +4036,19 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 
    //cvs.cd(2);
    //envelope->Draw("AL");
-   
+
    //cvs.SaveAs("xCorrEnvelope.C");
-   
+
    for(int s=0; s<nSamp; s++){
 
    envelope->GetPoint(s,t_temp,v_temp);
    xCorrTime[nSamp*baseline + s] = static_cast<float>(v_temp);
 
    }
-  
+
   delete xCorrGraph;
   delete envelope;
-   
+
 }
 
 cl_mem xCorrEnvBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
@@ -4114,12 +4143,12 @@ for(int idx=0; idx<nDir; idx++){
       max = M[idx];
       maxPixIdx = idx;
    }
-} 
+}
 
 summary->setMaxPixInfo(maxPixIdx, max);
 
-/* 
- * Write FITS file 
+/*
+ * Write FITS file
  */
 /*
 cout<<"Creating Healpix map and writing to FITS....\n";
@@ -4129,7 +4158,7 @@ Healpix_Map<float> skyMap = Healpix_Map<float>(MArr, RING);
 fitshandle fitsOut;
 #ifdef CSW
 char filename[] = "testCSWSkyMap.fits";
-#else 
+#else
 char filename[] = "testXCorrSkyMap.fits";
 #endif
 remove(filename);
@@ -4138,8 +4167,8 @@ fitsOut.create(filename);
 write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
 cout<<"Healpix map written\n";
 */
-/* 
- * Deallocate memories 
+/*
+ * Deallocate memories
  */
 
 cout<<"Deallocating memories...\n";
@@ -4173,7 +4202,7 @@ return maxPixIdx;
 int reconstructXCorrGetMaxPixAndMap(unsigned int dataType, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                 float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                 int nDir, string pol, const int *chanMask, recoData *summary, char *filename)
-{ 
+{
 
 cout<<"Entered reconstructXCorrGetMaxPixAndMap method\n";
 int nSamp;
@@ -4210,7 +4239,7 @@ if( pol == "vpol" ){
             cleanEvent[ch]->GetPoint(s,t,v);
             /* Bartlett window applied in main analysis code */
             //voltsFlat[nSamp*ch + s] = static_cast<float>(v * FFTtools::bartlettWindow(s, nSamp));
-            voltsFlat[nSamp*ch + s] = static_cast<float>(v); 
+            voltsFlat[nSamp*ch + s] = static_cast<float>(v);
          }
       } else {
          for(int s=0; s<nSamp; s++){
@@ -4222,7 +4251,7 @@ if( pol == "vpol" ){
 } else if ( pol == "hpol" ){
 
    /* Using the 1st hpol wf for nSamp. Should make sure all hpol channels have the same nSamp. FIXME */
-   nSamp = cleanEvent[nAnt]->GetN();   
+   nSamp = cleanEvent[nAnt]->GetN();
    voltsFlat = (float*)calloc(nAnt*nSamp, sizeof(float));
    if(voltsFlat == NULL){ cerr<<"Null pointer to voltsFlat\n"; return -1; }
 
@@ -4237,7 +4266,7 @@ if( pol == "vpol" ){
       } else {
          for(int s=0; s<nSamp; s++){
             voltsFlat[nSamp*ch + s] = 0.f;
-         }             
+         }
       }
    }
 
@@ -4289,9 +4318,9 @@ err = clfftSetPlanScale(clEnv->planHandle, CLFFT_FORWARD, 1.f);
 err = clfftSetPlanBatchSize(clEnv->planHandle, batchSize);
 err = clfftSetPlanInStride(clEnv->planHandle, fftDim, clInStride);
 err = clfftSetPlanOutStride(clEnv->planHandle, fftDim, clOutStride);
-err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist); 
+err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist);
 err = clfftSetResultLocation(clEnv->planHandle, CLFFT_OUTOFPLACE);
-err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL); 
+err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL);
 cout<<"Plan prepared\n";
 /* The plan is now ready to be executed */
 cl_mem voltsFlatBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*nSamp*sizeof(float), NULL, &err);
@@ -4300,17 +4329,17 @@ err = clEnqueueWriteBuffer(clEnv->queue, voltsFlatBuffer, CL_TRUE, 0, nAnt*nSamp
 cl_mem intensityRBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
                          NULL, &err);
 cl_mem intensityCBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
-                         NULL, &err); 
+                         NULL, &err);
 cl_mem outBuffers[2] = {intensityRBuffer, intensityCBuffer};
 
 cout<<"Enqueueing FFT\n";
-err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL, 
+err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL,
                             &voltsFlatBuffer, outBuffers, NULL);
 err = clFinish(clEnv->queue);
-clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r, 
-                    0, NULL, NULL); 
+clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r,
+                    0, NULL, NULL);
 clEnqueueReadBuffer(clEnv->queue, outBuffers[1], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_c,
-                    0, NULL, NULL); 
+                    0, NULL, NULL);
 cout<<"FFT done\n";
 /*
  * Clean up CLFFT
@@ -4386,7 +4415,7 @@ inDist  = planarHermOutputSize;
 outDist = nSamp;
 batchSize = nBaseline;
 
-/* 
+/*
  * Prepare plan
  */
 
@@ -4412,8 +4441,8 @@ err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_BACKWARD, 1, &clEnv->queue,
 err = clFinish(clEnv->queue);
 clEnqueueReadBuffer(clEnv->queue, xCorrTimeBuffer, CL_TRUE, 0, sizeof(float)*nBaseline*nSamp, xCorrTime, 0, NULL, NULL);
 
-/* 
- * Clean up FFT 
+/*
+ * Clean up FFT
  */
 
 err = clfftDestroyPlan(&clEnv->planHandle);
@@ -4506,12 +4535,12 @@ for(int idx=0; idx<nDir; idx++){
       max = M[idx];
       maxPixIdx = idx;
    }
-} 
+}
 
 summary->setMaxPixInfo(maxPixIdx, max);
 
-/* 
- * Write FITS file 
+/*
+ * Write FITS file
  */
 
 cout<<"Creating Healpix map and writing to FITS....\n";
@@ -4521,7 +4550,7 @@ Healpix_Map<float> skyMap = Healpix_Map<float>(MArr, HEALPIX_ORDERING);
 fitshandle fitsOut;
 //#ifdef CSW
 //char filename[] = "testCSWSkyMap.fits";
-//#else 
+//#else
 //char filename[] = "testXCorrSkyMap.fits";
 //#endif
 remove(filename);
@@ -4530,8 +4559,8 @@ fitsOut.create(filename);
 write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
 cout<<"Healpix map written\n";
 
-/* 
- * Deallocate memories 
+/*
+ * Deallocate memories
  */
 
 cout<<"Deallocating memories...\n";
@@ -4565,7 +4594,7 @@ return maxPixIdx;
 int reconstructXCorrEnvelopeGetMaxPixAndMap(unsigned int dataType, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                 float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                 int nDir, string pol, const int *chanMask, recoData *summary, char *filename)
-{ 
+{
 
 cout<<"Entered reconstructXCorrEnvelopeGetMaxPixAndMap method\n";
 int nSamp;
@@ -4602,7 +4631,7 @@ if( pol == "vpol" ){
             cleanEvent[ch]->GetPoint(s,t,v);
             /* Bartlett window applied in main analysis code */
             //voltsFlat[nSamp*ch + s] = static_cast<float>(v * FFTtools::bartlettWindow(s, nSamp));
-            voltsFlat[nSamp*ch + s] = static_cast<float>(v); 
+            voltsFlat[nSamp*ch + s] = static_cast<float>(v);
          }
       } else {
          for(int s=0; s<nSamp; s++){
@@ -4614,7 +4643,7 @@ if( pol == "vpol" ){
 } else if ( pol == "hpol" ){
 
    /* Using the 1st hpol wf for nSamp. Should make sure all hpol channels have the same nSamp. FIXME */
-   nSamp = cleanEvent[nAnt]->GetN();   
+   nSamp = cleanEvent[nAnt]->GetN();
    voltsFlat = (float*)calloc(nAnt*nSamp, sizeof(float));
    if(voltsFlat == NULL){ cerr<<"Null pointer to voltsFlat\n"; return -1; }
 
@@ -4629,7 +4658,7 @@ if( pol == "vpol" ){
       } else {
          for(int s=0; s<nSamp; s++){
             voltsFlat[nSamp*ch + s] = 0.f;
-         }             
+         }
       }
    }
 
@@ -4681,9 +4710,9 @@ err = clfftSetPlanScale(clEnv->planHandle, CLFFT_FORWARD, 1.f);
 err = clfftSetPlanBatchSize(clEnv->planHandle, batchSize);
 err = clfftSetPlanInStride(clEnv->planHandle, fftDim, clInStride);
 err = clfftSetPlanOutStride(clEnv->planHandle, fftDim, clOutStride);
-err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist); 
+err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist);
 err = clfftSetResultLocation(clEnv->planHandle, CLFFT_OUTOFPLACE);
-err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL); 
+err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL);
 cout<<"Plan prepared\n";
 /* The plan is now ready to be executed */
 cl_mem voltsFlatBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*nSamp*sizeof(float), NULL, &err);
@@ -4692,17 +4721,17 @@ err = clEnqueueWriteBuffer(clEnv->queue, voltsFlatBuffer, CL_TRUE, 0, nAnt*nSamp
 cl_mem intensityRBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
                          NULL, &err);
 cl_mem intensityCBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
-                         NULL, &err); 
+                         NULL, &err);
 cl_mem outBuffers[2] = {intensityRBuffer, intensityCBuffer};
 
 cout<<"Enqueueing FFT\n";
-err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL, 
+err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL,
                             &voltsFlatBuffer, outBuffers, NULL);
 err = clFinish(clEnv->queue);
-clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r, 
-                    0, NULL, NULL); 
+clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r,
+                    0, NULL, NULL);
 clEnqueueReadBuffer(clEnv->queue, outBuffers[1], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_c,
-                    0, NULL, NULL); 
+                    0, NULL, NULL);
 cout<<"FFT done\n";
 /*
  * Clean up CLFFT
@@ -4778,7 +4807,7 @@ inDist  = planarHermOutputSize;
 outDist = nSamp;
 batchSize = nBaseline;
 
-/* 
+/*
  * Prepare plan
  */
 
@@ -4804,8 +4833,8 @@ err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_BACKWARD, 1, &clEnv->queue,
 err = clFinish(clEnv->queue);
 clEnqueueReadBuffer(clEnv->queue, xCorrTimeBuffer, CL_TRUE, 0, sizeof(float)*nBaseline*nSamp, xCorrTime, 0, NULL, NULL);
 
-/* 
- * Clean up FFT 
+/*
+ * Clean up FFT
  */
 
 err = clfftDestroyPlan(&clEnv->planHandle);
@@ -4837,7 +4866,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    xCorrValue[s] = xCorrTime[nSamp*baseline + s];
 
    }
- 
+
    TGraph *xCorrGraph = new TGraph(nSamp, dt, xCorrValue);
 
    //cvs.cd(1);
@@ -4850,14 +4879,14 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    envelope->Draw("AL");
    //xCorrGraph->Draw("AL");
    cvs.SaveAs("xCorrEnvelope_chan0_3.C");
-   } 
+   }
 */ /*
    if( ant1 == 3 && ant2 == 0){
    cvs.cd(2);
    envelope->Draw("AL");
    }
    */
-   //cvs.SaveAs("xCorrEnvelope_chan0_3.C"); 
+   //cvs.SaveAs("xCorrEnvelope_chan0_3.C");
 
    for(int s=0; s<nSamp; s++){
 
@@ -4865,10 +4894,10 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    xCorrTime[nSamp*baseline + s] = static_cast<float>(v_temp);
 
    }
-  
+
   delete xCorrGraph;
   delete envelope;
-   
+
 }
 
 cl_mem xCorrEnvBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
@@ -4963,13 +4992,13 @@ for(int idx=0; idx<nDir; idx++){
       max = M[idx];
       maxPixIdx = idx;
    }
-} 
+}
 
 cout<<"max: "<<max<<endl;
 summary->setMaxPixInfo(maxPixIdx, max);
 
-/* 
- * Write FITS file 
+/*
+ * Write FITS file
  */
 
 cout<<"Creating Healpix map and writing to FITS....\n";
@@ -4979,7 +5008,7 @@ Healpix_Map<float> skyMap = Healpix_Map<float>(MArr, HEALPIX_ORDERING);
 fitshandle fitsOut;
 //#ifdef CSW
 //char filename[] = "testCSWSkyMap.fits";
-//#else 
+//#else
 //char filename[] = "testXCorrSkyMap.fits";
 //#endif
 remove(filename);
@@ -4988,8 +5017,8 @@ fitsOut.create(filename);
 write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
 cout<<"Healpix map written\n";
 
-/* 
- * Deallocate memories 
+/*
+ * Deallocate memories
  */
 
 cout<<"Deallocating memories...\n";
@@ -5020,13 +5049,13 @@ cout<<"Memories deallocated\n";
 return maxPixIdx;
 }
 /*
-int reconstruct3DXCorrEnvelopeGetMaxPixAndMap(unsigned int dataType, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
+int CorrEnvelopeGetMaxPixAndMap(unsigned int dataType, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                 float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                 string pol, const int *chanMask, recoData *summary, char *filename,
                 TH1F *xCorrAroundPeakHist[] )
-{ 
+{
 
-cout<<"Entered reconstruct3DXCorrEnvelopeGetMaxPixAndMap method\n";
+cout<<"Entered CorrEnvelopeGetMaxPixAndMap method\n";
 int nSamp;
 int nAnt = (int)cleanEvent.size()/2; // Divide by 2 for only one polarization
 int unmaskedNChan=0;
@@ -5064,7 +5093,7 @@ if( pol == "vpol" ){
             cleanEvent[ch]->GetPoint(s,t,v);
   */          /* Bartlett window applied in main analysis code */
             //voltsFlat[nSamp*ch + s] = static_cast<float>(v * FFTtools::bartlettWindow(s, nSamp));
- /*           voltsFlat[nSamp*ch + s] = static_cast<float>(v); 
+ /*           voltsFlat[nSamp*ch + s] = static_cast<float>(v);
          }
       } else {
          for(int s=0; s<nSamp; s++){
@@ -5076,7 +5105,7 @@ if( pol == "vpol" ){
 } else if ( pol == "hpol" ){
 
 */   /* Using the 1st hpol wf for nSamp. Should make sure all hpol channels have the same nSamp. FIXME */
- /*  nSamp = cleanEvent[nAnt]->GetN();   
+ /*  nSamp = cleanEvent[nAnt]->GetN();
    voltsFlat = (float*)calloc(nAnt*nSamp, sizeof(float));
    if(voltsFlat == NULL){ cerr<<"Null pointer to voltsFlat\n"; return -1; }
 
@@ -5091,7 +5120,7 @@ if( pol == "vpol" ){
       } else {
          for(int s=0; s<nSamp; s++){
             voltsFlat[nSamp*ch + s] = 0.f;
-         }             
+         }
       }
    }
 
@@ -5143,9 +5172,9 @@ err = clfftSetPlanScale(clEnv->planHandle, CLFFT_FORWARD, 1.f);
 err = clfftSetPlanBatchSize(clEnv->planHandle, batchSize);
 err = clfftSetPlanInStride(clEnv->planHandle, fftDim, clInStride);
 err = clfftSetPlanOutStride(clEnv->planHandle, fftDim, clOutStride);
-err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist); 
+err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist);
 err = clfftSetResultLocation(clEnv->planHandle, CLFFT_OUTOFPLACE);
-err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL); 
+err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL);
 cout<<"Plan prepared\n";
 *//* The plan is now ready to be executed */
 /*cl_mem voltsFlatBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*nSamp*sizeof(float), NULL, &err);
@@ -5154,17 +5183,17 @@ err = clEnqueueWriteBuffer(clEnv->queue, voltsFlatBuffer, CL_TRUE, 0, nAnt*nSamp
 cl_mem intensityRBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
                          NULL, &err);
 cl_mem intensityCBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
-                         NULL, &err); 
+                         NULL, &err);
 cl_mem outBuffers[2] = {intensityRBuffer, intensityCBuffer};
 
 cout<<"Enqueueing FFT\n";
-err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL, 
+err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL,
                             &voltsFlatBuffer, outBuffers, NULL);
 err = clFinish(clEnv->queue);
-clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r, 
-                    0, NULL, NULL); 
+clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r,
+                    0, NULL, NULL);
 clEnqueueReadBuffer(clEnv->queue, outBuffers[1], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_c,
-                    0, NULL, NULL); 
+                    0, NULL, NULL);
 cout<<"FFT done\n";
 *//*
  * Clean up CLFFT
@@ -5240,7 +5269,7 @@ inDist  = planarHermOutputSize;
 outDist = nSamp;
 batchSize = nBaseline;
 */
-/* 
+/*
  * Prepare plan
  */
 /*
@@ -5266,8 +5295,8 @@ err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_BACKWARD, 1, &clEnv->queue,
 err = clFinish(clEnv->queue);
 clEnqueueReadBuffer(clEnv->queue, xCorrTimeBuffer, CL_TRUE, 0, sizeof(float)*nBaseline*nSamp, xCorrTime, 0, NULL, NULL);
 */
-/* 
- * Clean up FFT 
+/*
+ * Clean up FFT
  */
 /*
 err = clfftDestroyPlan(&clEnv->planHandle);
@@ -5307,7 +5336,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    xCorrValue[s] = xCorrTime[nSamp*baseline + s];
 
    }
- 
+
    TGraph *xCorrGraph = new TGraph(nSamp, dt, xCorrValue);
 
    //cvs.cd(1);
@@ -5320,26 +5349,26 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    envelope->Draw("AL");
    //xCorrGraph->Draw("AL");
    cvs.SaveAs("xCorrEnvelope_chan0_3.C");
-   } 
+   }
 */
 /*
    if( ant1 == 3 && ant2 == 0){
    cvs.cd(2);
    envelope->Draw("AL");
    }
-   
-   cvs.SaveAs("xCorrEnvelope_chan0_3.C"); 
+
+   cvs.SaveAs("xCorrEnvelope_chan0_3.C");
 */
 /*
    if( ant1 == 0 && chanMask[ant1] ){
       cout<<"recording XCorr values around peak of each baseline\n";
 
       if( ant2 == 1 && chanMask[ant2] ){
-      stackXCorrAroundPeak(envelope, xCorrAroundPeakHist[0], plusMinusTime); 
-      } else if 
+      stackXCorrAroundPeak(envelope, xCorrAroundPeakHist[0], plusMinusTime);
+      } else if
       ( ant2 == 3 && chanMask[ant2] ){
       stackXCorrAroundPeak(envelope, xCorrAroundPeakHist[1], plusMinusTime);
-      } else if 
+      } else if
       ( ant2 == 7 && chanMask[ant2] ){
       stackXCorrAroundPeak(envelope, xCorrAroundPeakHist[2], plusMinusTime);
       }
@@ -5347,17 +5376,17 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 
    for(int s=0; s<nSamp; s++){
 
-   if(ant1 == 0  && ant2 == 4 ){   
+   if(ant1 == 0  && ant2 == 4 ){
    xCorrGraph->GetPoint(s,t_temp,v_temp);
    if(sillygr->GetN() == 0){
       //if(envelopeSum->GetN() != 0 ) cerr<<"Both TGraphs should be uninitialized!"<<endl;
-  
+
       sillygr->SetPoint(s, t_temp, v_temp);
-     
+
    } else {
-     
+
       sillygr->GetPoint(s, t_temp2, v_temp2);
-      sillygr->SetPoint(s, t_temp+t_temp2, v_temp+v_temp2);  
+      sillygr->SetPoint(s, t_temp+t_temp2, v_temp+v_temp2);
 
    }
    }
@@ -5365,14 +5394,14 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    xCorrTime[nSamp*baseline + s] = static_cast<float>(v_temp);
 
    }
-  
+
   cvs.cd();
   sillygr->Draw("AL");
   cvs.SaveAs("xCorrSumGraph_chan0_4.C");
- 
+
   delete xCorrGraph;
   delete envelope;
-   
+
 }
 
 cl_mem xCorrEnvBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
@@ -5463,7 +5492,7 @@ float max=0.f;
 int maxPixIdx;
 int *rank = (int*)calloc(nLayer*nDir, sizeof(int));
 
-TMath::Sort(nLayer*nDir, M, rank); 
+TMath::Sort(nLayer*nDir, M, rank);
 
 int *topMaxPixIdx = (int*)calloc(summary->topN, sizeof(int));
 float *topMaxPixCoherence = (float*)calloc(summary->topN, sizeof(float));
@@ -5497,7 +5526,7 @@ clFinish(clEnv->queue);
 clEnqueueReadBuffer(clEnv->queue, maxPixIdxEachLayerBuffer, CL_TRUE, 0, sizeof(int)*nLayer, maxPixIdxEachLayer, 0, NULL, NULL);
 clEnqueueReadBuffer(clEnv->queue, maxPixCoherenceEachLayerBuffer, CL_TRUE, 0, sizeof(float)*nLayer, maxPixCoherenceEachLayer, 0, NULL, NULL);
 
-summary->setMaxPixInfoEachLayer(maxPixIdxEachLayer, maxPixCoherenceEachLayer);  
+summary->setMaxPixInfoEachLayer(maxPixIdxEachLayer, maxPixCoherenceEachLayer);
 */
 /*
 for(int idx=0; idx<nDir; idx++){
@@ -5505,7 +5534,7 @@ for(int idx=0; idx<nDir; idx++){
       max = M[idx];
       maxPixIdx = idx;
    }
-} 
+}
 */
 /*
 maxPixIdx = rank[0];
@@ -5521,8 +5550,8 @@ cout<<"Computing map likelihood and p-value w.r.t. the referenc map..."<<endl;
 double pValue, likelihood;
 err = computeMapLikelihoodAndPValue(summary->onion->nDir, summary->onion->nLayer, REFERENCE_MAP_FIT_FILE, M, likelihood, pValue);
 
-TH1F *likelihoodDist =  new TH1F("likelihoodDist","likelihoodDist",1000, -1000,1000); 
-TH1F *pValueDist     =  new TH1F("pValueDist","pValueDist",1000, -1000,1000); 
+TH1F *likelihoodDist =  new TH1F("likelihoodDist","likelihoodDist",1000, -1000,1000);
+TH1F *pValueDist     =  new TH1F("pValueDist","pValueDist",1000, -1000,1000);
 
 likelihoodDist->Fill(likelihood);
 pValueDist->Fill(pValue);
@@ -5532,8 +5561,8 @@ cvs.SaveAs("testLikelihoodDist.C");
 pValueDist->Draw();
 cvs.SaveAs("testPValueDist.C");
 */
-/* 
- * Write FITS file 
+/*
+ * Write FITS file
  */
 /*
 cout<<"Creating Healpix map and writing to FITS....\n";
@@ -5544,7 +5573,7 @@ Healpix_Map<float> skyMap = Healpix_Map<float>(MArr, RING);
 fitshandle fitsOut;
 //#ifdef CSW
 //char filename[] = "testCSWSkyMap.fits";
-//#else 
+//#else
 //char filename[] = "testXCorrSkyMap.fits";
 //#endif
 remove(filename);
@@ -5560,18 +5589,18 @@ for(int i=0; i<nLayer; i++){
 
    MEachLayerArr = arr<float>(&M[i*nDir], (size_t)nDir);
    skyMap = Healpix_Map<float>(MEachLayerArr, RING);
- 
+
    char layerMap[200];
    sprintf(layerMap,"layer_%d_skymap.fits",i);
    remove(layerMap);
    fitsOut.create(layerMap);
    write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
 
-}  
+}
 */
 
-/* 
- * Deallocate memories 
+/*
+ * Deallocate memories
  */
 /*
 cout<<"Deallocating memories...\n";
@@ -5610,13 +5639,13 @@ return maxPixIdx;
 }
 */
 /*
-int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(unsigned int dataType, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
+int CorrEnvelopeGetMaxPixAndMapData(unsigned int dataType, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                 float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                 string pol, const int *chanMask, recoData *summary, char *filename, float *mapData,
                 TH1F *xCorrAroundPeakHist[], TGraph *sillygr[] )
-{ 
+{
 
-cout<<"Entered reconstruct3DXCorrEnvelopeGetMaxPixAndMapData method\n";
+cout<<"Entered CorrEnvelopeGetMaxPixAndMapData method\n";
 int nSamp;
 //int nAnt = (int)cleanEvent.size()/2; // Divide by 2 for only one polarization
 int nAnt;// = (int)cleanEvent.size();
@@ -5657,7 +5686,7 @@ if( pol == "vpol" ){
             cleanEvent[ch]->GetPoint(s,t,v);
 */            /* Bartlett window applied in main analysis code */
             //voltsFlat[nSamp*ch + s] = static_cast<float>(v * FFTtools::bartlettWindow(s, nSamp));
-/*            voltsFlat[nSamp*ch + s] = static_cast<float>(v); 
+/*            voltsFlat[nSamp*ch + s] = static_cast<float>(v);
          }
       } else {
          for(int s=0; s<nSamp; s++){
@@ -5669,7 +5698,7 @@ if( pol == "vpol" ){
 } else if ( pol == "hpol" ){
 
   */ /* Using the 1st hpol wf for nSamp. Should make sure all hpol channels have the same nSamp. FIXME */
-/*   nSamp = cleanEvent[nAnt]->GetN();   
+/*   nSamp = cleanEvent[nAnt]->GetN();
    voltsFlat = (float*)calloc(nAnt*nSamp, sizeof(float));
    if(voltsFlat == NULL){ cerr<<"Null pointer to voltsFlat\n"; return -1; }
 
@@ -5684,14 +5713,14 @@ if( pol == "vpol" ){
       } else {
          for(int s=0; s<nSamp; s++){
             voltsFlat[nSamp*ch + s] = 0.f;
-         }             
+         }
       }
    }
 
 } else if ( pol == "both" ){
 
   */ /* Using the 1st vpol wf for nSamp. Should make sure all hpol channels have the same nSamp. FIXME */
-/*   nSamp = cleanEvent[0]->GetN();   
+/*   nSamp = cleanEvent[0]->GetN();
    voltsFlat = (float*)calloc(nAnt*nSamp, sizeof(float));
    if(voltsFlat == NULL){ cerr<<"Null pointer to voltsFlat\n"; return -1; }
 
@@ -5706,7 +5735,7 @@ if( pol == "vpol" ){
       } else {
          for(int s=0; s<nSamp; s++){
             voltsFlat[nSamp*ch + s] = 0.f;
-         }             
+         }
       }
    }
 
@@ -5758,9 +5787,9 @@ err = clfftSetPlanScale(clEnv->planHandle, CLFFT_FORWARD, 1.f);
 err = clfftSetPlanBatchSize(clEnv->planHandle, batchSize);
 err = clfftSetPlanInStride(clEnv->planHandle, fftDim, clInStride);
 err = clfftSetPlanOutStride(clEnv->planHandle, fftDim, clOutStride);
-err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist); 
+err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist);
 err = clfftSetResultLocation(clEnv->planHandle, CLFFT_OUTOFPLACE);
-err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL); 
+err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL);
 cout<<"Plan prepared\n";
 *//* The plan is now ready to be executed */
 /*
@@ -5770,17 +5799,17 @@ err = clEnqueueWriteBuffer(clEnv->queue, voltsFlatBuffer, CL_TRUE, 0, nAnt*nSamp
 cl_mem intensityRBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
                          NULL, &err);
 cl_mem intensityCBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
-                         NULL, &err); 
+                         NULL, &err);
 cl_mem outBuffers[2] = {intensityRBuffer, intensityCBuffer};
 
 cout<<"Enqueueing FFT\n";
-err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL, 
+err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL,
                             &voltsFlatBuffer, outBuffers, NULL);
 err = clFinish(clEnv->queue);
-clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r, 
-                    0, NULL, NULL); 
+clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r,
+                    0, NULL, NULL);
 clEnqueueReadBuffer(clEnv->queue, outBuffers[1], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_c,
-                    0, NULL, NULL); 
+                    0, NULL, NULL);
 cout<<"FFT done\n";
 */
 /*
@@ -5857,7 +5886,7 @@ inDist  = planarHermOutputSize;
 outDist = nSamp;
 batchSize = nBaseline;
 */
-/* 
+/*
  * Prepare plan
  */
 /*
@@ -5883,8 +5912,8 @@ err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_BACKWARD, 1, &clEnv->queue,
 err = clFinish(clEnv->queue);
 clEnqueueReadBuffer(clEnv->queue, xCorrTimeBuffer, CL_TRUE, 0, sizeof(float)*nBaseline*nSamp, xCorrTime, 0, NULL, NULL);
 */
-/* 
- * Clean up FFT 
+/*
+ * Clean up FFT
  */
 /*
 err = clfftDestroyPlan(&clEnv->planHandle);
@@ -5930,7 +5959,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    xCorrValue[s] = xCorrTime[nSamp*baseline + s];
 
    }
- 
+
    TGraph *xCorrGraph = new TGraph(nSamp, dt, xCorrValue);
 
    //cvs.cd(1);
@@ -5952,26 +5981,26 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    envelope->Draw("AL");
    //xCorrGraph->Draw("AL");
    cvs.SaveAs("xCorrEnvelope_chan0_3.C");
-   } 
+   }
 */
 /*
    if( ant1 == 3 && ant2 == 0){
    cvs.cd(2);
    envelope->Draw("AL");
    }
-   
-   cvs.SaveAs("xCorrEnvelope_chan0_3.C"); 
+
+   cvs.SaveAs("xCorrEnvelope_chan0_3.C");
 */
 /*
    if( ant1 == 0 && chanMask[ant1] ){
       cout<<"recording XCorr values around peak of each baseline\n";
 
       if( ant2 == 1 && chanMask[ant2] ){
-      stackXCorrAroundPeak(envelope, xCorrAroundPeakHist[0], plusMinusTime); 
-      } else if 
+      stackXCorrAroundPeak(envelope, xCorrAroundPeakHist[0], plusMinusTime);
+      } else if
       ( ant2 == 3 && chanMask[ant2] ){
       stackXCorrAroundPeak(envelope, xCorrAroundPeakHist[1], plusMinusTime);
-      } else if 
+      } else if
       ( ant2 == 7 && chanMask[ant2] ){
       stackXCorrAroundPeak(envelope, xCorrAroundPeakHist[2], plusMinusTime);
       }
@@ -5981,7 +6010,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    //if(ant1 < ant2 ){
    //for(int s=0; s<nSamp; s++){
 
-   //if(ant1 == 0  && ant2 == 4 ){   
+   //if(ant1 == 0  && ant2 == 4 ){
    //xCorrGraph->GetPoint(s,t_temp,v_temp);
    //if(lock == 0){
    //if(envelopeSum->GetN() != 0 ) cerr<<"Both TGraphs should be uninitialized!"<<endl;
@@ -5994,12 +6023,12 @@ for(int baseline=0; baseline<nBaseline; baseline++){
       }
 
    } else {
-      
+
       for(int s=0; s<nSamp; s++){
       xCorrGraph->GetPoint(s,t_temp,v_temp);
       sillygr[baseline]->GetPoint(s, t_temp2, v_temp2);
       if(t_temp != t_temp2) cerr<<"t_temp != t_temp2 !!\n";
-      sillygr[baseline]->SetPoint(s, t_temp2, v_temp+v_temp2);  
+      sillygr[baseline]->SetPoint(s, t_temp2, v_temp+v_temp2);
       }
    }
 */
@@ -6011,8 +6040,8 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    xCorrTime[nSamp*baseline + s] = static_cast<float>(v_temp);
 
    }
-   //if(lock == 0) lock=1; 
-*//* 
+   //if(lock == 0) lock=1;
+*//*
   cvs.cd();
   sprintf(sillygrname,"xCorrSumGraph_chan%d_%d.C",ant1,ant2);
   sillygr[baseline]->Draw("AL");
@@ -6021,7 +6050,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 /*
   delete xCorrGraph;
   delete envelope;
-   
+
 }
 
 cl_mem xCorrEnvBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
@@ -6120,7 +6149,7 @@ float max=0.f;
 int maxPixIdx;
 int *rank = (int*)calloc(nLayer*nDir, sizeof(int));
 
-TMath::Sort(nLayer*nDir, M, rank); 
+TMath::Sort(nLayer*nDir, M, rank);
 
 int *topMaxPixIdx = (int*)calloc(summary->topN, sizeof(int));
 float *topMaxPixCoherence = (float*)calloc(summary->topN, sizeof(float));
@@ -6154,7 +6183,7 @@ clFinish(clEnv->queue);
 clEnqueueReadBuffer(clEnv->queue, maxPixIdxEachLayerBuffer, CL_TRUE, 0, sizeof(int)*nLayer, maxPixIdxEachLayer, 0, NULL, NULL);
 clEnqueueReadBuffer(clEnv->queue, maxPixCoherenceEachLayerBuffer, CL_TRUE, 0, sizeof(float)*nLayer, maxPixCoherenceEachLayer, 0, NULL, NULL);
 
-summary->setMaxPixInfoEachLayer(maxPixIdxEachLayer, maxPixCoherenceEachLayer);  
+summary->setMaxPixInfoEachLayer(maxPixIdxEachLayer, maxPixCoherenceEachLayer);
 */
 /*
 for(int idx=0; idx<nDir; idx++){
@@ -6162,17 +6191,17 @@ for(int idx=0; idx<nDir; idx++){
       max = M[idx];
       maxPixIdx = idx;
    }
-} 
+}
 *//*
 maxPixIdx = rank[0];
 cout<<"max: "<<M[rank[0]]<<endl;
 summary->setMaxPixInfo(rank[0], M[rank[0]]);
 */
-/* 
- * Transferring map data 
+/*
+ * Transferring map data
  */
  /*
-cout<<"Transferring maxPixIdx map data...\n"; 
+cout<<"Transferring maxPixIdx map data...\n";
 //mapData[0] = &M[rank[0] / nDir];
 for(int dir=0; dir<nDir; dir++) mapData[dir] = M[rank[0] / nDir + dir];
 */
@@ -6188,8 +6217,8 @@ summary->setLikelihoodAndPValue(likelihood, pValue);
 cout<<"LLH: "<<likelihood<<" P Value: "<<pValue<<endl;
 */
 /*
-TH1F *likelihoodDist =  new TH1F("likelihoodDist","likelihoodDist",1000, -5000,50000); 
-TH1F *pValueDist     =  new TH1F("pValueDist","pValueDist",1000, -1000,1000); 
+TH1F *likelihoodDist =  new TH1F("likelihoodDist","likelihoodDist",1000, -5000,50000);
+TH1F *pValueDist     =  new TH1F("pValueDist","pValueDist",1000, -1000,1000);
 
 likelihoodDist->Fill(likelihood);
 pValueDist->Fill(pValue);
@@ -6199,8 +6228,8 @@ cvs.SaveAs("testLikelihoodDist.C");
 pValueDist->Draw();
 cvs.SaveAs("testPValueDist.C");
 */
-/* 
- * Write FITS file 
+/*
+ * Write FITS file
  */
 /*
 cout<<"Creating Healpix map and writing to FITS....\n";
@@ -6211,7 +6240,7 @@ Healpix_Map<float> skyMap = Healpix_Map<float>(MArr, RING);
 fitshandle fitsOut;
 //#ifdef CSW
 //char filename[] = "testCSWSkyMap.fits";
-//#else 
+//#else
 //char filename[] = "testXCorrSkyMap.fits";
 //#endif
 remove(filename);
@@ -6226,18 +6255,18 @@ for(int i=0; i<nLayer; i++){
 
    MEachLayerArr = arr<float>(&M[i*nDir], (size_t)nDir);
    skyMap = Healpix_Map<float>(MEachLayerArr, RING);
- 
+
    char layerMap[200];
    sprintf(layerMap,"layer_%d_skymap.fits",i);
    remove(layerMap);
    fitsOut.create(layerMap);
    write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
 
-}  
+}
 */
 
-/* 
- * Deallocate memories 
+/*
+ * Deallocate memories
  */
 /*
 cout<<"Deallocating memories...\n";
@@ -6278,7 +6307,7 @@ return maxPixIdx;
 int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                 float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                 const int *chanMask, recoData *summary, char *filename, float *mapData)
-{ 
+{
 
 cout<<"Entered reconstruct3DXCorrEnvelopeGetMaxPixAndMapData method\n";
 int nSamp;
@@ -6324,7 +6353,7 @@ if( pol == "vpol" ){
             cleanEvent[ch]->GetPoint(s,t,v);
             /* Bartlett window applied in main analysis code */
             //voltsFlat[nSamp*ch + s] = static_cast<float>(v * FFTtools::bartlettWindow(s, nSamp));
-            voltsFlat[nSamp*ch + s] = static_cast<float>(v); 
+            voltsFlat[nSamp*ch + s] = static_cast<float>(v);
          }
       } else {
          for(int s=0; s<nSamp; s++){
@@ -6336,7 +6365,7 @@ if( pol == "vpol" ){
 } else if ( pol == "hpol" ){
 
    /* Using the 1st hpol wf for nSamp. Should make sure all hpol channels have the same nSamp. FIXME */
-   nSamp = cleanEvent[nAnt]->GetN();   
+   nSamp = cleanEvent[nAnt]->GetN();
    voltsFlat = (float*)calloc(nAnt*nSamp, sizeof(float));
    if(voltsFlat == NULL){ cerr<<"Null pointer to voltsFlat\n"; return -1; }
 
@@ -6351,14 +6380,14 @@ if( pol == "vpol" ){
       } else {
          for(int s=0; s<nSamp; s++){
             voltsFlat[nSamp*ch + s] = 0.f;
-         }             
+         }
       }
    }
 
 } else if ( pol == "both" ){
 
    /* Using the 1st vpol wf for nSamp. Should make sure all hpol channels have the same nSamp. FIXME */
-   nSamp = cleanEvent[0]->GetN();   
+   nSamp = cleanEvent[0]->GetN();
    voltsFlat = (float*)calloc(nAnt*nSamp, sizeof(float));
    if(voltsFlat == NULL){ cerr<<"Null pointer to voltsFlat\n"; return -1; }
 
@@ -6373,7 +6402,7 @@ if( pol == "vpol" ){
       } else {
          for(int s=0; s<nSamp; s++){
             voltsFlat[nSamp*ch + s] = 0.f;
-         }             
+         }
       }
    }
 
@@ -6425,9 +6454,9 @@ err = clfftSetPlanScale(clEnv->planHandle, CLFFT_FORWARD, 1.f);
 err = clfftSetPlanBatchSize(clEnv->planHandle, batchSize);
 err = clfftSetPlanInStride(clEnv->planHandle, fftDim, clInStride);
 err = clfftSetPlanOutStride(clEnv->planHandle, fftDim, clOutStride);
-err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist); 
+err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist);
 err = clfftSetResultLocation(clEnv->planHandle, CLFFT_OUTOFPLACE);
-err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL); 
+err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL);
 cout<<"Plan prepared\n";
 /* The plan is now ready to be executed */
 cl_mem voltsFlatBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*nSamp*sizeof(float), NULL, &err);
@@ -6436,17 +6465,17 @@ err = clEnqueueWriteBuffer(clEnv->queue, voltsFlatBuffer, CL_TRUE, 0, nAnt*nSamp
 cl_mem intensityRBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
                          NULL, &err);
 cl_mem intensityCBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
-                         NULL, &err); 
+                         NULL, &err);
 cl_mem outBuffers[2] = {intensityRBuffer, intensityCBuffer};
 
 cout<<"Enqueueing FFT\n";
-err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL, 
+err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL,
                             &voltsFlatBuffer, outBuffers, NULL);
 err = clFinish(clEnv->queue);
-clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r, 
-                    0, NULL, NULL); 
+clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r,
+                    0, NULL, NULL);
 clEnqueueReadBuffer(clEnv->queue, outBuffers[1], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_c,
-                    0, NULL, NULL); 
+                    0, NULL, NULL);
 cout<<"FFT done\n";
 /*
  * Clean up CLFFT
@@ -6522,7 +6551,7 @@ inDist  = planarHermOutputSize;
 outDist = nSamp;
 batchSize = nBaseline;
 
-/* 
+/*
  * Prepare plan
  */
 
@@ -6548,8 +6577,8 @@ err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_BACKWARD, 1, &clEnv->queue,
 err = clFinish(clEnv->queue);
 clEnqueueReadBuffer(clEnv->queue, xCorrTimeBuffer, CL_TRUE, 0, sizeof(float)*nBaseline*nSamp, xCorrTime, 0, NULL, NULL);
 
-/* 
- * Clean up FFT 
+/*
+ * Clean up FFT
  */
 
 err = clfftDestroyPlan(&clEnv->planHandle);
@@ -6572,8 +6601,9 @@ int ant1, ant2;
 float plusMinusTime = 25.f; //record +-25 ns around peak in XCorr function
 //int plusMinusRange = (int)(plusMinusTime / wInt);
 //static TGraph *sillygr[64];// = new TGraph();
-//static TGraph *sillygr = (TGraph*)malloc(nBaseline*sizeof(TGraph));
 /*
+static TGraph *sillygr = (TGraph*)malloc(nBaseline*sizeof(TGraph));
+
 for(int i=0; i<nBaseline; i++){
 
    sillygr[i]=new TGraph();
@@ -6581,7 +6611,58 @@ for(int i=0; i<nBaseline; i++){
 }
 */
 //static int lock;
-//char sillygrname[200];
+char sillygrname[200];
+
+char histName[200];
+
+//TH1F *xCorrPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
+//TH1F *envPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
+/*
+TH1F *xCorrPeakHist[64];
+TH1F *envPeakHist[64];
+TFile *xCorrPeakFile;
+char xCorrEnvPeakFileName[200];
+snprintf(xCorrEnvPeakFileName,sizeof(char)*200,"xCorrEnvPeakFile_2015DeepPulser_IC22S.root");
+
+xCorrPeakFile = new TFile(xCorrEnvPeakFileName); //if file exists, it will stay unopened
+
+if( xCorrPeakFile->IsZombie() ){
+
+  xCorrPeakFile->Close();
+  delete xCorrPeakFile;
+  xCorrPeakFile = new TFile(xCorrEnvPeakFileName,"RECREATE");
+
+  for(int i=0; i<nBaseline; i++){
+
+    snprintf(histName,sizeof(char)*200,"xCorrPeakHist_chan%d_%d",i/nAnt,i%nAnt);
+    xCorrPeakHist[i] = new TH1F(histName,histName,2500,0,1000);
+    xCorrPeakHist[i]->Write();
+    snprintf(histName,sizeof(char)*200,"envPeakHist_chan%d_%d",i/nAnt,i%nAnt);
+    envPeakHist[i] = new TH1F(histName,histName,2500,0,1000);
+    envPeakHist[i]->Write();
+
+  }
+} else {
+//if( !xCorrPeakFile->IsOpen() ){
+
+  xCorrPeakFile->Close();
+  delete xCorrPeakFile;
+  xCorrPeakFile = new TFile(xCorrEnvPeakFileName,"UPDATE");
+
+  for(int i=0; i<nBaseline; i++){
+
+    snprintf(histName,sizeof(char)*200,"xCorrPeakHist_chan%d_%d",i/nAnt,i%nAnt);
+    xCorrPeakHist[i] = (TH1F*)xCorrPeakFile->Get(histName);
+    snprintf(histName,sizeof(char)*200,"envPeakHist_chan%d_%d",i/nAnt,i%nAnt);
+    envPeakHist[i] = (TH1F*)xCorrPeakFile->Get(histName);
+
+  }
+}
+*/
+int peakBin;
+double x, y;
+//TFile *dtFile = new TFile("dtFile.txt","UPDATE");
+//FILE *dtFile = fopen("dtFile.txt","a+");
 
 for(int baseline=0; baseline<nBaseline; baseline++){
 
@@ -6595,48 +6676,67 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    xCorrValue[s] = xCorrTime[nSamp*baseline + s];
 
    }
- 
-   TGraph *xCorrGraph = new TGraph(nSamp, dt, xCorrValue);
 
-   //cvs.cd(1);
+   TGraph *xCorrGraph = new TGraph(nSamp, dt, xCorrValue);
+/*
+   y = FFTtools::getPeakSqVal(xCorrGraph, &peakBin);
+   xCorrGraph->GetPoint(peakBin,x,y);
+   xCorrPeakHist[baseline]->Fill(x);
+   //cout<<"xCorr Peak Bin: "<<peakBin<<" Peak Sq Value: "<<y<<endl;
+
+   if(baseline!=nBaseline-1){
+      fprintf(dtFile, "%d,", baseline);
+      fprintf(dtFile, "%f,", x);
+   } else {
+     fprintf(dtFile, "%d,", baseline);
+     fprintf(dtFile, "%f\n", x);
+   }
+*/   //cvs.cd(1);
+   //cvs.cd();
    //xCorrGraph->Draw("AL");
 
    TGraph* envelope = FFTtools::getHilbertEnvelope( xCorrGraph );
 /*
-   sprintf(envelopename,"xCorrEnvelope_2014_A3_burn_RF_chan%d_%d.C", ant1, ant2);
-   cvs.cd();
+   peakBin = FFTtools::getPeakBin(envelope);
+   envelope->GetPoint(peakBin,x,y);
+   envPeakHist[baseline]->Fill(x);
+*/  //cout<<"env Peak Bin: "<<peakBin<<" Peak Value: "<<y<<endl;
+
+   //sprintf(envelopename,"xCorrEnvelope_2014_A3_burn_RF_chan%d_%d.C", ant1, ant2);
+   //sprintf(envelopename,"xCorrSumGraph_baseline%d_chan%d_%d.C",baseline,ant1,ant2);
+   //cvs.cd();
    //envelope->Draw("AL");
-   envelope->SetLineColor(kRed);
-   xCorrGraph->Draw("AL");
-   envelope->Draw("Lsame");
-   cvs.SaveAs(envelopename);
-*/
+   //envelope->SetLineColor(kRed);
+   //xCorrGraph->Draw("AL");
+   //envelope->Draw("Lsame");
+   //cvs.SaveAs(envelopename);
+
 /*
    if( ant1 == 0 && ant2 == 3){
    cvs.cd(1);
    envelope->Draw("AL");
    //xCorrGraph->Draw("AL");
    cvs.SaveAs("xCorrEnvelope_chan0_3.C");
-   } 
+   }
 */
 /*
    if( ant1 == 3 && ant2 == 0){
    cvs.cd(2);
    envelope->Draw("AL");
    }
-   
-   cvs.SaveAs("xCorrEnvelope_chan0_3.C"); 
+
+   cvs.SaveAs("xCorrEnvelope_chan0_3.C");
 */
 /*
    if( ant1 == 0 && chanMask[ant1] ){
       cout<<"recording XCorr values around peak of each baseline\n";
 
       if( ant2 == 1 && chanMask[ant2] ){
-      stackXCorrAroundPeak(envelope, xCorrAroundPeakHist[0], plusMinusTime); 
-      } else if 
+      stackXCorrAroundPeak(envelope, xCorrAroundPeakHist[0], plusMinusTime);
+      } else if
       ( ant2 == 3 && chanMask[ant2] ){
       stackXCorrAroundPeak(envelope, xCorrAroundPeakHist[1], plusMinusTime);
-      } else if 
+      } else if
       ( ant2 == 7 && chanMask[ant2] ){
       stackXCorrAroundPeak(envelope, xCorrAroundPeakHist[2], plusMinusTime);
       }
@@ -6646,7 +6746,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    //if(ant1 < ant2 ){
    //for(int s=0; s<nSamp; s++){
 
-   //if(ant1 == 0  && ant2 == 4 ){   
+   //if(ant1 == 0  && ant2 == 4 ){
    //xCorrGraph->GetPoint(s,t_temp,v_temp);
    //if(lock == 0){
    //if(envelopeSum->GetN() != 0 ) cerr<<"Both TGraphs should be uninitialized!"<<endl;
@@ -6659,12 +6759,12 @@ for(int baseline=0; baseline<nBaseline; baseline++){
       }
 
    } else {
-      
+
       for(int s=0; s<nSamp; s++){
       xCorrGraph->GetPoint(s,t_temp,v_temp);
       sillygr[baseline]->GetPoint(s, t_temp2, v_temp2);
       if(t_temp != t_temp2) cerr<<"t_temp != t_temp2 !!\n";
-      sillygr[baseline]->SetPoint(s, t_temp2, v_temp+v_temp2);  
+      sillygr[baseline]->SetPoint(s, t_temp2, v_temp+v_temp2);
       }
    }
 */
@@ -6676,19 +6776,30 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    xCorrTime[nSamp*baseline + s] = static_cast<float>(v_temp);
 
    }
-   //if(lock == 0) lock=1; 
-/* 
+   //if(lock == 0) lock=1;
+/*
   cvs.cd();
   sprintf(sillygrname,"xCorrSumGraph_chan%d_%d.C",ant1,ant2);
   sillygr[baseline]->Draw("AL");
   cvs.SaveAs(sillygrname);
 */
-  
+/*
+  xCorrPeakHist[baseline]->Write();
+  envPeakHist[baseline]->Write();
+*/
   delete xCorrGraph;
   delete envelope;
-   
-}
 
+}
+/*
+xCorrPeakFile->Close();
+//free(xCorrPeakHist);
+//free(envPeakHist);
+delete xCorrPeakFile;
+
+//dtFile->Close();
+fclose(dtFile);
+*/
 cl_mem xCorrEnvBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
                                        sizeof(float)*nBaseline*nSamp,
                                        xCorrTime, &err);
@@ -6785,7 +6896,7 @@ float max=0.f;
 int maxPixIdx;
 int *rank = (int*)calloc(nLayer*nDir, sizeof(int));
 
-TMath::Sort(nLayer*nDir, M, rank); 
+TMath::Sort(nLayer*nDir, M, rank);
 
 int *topMaxPixIdx = (int*)calloc(summary->topN, sizeof(int));
 float *topMaxPixCoherence = (float*)calloc(summary->topN, sizeof(float));
@@ -6819,7 +6930,7 @@ clFinish(clEnv->queue);
 clEnqueueReadBuffer(clEnv->queue, maxPixIdxEachLayerBuffer, CL_TRUE, 0, sizeof(int)*nLayer, maxPixIdxEachLayer, 0, NULL, NULL);
 clEnqueueReadBuffer(clEnv->queue, maxPixCoherenceEachLayerBuffer, CL_TRUE, 0, sizeof(float)*nLayer, maxPixCoherenceEachLayer, 0, NULL, NULL);
 
-summary->setMaxPixInfoEachLayer(settings, maxPixIdxEachLayer, maxPixCoherenceEachLayer);  
+summary->setMaxPixInfoEachLayer(settings, maxPixIdxEachLayer, maxPixCoherenceEachLayer);
 
 /*
 for(int idx=0; idx<nDir; idx++){
@@ -6827,17 +6938,17 @@ for(int idx=0; idx<nDir; idx++){
       max = M[idx];
       maxPixIdx = idx;
    }
-} 
+}
 */
 maxPixIdx = rank[0];
 cout<<"max: "<<M[rank[0]]<<endl;
 summary->setMaxPixInfo(rank[0], M[rank[0]]);
 
-/* 
- * Transferring map data 
+/*
+ * Transferring map data
  */
- 
-cout<<"Transferring maxPixIdx map data...\n"; 
+
+cout<<"Transferring maxPixIdx map data...\n";
 //mapData[0] = &M[rank[0] / nDir];
 for(int dir=0; dir<nDir; dir++) mapData[dir] = M[rank[0] / nDir + dir];
 
@@ -6854,8 +6965,8 @@ summary->setLikelihoodAndPValue(likelihood, pValue);
 cout<<"LLH: "<<likelihood<<" P Value: "<<pValue<<endl;
 }
 /*
-TH1F *likelihoodDist =  new TH1F("likelihoodDist","likelihoodDist",1000, -5000,50000); 
-TH1F *pValueDist     =  new TH1F("pValueDist","pValueDist",1000, -1000,1000); 
+TH1F *likelihoodDist =  new TH1F("likelihoodDist","likelihoodDist",1000, -5000,50000);
+TH1F *pValueDist     =  new TH1F("pValueDist","pValueDist",1000, -1000,1000);
 
 likelihoodDist->Fill(likelihood);
 pValueDist->Fill(pValue);
@@ -6865,8 +6976,8 @@ cvs.SaveAs("testLikelihoodDist.C");
 pValueDist->Draw();
 cvs.SaveAs("testPValueDist.C");
 */
-/* 
- * Write FITS file 
+/*
+ * Write FITS file
  */
 
 cout<<"Creating Healpix map and writing to FITS....\n";
@@ -6877,7 +6988,7 @@ Healpix_Map<float> skyMap = Healpix_Map<float>(MArr, HEALPIX_ORDERING);
 fitshandle fitsOut;
 //#ifdef CSW
 //char filename[] = "testCSWSkyMap.fits";
-//#else 
+//#else
 //char filename[] = "testXCorrSkyMap.fits";
 //#endif
 remove(filename);
@@ -6885,6 +6996,47 @@ fitsOut.create(filename);
 
 write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
 cout<<"Healpix map written\n";
+
+//int nSideExp = 7;
+//Healpix_Base hpBase = Healpix_Base(pow(2,nSideExp), NEST/*RING*/, SET_NSIDE);
+/*
+pointing pt;
+
+int NBinsX = 0.5*(250.-220.)/0.4581;
+int NBinsY = 0.5*(-5.-(-35.))/0.4581;
+
+TH2F *skymapHist = new TH2F("skymapHist","skymapHist",NBinsX,220,250,NBinsY,-35,-5);
+TH2F *countHist = new TH2F("countHist","countHist",NBinsX,220,250,NBinsY,-35,-5);
+double theta;
+
+for(int pix=0; pix<hpBase.Npix(); pix++){
+
+   pt = hpBase.pix2ang( pix );
+cout<<"MArr: "<<MArr[pix]<<"phi: "<<pt.phi*180.f/TMath::Pi()<<"theta :"<<90.- pt.theta*180.f/TMath::Pi()<<endl;
+
+
+
+   skymapHist->Fill(pt.phi*180.f/TMath::Pi(), 90.-pt.theta*180.f/TMath::Pi(), MArr[pix]);
+   countHist->Fill(pt.phi*180.f/TMath::Pi(), 90.-pt.theta*180.f/TMath::Pi());
+
+}
+
+for(int xbin=1; xbin<=NBinsX; xbin++){
+   for(int ybin=1; ybin<=NBinsY; ybin++){
+
+   if(countHist->GetBinContent(xbin,ybin)!=0)
+   skymapHist->SetBinContent(xbin,ybin, skymapHist->GetBinContent(xbin,ybin)/(double)countHist->GetBinContent(xbin,ybin));
+
+
+   }
+}
+
+
+TCanvas *c1 = new TCanvas("c1","c1",800,800);
+skymapHist->Draw("colz");
+c1->SaveAs("testSkymapHist.C");
+*/
+
 /*
 arr<float> MEachLayerArr;
 
@@ -6892,18 +7044,18 @@ for(int i=0; i<nLayer; i++){
 
    MEachLayerArr = arr<float>(&M[i*nDir], (size_t)nDir);
    skyMap = Healpix_Map<float>(MEachLayerArr, RING);
- 
+
    char layerMap[200];
    sprintf(layerMap,"layer_%d_skymap.fits",i);
    remove(layerMap);
    fitsOut.create(layerMap);
    write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
 
-}  
+}
 */
 
-/* 
- * Deallocate memories 
+/*
+ * Deallocate memories
  */
 
 cout<<"Deallocating memories...\n";
@@ -6945,7 +7097,7 @@ int reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode(recoSettings *settings, vector<
                 const float stationCenterDepth, const vector<vector<double> >& antLocation,
                 float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                 const int *chanMask, recoData *summary, char *filename)
-{ 
+{
 
 cout<<"Entered reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode method\n";
 int nSamp;
@@ -6993,7 +7145,7 @@ if( pol == "vpol" ){
             cleanEvent[ch]->GetPoint(s,t,v);
             /* Bartlett window applied in main analysis code */
             //voltsFlat[nSamp*ch + s] = static_cast<float>(v * FFTtools::bartlettWindow(s, nSamp));
-            voltsFlat[nSamp*ch + s] = static_cast<float>(v); 
+            voltsFlat[nSamp*ch + s] = static_cast<float>(v);
          }
       } else {
          for(int s=0; s<nSamp; s++){
@@ -7005,7 +7157,7 @@ if( pol == "vpol" ){
 } else if ( pol == "hpol" ){
 
    /* Using the 1st hpol wf for nSamp. Should make sure all hpol channels have the same nSamp. FIXME */
-   nSamp = cleanEvent[nAnt]->GetN();   
+   nSamp = cleanEvent[nAnt]->GetN();
    voltsFlat = (float*)calloc(nAnt*nSamp, sizeof(float));
    if(voltsFlat == NULL){ cerr<<"Null pointer to voltsFlat\n"; return -1; }
 
@@ -7020,14 +7172,14 @@ if( pol == "vpol" ){
       } else {
          for(int s=0; s<nSamp; s++){
             voltsFlat[nSamp*ch + s] = 0.f;
-         }             
+         }
       }
    }
 
 } else if ( pol == "both" ){
 
    /* Using the 1st vpol wf for nSamp. Should make sure all hpol channels have the same nSamp. FIXME */
-   nSamp = cleanEvent[0]->GetN();   
+   nSamp = cleanEvent[0]->GetN();
    voltsFlat = (float*)calloc(nAnt*nSamp, sizeof(float));
    if(voltsFlat == NULL){ cerr<<"Null pointer to voltsFlat\n"; return -1; }
 
@@ -7042,7 +7194,7 @@ if( pol == "vpol" ){
       } else {
          for(int s=0; s<nSamp; s++){
             voltsFlat[nSamp*ch + s] = 0.f;
-         }             
+         }
       }
    }
 
@@ -7094,9 +7246,9 @@ err = clfftSetPlanScale(clEnv->planHandle, CLFFT_FORWARD, 1.f);
 err = clfftSetPlanBatchSize(clEnv->planHandle, batchSize);
 err = clfftSetPlanInStride(clEnv->planHandle, fftDim, clInStride);
 err = clfftSetPlanOutStride(clEnv->planHandle, fftDim, clOutStride);
-err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist); 
+err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist);
 err = clfftSetResultLocation(clEnv->planHandle, CLFFT_OUTOFPLACE);
-err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL); 
+err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL);
 cout<<"Plan prepared\n";
 /* The plan is now ready to be executed */
 cl_mem voltsFlatBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*nSamp*sizeof(float), NULL, &err);
@@ -7105,17 +7257,17 @@ err = clEnqueueWriteBuffer(clEnv->queue, voltsFlatBuffer, CL_TRUE, 0, nAnt*nSamp
 cl_mem intensityRBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
                          NULL, &err);
 cl_mem intensityCBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
-                         NULL, &err); 
+                         NULL, &err);
 cl_mem outBuffers[2] = {intensityRBuffer, intensityCBuffer};
 
 cout<<"Enqueueing FFT\n";
-err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL, 
+err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL,
                             &voltsFlatBuffer, outBuffers, NULL);
 err = clFinish(clEnv->queue);
-clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r, 
-                    0, NULL, NULL); 
+clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r,
+                    0, NULL, NULL);
 clEnqueueReadBuffer(clEnv->queue, outBuffers[1], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_c,
-                    0, NULL, NULL); 
+                    0, NULL, NULL);
 cout<<"FFT done\n";
 /*
  * Clean up CLFFT
@@ -7191,7 +7343,7 @@ inDist  = planarHermOutputSize;
 outDist = nSamp;
 batchSize = nBaseline;
 
-/* 
+/*
  * Prepare plan
  */
 
@@ -7217,8 +7369,8 @@ err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_BACKWARD, 1, &clEnv->queue,
 err = clFinish(clEnv->queue);
 clEnqueueReadBuffer(clEnv->queue, xCorrTimeBuffer, CL_TRUE, 0, sizeof(float)*nBaseline*nSamp, xCorrTime, 0, NULL, NULL);
 
-/* 
- * Clean up FFT 
+/*
+ * Clean up FFT
  */
 
 err = clfftDestroyPlan(&clEnv->planHandle);
@@ -7264,7 +7416,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    xCorrValue[s] = xCorrTime[nSamp*baseline + s];
 
    }
- 
+
    TGraph *xCorrGraph = new TGraph(nSamp, dt, xCorrValue);
 
    //cvs.cd(1);
@@ -7286,26 +7438,26 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    envelope->Draw("AL");
    //xCorrGraph->Draw("AL");
    cvs.SaveAs("xCorrEnvelope_chan0_3.C");
-   } 
+   }
 */
 /*
    if( ant1 == 3 && ant2 == 0){
    cvs.cd(2);
    envelope->Draw("AL");
    }
-   
-   cvs.SaveAs("xCorrEnvelope_chan0_3.C"); 
+
+   cvs.SaveAs("xCorrEnvelope_chan0_3.C");
 */
 /*
    if( ant1 == 0 && chanMask[ant1] ){
       cout<<"recording XCorr values around peak of each baseline\n";
 
       if( ant2 == 1 && chanMask[ant2] ){
-      stackXCorrAroundPeak(envelope, xCorrAroundPeakHist[0], plusMinusTime); 
-      } else if 
+      stackXCorrAroundPeak(envelope, xCorrAroundPeakHist[0], plusMinusTime);
+      } else if
       ( ant2 == 3 && chanMask[ant2] ){
       stackXCorrAroundPeak(envelope, xCorrAroundPeakHist[1], plusMinusTime);
-      } else if 
+      } else if
       ( ant2 == 7 && chanMask[ant2] ){
       stackXCorrAroundPeak(envelope, xCorrAroundPeakHist[2], plusMinusTime);
       }
@@ -7315,7 +7467,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    //if(ant1 < ant2 ){
    //for(int s=0; s<nSamp; s++){
 
-   //if(ant1 == 0  && ant2 == 4 ){   
+   //if(ant1 == 0  && ant2 == 4 ){
    //xCorrGraph->GetPoint(s,t_temp,v_temp);
    //if(lock == 0){
    //if(envelopeSum->GetN() != 0 ) cerr<<"Both TGraphs should be uninitialized!"<<endl;
@@ -7328,12 +7480,12 @@ for(int baseline=0; baseline<nBaseline; baseline++){
       }
 
    } else {
-      
+
       for(int s=0; s<nSamp; s++){
       xCorrGraph->GetPoint(s,t_temp,v_temp);
       sillygr[baseline]->GetPoint(s, t_temp2, v_temp2);
       if(t_temp != t_temp2) cerr<<"t_temp != t_temp2 !!\n";
-      sillygr[baseline]->SetPoint(s, t_temp2, v_temp+v_temp2);  
+      sillygr[baseline]->SetPoint(s, t_temp2, v_temp+v_temp2);
       }
    }
 */
@@ -7345,17 +7497,17 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    xCorrTime[nSamp*baseline + s] = static_cast<float>(v_temp);
 
    }
-   //if(lock == 0) lock=1; 
-/* 
+   //if(lock == 0) lock=1;
+/*
   cvs.cd();
   sprintf(sillygrname,"xCorrSumGraph_chan%d_%d.C",ant1,ant2);
   sillygr[baseline]->Draw("AL");
   cvs.SaveAs(sillygrname);
 */
-  
+
   delete xCorrGraph;
   delete envelope;
-   
+
 }
 
 cl_mem xCorrEnvBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
@@ -7382,7 +7534,7 @@ cl_mem sqrtWfPwrBuffer  = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_
 /* At this point all correlation coefficients are ready to be read out according to the delays. For zoom search mode, we will loop over
  * skymaps (whole or patches) from low to high resolutions, and read out the relevant coefficients.
  */
- 
+
 cl_mem recoDelaysBuffer;
 float max=0.f;
 int maxPixIdx;
@@ -7390,7 +7542,7 @@ int *rank;
 nSideExp = settings->nSideExpStart;
 nDir = 12 * pow(2, nSideExp) * pow(2, nSideExp);
 nLayer = settings->nLayer;
-Healpix_Onion *onion = new Healpix_Onion(nSideExp, nLayer);
+Healpix_Onion *onion = new Healpix_Onion(nSideExp, nLayer, settings->layerFirstRadius, settings->layerLastRadius);
 //Healpix_Onion onion(nSideExp, nLayer);
 
 if(pol == "both" ){
@@ -7426,7 +7578,7 @@ if(settings->iceModel == 1){
    }
 } else { cerr<<"Undefined iceModel parameter\n"; return -1; }
 if( err<0 ){ cerr<<"Error computing reco delays\n"; return -1; }
-   
+
 
 if(pol == "vpol" ){
 recoDelaysBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(float)*nAnt*nDir*nLayer,
@@ -7501,7 +7653,7 @@ cout<<"Done computeNormalizedCoherence\n";
 //int maxPixIdx;
 rank = (int*)calloc(nLayer*nDir, sizeof(int));
 
-TMath::Sort(nLayer*nDir, M, rank); 
+TMath::Sort(nLayer*nDir, M, rank);
 
 maxPixIdx = rank[0];
 int last2DMaxPixIdx = maxPixIdx % nDir;
@@ -7520,7 +7672,7 @@ int last2DMaxPixIdx = maxPixIdx % nDir;
 */
 
 float *delays;
-   
+
 
 for(nSideExp = settings->nSideExpStart+1; nSideExp <= settings->nSideExpEnd; nSideExp++){
 
@@ -7544,9 +7696,9 @@ for(nSideExp = settings->nSideExpStart+1; nSideExp <= settings->nSideExpEnd; nSi
    M = NULL;
    rank = NULL;
 
-   onion = new Healpix_Onion(nSideExp, nLayer);
+   onion = new Healpix_Onion(nSideExp, nLayer, settings->layerFirstRadius, settings->layerLastRadius);
    nDir = NPIX_NESTED; //defined in recoTools.h
-   
+
 
    //finalMaxPixIdx *= NPIX_NESTED;
 
@@ -7561,7 +7713,7 @@ for(nSideExp = settings->nSideExpStart+1; nSideExp <= settings->nSideExpEnd; nSi
    }
 
 
-   
+
    /* compute reco delays for zoomed patch of skymap */
 
 
@@ -7577,20 +7729,20 @@ for(nSideExp = settings->nSideExpStart+1; nSideExp <= settings->nSideExpEnd; nSi
                                            //radius, nSideExp,
                                            onion, recoDelays, recoDelays_V, recoDelays_H,
                                            last2DMaxPixIdx, nDir);
-      }                                  
+      }
    } else if(settings->iceModel == 0){
       if(pol == "both"){
       err = compute3DZoomedRecoDelaysWithRadioSpline(nAnt, -1.f*stationCenterDepth, antLocation,
                                                onion, recoDelays, recoDelays_V, recoDelays_H,
-                                               last2DMaxPixIdx, nDir); 
+                                               last2DMaxPixIdx, nDir);
       } else {
       err = compute3DZoomedRecoDelaysWithRadioSpline(nAnt*2, -1.f*stationCenterDepth, antLocation,
                                                onion, recoDelays, recoDelays_V, recoDelays_H,
-                                               last2DMaxPixIdx, nDir); 
-      }                                         
+                                               last2DMaxPixIdx, nDir);
+      }
    } else { cerr<<"Undefined iceModel parameter\n"; return -1; }
    if( err<0 ){ cerr<<"Error computing reco delays\n"; return -1; }
-   
+
    if(pol == "vpol" ){
    //delays = recoDelays_V;
    recoDelaysBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(float)*nAnt*nDir*nLayer,
@@ -7609,8 +7761,8 @@ for(nSideExp = settings->nSideExpStart+1; nSideExp <= settings->nSideExpEnd; nSi
    //clFinish(clEnv->queue);
    //cout<<"recoDelaysBuffer created\n";
 
-   
-   
+
+
    /*
     * Compute cross-correlation coefficients Cij in each direction
     */
@@ -7623,7 +7775,7 @@ for(nSideExp = settings->nSideExpStart+1; nSideExp <= settings->nSideExpEnd; nSi
    for(int layer=0; layer<nLayer; layer++){
       for(int dir=0; dir<nDir; dir++){
          for(int baseline=0; baseline<nBaseline; baseline++){
-         
+
          ant1 = baseline / nAnt;
          ant2 = baseline % nAnt;
          if( (layer*nDir*nAnt + dir*nAnt + ant1) >= nLayer*nDir*nBaseline || (layer*nDir*nAnt + dir*nAnt + ant2) >= nLayer*nDir*nBaseline ) printf("****** Warning! out of range!!! ****\n");
@@ -7631,14 +7783,14 @@ for(nSideExp = settings->nSideExpStart+1; nSideExp <= settings->nSideExpEnd; nSi
          if( sqrtWfPwr[ant1] != 0.f && sqrtWfPwr[ant2] != 0.f ){
          if(delays[layer*nDir*nAnt + dir*nAnt + ant1] > -1e9 && delays[layer*nDir*nAnt + dir*nAnt + ant2] > -1e9 ){
          int shiftBin = (delays[layer*nDir*nAnt + dir*nAnt + ant1] - delays[layer*nDir*nAnt + dir*nAnt + ant2]) / wInt;
-  */       /* The default circular  FFT of cross-correlation outputs in wrap-around order */ 
+  */       /* The default circular  FFT of cross-correlation outputs in wrap-around order */
          /* The correlation at -i is in r_N-i */
 /*         if( shiftBin < 0 ) shiftBin += nSamp;
          Cij[layer*nDir*nBaseline + dir*nBaseline + baseline] = xCorrTime[baseline*nSamp + shiftBin] / (sqrtWfPwr[ant1] * sqrtWfPwr[ant2]);
          } else {
          //printf("Not both delays exists!\n");
-         //if(delays[gid0*nAnt + ant1] != delays[gid0*nAnt + ant2] ) 
-         //   if(delays[gid0*nAnt + ant1] > 0 || delays[gid0*nAnt + ant2] >0) printf("ant1 delay: %f ant2 delay: %f\n",delays[gid0*nAnt + ant1],delays[gid0*nAnt + ant2]    ); 
+         //if(delays[gid0*nAnt + ant1] != delays[gid0*nAnt + ant2] )
+         //   if(delays[gid0*nAnt + ant1] > 0 || delays[gid0*nAnt + ant2] >0) printf("ant1 delay: %f ant2 delay: %f\n",delays[gid0*nAnt + ant1],delays[gid0*nAnt + ant2]    );
          Cij[layer*nDir*nBaseline + dir*nBaseline + baseline] = 0.f;
          }
          } else {
@@ -7646,11 +7798,11 @@ for(nSideExp = settings->nSideExpStart+1; nSideExp <= settings->nSideExpEnd; nSi
          }
          }
       }
-   }   
+   }
 */
    CijBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(float)*nLayer*nDir*nBaseline,
                       Cij, &err);
-   clSetKernelArg(clEnv->computeXCorrCoef, 0, sizeof(cl_mem), &CijBuffer); 
+   clSetKernelArg(clEnv->computeXCorrCoef, 0, sizeof(cl_mem), &CijBuffer);
    clSetKernelArg(clEnv->computeXCorrCoef, 1, sizeof(cl_mem), &xCorrEnvBuffer);
    clSetKernelArg(clEnv->computeXCorrCoef, 2, sizeof(cl_mem), &recoDelaysBuffer);
    clSetKernelArg(clEnv->computeXCorrCoef, 3, sizeof(cl_mem), &sqrtWfPwrBuffer);
@@ -7666,9 +7818,9 @@ for(nSideExp = settings->nSideExpStart+1; nSideExp <= settings->nSideExpEnd; nSi
    clEnqueueReadBuffer(clEnv->queue, CijBuffer, CL_TRUE, 0, sizeof(float)*nLayer*nDir*nBaseline, Cij, 0, NULL, NULL);
 
    cout<<"Done computeXCorrCoef\n";
-  
 
- 
+
+
    /*
     * Sum Cij's of all baselines in each reco direction to obtain coherence M(r-hat)
     */
@@ -7682,7 +7834,7 @@ for(nSideExp = settings->nSideExpStart+1; nSideExp <= settings->nSideExpEnd; nSi
        }
     }
     //M[gid0] = sqrt(M[gid0]*M[gid0]);
-    M[gid0*nDir + gid1] /= (float)((nAnt*(nAnt-1))/2); //Normalize M by the number of baselines summed. 
+    M[gid0*nDir + gid1] /= (float)((nAnt*(nAnt-1))/2); //Normalize M by the number of baselines summed.
                                                        //This makes the comparison among events with different numbers of reco channel
 */                                                       //more natural. 16.15.16
 
@@ -7724,11 +7876,11 @@ for(nSideExp = settings->nSideExpStart+1; nSideExp <= settings->nSideExpEnd; nSi
 
    rank = (int*)calloc(nLayer*nDir, sizeof(int));
 
-   TMath::Sort(nLayer*nDir, M, rank); 
-   
+   TMath::Sort(nLayer*nDir, M, rank);
+
    //maxPixIdx = rank[0]%nDir + last2DMaxPidxIdx*NPIX_NESTED + onion->nDir*(rank[0]/nDir);
    last2DMaxPixIdx =  rank[0]%nDir + last2DMaxPixIdx*NPIX_NESTED;
-   maxPixIdx = last2DMaxPixIdx +  onion->nDir*(rank[0]/nDir); 
+   maxPixIdx = last2DMaxPixIdx +  onion->nDir*(rank[0]/nDir);
 
 
 
@@ -7784,7 +7936,7 @@ clFinish(clEnv->queue);
 clEnqueueReadBuffer(clEnv->queue, maxPixIdxEachLayerBuffer, CL_TRUE, 0, sizeof(int)*nLayer, maxPixIdxEachLayer, 0, NULL, NULL);
 clEnqueueReadBuffer(clEnv->queue, maxPixCoherenceEachLayerBuffer, CL_TRUE, 0, sizeof(float)*nLayer, maxPixCoherenceEachLayer, 0, NULL, NULL);
 
-summary->setMaxPixInfoEachLayer(settings, maxPixIdxEachLayer, maxPixCoherenceEachLayer);  
+summary->setMaxPixInfoEachLayer(settings, maxPixIdxEachLayer, maxPixCoherenceEachLayer);
 */
 /*
 for(int idx=0; idx<nDir; idx++){
@@ -7792,18 +7944,18 @@ for(int idx=0; idx<nDir; idx++){
       max = M[idx];
       maxPixIdx = idx;
    }
-} 
+}
 */
 //maxPixIdx = rank[0];
 cout<<"max: "<<M[rank[0]]<<endl;
 //summary->setMaxPixInfo(rank[0], M[rank[0]]);
 summary->setMaxPixInfo(maxPixIdx, M[rank[0]]);
 
-/* 
- * Transferring map data 
+/*
+ * Transferring map data
  */
- 
-//cout<<"Transferring maxPixIdx map data...\n"; 
+
+//cout<<"Transferring maxPixIdx map data...\n";
 //mapData[0] = &M[rank[0] / nDir];
 //for(int dir=0; dir<nDir; dir++) mapData[dir] = M[rank[0] / nDir + dir];
 
@@ -7821,8 +7973,8 @@ summary->setMaxPixInfo(maxPixIdx, M[rank[0]]);
 //}
 
 /*
-TH1F *likelihoodDist =  new TH1F("likelihoodDist","likelihoodDist",1000, -5000,50000); 
-TH1F *pValueDist     =  new TH1F("pValueDist","pValueDist",1000, -1000,1000); 
+TH1F *likelihoodDist =  new TH1F("likelihoodDist","likelihoodDist",1000, -5000,50000);
+TH1F *pValueDist     =  new TH1F("pValueDist","pValueDist",1000, -1000,1000);
 
 likelihoodDist->Fill(likelihood);
 pValueDist->Fill(pValue);
@@ -7832,8 +7984,8 @@ cvs.SaveAs("testLikelihoodDist.C");
 pValueDist->Draw();
 cvs.SaveAs("testPValueDist.C");
 */
-/* 
- * Write FITS file 
+/*
+ * Write FITS file
  */
 /*
 cout<<"Creating Healpix map and writing to FITS....\n";
@@ -7844,7 +7996,7 @@ Healpix_Map<float> skyMap = Healpix_Map<float>(MArr, RING);
 fitshandle fitsOut;
 //#ifdef CSW
 //char filename[] = "testCSWSkyMap.fits";
-//#else 
+//#else
 //char filename[] = "testXCorrSkyMap.fits";
 //#endif
 remove(filename);
@@ -7859,18 +8011,18 @@ for(int i=0; i<nLayer; i++){
 
    MEachLayerArr = arr<float>(&M[i*nDir], (size_t)nDir);
    skyMap = Healpix_Map<float>(MEachLayerArr, RING);
- 
+
    char layerMap[200];
    sprintf(layerMap,"layer_%d_skymap.fits",i);
    remove(layerMap);
    fitsOut.create(layerMap);
    write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
 
-}  
+}
 */
 
-/* 
- * Deallocate memories 
+/*
+ * Deallocate memories
  */
 
 cout<<"Deallocating memories...\n";
@@ -7912,10 +8064,10 @@ return maxPixIdx;
 
 int plotMaxPix(const int nDir, int *maxPix, char *filename){
 
-   arr<int> maxPixArr = arr<int>(&maxPix[0], (size_t)nDir);      
+   arr<int> maxPixArr = arr<int>(&maxPix[0], (size_t)nDir);
    Healpix_Map<int> maxPixMap = Healpix_Map<int>(maxPixArr, HEALPIX_ORDERING);
 
-   fitshandle fitsOut; 
+   fitshandle fitsOut;
    //char filename[] = "testMaxPixMap.fits";
    remove(filename);
    fitsOut.create(filename);
@@ -7931,14 +8083,14 @@ int plotMaxPixZenAzi(const int nSideExp, int *maxPix, char *rootFilename){
    ifstream rootfile(rootFilename);
    TH1F *zenDist;
    TH1F *aziDist;
-   
+
    if( !rootfile ){
    TFile fp(rootFilename, "NEW");
    zenDist = new TH1F("recoZenDist", "recoZenDist", 180, 0, 180);
-   aziDist = new TH1F("recoAziDist", "recoAziDist", 360, 0, 360); 
+   aziDist = new TH1F("recoAziDist", "recoAziDist", 360, 0, 360);
    zenDist->Write();
-   aziDist->Write(); 
-   fp.Close();  
+   aziDist->Write();
+   fp.Close();
    }
    //else{
    TFile fp_2(rootFilename, "READ");
@@ -7946,7 +8098,7 @@ int plotMaxPixZenAzi(const int nSideExp, int *maxPix, char *rootFilename){
    aziDist = (TH1F*)fp_2.Get("recoAziDist");
    //}
 
-   int nSide = pow(2, nSideExp);   
+   int nSide = pow(2, nSideExp);
    Healpix_Base hpBase = Healpix_Base(nSide, HEALPIX_ORDERING, SET_NSIDE);
    int nDir  = hpBase.Npix();
    pointing pt;
@@ -7968,7 +8120,7 @@ int plotMaxPixZenAzi(const int nSideExp, int *maxPix, char *rootFilename){
    TFile fp_3(rootFilename, "RECREATE");
    zenDist->Write();
    aziDist->Write();
-   fp_2.Close();  
+   fp_2.Close();
    fp_3.Close();
 
    return 0;
@@ -7985,13 +8137,13 @@ int tearDown(recoEnvData *clEnv){
    clReleaseKernel(clEnv->computeCoherence);
 */
    free(clEnv->kernels);
-   clReleaseCommandQueue(clEnv->queue);   
+   clReleaseCommandQueue(clEnv->queue);
    clReleaseProgram(clEnv->program);
    clReleaseContext(clEnv->context);
    free(clEnv->devices);
    free(clEnv->platforms);
-   
-   return 0;  
+
+   return 0;
 }
 
 float getMeanDelay( vector<float>& solvedDelay ){
@@ -8005,7 +8157,7 @@ float getMeanDelay( vector<float>& solvedDelay ){
    mean /= (float)solvedDelay.size();
 
    solvedDelay.clear(); //clear the vector once it's used
-   
+
    return mean;
 }
 
@@ -8020,18 +8172,18 @@ float getMeanDelay_passByValue( vector<float> solvedDelay ){
    mean /= (float)solvedDelay.size();
 
    //solvedDelay.clear(); //clear the vector once it's used
-   
+
    return mean;
 }
 
-int computeRecoDelaysWithRadioSpline(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc, 
+int computeRecoDelaysWithRadioSpline(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
                                      const float radius, const int nSideExp,
                                      float *recoDelays, float *recoDelays_V, float *recoDelays_H)
 {
 
 if(zCenter > 0 ) cerr<<"zCenter should be negative under the ice surfac\n";
-/* 
- * Initializing Healpix base 
+/*
+ * Initializing Healpix base
  */
 if(nSideExp < 0 || nSideExp > 8){ cerr<<"Invalid nSideExp\n"; return -1; }
 int nSide = pow(2, nSideExp);
@@ -8055,8 +8207,8 @@ char * tablePath = getenv("RADIOSPLINE_TABLE_DIR");
 if (tablePath == NULL) {
     std::cout << "ERROR: please point the RADIOSPLINE_TABLE_DIR environment variable to" << std::endl;
     std::cout << " the spline .fits table directory." << std::endl;
-    return -1; 
-}   
+    return -1;
+}
 std::string tablePathStr(tablePath);
 RayDelay ray(tablePathStr+"/"+ICE_FILE,
              tablePathStr+"/"+AIR_FILE,
@@ -8068,13 +8220,13 @@ float tempDelay, meanDelay=0.f;
 vector<float> solvedDelay;
 double coordSrc[3], coordTrg[3];
 //cout<<"recoDelays:\n";
-   
+
    for(int pix=0; pix<nDir; pix++){
- 
+
       pt = hpBase.pix2ang( pix );
       test_zenith  = pt.theta; //  in radians
       test_azimuth = pt.phi  ;
-      
+
       coordSrc[0] = radius*sin(test_zenith)*cos(test_azimuth);
       coordSrc[1] = radius*sin(test_zenith)*sin(test_azimuth);
       coordSrc[2] = radius*cos(test_zenith);
@@ -8083,17 +8235,17 @@ double coordSrc[3], coordTrg[3];
       //cout<<"nAnt: "<<nAnt<<endl;
       //cout<<"tempDelay:\n";
       for(int k=0; k<nAnt; k++){
-      //cout<<"k: "<<k<<endl; 
+      //cout<<"k: "<<k<<endl;
       coordTrg[0] = (antLoc[k][0]);
       coordTrg[1] = (antLoc[k][1]);
       coordTrg[2] = (antLoc[k][2]);
       if (Detector2Cylinder(coordSrc, coordTrg, zCenter, &r, &zRec, &zSrc) != 0)
-      std::cout << "ERROR: couldn't convert to cylindrical coordinates." << std::endl;    
-      
-      tempDelay = static_cast<float>(ray.GetPropagationTime(r, zRec, zSrc));      
-      //cout<<tempDelay<<" "; 
-      if( tempDelay > 1.f ) 
-         //if( k<8 || k>11 ) 
+      std::cout << "ERROR: couldn't convert to cylindrical coordinates." << std::endl;
+
+      tempDelay = static_cast<float>(ray.GetPropagationTime(r, zRec, zSrc));
+      //cout<<tempDelay<<" ";
+      if( tempDelay > 1.f )
+         //if( k<8 || k>11 )
             solvedDelay.push_back(tempDelay);
 
       recoDelays[pix*nAnt + k] = tempDelay;
@@ -8121,8 +8273,8 @@ double coordSrc[3], coordTrg[3];
       //cout<<endl;
    }//end of pix
 
-/* 
- * Write FITS file 
+/*
+ * Write FITS file
  */
 /*
 cout<<"Creating Healpix map of channel 0 & 3 delays, and writing to FITS....\n";
@@ -8130,7 +8282,7 @@ cout<<"Creating Healpix map of channel 0 & 3 delays, and writing to FITS....\n";
 float *delays = (float*)calloc(nDir, sizeof(float));
 
 for(int pix=0; pix<nDir; pix++){
-   
+
    delays[pix] = recoDelays[pix*nAnt + 3] - recoDelays[pix*nAnt + 0];
 
 }
@@ -8149,15 +8301,15 @@ free(delays);
    return 0;
 }
 
-int compute3DRecoDelaysWithRadioSpline(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc, 
+int compute3DRecoDelaysWithRadioSpline(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
                                      //const float radius, const int nSideExp,
                                      Healpix_Onion *onion,
                                      float *recoDelays, float *recoDelays_V, float *recoDelays_H)
 {
 
 if(zCenter > 0 ) cerr<<"zCenter should be negative under the ice surfac\n";
-/* 
- * Initializing Healpix base 
+/*
+ * Initializing Healpix base
  */
 /*
 if(nSideExp < 0 || nSideExp > 8){ cerr<<"Invalid nSideExp\n"; return -1; }
@@ -8191,8 +8343,8 @@ char * tablePath = getenv("RADIOSPLINE_TABLE_DIR");
 if (tablePath == NULL) {
     std::cout << "ERROR: please point the RADIOSPLINE_TABLE_DIR environment variable to" << std::endl;
     std::cout << " the spline .fits table directory." << std::endl;
-    return -1; 
-}   
+    return -1;
+}
 std::string tablePathStr(tablePath);
 RayDelay ray(tablePathStr+"/"+ICE_FILE,
              tablePathStr+"/"+AIR_FILE,
@@ -8206,15 +8358,15 @@ double coordSrc[3], coordTrg[3];
 //cout<<"recoDelays:\n";
 for(int layer=0; layer<nLayer; layer++){
 
-   test_r = onion->layerRadii[layer]; //in meters   
+   test_r = onion->layerRadii[layer]; //in meters
    //cout<<"test_r at layer "<<layer<<" is: "<<test_r<<endl;
    for(int pix=0; pix<nDir; pix++){
- 
+
       //pt = hpBase.pix2ang( pix );
       //test_zenith  = pt.theta; //  in radians
       //test_azimuth = pt.phi  ;
       test_zenith  = onion->getPointing( pix ).theta;  //in radians
-      test_azimuth = onion->getPointing( pix ).phi  ;     
+      test_azimuth = onion->getPointing( pix ).phi  ;
       /*
       coordSrc[0] = radius*sin(test_zenith)*cos(test_azimuth);
       coordSrc[1] = radius*sin(test_zenith)*sin(test_azimuth);
@@ -8229,20 +8381,20 @@ for(int layer=0; layer<nLayer; layer++){
       //cout<<"nAnt: "<<nAnt<<endl;
       //cout<<"tempDelay:\n";
       for(int k=0; k<nAnt; k++){
-      //cout<<"k: "<<k<<endl; 
+      //cout<<"k: "<<k<<endl;
       coordTrg[0] = (antLoc[k][0]);
       coordTrg[1] = (antLoc[k][1]);
       coordTrg[2] = (antLoc[k][2]);
       if (Detector2Cylinder(coordSrc, coordTrg, zCenter, &r, &zRec, &zSrc) != 0)
-      std::cout << "ERROR: couldn't convert to cylindrical coordinates." << std::endl;    
-      
-      tempDelay = static_cast<float>(ray.GetPropagationTime(r, zRec, zSrc));      
-      //cout<<tempDelay<<" "; 
-      if( tempDelay > 1.f ) 
-         //if( k<8 || k>11 ) 
+      std::cout << "ERROR: couldn't convert to cylindrical coordinates." << std::endl;
+
+      tempDelay = static_cast<float>(ray.GetPropagationTime(r, zRec, zSrc));
+      //cout<<tempDelay<<" ";
+      if( tempDelay > 1.f )
+         //if( k<8 || k>11 )
             solvedDelay.push_back(tempDelay);
       if( tempDelay > 1e9 ) cout<<"Unreasonbaly large delay\n";
-    
+
       recoDelays[layer*nDir*nAnt + pix*nAnt + k] = tempDelay;
 
       }//end of k
@@ -8268,8 +8420,8 @@ for(int layer=0; layer<nLayer; layer++){
       //cout<<endl;
    }//end of pix
 }//end of layer
-/* 
- * Write FITS file 
+/*
+ * Write FITS file
  */
 /*
 cout<<"Creating Healpix map of channel 0 & 4 delays, and writing to FITS....\n";
@@ -8282,9 +8434,9 @@ char filename[200];
 
 for(int layer=0; layer<nLayer; layer++){
    for(int pix=0; pix<nDir; pix++){
-   
+
    delays[pix] = recoDelays[layer*nDir*nAnt + pix*nAnt + 0] - recoDelays[layer*nDir*nAnt + pix*nAnt + 4];
-   if(delays[pix] > 1e9 || delays[pix] < -1e9 ) delays[pix] = 0.f;   
+   if(delays[pix] > 1e9 || delays[pix] < -1e9 ) delays[pix] = 0.f;
 
    }
    cout<<endl;
@@ -8306,16 +8458,16 @@ free(delays);
    return 0;
 }
 
-int compute3DZoomedRecoDelaysWithRadioSpline(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc, 
+int compute3DRecoDelaysWithRadioSplineForSinglePixel(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
                                      //const float radius, const int nSideExp,
                                      Healpix_Onion *onion,
                                      float *recoDelays, float *recoDelays_V, float *recoDelays_H,
-                                     const int last2DMaxPixIdx, const int nPix_nested)
+                                     const int pix)
 {
 
 if(zCenter > 0 ) cerr<<"zCenter should be negative under the ice surfac\n";
-/* 
- * Initializing Healpix base 
+/*
+ * Initializing Healpix base
  */
 /*
 if(nSideExp < 0 || nSideExp > 8){ cerr<<"Invalid nSideExp\n"; return -1; }
@@ -8349,8 +8501,168 @@ char * tablePath = getenv("RADIOSPLINE_TABLE_DIR");
 if (tablePath == NULL) {
     std::cout << "ERROR: please point the RADIOSPLINE_TABLE_DIR environment variable to" << std::endl;
     std::cout << " the spline .fits table directory." << std::endl;
-    return -1; 
-}   
+    return -1;
+}
+std::string tablePathStr(tablePath);
+RayDelay ray(tablePathStr+"/"+ICE_FILE,
+             tablePathStr+"/"+AIR_FILE,
+             tablePathStr+"/"+SHADOW_FILE);
+cout<<"RayDelay object created\n";
+
+double r, zRec, zSrc;
+float tempDelay, meanDelay=0.f;
+vector<float> solvedDelay;
+double coordSrc[3], coordTrg[3];
+//cout<<"recoDelays:\n";
+//for(int layer=0; layer<nLayer; layer++){
+
+   //test_r = onion->layerRadii[layer]; //in meters
+   test_r = onion->getLayerRadius( pix );
+   //cout<<"test_r at layer "<<layer<<" is: "<<test_r<<endl;
+   //for(int pix=0; pix<nDir; pix++){
+
+      //pt = hpBase.pix2ang( pix );
+      //test_zenith  = pt.theta; //  in radians
+      //test_azimuth = pt.phi  ;
+      test_zenith  = onion->getPointing( pix ).theta;  //in radians
+      test_azimuth = onion->getPointing( pix ).phi  ;
+      /*
+      coordSrc[0] = radius*sin(test_zenith)*cos(test_azimuth);
+      coordSrc[1] = radius*sin(test_zenith)*sin(test_azimuth);
+      coordSrc[2] = radius*cos(test_zenith);
+      */
+      coordSrc[0] = test_r*sin(test_zenith)*cos(test_azimuth);
+      coordSrc[1] = test_r*sin(test_zenith)*sin(test_azimuth);
+      coordSrc[2] = test_r*cos(test_zenith);
+
+
+      //cout<<"coordSrc: "<<coordSrc[0]<<"\t"<<coordSrc[1]<<"\t"<<coordSrc[2]<<endl;
+      //cout<<"nAnt: "<<nAnt<<endl;
+      //cout<<"tempDelay:\n";
+      for(int k=0; k<nAnt; k++){
+      //cout<<"k: "<<k<<endl;
+      coordTrg[0] = (antLoc[k][0]);
+      coordTrg[1] = (antLoc[k][1]);
+      coordTrg[2] = (antLoc[k][2]);
+      if (Detector2Cylinder(coordSrc, coordTrg, zCenter, &r, &zRec, &zSrc) != 0)
+      std::cout << "ERROR: couldn't convert to cylindrical coordinates." << std::endl;
+
+      tempDelay = static_cast<float>(ray.GetPropagationTime(r, zRec, zSrc));
+      //cout<<tempDelay<<" ";
+      if( tempDelay > 1.f )
+         //if( k<8 || k>11 )
+            solvedDelay.push_back(tempDelay);
+      if( tempDelay > 1e9 ) cout<<"Unreasonbaly large delay\n";
+
+      //recoDelays[layer*nDir*nAnt + pix*nAnt + k] = tempDelay;
+      recoDelays[k] = tempDelay;
+
+      }//end of k
+      //cout<<endl;
+      meanDelay = getMeanDelay( solvedDelay );
+      //cout<<"meanDelay = "<<meanDelay<<endl;
+
+      for(int k=0; k<nAnt; k++){
+
+      if(recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k] > 1.f ){
+         recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k] -= meanDelay;
+         //cout<<recoDelays[layer*nDir*nAnt + pix*nAnt + k]<<" ";
+         if(k<8) recoDelays_V[/*layer*nDir*nAnt/2 + pix*nAnt/2 + */k]   = recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k];
+         else    recoDelays_H[/*layer*nDir*nAnt/2 + pix*nAnt/2 + */k-8] = recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k];
+      } else {
+          recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k] = -1e10; // no solution!
+          if(k<8) recoDelays_V[/*layer*nDir*nAnt/2 + pix*nAnt/2 + */k]   = recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k];
+          else    recoDelays_H[/*layer*nDir*nAnt/2 + pix*nAnt/2 + */k-8] = recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k];
+          //cout<<"recoDelays: "<<recoDelays[layer*nDir*nAnt + pix*nAnt + k]<<"\t";
+      }
+      //cout<<"End of assigning delays\n";
+      }//end of nAnt
+      //cout<<endl;
+   //}//end of pix
+//}//end of layer
+/*
+ * Write FITS file
+ */
+/*
+cout<<"Creating Healpix map of channel 0 & 4 delays, and writing to FITS....\n";
+
+float *delays = (float*)calloc(nDir, sizeof(float));
+arr<float> delaysArr;
+Healpix_Map<float> delaysSkyMap;
+fitshandle fitsOut;
+char filename[200];
+
+for(int layer=0; layer<nLayer; layer++){
+   for(int pix=0; pix<nDir; pix++){
+
+   delays[pix] = recoDelays[layer*nDir*nAnt + pix*nAnt + 0] - recoDelays[layer*nDir*nAnt + pix*nAnt + 4];
+   if(delays[pix] > 1e9 || delays[pix] < -1e9 ) delays[pix] = 0.f;
+
+   }
+   cout<<endl;
+delaysArr = arr<float>(&delays[0], (size_t)nDir);
+delaysSkyMap = Healpix_Map<float>(delaysArr, RING);
+
+//fitshandle fitsOut;
+sprintf(filename, "delaysSkyMap_A3_layer%d_chan0_4.fits", layer);
+remove(filename);
+fitsOut.create(filename);
+
+write_Healpix_map_to_fits(fitsOut, delaysSkyMap, PLANCK_FLOAT32);
+cout<<"Healpix map written\n";
+
+}
+
+free(delays);
+*/
+   return 0;
+}
+
+int compute3DZoomedRecoDelaysWithRadioSpline(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
+                                     //const float radius, const int nSideExp,
+                                     Healpix_Onion *onion,
+                                     float *recoDelays, float *recoDelays_V, float *recoDelays_H,
+                                     const int last2DMaxPixIdx, const int nPix_nested)
+{
+
+if(zCenter > 0 ) cerr<<"zCenter should be negative under the ice surfac\n";
+/*
+ * Initializing Healpix base
+ */
+/*
+if(nSideExp < 0 || nSideExp > 8){ cerr<<"Invalid nSideExp\n"; return -1; }
+int nSide = pow(2, nSideExp);
+Healpix_Base hpBase = Healpix_Base(nSide, RING, SET_NSIDE);
+int nDir = hpBase.Npix();
+pointing pt;
+cout<<"Healpix base initialization success. nDir: "<<nDir<<endl;
+*/
+
+/*
+ * Initialize variables related to Healpix_Onion
+ */
+
+int nDir   = onion->nDir;
+int nLayer = onion->nLayer;
+cout<<"Healpix_Onion info obtained. nDir: "<<nDir<<" nLayer: "<<nLayer<<endl;
+
+/*
+ * Get delay from each layer and pixel direction
+ */
+
+//float *recoDelays;
+//recoDelays  = (float*)malloc(nDir*nAnt*sizeof(float));
+//recoDelays_V= (float*)malloc(nDir*(nAnt/2)*sizeof(float));
+//recoDelays_H= (float*)malloc(nDir*(nAnt/2)*sizeof(float));
+float test_r, test_zenith, test_azimuth;
+
+/* Using radiospline to delay times */
+char * tablePath = getenv("RADIOSPLINE_TABLE_DIR");
+if (tablePath == NULL) {
+    std::cout << "ERROR: please point the RADIOSPLINE_TABLE_DIR environment variable to" << std::endl;
+    std::cout << " the spline .fits table directory." << std::endl;
+    return -1;
+}
 std::string tablePathStr(tablePath);
 RayDelay ray(tablePathStr+"/"+ICE_FILE,
              tablePathStr+"/"+AIR_FILE,
@@ -8366,17 +8678,17 @@ int zoomedPix;
 
 for(int layer=0; layer<nLayer; layer++){
 
-   test_r = onion->layerRadii[layer]; //in meters   
+   test_r = onion->layerRadii[layer]; //in meters
    //cout<<"test_r at layer "<<layer<<" is: "<<test_r<<endl;
    //for(int pix=0; pix<nDir; pix++){
    for(int pix=0; pix<nPix_nested; pix++){
- 
+
       zoomedPix = last2DMaxPixIdx * nPix_nested + pix;
       //pt = hpBase.pix2ang( pix );
       //test_zenith  = pt.theta; //  in radians
       //test_azimuth = pt.phi  ;
       test_zenith  = onion->getPointing( zoomedPix + nDir*layer ).theta;  //in radians
-      test_azimuth = onion->getPointing( zoomedPix + nDir*layer ).phi  ;     
+      test_azimuth = onion->getPointing( zoomedPix + nDir*layer ).phi  ;
       /*
       coordSrc[0] = radius*sin(test_zenith)*cos(test_azimuth);
       coordSrc[1] = radius*sin(test_zenith)*sin(test_azimuth);
@@ -8391,20 +8703,20 @@ for(int layer=0; layer<nLayer; layer++){
       //cout<<"nAnt: "<<nAnt<<endl;
       //cout<<"tempDelay:\n";
       for(int k=0; k<nAnt; k++){
-      //cout<<"k: "<<k<<endl; 
+      //cout<<"k: "<<k<<endl;
       coordTrg[0] = (antLoc[k][0]);
       coordTrg[1] = (antLoc[k][1]);
       coordTrg[2] = (antLoc[k][2]);
       if (Detector2Cylinder(coordSrc, coordTrg, zCenter, &r, &zRec, &zSrc) != 0)
-      std::cout << "ERROR: couldn't convert to cylindrical coordinates." << std::endl;    
-      
-      tempDelay = static_cast<float>(ray.GetPropagationTime(r, zRec, zSrc));      
-      //cout<<tempDelay<<" "; 
-      if( tempDelay > 1.f ) 
-         //if( k<8 || k>11 ) 
+      std::cout << "ERROR: couldn't convert to cylindrical coordinates." << std::endl;
+
+      tempDelay = static_cast<float>(ray.GetPropagationTime(r, zRec, zSrc));
+      //cout<<tempDelay<<" ";
+      if( tempDelay > 1.f )
+         //if( k<8 || k>11 )
             solvedDelay.push_back(tempDelay);
       if( tempDelay > 1e9 ) cout<<"Unreasonbaly large delay\n";
-    
+
       //recoDelays[layer*nDir*nAnt + pix*nAnt + k] = tempDelay;
       recoDelays[layer*nPix_nested*nAnt + pix*nAnt + k] = tempDelay;
 
@@ -8431,8 +8743,8 @@ for(int layer=0; layer<nLayer; layer++){
       //cout<<endl;
    }//end of pix
 }//end of layer
-/* 
- * Write FITS file 
+/*
+ * Write FITS file
  */
 /*
 cout<<"Creating Healpix map of channel 0 & 4 delays, and writing to FITS....\n";
@@ -8445,9 +8757,9 @@ char filename[200];
 
 for(int layer=0; layer<nLayer; layer++){
    for(int pix=0; pix<nDir; pix++){
-   
+
    delays[pix] = recoDelays[layer*nDir*nAnt + pix*nAnt + 0] - recoDelays[layer*nDir*nAnt + pix*nAnt + 4];
-   if(delays[pix] > 1e9 || delays[pix] < -1e9 ) delays[pix] = 0.f;   
+   if(delays[pix] > 1e9 || delays[pix] < -1e9 ) delays[pix] = 0.f;
 
    }
    cout<<endl;
@@ -8469,15 +8781,15 @@ free(delays);
    return 0;
 }
 
-int computeRecoDelaysWithConstantN(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc, 
+int computeRecoDelaysWithConstantN(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
                                      //const float radius, const int nSideExp,
                                      Healpix_Onion *onion,
                                      float *recoDelays, float *recoDelays_V, float *recoDelays_H)
 {
 
 if(zCenter > 0 ) cerr<<"zCenter should be negative under the ice surfac\n";
-/* 
- * Initializing Healpix base 
+/*
+ * Initializing Healpix base
  */
 //if(nSideExp < 0 || nSideExp > 7){ cerr<<"Invalid nSideExp\n"; return -1; }
 //int nSide = pow(2, nSideExp);
@@ -8510,15 +8822,15 @@ vector<float> solvedDelay;
 double coordSrc[3], coordTrg[3];
 //cout<<"recoDelays:\n";
 for(int layer=0; layer<nLayer; layer++){
-  
+
    test_r = onion->layerRadii[layer];
 
    for(int pix=0; pix<nDir; pix++){
- 
+
       //pt = hpBase.pix2ang( pix );
       //test_zenith  = pt.theta; //  in radians
       //test_azimuth = pt.phi  ;
-      
+
       test_zenith  = onion->getPointing( pix ).theta; // in radians
       test_azimuth = onion->getPointing( pix ).phi  ;
 
@@ -8526,35 +8838,35 @@ for(int layer=0; layer<nLayer; layer++){
       coordSrc[1] = test_r*sin(test_zenith)*sin(test_azimuth);
       coordSrc[2] = test_r*cos(test_zenith);
 
-      if(coordSrc[2] > fabs(zCenter)){ 
+      if(coordSrc[2] > fabs(zCenter)){
 
       cerr<<"Warning!! Source above ice surface. The different index of refraction in air is _NOT_ implemented!"<<endl;
       for(int k=0; k<nAnt; k++){
         recoDelays[layer*nDir*nAnt + pix*nAnt + k] = -1e10;;
         if(k<8) recoDelays_V[layer*nDir*nAnt/2 + pix*nAnt/2 + k]   = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
-        else    recoDelays_H[layer*nDir*nAnt/2 + pix*nAnt/2 + k-8] = recoDelays[layer*nDir*nAnt + pix*nAnt + k]; 
+        else    recoDelays_H[layer*nDir*nAnt/2 + pix*nAnt/2 + k-8] = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
       }
-      } else if ( (zCenter + coordSrc[2]) <= -3000){ 
+      } else if ( (zCenter + coordSrc[2]) <= -3000){
 
-      cerr<<"Warning!! Source is in bedrock"<<endl; 
+      cerr<<"Warning!! Source is in bedrock"<<endl;
       for(int k=0; k<nAnt; k++){
         recoDelays[layer*nDir*nAnt + pix*nAnt + k] = -1e10;;
         if(k<8) recoDelays_V[layer*nDir*nAnt/2 + pix*nAnt/2 + k]   = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
-        else    recoDelays_H[layer*nDir*nAnt/2 + pix*nAnt/2 + k-8] = recoDelays[layer*nDir*nAnt + pix*nAnt + k]; 
+        else    recoDelays_H[layer*nDir*nAnt/2 + pix*nAnt/2 + k-8] = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
       }
       } else {
       //cout<<"coordSrc: "<<coordSrc[0]<<"\t"<<coordSrc[1]<<"\t"<<coordSrc[2]<<endl;
 
       for(int k=0; k<nAnt; k++){
-      
+
       coordTrg[0] = (antLoc[k][0]);
       coordTrg[1] = (antLoc[k][1]);
       coordTrg[2] = (antLoc[k][2]);
-     
 
-      /* Assume simple spherical wave propagation with homogeneous isotropic ice */ 
+
+      /* Assume simple spherical wave propagation with homogeneous isotropic ice */
       tempDelay = nIce * sqrt( (coordTrg[0] - coordSrc[0])*(coordTrg[0] - coordSrc[0])
-                             + (coordTrg[1] - coordSrc[1])*(coordTrg[1] - coordSrc[1])      
+                             + (coordTrg[1] - coordSrc[1])*(coordTrg[1] - coordSrc[1])
                              + (coordTrg[2] - coordSrc[2])*(coordTrg[2] - coordSrc[2])
                              ) / speedOfLight;
       solvedDelay.push_back(tempDelay);
@@ -8562,7 +8874,7 @@ for(int layer=0; layer<nLayer; layer++){
       recoDelays[layer*nDir*nAnt + pix*nAnt + k] = tempDelay;
 
       }
-      //cout<<endl; 
+      //cout<<endl;
       meanDelay = getMeanDelay( solvedDelay );
       //cout<<"meanDelay = "<<meanDelay<<endl;
 
@@ -8581,7 +8893,121 @@ for(int layer=0; layer<nLayer; layer++){
    return 0;
 }
 
-int computeZoomedRecoDelaysWithConstantN(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc, 
+int computeRecoDelaysWithConstantNForSinglePixel(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
+                                     //const float radius, const int nSideExp,
+                                     Healpix_Onion *onion,
+                                     float *recoDelays, float *recoDelays_V, float *recoDelays_H,
+                                     const int pix)
+{
+
+if(zCenter > 0 ) cerr<<"zCenter should be negative under the ice surfac\n";
+/*
+ * Initializing Healpix base
+ */
+//if(nSideExp < 0 || nSideExp > 7){ cerr<<"Invalid nSideExp\n"; return -1; }
+//int nSide = pow(2, nSideExp);
+//Healpix_Base hpBase = Healpix_Base(nSide, RING, SET_NSIDE);
+//int nDir = hpBase.Npix();
+//pointing pt;
+//cout<<"Healpix base initialization success. nDir: "<<nDir<<endl;
+
+/*
+ * Initialize variables related to Healpix_Onion
+ */
+
+int nDir   = onion->nDir;
+int nLayer = onion->nLayer;
+cout<<"Healpix_Onion info obtained. nDir: "<<nDir<<" nLayer: "<<nLayer<<endl;
+
+
+/*
+ * Get delay from each pixel direction
+ */
+
+//float *recoDelays;
+//recoDelays  = (float*)malloc(nDir*nAnt*sizeof(float));
+//recoDelays_V= (float*)malloc(nDir*(nAnt/2)*sizeof(float));
+//recoDelays_H= (float*)malloc(nDir*(nAnt/2)*sizeof(float));
+float test_r, test_zenith, test_azimuth;
+
+float tempDelay, meanDelay=0.f;
+vector<float> solvedDelay;
+double coordSrc[3], coordTrg[3];
+//cout<<"recoDelays:\n";
+//for(int layer=0; layer<nLayer; layer++){
+
+   //test_r = onion->layerRadii[layer];
+   test_r = onion->getLayerRadius( pix );
+
+   //for(int pix=0; pix<nDir; pix++){
+
+      //pt = hpBase.pix2ang( pix );
+      //test_zenith  = pt.theta; //  in radians
+      //test_azimuth = pt.phi  ;
+
+      test_zenith  = onion->getPointing( pix ).theta; // in radians
+      test_azimuth = onion->getPointing( pix ).phi  ;
+
+      coordSrc[0] = test_r*sin(test_zenith)*cos(test_azimuth);
+      coordSrc[1] = test_r*sin(test_zenith)*sin(test_azimuth);
+      coordSrc[2] = test_r*cos(test_zenith);
+
+      if(coordSrc[2] > fabs(zCenter)){
+
+      cerr<<"Warning!! Source above ice surface. The different index of refraction in air is _NOT_ implemented!"<<endl;
+      for(int k=0; k<nAnt; k++){
+        recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k] = -1e10;;
+        if(k<8) recoDelays_V[/*layer*nDir*nAnt/2 + pix*nAnt/2 + */k]   = recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k];
+        else    recoDelays_H[/*layer*nDir*nAnt/2 + pix*nAnt/2 + */k-8] = recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k];
+      }
+      } else if ( (zCenter + coordSrc[2]) <= -3000){
+
+      cerr<<"Warning!! Source is in bedrock"<<endl;
+      for(int k=0; k<nAnt; k++){
+        recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k] = -1e10;;
+        if(k<8) recoDelays_V[/*layer*nDir*nAnt/2 + pix*nAnt/2 + */k]   = recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k];
+        else    recoDelays_H[/*layer*nDir*nAnt/2 + pix*nAnt/2 + */k-8] = recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k];
+      }
+      } else {
+      //cout<<"coordSrc: "<<coordSrc[0]<<"\t"<<coordSrc[1]<<"\t"<<coordSrc[2]<<endl;
+
+      for(int k=0; k<nAnt; k++){
+
+      coordTrg[0] = (antLoc[k][0]);
+      coordTrg[1] = (antLoc[k][1]);
+      coordTrg[2] = (antLoc[k][2]);
+
+
+      /* Assume simple spherical wave propagation with homogeneous isotropic ice */
+      tempDelay = nIce * sqrt( (coordTrg[0] - coordSrc[0])*(coordTrg[0] - coordSrc[0])
+                             + (coordTrg[1] - coordSrc[1])*(coordTrg[1] - coordSrc[1])
+                             + (coordTrg[2] - coordSrc[2])*(coordTrg[2] - coordSrc[2])
+                             ) / speedOfLight;
+      solvedDelay.push_back(tempDelay);
+      //cout<<tempDelay<<" ";
+      recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k] = tempDelay;
+
+      }
+      //cout<<endl;
+      meanDelay = getMeanDelay( solvedDelay );
+      //cout<<"meanDelay = "<<meanDelay<<endl;
+
+      for(int k=0; k<nAnt; k++){
+         recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k] -= meanDelay;
+         //cout<<recoDelays[pix*nAnt + k]<<" ";
+         if(k<8) recoDelays_V[/*layer*nDir*nAnt/2 + pix*nAnt/2 + */k]   = recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k];
+         else    recoDelays_H[/*layer*nDir*nAnt/2 + pix*nAnt/2 + */k-8] = recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k];
+      //cout<<"End of assigning delays\n";
+      }//end of nAnt
+      //cout<<endl;
+      }//end of else
+   //}//end of pix
+//}//end of layer
+
+   return 0;
+}
+
+int computeZoomedRecoDelaysWithConstantN(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
                                      //const float radius, const int nSideExp,
                                      Healpix_Onion *onion,
                                      float *recoDelays, float *recoDelays_V, float *recoDelays_H,
@@ -8589,8 +9015,8 @@ int computeZoomedRecoDelaysWithConstantN(const int nAnt, const float zCenter, co
 {
 
 if(zCenter > 0 ) cerr<<"zCenter should be negative under the ice surfac\n";
-/* 
- * Initializing Healpix base 
+/*
+ * Initializing Healpix base
  */
 //if(nSideExp < 0 || nSideExp > 7){ cerr<<"Invalid nSideExp\n"; return -1; }
 //int nSide = pow(2, nSideExp);
@@ -8625,17 +9051,17 @@ double coordSrc[3], coordTrg[3];
 int zoomedPix;
 
 for(int layer=0; layer<nLayer; layer++){
-  
+
    test_r = onion->layerRadii[layer];
 
    //for(int pix=0; pix<nDir; pix++){
    for(int pix=0; pix<nPix_nested; pix++){
-   
+
       zoomedPix = last2DMaxPixIdx * nPix_nested + pix;
       //pt = hpBase.pix2ang( pix );
       //test_zenith  = pt.theta; //  in radians
       //test_azimuth = pt.phi  ;
-         
+
       test_zenith  = onion->getPointing( zoomedPix + nDir*layer ).theta; // in radians
       test_azimuth = onion->getPointing( zoomedPix + nDir*layer ).phi  ;
 
@@ -8643,35 +9069,35 @@ for(int layer=0; layer<nLayer; layer++){
       coordSrc[1] = test_r*sin(test_zenith)*sin(test_azimuth);
       coordSrc[2] = test_r*cos(test_zenith);
 
-      if(coordSrc[2] > fabs(zCenter)){ 
+      if(coordSrc[2] > fabs(zCenter)){
 
       cerr<<"Warning!! Source above ice surface. The different index of refraction in air is _NOT_ implemented!"<<endl;
       for(int k=0; k<nAnt; k++){
         recoDelays[layer*nPix_nested*nAnt + pix*nAnt + k] = -1e10;;
         if(k<8) recoDelays_V[layer*nPix_nested*nAnt/2 + pix*nAnt/2 + k]   = recoDelays[layer*nPix_nested*nAnt + pix*nAnt + k];
-        else    recoDelays_H[layer*nPix_nested*nAnt/2 + pix*nAnt/2 + k-8] = recoDelays[layer*nPix_nested*nAnt + pix*nAnt + k]; 
+        else    recoDelays_H[layer*nPix_nested*nAnt/2 + pix*nAnt/2 + k-8] = recoDelays[layer*nPix_nested*nAnt + pix*nAnt + k];
       }
-      } else if ( (zCenter + coordSrc[2]) <= -3000){ 
+      } else if ( (zCenter + coordSrc[2]) <= -3000){
 
-      cerr<<"Warning!! Source is in bedrock"<<endl; 
+      cerr<<"Warning!! Source is in bedrock"<<endl;
       for(int k=0; k<nAnt; k++){
         recoDelays[layer*nPix_nested*nAnt + pix*nAnt + k] = -1e10;;
         if(k<8) recoDelays_V[layer*nPix_nested*nAnt/2 + pix*nAnt/2 + k]   = recoDelays[layer*nPix_nested*nAnt + pix*nAnt + k];
-        else    recoDelays_H[layer*nPix_nested*nAnt/2 + pix*nAnt/2 + k-8] = recoDelays[layer*nPix_nested*nAnt + pix*nAnt + k]; 
+        else    recoDelays_H[layer*nPix_nested*nAnt/2 + pix*nAnt/2 + k-8] = recoDelays[layer*nPix_nested*nAnt + pix*nAnt + k];
       }
       } else {
       //cout<<"coordSrc: "<<coordSrc[0]<<"\t"<<coordSrc[1]<<"\t"<<coordSrc[2]<<endl;
 
       for(int k=0; k<nAnt; k++){
-      
+
       coordTrg[0] = (antLoc[k][0]);
       coordTrg[1] = (antLoc[k][1]);
       coordTrg[2] = (antLoc[k][2]);
-     
 
-      /* Assume simple spherical wave propagation with homogeneous isotropic ice */ 
+
+      /* Assume simple spherical wave propagation with homogeneous isotropic ice */
       tempDelay = nIce * sqrt( (coordTrg[0] - coordSrc[0])*(coordTrg[0] - coordSrc[0])
-                             + (coordTrg[1] - coordSrc[1])*(coordTrg[1] - coordSrc[1])      
+                             + (coordTrg[1] - coordSrc[1])*(coordTrg[1] - coordSrc[1])
                              + (coordTrg[2] - coordSrc[2])*(coordTrg[2] - coordSrc[2])
                              ) / speedOfLight;
       solvedDelay.push_back(tempDelay);
@@ -8679,7 +9105,7 @@ for(int layer=0; layer<nLayer; layer++){
       recoDelays[layer*nPix_nested*nAnt + pix*nAnt + k] = tempDelay;
 
       }
-      //cout<<endl; 
+      //cout<<endl;
       meanDelay = getMeanDelay( solvedDelay );
       //cout<<"meanDelay = "<<meanDelay<<endl;
 
@@ -8721,8 +9147,8 @@ void setMeanAndSigmaInNoMax(TGraph *gr, double *stats){
    int bin = gr->GetN();
    int MaxBin = getMaxBin( gr );
    //cout<<"MaxBin: "<<MaxBin<<endl;
-   int binCounter=0;   
-   
+   int binCounter=0;
+
    double mean =0;
    double sigma=0;
    double t, v;
@@ -8768,10 +9194,10 @@ void setMeanAndSigmaInNoMax(TGraph *gr, double *stats){
    sigma = TMath::Sqrt( ( sigma - ((double)binCounter * mean * mean )) / (double)(binCounter - 1) );
    //cout<<"mean="<<mean<<"\tsigma="<<sigma<<endl;
    //delete gr;
-   
+
    stats[0] = mean;
    stats[1] = sigma;
-   
+
 }
 void getNchnl(const vector<TGraph *>& cleanEvent, double threshold, int *nchnlArray){
 
@@ -8800,19 +9226,19 @@ void getNchnl(const vector<TGraph *>& cleanEvent, double threshold, int *nchnlAr
          bin   = cleanEvent[ch]->GetN();
          //setMeanAndSigmaInNoMax(gr,statsArray);
          setMeanAndSigmaInNoMax(cleanEvent[ch], statsArray);
-         
+
          mean  = statsArray[0];
          sigma = statsArray[1];
-          
+
          for (int binCounter=0; binCounter<bin; binCounter++){
- 
-            cleanEvent[ch]->GetPoint(binCounter, t, v);  
+
+            cleanEvent[ch]->GetPoint(binCounter, t, v);
             if ( fabs(v - mean) > threshold * sigma ){
 
                totalPassedChnl += 1;
 
                if( ch<8 ) totalPassedVpol += 1;
-               else       totalPassedHpol += 1;              
+               else       totalPassedHpol += 1;
                //if ( polType == AraAntPol::kVertical){ totalPassedVpol += 1;
                //} else if ( polType == AraAntPol::kHorizontal){ totalPassedHpol += 1;
                //} else { cerr<<"********************* polType not vpol or hpol !!! ***********************"<<endl;
@@ -8860,20 +9286,20 @@ void getNchnlMask(const vector<TGraph *>& cleanEvent, double threshold, int *nch
          bin   = cleanEvent[ch]->GetN();
          //setMeanAndSigmaInNoMax(gr,statsArray);
          setMeanAndSigmaInNoMax(cleanEvent[ch], statsArray);
-         
+
          mean  = statsArray[0];
          sigma = statsArray[1];
-          
+
          for (int binCounter=0; binCounter<bin; binCounter++){
- 
-            cleanEvent[ch]->GetPoint(binCounter, t, v);  
+
+            cleanEvent[ch]->GetPoint(binCounter, t, v);
             if ( fabs(v - mean) > threshold * sigma ){
 
                //totalPassedChnl += 1;
                passThreshold[ch] = 1;
 
                //if( ch<8 ) totalPassedVpol += 1;
-               //else       totalPassedHpol += 1;              
+               //else       totalPassedHpol += 1;
                //if ( polType == AraAntPol::kVertical){ totalPassedVpol += 1;
                //} else if ( polType == AraAntPol::kHorizontal){ totalPassedHpol += 1;
                //} else { cerr<<"********************* polType not vpol or hpol !!! ***********************"<<endl;
@@ -8888,14 +9314,14 @@ void getNchnlMask(const vector<TGraph *>& cleanEvent, double threshold, int *nch
    }//end of ch
 
    for(int ch=0; ch<16; ch++){
-  
+
    goodChan[ch] = (chanMask[ch] && passThreshold[ch] );
 
    totalPassedChnl += goodChan[ch];
    if(ch<8) totalPassedVpol += goodChan[ch];
    else     totalPassedHpol += goodChan[ch];
-   
-   }   
+
+   }
 
 nchnlArray[0] = totalPassedChnl;
 nchnlArray[1] = totalPassedVpol;
@@ -8904,7 +9330,7 @@ nchnlArray[2] = totalPassedHpol;
 }
 
 /*
- * Version of getNchnlMask taking into account saturation. Saturated channels are not used 
+ * Version of getNchnlMask taking into account saturation. Saturated channels are not used
  */
 void getNchnlMaskSat(const vector<TGraph *>& cleanEvent, double threshold, int *nchnlArray, const int *chanMask, int *goodChan, int& numSatChan){
 
@@ -8918,7 +9344,7 @@ void getNchnlMaskSat(const vector<TGraph *>& cleanEvent, double threshold, int *
    int passThreshold[cleanEvent.size()];  //IF THE CHANNEL PASSED THRESHOLD*SIGMA, THIS NUMBER IS SET TO ONE
    int saturated[cleanEvent.size()];
    int totalPassedChnl, totalPassedVpol, totalPassedHpol;
-   int totalSatChnl, totalSatVpol, totalSatHpol;
+   int totalSatChnl,   totalSatVpol, totalSatHpol;
    totalPassedChnl = totalPassedVpol = totalPassedHpol = 0;
    totalSatChnl = totalSatVpol = totalSatHpol = 0;
    //AraGeomTool *tempGeom = AraGeomTool::Instance();
@@ -8938,13 +9364,13 @@ void getNchnlMaskSat(const vector<TGraph *>& cleanEvent, double threshold, int *
          bin   = cleanEvent[ch]->GetN();
          //setMeanAndSigmaInNoMax(gr,statsArray);
          setMeanAndSigmaInNoMax(cleanEvent[ch], statsArray);
-         
+
          mean  = statsArray[0];
          sigma = statsArray[1];
-          
+
          for (int binCounter=0; binCounter<bin; binCounter++){
- 
-            cleanEvent[ch]->GetPoint(binCounter, t, v);  
+
+            cleanEvent[ch]->GetPoint(binCounter, t, v);
 
             /* check if SNR > threshold*sigma */
             if ( fabs(v - mean) > threshold * sigma ){
@@ -8953,14 +9379,14 @@ void getNchnlMaskSat(const vector<TGraph *>& cleanEvent, double threshold, int *
                passThreshold[ch] = 1;
 
                //if( ch<8 ) totalPassedVpol += 1;
-               //else       totalPassedHpol += 1;              
+               //else       totalPassedHpol += 1;
                //if ( polType == AraAntPol::kVertical){ totalPassedVpol += 1;
                //} else if ( polType == AraAntPol::kHorizontal){ totalPassedHpol += 1;
                //} else { cerr<<"********************* polType not vpol or hpol !!! ***********************"<<endl;
                //}
                //break;
             }
-           
+
             /* check if saturated at +/- 1000mV */
             if( fabs( fabs(v) - 1000. ) < 0.5 ){
 
@@ -8976,7 +9402,7 @@ void getNchnlMaskSat(const vector<TGraph *>& cleanEvent, double threshold, int *
    }//end of ch
 
    for(int ch=0; ch<16; ch++){
-  
+
    goodChan[ch] = (chanMask[ch] && passThreshold[ch] );
    if( saturated[ch] ) goodChan[ch] = 0;
 
@@ -8984,8 +9410,8 @@ void getNchnlMaskSat(const vector<TGraph *>& cleanEvent, double threshold, int *
    totalSatChnl    += saturated[ch];
    if(ch<8){ totalPassedVpol += goodChan[ch]; totalSatVpol += saturated[ch]; }
    else    { totalPassedHpol += goodChan[ch]; totalSatHpol += saturated[ch]; }
-   
-   }   
+
+   }
 
 /* only look at Vpols now */
 numSatChan = totalSatVpol;
@@ -9033,13 +9459,13 @@ void getChannelSNR(const vector<TGraph *>& cleanEvent, float *snrArray){
          bin   = cleanEvent[ch]->GetN();
          //setMeanAndSigmaInNoMax(gr,statsArray);
          setMeanAndSigmaInNoMax(cleanEvent[ch], statsArray);
-         
+
          mean  = statsArray[0];
          sigma = statsArray[1];
-          
+
          for (int binCounter=0; binCounter<bin; binCounter++){
- 
-            cleanEvent[ch]->GetPoint(binCounter, t, v);  
+
+            cleanEvent[ch]->GetPoint(binCounter, t, v);
 
             /* check if SNR > threshold*sigma */
             //if ( fabs(v - mean) > threshold * sigma ){
@@ -9048,14 +9474,14 @@ void getChannelSNR(const vector<TGraph *>& cleanEvent, float *snrArray){
                //passThreshold[ch] = 1;
                absPeak = fabs(v-mean);
                //if( ch<8 ) totalPassedVpol += 1;
-               //else       totalPassedHpol += 1;              
+               //else       totalPassedHpol += 1;
                //if ( polType == AraAntPol::kVertical){ totalPassedVpol += 1;
                //} else if ( polType == AraAntPol::kHorizontal){ totalPassedHpol += 1;
                //} else { cerr<<"********************* polType not vpol or hpol !!! ***********************"<<endl;
                //}
                //break;
             }
-           
+
             /* check if saturated at +/- 1000mV */
             //if( fabs( fabs(v) - 1000. ) < 0.5 ){
 
@@ -9066,12 +9492,12 @@ void getChannelSNR(const vector<TGraph *>& cleanEvent, float *snrArray){
          }//end of binCounter
 
       //delete gr;
-      snrArray[ch] = static_cast<float>(absPeak / sigma); 
+      snrArray[ch] = static_cast<float>(absPeak / sigma);
 
    }//end of ch
    /*
    for(int ch=0; ch<16; ch++){
-  
+
    goodChan[ch] = (chanMask[ch] && passThreshold[ch] );
    if( saturated[ch] ) goodChan[ch] = 0;
 
@@ -9079,8 +9505,8 @@ void getChannelSNR(const vector<TGraph *>& cleanEvent, float *snrArray){
    totalSatChnl    += saturated[ch];
    if(ch<8){ totalPassedVpol += goodChan[ch]; totalSatVpol += saturated[ch]; }
    else    { totalPassedHpol += goodChan[ch]; totalSatHpol += saturated[ch]; }
-   
-   }   
+
+   }
    */
 /* only look at Vpols now */
 /*
@@ -9131,13 +9557,13 @@ void getChannelUnmodifiedSNR(const vector<TGraph *>& cleanEvent, float *snrArray
          bin   = cleanEvent[ch]->GetN();
          //setMeanAndSigmaInNoMax(gr,statsArray);
          setMeanAndSigmaInNoMax(cleanEvent[ch], statsArray);
-         
+
          mean  = statsArray[0];
          sigma = statsArray[1];
-          
+
          for (int binCounter=(bin/mod); binCounter<((bin*(mod-1))/mod); binCounter++){
- 
-            cleanEvent[ch]->GetPoint(binCounter, t, v);  
+
+            cleanEvent[ch]->GetPoint(binCounter, t, v);
 
             /* check if SNR > threshold*sigma */
             //if ( fabs(v - mean) > threshold * sigma ){
@@ -9146,14 +9572,14 @@ void getChannelUnmodifiedSNR(const vector<TGraph *>& cleanEvent, float *snrArray
                //passThreshold[ch] = 1;
                absPeak = fabs(v-mean);
                //if( ch<8 ) totalPassedVpol += 1;
-               //else       totalPassedHpol += 1;              
+               //else       totalPassedHpol += 1;
                //if ( polType == AraAntPol::kVertical){ totalPassedVpol += 1;
                //} else if ( polType == AraAntPol::kHorizontal){ totalPassedHpol += 1;
                //} else { cerr<<"********************* polType not vpol or hpol !!! ***********************"<<endl;
                //}
                //break;
             }
-           
+
             /* check if saturated at +/- 1000mV */
             //if( fabs( fabs(v) - 1000. ) < 0.5 ){
 
@@ -9164,12 +9590,12 @@ void getChannelUnmodifiedSNR(const vector<TGraph *>& cleanEvent, float *snrArray
          }//end of binCounter
 
       //delete gr;
-      snrArray[ch] = static_cast<float>(absPeak / sigma); 
+      snrArray[ch] = static_cast<float>(absPeak / sigma);
 
    }//end of ch
    /*
    for(int ch=0; ch<16; ch++){
-  
+
    goodChan[ch] = (chanMask[ch] && passThreshold[ch] );
    if( saturated[ch] ) goodChan[ch] = 0;
 
@@ -9177,8 +9603,8 @@ void getChannelUnmodifiedSNR(const vector<TGraph *>& cleanEvent, float *snrArray
    totalSatChnl    += saturated[ch];
    if(ch<8){ totalPassedVpol += goodChan[ch]; totalSatVpol += saturated[ch]; }
    else    { totalPassedHpol += goodChan[ch]; totalSatHpol += saturated[ch]; }
-   
-   }   
+
+   }
    */
 /* only look at Vpols now */
 /*
@@ -9215,17 +9641,17 @@ int recordDiff(int nSideExp, recoData *summary, char *rootFilename){
    TH2F *recoTrueZenDist;
    TH2F *recoTrueAziDist;
    TTree *dataTree;
-   
+
    //double w = weight;
    //double zen = zen_true * 180.f / M_PI;
    //double azi = azi_true * 180.f / M_PI;
    double recZen = pt.theta * 180.f / M_PI;
    double recAzi = pt.phi   * 180.f / M_PI;
    summary->setRecoDir(recZen, recAzi);
-   
-   
+
+
    recoData dummyData;
-   dummyData.duplicate(summary);   
+   dummyData.duplicate(summary);
    //dummyData.getData( weight
    //                 , zen_true * 180.f / M_PI, azi_true * 180.f / M_PI
    //                 , pt.theta * 180.f / M_PI, pt.phi   * 180.f / M_PI
@@ -9243,25 +9669,25 @@ int recordDiff(int nSideExp, recoData *summary, char *rootFilename){
            , summary->maxPixIdx, dummyData.maxPixIdx
            , summary->maxPixCoherence, dummyData.maxPixCoherence
           );
-   for(int ch=0; ch<16; ch++) printf("recoChan %d: old %d new %d", ch, summary->recoChan[ch], dummyData.recoChan[ch]); 
+   for(int ch=0; ch<16; ch++) printf("recoChan %d: old %d new %d", ch, summary->recoChan[ch], dummyData.recoChan[ch]);
 */
  /*
    if( !rootfile ){
    TFile fp(rootFilename, "NEW");
    dZenDist = new TH1F("recoZenDiff", "recoZenDiff", 360, -180, 180);
-   dAziDist = new TH1F("recoAziDiff", "recoAziDiff", 720, -360, 360); 
+   dAziDist = new TH1F("recoAziDiff", "recoAziDiff", 720, -360, 360);
    recoTrueZenDist = new TH2F("recoTrueZenDist", "recoTrueZenDist", 180, 0, 180, 180, 0, 180);
    recoTrueAziDist = new TH2F("recoTrueAziDist", "recoTrueAziDist", 360, 0, 360, 360, 0, 360);
 
    dataTree = new TTree("dataTree", "dataTree");
    dataTree->Branch("recoData", &dummyData, "weight/D:trueZen/F:trueAzi/F:recoZen/F:recoAzi/F:trueRadius/F:recoRadius/F:recoChan[16]/I:maxPixIdx/I:coherence/F");
-    
+
    dZenDist->Write();
-   dAziDist->Write(); 
+   dAziDist->Write();
    recoTrueZenDist->Write();
    recoTrueAziDist->Write();
    dataTree->Write();
-   fp.Close();  
+   fp.Close();
    }
    //else{
    TFile fp_2(rootFilename, "UPDATE");
@@ -9281,14 +9707,14 @@ int recordDiff(int nSideExp, recoData *summary, char *rootFilename){
    recoTrueZenDist->Fill(dummyData.trueZen, recZen);
    recoTrueAziDist->Fill(dummyData.trueAzi, recAzi);
    dataTree->Fill();
- 
+
    //TFile fp_3(rootFilename, "RECREATE");
    dZenDist->Write();
    dAziDist->Write();
    recoTrueZenDist->Write();
    recoTrueAziDist->Write();
    dataTree->Write();
-   fp_2.Close();  
+   fp_2.Close();
    //fp_3.Close();
 
    return 0;
@@ -9302,7 +9728,7 @@ int recordDiffGetFlag(int nSideExp, recoData *summary, char *rootFilename){
  * flag 0: do not break
  * flag 1: break and save skymap
  */
- 
+
    int flag = 0;
 
    if(nSideExp < 0 || nSideExp > 7){ cerr<<"Invalid nSideExp\n"; return -1; }
@@ -9323,14 +9749,14 @@ int recordDiffGetFlag(int nSideExp, recoData *summary, char *rootFilename){
    TH2F *recoTrueZenDist;
    TH2F *recoTrueAziDist;
    TTree *dataTree;
-   
+
    //double w = weight;
    //double zen = zen_true * 180.f / M_PI;
    //double azi = azi_true * 180.f / M_PI;
    double recZen = pt.theta * 180.f / M_PI;
    double recAzi = pt.phi   * 180.f / M_PI;
    summary->setRecoDir(recZen, recAzi);
-   
+
    recoData dummyData;
    //dummyData.duplicate(summary);
    dummyData = *summary;
@@ -9341,7 +9767,7 @@ int recordDiffGetFlag(int nSideExp, recoData *summary, char *rootFilename){
    //                 , usedChan
    //                 , maxPixValue
    //                 );
-/*  
+/*
    printf("old weight: %f new weight %f\nold trueRadius: %f new trueRadius: %f\nold recoRadius: %f new recoRadius: %f\n           old trueZen: %f new trueZen: %f\nold trueAzi: %f new trueAzi: %f\nold maxPixIdx: %d new maxPixIdx: %d\nold maxPixCoherence: %f new maxPixCoherence: %f\n"
            , summary->weight, dummyData.weight
            , summary->trueRadius, dummyData.trueRadius
@@ -9350,27 +9776,27 @@ int recordDiffGetFlag(int nSideExp, recoData *summary, char *rootFilename){
            , summary->trueAzi, dummyData.trueAzi
            , summary->maxPixIdx, dummyData.maxPixIdx
            , summary->maxPixCoherence, dummyData.maxPixCoherence
-          );   
-   for(int ch=0; ch<16; ch++) printf("recoChan %d: old %d new %d", ch, summary->recoChan[ch], dummyData.recoChan[ch]); 
+          );
+   for(int ch=0; ch<16; ch++) printf("recoChan %d: old %d new %d", ch, summary->recoChan[ch], dummyData.recoChan[ch]);
 */
 
- 
+
    if( !rootfile ){
    TFile fp(rootFilename, "NEW");
    dZenDist = new TH1F("recoZenDiff", "recoZenDiff", 360, -180, 180);
-   dAziDist = new TH1F("recoAziDiff", "recoAziDiff", 720, -360, 360); 
+   dAziDist = new TH1F("recoAziDiff", "recoAziDiff", 720, -360, 360);
    recoTrueZenDist = new TH2F("recoTrueZenDist", "recoTrueZenDist", 180, 0, 180, 180, 0, 180);
    recoTrueAziDist = new TH2F("recoTrueAziDist", "recoTrueAziDist", 360, 0, 360, 360, 0, 360);
 
    dataTree = new TTree("dataTree", "dataTree");
    //dataTree->Branch("recoData", &dummyData, "weight/D:trueZen/F:trueAzi/F:recoZen/F:recoAzi/F:trueRadius/F:recoRadius/F:recoChan[16]/I:maxPixIdx/I:coherence/F");
-    
+
    dZenDist->Write();
-   dAziDist->Write(); 
+   dAziDist->Write();
    recoTrueZenDist->Write();
    recoTrueAziDist->Write();
    dataTree->Write();
-   fp.Close();  
+   fp.Close();
    }
    //else{
    TFile fp_2(rootFilename, "UPDATE");
@@ -9392,17 +9818,17 @@ int recordDiffGetFlag(int nSideExp, recoData *summary, char *rootFilename){
    recoTrueZenDist->Fill(dummyData.trueZen, recZen);
    recoTrueAziDist->Fill(dummyData.trueAzi, recAzi);
    dataTree->Fill();
- 
+
    //TFile fp_3(rootFilename, "RECREATE");
    dZenDist->Write();
    dAziDist->Write();
    recoTrueZenDist->Write();
    recoTrueAziDist->Write();
    //dataTree->Write();
-   fp_2.Close();  
+   fp_2.Close();
    //fp_3.Close();
 
-/* 
+/*
  * Set flag condition HERE !!!!
  */
 
@@ -9424,7 +9850,7 @@ int recordDiffGetFlag(int nSideExp, recoData *summary, char *rootFilename){
 
    int nSideExp = summary->onion->nSideExp;
    int nLayer   = summary->onion->nLayer;
-  
+
    if(nSideExp < 0 || nSideExp > 7){ cerr<<"Invalid nSideExp\n"; return -1; }
    int nSide = pow(2, nSideExp);
    Healpix_Base hpBase = Healpix_Base(nSide, RING, SET_NSIDE);
@@ -9445,7 +9871,7 @@ int recordDiffGetFlag(int nSideExp, recoData *summary, char *rootFilename){
    TH2F *recoTrueAziDist;
    TTree *onionTree;
    TTree *dataTree;
-   
+
    //double w = weight;
    //double zen = zen_true * 180.f / M_PI;
    //double azi = azi_true * 180.f / M_PI;
@@ -9453,8 +9879,8 @@ int recordDiffGetFlag(int nSideExp, recoData *summary, char *rootFilename){
    double recAzi = pt.phi   * 180.f / M_PI;
    summary->setRecoDir(recZen, recAzi);
    summary->setRecoRadius( summary->onion->getLayerRadius(summary->maxPixIdx) );
-   
-   recoData *dummyData = new recoData;	
+
+   recoData *dummyData = new recoData;
    dummyData->duplicate(summary);
    vector<int>   * topMaxPixIdx             = &dummyData->topMaxPixIdx;
    vector<float> * topMaxPixCoherence       = &dummyData->topMaxPixCoherence;
@@ -9467,7 +9893,7 @@ int recordDiffGetFlag(int nSideExp, recoData *summary, char *rootFilename){
    //                 , usedChan
    //                 , maxPixValue
    //                 );
-*//*  
+*//*
    printf("old weight: %f new weight %f\nold trueRadius: %f new trueRadius: %f\nold recoRadius: %f new recoRadius: %f\n           old trueZen: %f new trueZen: %f\nold trueAzi: %f new trueAzi: %f\nold maxPixIdx: %d new maxPixIdx: %d\nold maxPixCoherence: %f new maxPixCoherence: %f\n"
            , summary->weight, dummyData->weight
            , summary->trueRadius, dummyData->trueRadius
@@ -9476,15 +9902,15 @@ int recordDiffGetFlag(int nSideExp, recoData *summary, char *rootFilename){
            , summary->trueAzi, dummyData->trueAzi
            , summary->maxPixIdx, dummyData->maxPixIdx
            , summary->maxPixCoherence, dummyData->maxPixCoherence
-          );   
-   for(int ch=0; ch<16; ch++) printf("recoChan %d: old %d new %d", ch, summary->recoChan[ch], dummyData->recoChan[ch]); 
+          );
+   for(int ch=0; ch<16; ch++) printf("recoChan %d: old %d new %d", ch, summary->recoChan[ch], dummyData->recoChan[ch]);
    cout<<endl;
 */
-/* 
+/*
    if( !rootfile ){
    TFile fp(rootFilename, "NEW");
    dZenDist = new TH1F("recoZenDiff", "recoZenDiff", 360, -180, 180);
-   dAziDist = new TH1F("recoAziDiff", "recoAziDiff", 720, -360, 360); 
+   dAziDist = new TH1F("recoAziDiff", "recoAziDiff", 720, -360, 360);
    recoTrueZenDist = new TH2F("recoTrueZenDist", "recoTrueZenDist", 180, 0, 180, 180, 0, 180);
    recoTrueAziDist = new TH2F("recoTrueAziDist", "recoTrueAziDist", 360, 0, 360, 360, 0, 360);
 
@@ -9514,18 +9940,18 @@ int recordDiffGetFlag(int nSideExp, recoData *summary, char *rootFilename){
    dataTree->Branch("unmodSNR",    &dummyData->unmodSNR,       "unmodSNR/F");
 
    //cout<<"4765\n";
-   //dataTree->Branch("recoData","recoData",&dummyData,128000,0);  
-*/   
+   //dataTree->Branch("recoData","recoData",&dummyData,128000,0);
+*/
    /* onionTree only needs to be filled once, at creation */
 /*   onionTree->Fill();
 
    dZenDist->Write();
-   dAziDist->Write(); 
+   dAziDist->Write();
    recoTrueZenDist->Write();
    recoTrueAziDist->Write();
    onionTree->Write();
    dataTree->Write();
-   fp.Close();  
+   fp.Close();
    }
    //else{
    TFile fp_2(rootFilename, "UPDATE");
@@ -9567,18 +9993,18 @@ int recordDiffGetFlag(int nSideExp, recoData *summary, char *rootFilename){
    recoTrueZenDist->Fill(dummyData->trueZen, recZen);
    recoTrueAziDist->Fill(dummyData->trueAzi, recAzi);
    dataTree->Fill();
- 
+
    //TFile fp_3(rootFilename, "RECREATE");
    dZenDist->Write();
    dAziDist->Write();
    recoTrueZenDist->Write();
    recoTrueAziDist->Write();
    dataTree->Write();
-   fp_2.Close();  
+   fp_2.Close();
    //}//end of else
    //fp_3.Close();
    delete dummyData;
-*//* 
+*//*
  * Set flag condition HERE !!!!
  */
 
@@ -9596,14 +10022,14 @@ int record3DDiffGetFlag(recoSettings *settings, recoData *summary, TH1F *dZenDis
 
    int nSideExp = /*summary->onion*/settings->nSideExp;
    int nLayer   = /*summary->onion*/settings->nLayer;
-  
+
    //if(nSideExp < 0 || nSideExp > 7){ cerr<<"Invalid nSideExp\n"; return -1; }
    int nSide = pow(2, nSideExp);
    Healpix_Base hpBase = Healpix_Base(nSide, HEALPIX_ORDERING, SET_NSIDE);
    int nDir = hpBase.Npix();
    pointing pt;
 
-   Healpix_Onion onion(nSideExp, nLayer);
+   Healpix_Onion onion(nSideExp, nLayer, settings->layerFirstRadius, settings->layerLastRadius);
 
    cout<<"maxPixIdx: "<<summary->maxPixIdx<<" maxPixIdx on the skymap: "<<summary->maxPixIdx%nDir<<endl;
    pt = hpBase.pix2ang( summary->maxPixIdx % nDir );
@@ -9614,7 +10040,7 @@ int record3DDiffGetFlag(recoSettings *settings, recoData *summary, TH1F *dZenDis
    double recAzi = pt.phi   * 180.f / M_PI;
    float dZen = recZen - summary->trueZen;
    float dAzi = recAzi - summary->trueAzi;
-   
+
    //double w = weight;
    //double zen = zen_true * 180.f / M_PI;
    //double azi = azi_true * 180.f / M_PI;
@@ -9622,20 +10048,20 @@ int record3DDiffGetFlag(recoSettings *settings, recoData *summary, TH1F *dZenDis
    //double recAzi = pt.phi   * 180.f / M_PI;
    summary->setRecoDir(recZen, recAzi);
    summary->setRecoRadius( /*summary->onion->*/onion.getLayerRadius(summary->maxPixIdx) );
- 
+
    dZenDist->Fill(dZen);
    dAziDist->Fill(dAzi);
    //recoTrueZenDist->Fill(zen, recZen);
    //recioTrueAziDist->Fill(azi, recAzi);
    recoTrueZenDist->Fill(summary->trueZen, recZen);
    recoTrueAziDist->Fill(summary->trueAzi, recAzi);
- 
+
 /*
  * Set flag condition here!!!
  */
 
    if( fabs(dZen) > 15.f ) flag = 1;
-   
+
 return flag;
 }
 
@@ -9647,14 +10073,14 @@ int record3DZoomedDiffGetFlag(recoSettings *settings, recoData *summary, TH1F *d
 
    int nSideExp = /*summary->onion*/settings->/*nSideExpStart*/nSideExpEnd;
    int nLayer   = /*summary->onion*/settings->nLayer;
-  
+
    //if(nSideExp < 0 || nSideExp > 7){ cerr<<"Invalid nSideExp\n"; return -1; }
    int nSide = pow(2, nSideExp);
    Healpix_Base hpBase = Healpix_Base(nSide, HEALPIX_ORDERING, SET_NSIDE);
    int nDir = hpBase.Npix();
    pointing pt;
 
-   Healpix_Onion onion(nSideExp, nLayer);
+   Healpix_Onion onion(nSideExp, nLayer, settings->layerFirstRadius, settings->layerLastRadius);
 
    cout<<"maxPixIdx: "<<summary->maxPixIdx<<" maxPixIdx on the skymap: "<<summary->maxPixIdx%nDir<<endl;
    pt = hpBase.pix2ang( summary->maxPixIdx % nDir );
@@ -9665,7 +10091,7 @@ int record3DZoomedDiffGetFlag(recoSettings *settings, recoData *summary, TH1F *d
    double recAzi = pt.phi   * 180.f / M_PI;
    float dZen = recZen - summary->trueZen;
    float dAzi = recAzi - summary->trueAzi;
-   
+
    //double w = weight;
    //double zen = zen_true * 180.f / M_PI;
    //double azi = azi_true * 180.f / M_PI;
@@ -9673,20 +10099,20 @@ int record3DZoomedDiffGetFlag(recoSettings *settings, recoData *summary, TH1F *d
    //double recAzi = pt.phi   * 180.f / M_PI;
    summary->setRecoDir(recZen, recAzi);
    summary->setRecoRadius( /*summary->onion->*/onion.getLayerRadius(summary->maxPixIdx) );
- 
+
    dZenDist->Fill(dZen);
    dAziDist->Fill(dAzi);
    //recoTrueZenDist->Fill(zen, recZen);
    //recioTrueAziDist->Fill(azi, recAzi);
    recoTrueZenDist->Fill(summary->trueZen, recZen);
    recoTrueAziDist->Fill(summary->trueAzi, recAzi);
- 
+
 /*
  * Set flag condition here!!!
  */
 
    if( fabs(dZen) > 15.f ) flag = 1;
-   
+
 return flag;
 }
 
@@ -9704,8 +10130,8 @@ void stackXCorrAroundPeak(const TGraph *gr, TH1F *hist, float plusMinusTime){
    double max = -1e10;
    double maxTime;
    for(int s=0; s<gr->GetN(); s++){
-      
-      gr->GetPoint(s,t,v); 
+
+      gr->GetPoint(s,t,v);
       if( v > max ) { max = v; maxTime = t; }
    }
 
@@ -9727,7 +10153,7 @@ for(int step=0; step<nThresStep; step++){
    nchnl_threshold = minThres + (double)step * (maxThres - minThres) / (double)nThresStep ;
 
    getNchnlMask(cleanEvent, nchnl_threshold, nchnlArray, chanMask, goodChan);
-   
+
    for(int n=0; n<17; n++){
    if( nchnlArray[0] >= n ) mnMap->Fill(n, nchnl_threshold, eventWeight);
    }
@@ -9748,7 +10174,7 @@ for(int step=0; step<nThresStep; step++){
    nchnl_threshold = minThres + (double)step * (maxThres - minThres) / (double)nThresStep ;
 
    getNchnlMask(cleanEvent, nchnl_threshold, nchnlArray, chanMask, goodChan);
-   
+
    for(int n=0; n<17; n++){
    if( nchnlArray[0] >= n ) mnMap->Fill(n, nchnl_threshold, eventWeight);
    }
@@ -9770,7 +10196,7 @@ int computeMapLikelihoodAndPValue(const int nDir, const int nLayer, const char *
 
    //ifstream ifs(fitFuncFile);
    //if(!ifs) { cerr<<"No fitFuncFile!!\n"; return -1; }
-   TFile ref(fitFuncFile);   
+   TFile ref(fitFuncFile);
    TF1 /**expo,*/ *normexpo; //expo: fitted exponential fx. normexpo: normalized expo. A probability distribution
    TF1 *normgaus;
 
@@ -9779,17 +10205,17 @@ int computeMapLikelihoodAndPValue(const int nDir, const int nLayer, const char *
    int pixCnt = 0;
    double llh;
    double a; //e^(b+ax), ie. parameter no. 2
-   double mean, sigma; 
- 
+   double mean, sigma;
+
    //for(int pix=0; pix<nDir*nLayer; pix++){
-       
+
       //sprintf(pixname, "expo_pix_%d", pix);
       //if(ref.GetListOfKeys()->Contains(pixname)){
-      
-      //pixCnt++; 
+
+      //pixCnt++;
 
       //expo = (TF1*)ref.Get(pixname);
-   if( fitFunc == "expo" ){   
+   if( fitFunc == "expo" ){
 
       for(int pix=0; pix<nDir*nLayer; pix++){
       sprintf(pixname, "normexpo_pix_%d", pix);
@@ -9819,7 +10245,7 @@ int computeMapLikelihoodAndPValue(const int nDir, const int nLayer, const char *
       for(int pix=0; pix<nDir*nLayer; pix++){
       sprintf(pixname, "normgaus_pix_%d", pix);
       if(ref.GetListOfKeys()->Contains(pixname)){
-   
+
       pixCnt++;
       normgaus = (TF1*)ref.Get(pixname);
       mean  = normgaus->GetParameter(1);

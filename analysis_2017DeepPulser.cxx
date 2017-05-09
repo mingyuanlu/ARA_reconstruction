@@ -287,6 +287,17 @@ if(settings->dataType == 1){
    if( err<0 ){ cerr<<"Error loading AraSim geometry\n"; return -1; }
 
 }
+
+for(int ant=0; ant<antLocation.size(); ant++){
+
+  cout<<"ant: "<<ant<<endl;
+  for(int pos=0; pos<antLocation[ant].size(); pos++){
+
+    cout<<"pos: "<<pos<<" "<<antLocation[ant][pos]<<endl;
+
+  }
+}
+
 /*
  * Start computing reco delays using RadioSpline
  */
@@ -309,6 +320,8 @@ int topN = settings->topN;
 int nSideExp;
 int nLayer, nDir;
 float *recoDelays, *recoDelays_V, *recoDelays_H;
+float *postDelays_radioSpline, *postDelays_radioSpline_V, *postDelays_radioSpline_H,
+      *postDelays_constantN, *postDelays_constantN_V, *postDelays_constantN_H;
 Healpix_Onion *onion;
 
 if( settings->skymapSearchMode == 0){ //No zoom search
@@ -391,6 +404,10 @@ if(settings->dataType == 1){
       eventTree->GetEntry(ev);
       if(rawAtriEvPtr->unixTime < utime_runStart) utime_runStart=rawAtriEvPtr->unixTime;
       if(rawAtriEvPtr->unixTime > utime_runEnd  ) utime_runEnd  =rawAtriEvPtr->unixTime;
+
+      //printf("RF:%d\tCal:%d\tSoft:%d\n",rawAtriEvPtr->isRFTrigger(),rawAtriEvPtr->isCalpulserEvent(),rawAtriEvPtr->isSoftwareTrigger());
+      //printf("unixTime: %d\tunixTimeUs: %d\ttimeStamp: %d\teventId: %d\teventNumber: %d\tppsNumber: %d\n", rawAtriEvPtr->unixTime, rawAtriEvPtr->unixTimeUs, rawAtriEvPtr->timeStamp, rawAtriEvPtr->eventId, rawAtriEvPtr->eventNumber, rawAtriEvPtr->ppsNumber);
+
    }
    cout<<"utime_runStart: "<<utime_runStart<<" dropD4Time: "<<dropD4Time<<endl;
    cout<<"Run time span: "<<utime_runEnd-utime_runStart<<endl;
@@ -440,13 +457,17 @@ cout<<"runEventCount: "<<runEventCount<<endl;
 recoData *summary = new recoData();
 dataTree->Branch("summary", &summary);
 
+FILE *dtFile /*= fopen("dtFile.txt","a+")*/;
+FILE *dtFile_radioSpline = fopen("dtFile_radioSpline.txt","a+");
+FILE *dtFile_constantN = fopen("dtFile_constantN.txt","a+");
+
 if(settings->dataType == 1){
 
 trigEventCount = runEventCount;
 for (Long64_t ev=0; ev<runEventCount; ev++){
 
-   if(settings->maxNumberOfReco >= 0)
-      if(recoEventCount == settings->maxNumberOfReco) break;
+  if(settings->maxNumberOfReco >= 0)
+     if(recoEventCount == settings->maxNumberOfReco) break;
 
    summary->clear();
 
@@ -454,7 +475,30 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    eventTree->GetEntry(ev);
 
-   cout<<"Code loop ev: "<<ev<<" eventId: "<<rawAtriEvPtr->eventId<<" eventNumber: "<<rawAtriEvPtr->eventNumber<<endl;
+   //cout<<"Code loop ev: "<<ev<<" eventId: "<<rawAtriEvPtr->eventId<<" eventNumber: "<<rawAtriEvPtr->eventNumber<<endl;
+/*
+   if((rawAtriEvPtr->unixTime < deepPulserString1StartTime_2017)
+      ||
+      (rawAtriEvPtr->unixTime > deepPulserString1EndTime_2017 && rawAtriEvPtr->unixTime < deepPulserString22StartTime_2017)
+      ||
+      (rawAtriEvPtr->unixTime > deepPulserString22EndTime_2017)
+   ) {
+     cout<<"Skipping event not in deep pulser period....\n";
+     continue;
+   }
+*/
+   if((rawAtriEvPtr->timeStamp < deepPulserString1StartTimeStamp_2017)
+      ||
+      (rawAtriEvPtr->timeStamp > deepPulserString1EndTimeStamp_2017)
+      //(/*rawAtriEvPtr->timeStamp > deepPulserString1EndTimeStamp_2017 &&*/ rawAtriEvPtr->timeStamp < deepPulserString22StartTimeStamp_2017)
+      //||
+      //(rawAtriEvPtr->timeStamp > deepPulserString22EndTimeStamp_2017)
+   ) {
+     //cout<<"Skipping event not in deep pulser period....\n";
+     continue;
+   }
+   else cout<<"Reconstructing this event.......\n";
+
    summary->setEventId(rawAtriEvPtr->eventId);
    summary->setEventNumber(rawAtriEvPtr->eventNumber);
 
@@ -634,7 +678,12 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
     recoEventCount++;
 
+    dtFile = fopen("dtFile.txt","a+");
+    fprintf(dtFile, "%d,", ev);
+    fprintf(dtFile_radioSpline, "%d,", ev);
+    fprintf(dtFile_constantN, "%d,", ev);
 
+    fclose(dtFile);
 
    if(settings->beamformMethod == 1){
    if(settings->getSkymapMode == 0){
@@ -650,7 +699,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       stringstream ss;
       ss << ev;
       evStr = ss.str();
-      fitsFileStr = fitsFile_tmp + /*".ev" + evStr +*/ ".fits";
+      fitsFileStr = fitsFile_tmp + ".ev" + evStr + ".fits";
       sprintf(fitsFile, fitsFileStr.c_str());
 
       if(settings->skymapSearchMode == 0){ //no zoom mode
@@ -677,6 +726,39 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    if(summary->flag > 0) recoFlagCnt++;
    maxPix[maxPixIdx]++;
 
+   postDelays_radioSpline = (float*)malloc(sizeof(float)*nAnt);
+   postDelays_radioSpline_V = (float*)malloc(sizeof(float)*nAnt/2);
+   postDelays_radioSpline_H = (float*)malloc(sizeof(float)*nAnt/2);
+   postDelays_constantN = (float*)malloc(sizeof(float)*nAnt);
+   postDelays_constantN_V = (float*)malloc(sizeof(float)*nAnt/2);
+   postDelays_constantN_H = (float*)malloc(sizeof(float)*nAnt/2);
+
+   compute3DRecoDelaysWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation,
+                                        //radius, nSideExp,
+                                        onion, postDelays_radioSpline, postDelays_radioSpline_V, postDelays_radioSpline_H, maxPixIdx);
+
+   compute3DRecoDelaysWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation,
+                                         //radius, nSideExp,
+                                         onion, postDelays_constantN, postDelays_constantN_V, postDelays_constantN_H, maxPixIdx);
+
+   for(int k=0; k<nAnt; k++){
+
+     if(k!=nAnt-1){
+     fprintf(dtFile_radioSpline, "%d,%f,", k, postDelays_radioSpline[k]);
+     fprintf(dtFile_constantN, "%d,%f,", k, postDelays_constantN[k]);
+     } else {
+     fprintf(dtFile_radioSpline, "%d,%f\n", k, postDelays_radioSpline[k]);
+     fprintf(dtFile_constantN, "%d,%f\n", k, postDelays_constantN[k]);
+     }
+   }
+
+   free(postDelays_radioSpline);
+   free(postDelays_radioSpline_V);
+   free(postDelays_radioSpline_H);
+   free(postDelays_constantN);
+   free(postDelays_constantN_V);
+   free(postDelays_constantN_H);
+
    dataTree->Fill();
 
    unpaddedEvent.clear();
@@ -694,10 +776,6 @@ else {
 
 for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    //cout<<"Entering event loop\n";
-
-   if(settings->maxNumberOfReco >= 0)
-      if(recoEventCount == settings->maxNumberOfReco) break;
-
    summary->clear();
    //cout<<"Cleared previous summary\n";
    if(ev%1000 == 0) cout<<"*******************************Event got********************************: "<<ev<<endl;
@@ -831,7 +909,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       stringstream ss;
       ss << ev;
       evStr = ss.str();
-      fitsFileStr = fitsFile_tmp + /*".ev" + evStr +*/ ".fits";
+      fitsFileStr = fitsFile_tmp + ".ev" + evStr + ".fits";
       sprintf(fitsFile, fitsFileStr.c_str());
 
       if(settings->skymapSearchMode == 0){ //no zoom mode
@@ -886,6 +964,9 @@ free(recoDelays_H);
 delete settings;
 free(mapDataHist);
 free(mapData);
+
+fclose(dtFile_radioSpline);
+fclose(dtFile_constantN);
 
 cout<<"Successfully reached end of main()"<<endl;
 return 0;

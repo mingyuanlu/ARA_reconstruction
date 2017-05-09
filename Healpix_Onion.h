@@ -54,7 +54,7 @@
 #define speedOfLight 0.3 // m/ns
 #define nIce 1.76 // ~-180m
 */
-//#define REFERENCE_MAP_FIT_FILE "testFitFuntFile.root" 
+//#define REFERENCE_MAP_FIT_FILE "testFitFuntFile.root"
 //#define REFERENCE_MAP_FIT_FILE "testFitFuncFile_2013_A3_pulserSweep_run410-430.root"
 #define HEALPIX_ORDERING NEST //could be RING or NEST
 
@@ -80,7 +80,7 @@ protected:
 
 public:
 
-   
+
 
    int nSideExp;
    int nLayer;
@@ -103,7 +103,7 @@ public:
   */
    //~Healpix_Onion();
 
-   Healpix_Onion(int _nSideExp, int _nLayer);/*{
+   Healpix_Onion(int _nSideExp, int _nLayer, float _layerFirstRadius, float _layerLastRadius);/*{
 
    nSideExp = _nSideExp;
    nLayer   = _nLayer;
@@ -111,14 +111,14 @@ public:
    nDir = hpBase.Npix();
    layerRadii.clear();
    float r=0.f;
-   
+
    //while( r<= 5000.f ){
 
    //   r += 5000.f / (float)nLayer;
    //   layerRadii.push_back( r );
 
    //}
-   
+
 
    for(int i=1; i<=nLayer; i++){
 
@@ -126,7 +126,7 @@ public:
    layerRadii.push_back( (float)i * 3000.f / (float)nLayer); //for testing 3D calpulser reco
 
    }
-   
+
    if( (int)layerRadii.size() != nLayer ) cerr<<"Warning!! layerRadii.size(): "<<layerRadii.size()<<" nLayer: "<<nLayer<<endl;
 
    }
@@ -145,7 +145,7 @@ public:
 */
    float getLayerRadius(int pixNum);/*{
 
-   return layerRadii[ getLayerNumber(pixNum) ]; 
+   return layerRadii[ getLayerNumber(pixNum) ];
 
    }
 */

@@ -21,10 +21,10 @@ protected:
 public:
 
    double weight;
-   // Ideally in degrees 
+   // Ideally in degrees
    float trueZen, trueAzi, recoZen, recoAzi;
    float trueRadius, recoRadius;
-   int recoChan[16]; //channels actually used in the reco   
+   int recoChan[16]; //channels actually used in the reco
    int maxPixIdx;
    float maxPixCoherence; //max pix coherence value
    int topN;                               //size of topMaxPixIdx
@@ -38,14 +38,16 @@ public:
    float inWindowSNR;
    float unmodSNR;
 
+
    int flag; //whether this event is flagged or not, depending on the flagging condition specified in record3DDiffGetFlag()
 
    recoData();
    ~recoData();
- 
+
    void initialize();
    void setAllData(
-     double w
+     int _eventId, int _eventNumber
+   , double w
    , int _eventTrigType
    , float zen_true, float azi_true, float zen_reco, float azi_reco, float r_true, float r_reco
    , int *usedChan
@@ -81,7 +83,14 @@ public:
    int eventTrigType; //Only applicable for real data. 0: RF trigger (excluding calpulser trigger), 1: Calpulser trigger, 2: Software trigger
    void setEventTrigType(int _eventTrigType);
 
-   ClassDef(recoData, 2);
+//ClassDef 3
+
+   int eventId;      //Only applicable for real data. AraRoot eventId.
+   int eventNumber;  //Only applicable for real data. AraRoot eventNumber
+   void setEventId(int _eventId);
+   void setEventNumber(int _eventNumber);
+
+   ClassDef(recoData, 3);
 };
 
 
