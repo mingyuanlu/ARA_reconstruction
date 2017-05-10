@@ -6683,7 +6683,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    if(s!=nSamp-1)
    fprintf(xCorrGraphDataFile,"%f,%f,",dt[s],xCorrValue[s]);
    else
-   fprintf(xCorrGraphDataFile,"%f,%f",dt[s],xCorrValue[s]);
+   fprintf(xCorrGraphDataFile,"%f,%f\n",dt[s],xCorrValue[s]);
 
    }
 
@@ -6731,7 +6731,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    xCorrGraph->Draw("AL");
    envelope->SetLineColor(kRed);
    envelope->Draw("Lsame");
-   cvs.SaveAs(envelopename);
+   //cvs.SaveAs(envelopename);
 
 /*
    if( ant1 == 0 && ant2 == 3){
