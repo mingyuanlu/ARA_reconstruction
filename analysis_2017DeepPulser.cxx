@@ -725,7 +725,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
                     : record3DDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist) );
    if(summary->flag > 0) recoFlagCnt++;
    maxPix[maxPixIdx]++;
-
+/*
    postDelays_radioSpline = (float*)malloc(sizeof(float)*nAnt);
    postDelays_radioSpline_V = (float*)malloc(sizeof(float)*nAnt/2);
    postDelays_radioSpline_H = (float*)malloc(sizeof(float)*nAnt/2);
@@ -758,7 +758,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    free(postDelays_constantN);
    free(postDelays_constantN_V);
    free(postDelays_constantN_H);
-
+*/
    dataTree->Fill();
 
    unpaddedEvent.clear();
