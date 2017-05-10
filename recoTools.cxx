@@ -6711,6 +6711,13 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    //envelope->Draw("Lsame");
    //cvs.SaveAs(envelopename);
 
+   snprintf(envelopename,sizeof(char)*200,"xCorrEnvelope_chan%d_%d.C",ant1,ant2);
+   cvs.cd();
+   xCorrGraph->Draw("AL");
+   envelope->SetLineColor(kRed);
+   envelope->Draw("Lsame");
+   cvs.SaveAs(envelopename);
+
 /*
    if( ant1 == 0 && ant2 == 3){
    cvs.cd(1);

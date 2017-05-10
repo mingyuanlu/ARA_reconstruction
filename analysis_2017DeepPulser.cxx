@@ -457,9 +457,9 @@ cout<<"runEventCount: "<<runEventCount<<endl;
 recoData *summary = new recoData();
 dataTree->Branch("summary", &summary);
 
-FILE *dtFile /*= fopen("dtFile.txt","a+")*/;
-FILE *dtFile_radioSpline = fopen("dtFile_radioSpline.txt","a+");
-FILE *dtFile_constantN = fopen("dtFile_constantN.txt","a+");
+//FILE *dtFile /*= fopen("dtFile.txt","a+")*/;
+//FILE *dtFile_radioSpline = fopen("dtFile_radioSpline.txt","a+");
+//FILE *dtFile_constantN = fopen("dtFile_constantN.txt","a+");
 
 if(settings->dataType == 1){
 
@@ -497,7 +497,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
      //cout<<"Skipping event not in deep pulser period....\n";
      continue;
    }
-   else cout<<"Reconstructing this event.......\n";
+   else cout<<"Reconstructing this event: "<<ev<<endl;
 
    summary->setEventId(rawAtriEvPtr->eventId);
    summary->setEventNumber(rawAtriEvPtr->eventNumber);
@@ -677,14 +677,14 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
     summary->setUnmodSNR(unmodSNRArray[index[2]]);
 
     recoEventCount++;
-
+/*
     dtFile = fopen("dtFile.txt","a+");
     fprintf(dtFile, "%d,", ev);
     fprintf(dtFile_radioSpline, "%d,", ev);
     fprintf(dtFile_constantN, "%d,", ev);
 
     fclose(dtFile);
-
+*/
    if(settings->beamformMethod == 1){
    if(settings->getSkymapMode == 0){
        err = reconstructCSW(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, fitsFile/*argv[5]*/);
