@@ -6615,11 +6615,11 @@ char sillygrname[200];
 
 char histName[200];
 
-TH1F *xCorrPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
-TH1F *envPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
+//TH1F *xCorrPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
+//TH1F *envPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
 
-//TH1F *xCorrPeakHist[64];
-//TH1F *envPeakHist[64];
+TH1F *xCorrPeakHist[64];
+TH1F *envPeakHist[64];
 TFile *xCorrPeakFile;
 char xCorrEnvPeakFileName[200];
 snprintf(xCorrEnvPeakFileName,sizeof(char)*200,"xCorrEnvPeakFile_2017DeepPulser_IC1S_2ndPulse.root");
@@ -6815,7 +6815,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 }
 
 xCorrPeakFile->Close();
-free(xCorrPeakHist);
+//free(xCorrPeakHist);
 //free(envPeakHist);
 delete xCorrPeakFile;
 /*
