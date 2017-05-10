@@ -6689,7 +6689,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 
    TGraph *xCorrGraph = new TGraph(nSamp, dt, xCorrValue);
 
-   y = evProcessTools::getPeakSqValRange(xCorrGraph, &peakBin, firstBin, lastBin);
+   y = getPeakSqValRange(xCorrGraph, &peakBin, firstBin, lastBin);
    xCorrGraph->GetPoint(peakBin,x,y);
    xCorrPeakHist[baseline]->Fill(x);
    cout<<"xCorr Range Peak Bin: "<<peakBin<<" Peak Sq Value: "<<y<<endl;
@@ -10296,4 +10296,31 @@ int computeMapLikelihoodAndPValue(const int nDir, const int nLayer, const char *
    //delete normexpo;
 //
 return 0;
+}
+
+double getPeakSqValRange(TGraph *gr, int *index, int firstBin, int lastBin)
+{
+
+   if(firstBin < 0 || lastBin > gr->GetN()-1)
+   { cerr<<"firstBin || lastBin out of range\n"; return -1;}
+
+   if( lastBin < firstBin)
+   { cerr<<"firstBin > lastBin\n"; return -1;}
+
+   double x,y;
+   gr->GetPoint(firstBin,x,y);
+   double peakVal=y*y;
+   int peakBin=0;
+   int numPoints=gr->GetN();
+   for(int i=firstBin+1;i<=lastBin;i++) {
+      gr->GetPoint(i,x,y);
+      if(peakVal<y*y) {
+         peakVal=y*y;
+         peakBin=i;
+      }
+   }
+   if(index)
+      *index=peakBin;
+   return peakVal;
+
 }

@@ -1519,7 +1519,7 @@ double evProcessTools::modifiedHannWindow(int idx, int numSample, int modFrac){
    else                                            return 1.;
 
 }
-
+/*
 double evProcessTools::getPeakSqValRange(TGraph *gr, int *index, int firstBin, int lastBin)
 {
 
@@ -1546,3 +1546,4 @@ double evProcessTools::getPeakSqValRange(TGraph *gr, int *index, int firstBin, i
    return peakVal;
 
 }
+*/
