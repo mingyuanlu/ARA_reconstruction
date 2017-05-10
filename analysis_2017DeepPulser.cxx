@@ -965,8 +965,8 @@ delete settings;
 free(mapDataHist);
 free(mapData);
 
-fclose(dtFile_radioSpline);
-fclose(dtFile_constantN);
+//fclose(dtFile_radioSpline);
+//fclose(dtFile_constantN);
 
 cout<<"Successfully reached end of main()"<<endl;
 return 0;
