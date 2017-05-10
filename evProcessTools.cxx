@@ -1,10 +1,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-////  exampleLoop.cxx 
-////      Just a very simple example that loops over RawAraEvent objects 
+////  exampleLoop.cxx
+////      Just a very simple example that loops over RawAraEvent objects
 ////      calibrating them to make a UsefulAraEvent
 ////
-////    Feb 2011,  rjn@hep.ucl.ac.uk 
+////    Feb 2011,  rjn@hep.ucl.ac.uk
 ////////////////////////////////////////////////////////////////////////////////
 
 //Includes
@@ -66,7 +66,7 @@ using namespace std;
 
 Double_t evProcessTools::integratePower(TH1D* histo)
 {
-  
+
   Double_t integral=0;
   Double_t power;
   Int_t firstBin=1;
@@ -88,7 +88,7 @@ TGraph *evProcessTools::getfftfromgraph(TGraph *gr, Double_t intSample, const in
 
    //Added by Lu. This step is in getFFTForRFChan routine
    //TGraph *grInt = FFTtools::getInterpolatedGraph(gr, intSample);
-   //TGraph *grInt = (TGraph*)gr->Clone();   
+   //TGraph *grInt = (TGraph*)gr->Clone();
 
    //Note that if the graph is not interpolated in this routine, it should be interpolated _before_ being passed to this function
 
@@ -102,9 +102,9 @@ TGraph *evProcessTools::getfftfromgraph(TGraph *gr, Double_t intSample, const in
 	 newY[i]=yVals*FFTtools::bartlettWindow(i,numSamps);
       }
       else {
-	 newX[i]=newX[i-1]+intSample;  
+	 newX[i]=newX[i-1]+intSample;
 	 newY[i]=0;
-      }      
+      }
   }
    TGraph *grNew = new TGraph(maxSamps,newX,newY);
 //   TGraph *grFFT = FFTtools::makePowerSpectrumVoltsSecondsBartlett(grNew);
@@ -113,7 +113,7 @@ TGraph *evProcessTools::getfftfromgraph(TGraph *gr, Double_t intSample, const in
                                                                               //non-dB is used in Thomas' original code
 //   TGraph *grFFT = FFTtools::makePowerSpectrumVoltsSeconds(grNew);
    delete gr;
-   delete grNew; 
+   delete grNew;
   // delete xVals;
 //   delete yVals;
    return grFFT;
@@ -128,7 +128,7 @@ TGraph *evProcessTools::getfftdbfromgraph(TGraph *gr, Double_t intSample, const 
 
    //Added by Lu. This step is in getFFTForRFChan routine
    //TGraph *grInt = FFTtools::getInterpolatedGraph(gr, intSample);
-   //TGraph *grInt = (TGraph*)gr->Clone();   
+   //TGraph *grInt = (TGraph*)gr->Clone();
 
    //Note that if the graph is not interpolated in this routine, it should be interpolated _before_ being passed to this function
 
@@ -142,9 +142,9 @@ TGraph *evProcessTools::getfftdbfromgraph(TGraph *gr, Double_t intSample, const 
 	 newY[i]=yVals*FFTtools::bartlettWindow(i,numSamps);
       }
       else {
-	 newX[i]=newX[i-1]+intSample;  
+	 newX[i]=newX[i-1]+intSample;
 	 newY[i]=0;
-      }      
+      }
   }
    TGraph *grNew = new TGraph(maxSamps,newX,newY);
 //   TGraph *grFFT = FFTtools::makePowerSpectrumVoltsSecondsBartlett(grNew);
@@ -153,7 +153,7 @@ TGraph *evProcessTools::getfftdbfromgraph(TGraph *gr, Double_t intSample, const 
                                                                               //non-dB is used in Thomas' original code
 //   TGraph *grFFT = FFTtools::makePowerSpectrumVoltsSeconds(grNew);
    //delete gr;
-   delete grNew; 
+   delete grNew;
   // delete xVals;
 //   delete yVals;
    return grFFT;
@@ -186,9 +186,9 @@ TGraph *evProcessTools::getBartlettAndPaddedGraph(TGraph *gr, const int maxSampl
 	 newY[i]=yVals*FFTtools::bartlettWindow(i,numSamps);
       }
       else {
-	 newX[i]=newX[i-1]+intSample;  
+	 newX[i]=newX[i-1]+intSample;
 	 newY[i]=0;
-      }      
+      }
   }
    TGraph *grNew = new TGraph(maxSamps,newX,newY);
    return grNew;
@@ -203,7 +203,7 @@ TGraph *evProcessTools::getWindowedAndPaddedEqualBeginGraph(TGraph *gr, const in
    if(!gr) return NULL;
    Double_t newX[maxSample],newY[maxSample];
    Int_t maxSamps=maxSample;
-   
+
    Double_t time1=0;
    Double_t time2=0;
    Double_t xVals;
@@ -236,9 +236,9 @@ TGraph *evProcessTools::getWindowedAndPaddedEqualBeginGraph(TGraph *gr, const in
          newY[i]=yVals*evProcessTools::modifiedHannWindow(i-time1_bin, numSamps, modFrac);
       }
       else {
-	 newX[i]=newX[i-1]+intSample;  
+	 newX[i]=newX[i-1]+intSample;
 	 newY[i]=0;
-      }      
+      }
   }
    TGraph *grNew = new TGraph(maxSamps,newX,newY);
    return grNew;
@@ -258,28 +258,28 @@ TGraph *evProcessTools::getNormalizedGraph(TGraph *gr)
       pwr += (volts*volts);
       newX[i] = times;
       newY[i] = volts;
-  
-   }   
+
+   }
 
    pwr = sqrt(pwr);
 
    for(int i=0; i<nSamp; i++) newY[i] /= pwr;
 
    TGraph *grNew = new TGraph(nSamp, newX, newY);
-   return grNew;  
+   return grNew;
 
 }
 
 
 TH1D *evProcessTools::makeffthisto(TGraph *gr, char* name, Double_t intSample)
 {
-	
+
 	TGraph *gr_new = getfftfromgraph(gr, intSample, 2000);
 
 	int bin_number = gr_new->GetN();
 	double bin_min = 0;
 	double bin_max = 0;
-	double dummy_y = 0; 
+	double dummy_y = 0;
 	double temp_x;
 	double temp_y;
 
@@ -308,7 +308,7 @@ double evProcessTools::getTotalPower(std::vector<TGraph*> gr, std::vector<std::v
 	double TCNewEl = 0;
 //   	for(int a=0;a<16;a++)
 //   	{
-//		if(a<8){	
+//		if(a<8){
 //   		   gr.push_back( FFTtools::getInterpolatedGraph(gr_in[a],0.4));
 //		}
 //		else{
@@ -322,7 +322,7 @@ double evProcessTools::getTotalPower(std::vector<TGraph*> gr, std::vector<std::v
 	else histo[a] = makeffthisto(gr[a], histName, 0.625);
 	totalPower = totalPower*integratePower(histo[a]);
 	}
-	
+
 
 	for(int i=0;i<16;i++){
 		delete histo[i];
@@ -398,7 +398,7 @@ double evProcessTools::vecLength(std::vector< double > v1)
 std::vector< double > evProcessTools::getXYProjection(std::vector< double > v)
 {
   std::vector< double > projV;
-  return projV;    
+  return projV;
 }
 
 
@@ -416,8 +416,8 @@ std::vector<double> evProcessTools::getCrudeReconstruction(vector<vector< double
   for(int i=0;i<28;i++){
     if(TMath::Abs(delayMap[i][0] - delayMap[i][1])==4.0)
     {
-	distance = TMath::Sqrt( pow(ant_loc[(int)delayMap[i][0]][0] - ant_loc[(int)delayMap[i][1]][0], 2) 
-				+ pow(ant_loc[(int)delayMap[i][0]][1] - ant_loc[(int)delayMap[i][1]][1], 2) 
+	distance = TMath::Sqrt( pow(ant_loc[(int)delayMap[i][0]][0] - ant_loc[(int)delayMap[i][1]][0], 2)
+				+ pow(ant_loc[(int)delayMap[i][0]][1] - ant_loc[(int)delayMap[i][1]][1], 2)
 				+ pow(ant_loc[(int)delayMap[i][0]][2] - ant_loc[(int)delayMap[i][1]][2], 2)   );
 	if(TMath::Abs(delayMap[i][2])<distance/0.171){
 	  theta+=delayMap[i][3]*delayMap[i][3]*TMath::ACos( 0.171/distance*(-delayMap[i][2]) );
@@ -441,7 +441,7 @@ std::vector<double> evProcessTools::getCrudeReconstruction(vector<vector< double
     if(delayMap[i][0]<4*(level+1) && delayMap[i][1]<4*(level+1) && delayMap[i][0]>=4*(level) && delayMap[i][1]>=4*(level)  )
     {
 	std::vector<double> pair = evProcessTools::vecSum(ant_loc[(int)delayMap[i][0]], ant_loc[(int)delayMap[i][1]], -1.0);
-	distance = evProcessTools::vecLength( pair ); 
+	distance = evProcessTools::vecLength( pair );
 	if(TMath::Abs(delayMap[i][2])<distance/0.171){
 	  if(pair[1]>0) alpha = TMath::ACos( evProcessTools::vecScalarProduct(pair,xVec)/distance );
 	  else alpha = 2.0*TMath::Pi() - TMath::ACos( evProcessTools::vecScalarProduct(pair,xVec)/distance );
@@ -519,7 +519,7 @@ double evProcessTools::getCorehentlySummedWaveAmp(std::vector<TGraph *> gr, vect
     if((int)delayMap[i][0]==refChan){
 	for(int p=0;p<gr[(int)delayMap[i][1]]->GetN();p++){
 	  gr[(int)delayMap[i][1]]->GetPoint(p,times,volts);
-	  if(p==0)graphOffset = xSum[0] - times; 
+	  if(p==0)graphOffset = xSum[0] - times;
 	  gr[(int)delayMap[i][1]]->SetPoint(p,times+delayMap[i][2],volts);
 //	  if(p==0)gr[(int)delayMap[i][1]]->SetPoint(p,0.0 + delayMap[i][2],0.0);
 	}
@@ -530,7 +530,7 @@ double evProcessTools::getCorehentlySummedWaveAmp(std::vector<TGraph *> gr, vect
     else if((int)delayMap[i][1]==refChan){
 	for(int p=0;p<gr[(int)delayMap[i][0]]->GetN();p++){
 	  gr[(int)delayMap[i][0]]->GetPoint(p,times,volts);
-	  if(p==0)graphOffset = xSum[0] - times; 
+	  if(p==0)graphOffset = xSum[0] - times;
 	  gr[(int)delayMap[i][0]]->SetPoint(p,times - delayMap[i][2],volts);
 //	  if(p==0)gr[int(delayMap[i][0])]->SetPoint(p,0.0 - delayMap[i][2],0.0);
 	}
@@ -543,10 +543,10 @@ double evProcessTools::getCorehentlySummedWaveAmp(std::vector<TGraph *> gr, vect
     for(int g = 0;g<grSum->GetN();g++){
 	  if(g<gr1->GetN()-binOffset && g+binOffset>=0){
 	    gr1->GetPoint(g+binOffset, times, volts);
-	    ySum[g]+=volts; 
+	    ySum[g]+=volts;
 //	    if(g%200==0)cout << "Compare: " << xSum[g] << " and " << times << endl;
 	}
-	if(ySum[g]>waveMax)waveMax=ySum[g];	    
+	if(ySum[g]>waveMax)waveMax=ySum[g];
 	if(i==28){vecVolts.push_back(ySum[g]);vecTimes.push_back(xSum[g]);}
     }
     delete gr1;
@@ -595,7 +595,7 @@ std::vector<double> evProcessTools::getMaximumCorrelationSum(
 	double graphIntegral2 = 0;
 	double finalDelay=0;
 //	std::vector<TGraph *> gr;
-	double tempA; 
+	double tempA;
 	TGraph *grCorr = 0;
 	TGraph *grEnv = 0;
 	TGraph *grEnv2 = 0;
@@ -656,10 +656,10 @@ std::vector<double> evProcessTools::getMaximumCorrelationSum(
 		gr[ch2]->GetPoint(gr[ch2]->GetN()-1, tg2, vg2);
 		grCorr->GetPoint(grCorr->GetN()/2,t1,v1);
 		center = t1;
-		length1 = tg1; 
-		length2 = tg2; 
-		end1 = tg1; 
-		end2 = tg2; 
+		length1 = tg1;
+		length2 = tg2;
+		end1 = tg1;
+		end2 = tg2;
 		gr[ch1]->GetPoint(0,t1,v1);
 		gr[ch2]->GetPoint(0,t2,v2);
 //		cerr << "Offset, gr1: " << t1 << " gr2: " << t2 << " center: " << center << endl;
@@ -688,23 +688,23 @@ std::vector<double> evProcessTools::getMaximumCorrelationSum(
 			if(g<gr[ch1]->GetN()){
 			   gr[ch1]->GetPoint(g, tg1, vg1);
 			   graphIntegral1+=vg1*vg1;
-			   if(g>envLength-1){ gr[ch1]->GetPoint(g-envLength,tg1a,vg1a);  holdEnv1 = holdEnv1 - vg1a*vg1a + vg1*vg1;}			 
+			   if(g>envLength-1){ gr[ch1]->GetPoint(g-envLength,tg1a,vg1a);  holdEnv1 = holdEnv1 - vg1a*vg1a + vg1*vg1;}
 		//	   grEnv->SetPoint(g,tg1,TMath::Sqrt(holdEnv1));  //This replaces a hilbert envelope, which takes a lot of time to calculate!
 			}
 			if(g<gr[ch2]->GetN()){
 			   gr[ch2]->GetPoint(g, tg2, vg2);
 			   graphIntegral2+=vg2*vg2;
-			   if(g>envLength-1){ gr[ch2]->GetPoint(g-envLength,tg2a,vg2a);  holdEnv2 = holdEnv2 - vg2a*vg2a + vg2*vg2;}			 
+			   if(g>envLength-1){ gr[ch2]->GetPoint(g-envLength,tg2a,vg2a);  holdEnv2 = holdEnv2 - vg2a*vg2a + vg2*vg2;}
 		//	   grEnv2->SetPoint(g,tg2,TMath::Sqrt(holdEnv2));  //This replaces a hilbert envelope, which takes a lot of time to calculate!
 			}
 			if(g==0){
 				start1 = tg1;
-				start2 = tg2; 
+				start2 = tg2;
 				length1 = length1 - start1;
 				length2 = length2 - start2;
 			}
 			grCorr->GetPoint(g,t1,v1);
-			if(ovCount1<2*gr[ch1]->GetN() && ovCount2<2*gr[ch2]->GetN() ){ 
+			if(ovCount1<2*gr[ch1]->GetN() && ovCount2<2*gr[ch2]->GetN() ){
 				if( (t1 - center)<=0.0 && (length1 + (t1 - center) )>intSamp1*ovCount1){gr[ch1]->GetPoint(ovCount1,tg1,vg1);ovH1+=vg1*vg1;ovCount1++;}
 				if( (t1 - center)<=0.0 && (length2 + (t1 - center) )>intSamp2*ovCount2){gr[ch2]->GetPoint(gr[ch2]->GetN()-1-ovCount2,tg2,vg2);ovH2+=vg2*vg2;ovCount2++;}
 				if( (t1 - center)>0.0 && (length1 + (t1 - center) )>intSamp1*ovCount1){gr[ch1]->GetPoint(ovCount1 - gr[ch1]->GetN(),tg1,vg1);ovH1-=vg1*vg1;ovCount1++;}
@@ -723,7 +723,7 @@ std::vector<double> evProcessTools::getMaximumCorrelationSum(
 		}
 //		cerr << "The first final delay: " << finalDelay << "   For ch: " << ch1 << "  " << ch2 << endl;
 /*
-		if(1){	
+		if(1){
 //		cerr << "The single delay is: " << finalDelay << endl;
 //		grCorr->GetPoint(grCorr->GetN()/2 -1000,t1,v1);
 //		cerr << "Corr: " << t1 << " " << length1 << "  " << length2 << " start1: " << start1 << " start2: " << start2 << " overlap: " << abs(t1 - center) << endl;
@@ -766,7 +766,7 @@ std::vector<double> evProcessTools::getMaximumCorrelationSum(
 		//Ex.: If the reference ch1 has one signal-peak: earlier hits on ch2 will give positive correlation delays.
 		//We want the first hit, because the second one is the reflection.
 		double tempWPos1, tempWPos2;
-		if(wPeakCount==2 || wPeakCount2==2){		
+		if(wPeakCount==2 || wPeakCount2==2){
 		  if(wPeakCount==1 && wPeakCount2==2){
 //			cerr << "Double peak2: " << wavePeakPos2[0] << "  " << wavePeakPos2[1] << endl;
 			tempWPos1 = wavePeakPos[0];
@@ -797,7 +797,7 @@ std::vector<double> evProcessTools::getMaximumCorrelationSum(
 		  {
 			grCorrEnv->GetPoint(g,t1,v1);
 			if((v1)>tempA){finalDelay = t1;tempA=TMath::Abs(v1);}
-		  }   
+		  }
 		}
 
 		}
@@ -807,7 +807,7 @@ std::vector<double> evProcessTools::getMaximumCorrelationSum(
 		  TGraph *grShift = new TGraph();
 		  for(int ff=0;ff<gr[ch1]->GetN();ff++){
 			grEnv->GetPoint(ff,t1,v1);
-			grShift->SetPoint(ff, t1 - finalDelay, v1);		
+			grShift->SetPoint(ff, t1 - finalDelay, v1);
 		  }
 		  char title[40];
 		  sprintf(title, "Correlation: Ch%d, Ch%d", ch1, ch2);
@@ -842,7 +842,7 @@ std::vector<double> evProcessTools::getMaximumCorrelationSum(
 		  delete c2;
 		}
 //		cerr << "Final delay after new voodoo algorithm: "<< wPeakCount << " and " << wPeakCount2 << " delay: " << finalDelay << endl;
-		delete grCorr;	
+		delete grCorr;
 		delete grEnv;
 		delete grCorrEnv;
 		delete grEnv2;
@@ -851,7 +851,7 @@ std::vector<double> evProcessTools::getMaximumCorrelationSum(
 		if(ch1<8 && ch2<8) sampFactor = 0.4/0.625;
 		else if(ch1<8 || ch2<8) sampFactor = TMath::Sqrt(0.4/0.625);
 		else sampFactor = 1.0;
-		if( ((stationId==2) && (ch1==15 || ch2==15 ))||(ch2==ch1+8) ){//Excluding bad channels from ARA02 and Hpol-Vpol pairs right next to each other	
+		if( ((stationId==2) && (ch1==15 || ch2==15 ))||(ch2==ch1+8) ){//Excluding bad channels from ARA02 and Hpol-Vpol pairs right next to each other
 		delays.push_back(ch1);
 		delays.push_back(ch2);
 		delays.push_back(0.0);
@@ -918,7 +918,7 @@ std::vector< vector< double> > evProcessTools::getFFT(std::vector<TGraph*> gr, s
 //	std::vector<TGraph *> gr;
 //   	for(int a=0;a<16;a++)
 //   	{
-//		if(a<8){	
+//		if(a<8){
 //   		   gr.push_back( FFTtools::getInterpolatedGraph(gr_in[a],0.4));// actually 0.4
 //		}
 //		else{
@@ -951,7 +951,7 @@ std::vector< vector< double> > evProcessTools::getFFT(std::vector<TGraph*> gr, s
 	  fftP=0;
 	  subBins=0;
 //	if(gr[a]->GetN()<550){
-//	  cerr << "Run FFT on ch" << a << endl;	
+//	  cerr << "Run FFT on ch" << a << endl;
 	  if(a<8)wInt=0.4;
 	  else wInt=0.625;
 	  gr_new = getfftfromgraph(gr[a], wInt, 2000);
@@ -1022,7 +1022,7 @@ std::vector< vector< double> > evProcessTools::getFFT(std::vector<TGraph*> gr, s
 	}
 //	cerr << "CW-Max found!" << endl;
 	double cwMax = 0;
-	for(int i=0;i<200;i++){	
+	for(int i=0;i<200;i++){
 	  cwValueV[i]=cwMultV[i];
 	  cwValueH[i]=cwMultH[i];
 	  if(i*5.0>100.0 && i*5.0<850.0)
@@ -1051,7 +1051,7 @@ TGraph *evProcessTools::cwCleaner(TGraph *grWaveIn, Double_t minFreq, Double_t m
     int numPoints = grWaveIn->GetN();
 //    TGraph *grWave = evProcessTools::getBartlettAndPaddedGraph(grWaveIn, 2000);
 //    cerr << "Number of dataPoints: " << grWave->GetN() << endl;
-//    TGraph *grWave = 
+//    TGraph *grWave =
     double *oldY = grWave->GetY();
     double *oldX = grWave->GetX();
     double deltaT=oldX[1]-oldX[0];
@@ -1072,12 +1072,12 @@ TGraph *evProcessTools::cwCleaner(TGraph *grWaveIn, Double_t minFreq, Double_t m
 //cerr << "Produced the FFT!" << endl;
     for(int i=0;i<newLength;i++) {
       //      std::cout << tempF << "\t" << theFFT[i].re << "\t" << theFFT[i].im << "\n";
-            
+
       if(tempF>minFreq && tempF<maxFreq) {
 	sum+= theFFT[i].re*theFFT[i].re + theFFT[i].im*theFFT[i].im;
 	count++;
 //            std::cout << tempF << "\t" << theFFT[i].re << "\t" << theFFT[i].im << "\n";
-      }      
+      }
       tempF+=deltaF;
     }
     sum = sum/count;
@@ -1086,14 +1086,14 @@ TGraph *evProcessTools::cwCleaner(TGraph *grWaveIn, Double_t minFreq, Double_t m
     count=0;
     for(int i=0;i<newLength;i++) {
       //      std::cout << tempF << "\t" << theFFT[i].re << "\t" << theFFT[i].im << "\n";
-            
+
       if(tempF>minFreq && tempF<maxFreq) {
 	ratio[count] = (theFFT[i].re*theFFT[i].re + theFFT[i].im*theFFT[i].im)/sum;
 	theFFT[i].re=1.0/TMath::Sqrt(ratio[count]*reduction)*theFFT[i].re;
 	theFFT[i].im=1.0/TMath::Sqrt(ratio[count]*reduction)*theFFT[i].im;
 //	std::cout << "The ratio: " << ratio[count] << endl;
 	count++;
-      }      
+      }
       //      std::cout << tempF << "\t" << theFFT[i].re << "\t" << theFFT[i].im << "\n";
       tempF+=deltaF;
     }
@@ -1146,7 +1146,7 @@ TGraph *evProcessTools::universalCleaner(TGraph *grWaveIn, std::vector< double> 
 
 //    TGraph *grWave = evProcessTools::getBartlettAndPaddedGraph(grWaveIn, 2000);
 //    cerr << "Number of dataPoints: " << grWave->GetN() << endl;
-//    TGraph *grWave = 
+//    TGraph *grWave =
     double *oldY = grWave->GetY();
     double *oldX = grWave->GetX();
     double deltaT=oldX[1]-oldX[0];
@@ -1173,12 +1173,12 @@ for(int dd=0;dd<200;dd++){
 //cerr << "Produced the FFT!" << endl;
     for(int i=0;i<newLength;i++) {
       //      std::cout << tempF << "\t" << theFFT[i].re << "\t" << theFFT[i].im << "\n";
-            
+
       if(tempF>minFreq && tempF<maxFreq) {
 	sum+= theFFT[i].re*theFFT[i].re + theFFT[i].im*theFFT[i].im;
 	count++;
 //            std::cout << tempF << "\t" << theFFT[i].re << "\t" << theFFT[i].im << "\n";
-      }      
+      }
       tempF+=deltaF;
     }
     sum = sum/count;
@@ -1187,14 +1187,14 @@ for(int dd=0;dd<200;dd++){
     count=0;
     for(int i=0;i<newLength;i++) {
       //      std::cout << tempF << "\t" << theFFT[i].re << "\t" << theFFT[i].im << "\n";
-            
+
       if(tempF>minFreq && tempF<maxFreq) {
 	ratio[count] = (theFFT[i].re*theFFT[i].re + theFFT[i].im*theFFT[i].im)/sum;
 	theFFT[i].re=1.0/TMath::Sqrt(ratio[count]*reduction)*theFFT[i].re;
 	theFFT[i].im=1.0/TMath::Sqrt(ratio[count]*reduction)*theFFT[i].im;
 //	std::cout << "The ratio: " << ratio[count] << endl;
 	count++;
-      }      
+      }
       //      std::cout << tempF << "\t" << theFFT[i].re << "\t" << theFFT[i].im << "\n";
       tempF+=deltaF;
     }
@@ -1205,7 +1205,7 @@ for(int dd=0;dd<200;dd++){
       if(tempF<150.0 && tempF>850.0) {
 	theFFT[i].re=0.0;
 	theFFT[i].im=0.0;
-      }      
+      }
       tempF+=deltaF;
     }
     double *filteredVals = FFTtools::doInvFFT(length,theFFT);
@@ -1253,7 +1253,7 @@ double evProcessTools::getSimpleFFT(std::vector<TGraph*> gr, vector<vector< doub
 //	std::vector<TGraph *> gr;
 //   	for(int a=0;a<16;a++)
 //  	{
-//		if(a<8){	
+//		if(a<8){
 //   		   gr.push_back( FFTtools::getInterpolatedGraph(gr_in[a],0.4));// actually 0.4
 //		}
 //		else{
@@ -1344,12 +1344,12 @@ double evProcessTools::getMeanBaseLine(TGraph *gr)
 			}
 		}
 	}
-//	cerr << temp1 << "  " << temp2 << endl; 
+//	cerr << temp1 << "  " << temp2 << endl;
 	return (mean[0]+mean[1]+mean[2]+mean[3])/4.0*5.0;
 }
 
 //This peakfinder can be used for envelope functions, which are constructed with the Hilbert transform.
-//gr = Envelope graph. Generated through hilbert transform. 
+//gr = Envelope graph. Generated through hilbert transform.
 //numberOfpeaks = number of peaks we want starting from the strongest.
 //range = specified range in which we search for one maximum. The full waveform is scanned in steps of half the range.
 //peakPos = an array-address to store the peak positions
@@ -1439,7 +1439,7 @@ int evProcessTools::peakFinder(TGraph *gr, int numberOfPeaks, int range, double 
 			tempMax2 = 0;
 			hit2=0;
 		}
-		
+
 	}
 	int finalCount = 0;
 	if(allPeaks.size()==0){
@@ -1507,7 +1507,7 @@ int evProcessTools::spikingString(std::vector<TGraph*> gr, int stationId)
 	return stringSpike;
 }
 
-/* 
+/*
  * Windowing function. Increases to 1.0 after numSample/modFrac
  * Standard Hann: modFrac = 2; LOPES: modFrac = 4
  */
@@ -1520,3 +1520,29 @@ double evProcessTools::modifiedHannWindow(int idx, int numSample, int modFrac){
 
 }
 
+double evProcessTools::getPeakSqValRange(TGraph *gr, int *index, int firstBin, int lastBin)
+{
+
+   if(firstBin < 0 || lastBin > gr->GetN()-1)
+   { cerr<<"firstBin || lastBin out of range\n"; return -1;}
+
+   if( lastBin < firstBin)
+   { cerr<<"firstBin > lastBin\n"; return -1;}
+
+   double x,y;
+   gr->GetPoint(firstBin,x,y);
+   double peakVal=y*y;
+   int peakBin=0;
+   int numPoints=gr->GetN();
+   for(int i=firstBin+1;i<=lastBin;i++) {
+      gr->GetPoint(i,x,y);
+      if(peakVal<y*y) {
+         peakVal=y*y;
+         peakBin=i;
+      }
+   }
+   if(index)
+      *index=peakBin;
+   return peakVal;
+
+}

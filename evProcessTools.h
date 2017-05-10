@@ -51,12 +51,12 @@ class evProcessTools{
 public:
 
 static std::vector<double> getMaximumCorrelationSum(
-	std::vector<TGraph*> gr, 
-	std::vector<std::vector<double> > ant_loc, 
-	Double_t *corrSum, 
-	std::vector<std::vector<double> > *delayMaps, 
-	std::vector<std::vector< double > > *cohSumWave/*, TGraph * corrExample*/, 
-	int stationId, 
+	std::vector<TGraph*> gr,
+	std::vector<std::vector<double> > ant_loc,
+	Double_t *corrSum,
+	std::vector<std::vector<double> > *delayMaps,
+	std::vector<std::vector< double > > *cohSumWave/*, TGraph * corrExample*/,
+	int stationId,
 	int plot
 	);
 static Double_t integratePower(TH1D* histo);
@@ -82,5 +82,7 @@ static int peakFinder(TGraph *gr, int numberOfPeaks, int range, double *peakPos,
 static double getMeanBaseLine(TGraph *gr);
 static int spikingString(std::vector<TGraph*> gr, int stationId);
 static double modifiedHannWindow(int idx, int numSample, int modFrac);
+static double getPeakSqValRange(TGraph *gr, int *index, int firstBin, int lastBin);
+
 };
 #endif

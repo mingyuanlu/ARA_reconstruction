@@ -6615,14 +6615,14 @@ char sillygrname[200];
 
 char histName[200];
 
-//TH1F *xCorrPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
-//TH1F *envPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
-/*
-TH1F *xCorrPeakHist[64];
-TH1F *envPeakHist[64];
+TH1F *xCorrPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
+TH1F *envPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
+
+//TH1F *xCorrPeakHist[64];
+//TH1F *envPeakHist[64];
 TFile *xCorrPeakFile;
 char xCorrEnvPeakFileName[200];
-snprintf(xCorrEnvPeakFileName,sizeof(char)*200,"xCorrEnvPeakFile_2015DeepPulser_IC22S.root");
+snprintf(xCorrEnvPeakFileName,sizeof(char)*200,"xCorrEnvPeakFile_2017DeepPulser_IC1S_2ndPulse.root");
 
 xCorrPeakFile = new TFile(xCorrEnvPeakFileName); //if file exists, it will stay unopened
 
@@ -6637,9 +6637,9 @@ if( xCorrPeakFile->IsZombie() ){
     snprintf(histName,sizeof(char)*200,"xCorrPeakHist_chan%d_%d",i/nAnt,i%nAnt);
     xCorrPeakHist[i] = new TH1F(histName,histName,2500,0,1000);
     xCorrPeakHist[i]->Write();
-    snprintf(histName,sizeof(char)*200,"envPeakHist_chan%d_%d",i/nAnt,i%nAnt);
-    envPeakHist[i] = new TH1F(histName,histName,2500,0,1000);
-    envPeakHist[i]->Write();
+    //snprintf(histName,sizeof(char)*200,"envPeakHist_chan%d_%d",i/nAnt,i%nAnt);
+    //envPeakHist[i] = new TH1F(histName,histName,2500,0,1000);
+    //envPeakHist[i]->Write();
 
   }
 } else {
@@ -6653,16 +6653,21 @@ if( xCorrPeakFile->IsZombie() ){
 
     snprintf(histName,sizeof(char)*200,"xCorrPeakHist_chan%d_%d",i/nAnt,i%nAnt);
     xCorrPeakHist[i] = (TH1F*)xCorrPeakFile->Get(histName);
-    snprintf(histName,sizeof(char)*200,"envPeakHist_chan%d_%d",i/nAnt,i%nAnt);
-    envPeakHist[i] = (TH1F*)xCorrPeakFile->Get(histName);
+    //snprintf(histName,sizeof(char)*200,"envPeakHist_chan%d_%d",i/nAnt,i%nAnt);
+    //envPeakHist[i] = (TH1F*)xCorrPeakFile->Get(histName);
 
   }
 }
-*/
+
 int peakBin;
 double x, y;
+int firstBin = 150 / wInt;
+int lastBin  = nSamp / 2;
+cout<<"firstBin: "<<firstBin<<" lastBin: "<<lastBin<<" time range: ("<<wInt*firstBin<<", "<<wInt*lastBin<<")"<<endl;
 //TFile *dtFile = new TFile("dtFile.txt","UPDATE");
 //FILE *dtFile = fopen("dtFile.txt","a+");
+
+FILE *xCorrGraphDataFile = fopen("xCorrGraphDataFile_A2_run8573_ev403.csv","a+");
 
 for(int baseline=0; baseline<nBaseline; baseline++){
 
@@ -6675,9 +6680,19 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    dt[s] = wInt*s;
    xCorrValue[s] = xCorrTime[nSamp*baseline + s];
 
+   if(s!=nSamp-1)
+   fprintf(xCorrGraphDataFile,"%f,%f,",dt[s],xCorrValue[s]);
+   else
+   fprintf(xCorrGraphDataFile,"%f,%f",dt[s],xCorrValue[s]);
+
    }
 
    TGraph *xCorrGraph = new TGraph(nSamp, dt, xCorrValue);
+
+   y = evProcessTools::getPeakSqValRange(xCorrGraph, &peakBin, firstBin, lastBin);
+   xCorrGraph->GetPoint(peakBin,x,y);
+   xCorrPeakHist[baseline]->Fill(x);
+   cout<<"xCorr Range Peak Bin: "<<peakBin<<" Peak Sq Value: "<<y<<endl;
 /*
    y = FFTtools::getPeakSqVal(xCorrGraph, &peakBin);
    xCorrGraph->GetPoint(peakBin,x,y);
@@ -6790,23 +6805,25 @@ for(int baseline=0; baseline<nBaseline; baseline++){
   sillygr[baseline]->Draw("AL");
   cvs.SaveAs(sillygrname);
 */
-/*
+
   xCorrPeakHist[baseline]->Write();
-  envPeakHist[baseline]->Write();
-*/
+//  envPeakHist[baseline]->Write();
+
   delete xCorrGraph;
   delete envelope;
 
 }
-/*
+
 xCorrPeakFile->Close();
-//free(xCorrPeakHist);
+free(xCorrPeakHist);
 //free(envPeakHist);
 delete xCorrPeakFile;
-
+/*
 //dtFile->Close();
 fclose(dtFile);
 */
+fclose(xCorrGraphDataFile);
+
 cl_mem xCorrEnvBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
                                        sizeof(float)*nBaseline*nSamp,
                                        xCorrTime, &err);
