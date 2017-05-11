@@ -6622,7 +6622,7 @@ TH1F *xCorrPeakHist[64];
 TH1F *envPeakHist[64];
 TFile *xCorrPeakFile;
 char xCorrEnvPeakFileName[200];
-snprintf(xCorrEnvPeakFileName,sizeof(char)*200,"xCorrEnvPeakFile_2017DeepPulser_IC22S_2ndPulse.root");
+snprintf(xCorrEnvPeakFileName,sizeof(char)*200,"xCorrEnvPeakFile_2017DeepPulser_IC1S_2ndPulse.root");
 
 xCorrPeakFile = new TFile(xCorrEnvPeakFileName); //if file exists, it will stay unopened
 
@@ -6667,7 +6667,7 @@ cout<<"firstBin: "<<firstBin<<" lastBin: "<<lastBin<<" time range: ("<<wInt*firs
 //TFile *dtFile = new TFile("dtFile.txt","UPDATE");
 //FILE *dtFile = fopen("dtFile.txt","a+");
 
-FILE *xCorrGraphDataFile = fopen("xCorrGraphDataFile_A2_run8573_IC22S_10Events.csv","a+");
+FILE *xCorrGraphDataFile = fopen("xCorrGraphDataFile_A2_run8573_IC1S_10Events.csv","a+");
 
 for(int baseline=0; baseline<nBaseline; baseline++){
 
