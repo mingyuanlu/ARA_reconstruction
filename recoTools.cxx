@@ -6622,7 +6622,7 @@ TH1F *xCorrPeakHist[64];
 TH1F *envPeakHist[64];
 TFile *xCorrPeakFile;
 char xCorrEnvPeakFileName[200];
-snprintf(xCorrEnvPeakFileName,sizeof(char)*200,"xCorrEnvPeakFile_2015DeepPulser_IC22S_2ndPulse.root");
+snprintf(xCorrEnvPeakFileName,sizeof(char)*200,"xCorrEnvPeakFile_2017DeepPulser_IC1S_2ndPulse.root");
 
 xCorrPeakFile = new TFile(xCorrEnvPeakFileName); //if file exists, it will stay unopened
 
@@ -6663,11 +6663,11 @@ int peakBin;
 double x, y;
 int firstBin = 150 / wInt;
 int lastBin  = nSamp / 2;
-cout<<"firstBin: "<<firstBin<<" lastBin: "<<lastBin<<" time range: ("<<wInt*firstBin<<", "<<wInt*lastBin<<")"<<endl;
+//cout<<"firstBin: "<<firstBin<<" lastBin: "<<lastBin<<" time range: ("<<wInt*firstBin<<", "<<wInt*lastBin<<")"<<endl;
 //TFile *dtFile = new TFile("dtFile.txt","UPDATE");
 //FILE *dtFile = fopen("dtFile.txt","a+");
 
-FILE *xCorrGraphDataFile = fopen("xCorrGraphDataFile_A3_run3811_IC22S_10Events.csv","a+");
+//FILE *xCorrGraphDataFile = fopen("xCorrGraphDataFile_A3_run3811_IC22S_10Events.csv","a+");
 
 for(int baseline=0; baseline<nBaseline; baseline++){
 
@@ -6679,12 +6679,12 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 
    dt[s] = wInt*s;
    xCorrValue[s] = xCorrTime[nSamp*baseline + s];
-
+/*
    if(s!=nSamp-1)
    fprintf(xCorrGraphDataFile,"%f,%f,",dt[s],xCorrValue[s]);
    else
    fprintf(xCorrGraphDataFile,"%f,%f\n",dt[s],xCorrValue[s]);
-
+*/
    }
 
    TGraph *xCorrGraph = new TGraph(nSamp, dt, xCorrValue);
@@ -6692,7 +6692,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    y = getPeakSqValRange(xCorrGraph, &peakBin, firstBin, lastBin);
    xCorrGraph->GetPoint(peakBin,x,y);
    xCorrPeakHist[baseline]->Fill(x);
-   cout<<"xCorr Range Peak Bin: "<<peakBin<<" Peak Sq Value: "<<y<<endl;
+   //cout<<"xCorr Range Peak Bin: "<<peakBin<<" Peak Sq Value: "<<y<<endl;
 /*
    y = FFTtools::getPeakSqVal(xCorrGraph, &peakBin);
    xCorrGraph->GetPoint(peakBin,x,y);
@@ -6725,14 +6725,14 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    //xCorrGraph->Draw("AL");
    //envelope->Draw("Lsame");
    //cvs.SaveAs(envelopename);
-
+/*
    snprintf(envelopename,sizeof(char)*200,"xCorrEnvelope_chan%d_%d.C",ant1,ant2);
    cvs.cd();
    xCorrGraph->Draw("AL");
    envelope->SetLineColor(kRed);
    envelope->Draw("Lsame");
-   //cvs.SaveAs(envelopename);
-
+   cvs.SaveAs(envelopename);
+*/
 /*
    if( ant1 == 0 && ant2 == 3){
    cvs.cd(1);
@@ -6822,7 +6822,7 @@ delete xCorrPeakFile;
 //dtFile->Close();
 fclose(dtFile);
 */
-fclose(xCorrGraphDataFile);
+//fclose(xCorrGraphDataFile);
 
 cl_mem xCorrEnvBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
                                        sizeof(float)*nBaseline*nSamp,
