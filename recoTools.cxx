@@ -6661,7 +6661,7 @@ if( xCorrPeakFile->IsZombie() ){
 
 int peakBin;
 double x, y;
-int firstBin = 150 / wInt;
+int firstBin = 100 / wInt;
 int lastBin  = nSamp / 2;
 //cout<<"firstBin: "<<firstBin<<" lastBin: "<<lastBin<<" time range: ("<<wInt*firstBin<<", "<<wInt*lastBin<<")"<<endl;
 //TFile *dtFile = new TFile("dtFile.txt","UPDATE");
