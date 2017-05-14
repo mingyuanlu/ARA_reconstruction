@@ -487,12 +487,12 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
      continue;
    }
 */
-   if((rawAtriEvPtr->timeStamp < deepPulserString1StartTimeStamp_2017)
-      ||
-      (rawAtriEvPtr->timeStamp > deepPulserString1EndTimeStamp_2017)
-      //(/*rawAtriEvPtr->timeStamp > deepPulserString1EndTimeStamp_2017 &&*/ rawAtriEvPtr->timeStamp < deepPulserString22StartTimeStamp_2017)
+   if(//(rawAtriEvPtr->timeStamp < deepPulserString1StartTimeStamp_2017)
       //||
-      //(rawAtriEvPtr->timeStamp > deepPulserString22EndTimeStamp_2017)
+      //(rawAtriEvPtr->timeStamp > deepPulserString1EndTimeStamp_2017)
+      (/*rawAtriEvPtr->timeStamp > deepPulserString1EndTimeStamp_2017 &&*/ rawAtriEvPtr->timeStamp < deepPulserString22StartTimeStamp_2017)
+      ||
+      (rawAtriEvPtr->timeStamp > deepPulserString22EndTimeStamp_2017)
    ) {
      //cout<<"Skipping event not in deep pulser period....\n";
      continue;
@@ -500,7 +500,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    else cout<<"Reconstructing this event: "<<ev<<endl;
 
    summary->setEventId(rawAtriEvPtr->eventId);
-   summary->setEventNumber(rawAtriEvPtr->eventNumber);
+   summary->  setEventNumber(rawAtriEvPtr->eventNumber);
 
    if(rawAtriEvPtr->isRFTrigger()){
       if(rawAtriEvPtr->isCalpulserEvent()){
