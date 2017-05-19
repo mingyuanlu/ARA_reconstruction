@@ -6617,7 +6617,7 @@ char histName[200];
 
 //TH1F *xCorrPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
 //TH1F *envPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
-
+/*
 TH1F *xCorrPeakHist[64];
 TH1F *envPeakHist[64];
 TFile *xCorrPeakFile;
@@ -6658,7 +6658,7 @@ if( xCorrPeakFile->IsZombie() ){
 
   }
 }
-
+*/
 int peakBin;
 double x, y;
 int firstBin = 100. / wInt;
@@ -6667,7 +6667,7 @@ int lastBin  = nSamp / 2;
 //TFile *dtFile = new TFile("dtFile.txt","UPDATE");
 //FILE *dtFile = fopen("dtFile.txt","a+");
 
-//FILE *xCorrGraphDataFile = fopen("xCorrGraphDataFile_A3_run3811_IC22S_10Events.csv","a+");
+FILE *xCorrGraphDataFile = fopen("hilbertEnvGraphDataFile_A2_run8573_IC1S_10Events.csv","a+");
 
 for(int baseline=0; baseline<nBaseline; baseline++){
 
@@ -6689,9 +6689,9 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 
    TGraph *xCorrGraph = new TGraph(nSamp, dt, xCorrValue);
 
-   y = getPeakSqValRange(xCorrGraph, &peakBin, firstBin, lastBin);
-   xCorrGraph->GetPoint(peakBin,x,y);
-   xCorrPeakHist[baseline]->Fill(x);
+//   y = getPeakSqValRange(xCorrGraph, &peakBin, firstBin, lastBin);
+//   xCorrGraph->GetPoint(peakBin,x,y);
+//   xCorrPeakHist[baseline]->Fill(x);
    //cout<<"xCorr Range Peak Bin: "<<peakBin<<" Peak Sq Value: "<<y<<endl;
 /*
    y = FFTtools::getPeakSqVal(xCorrGraph, &peakBin);
@@ -6706,7 +6706,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
      fprintf(dtFile, "%d,", baseline);
      fprintf(dtFile, "%f\n", x);
    }
-*/   //cvs.cd(1);
+*/ //cvs.cd(1);
    //cvs.cd();
    //xCorrGraph->Draw("AL");
 
@@ -6797,6 +6797,11 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    envelope->GetPoint(s,t_temp,v_temp);
    xCorrTime[nSamp*baseline + s] = static_cast<float>(v_temp);
 
+   if(s!=nSamp-1)
+   fprintf(xCorrGraphDataFile,"%f,%f,",t_temp,v_temp);
+   else
+   fprintf(xCorrGraphDataFile,"%f,%f\n",t_temp,v_temp);
+
    }
    //if(lock == 0) lock=1;
 /*
@@ -6806,7 +6811,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
   cvs.SaveAs(sillygrname);
 */
 
-  xCorrPeakHist[baseline]->Write();
+  //xCorrPeakHist[baseline]->Write();
 //  envPeakHist[baseline]->Write();
 
   delete xCorrGraph;
@@ -6814,15 +6819,15 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 
 }
 
-xCorrPeakFile->Close();
+//xCorrPeakFile->Close();
 //free(xCorrPeakHist);
 //free(envPeakHist);
-delete xCorrPeakFile;
+//delete xCorrPeakFile;
 /*
 //dtFile->Close();
 fclose(dtFile);
 */
-//fclose(xCorrGraphDataFile);
+fclose(xCorrGraphDataFile);
 
 cl_mem xCorrEnvBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
                                        sizeof(float)*nBaseline*nSamp,
