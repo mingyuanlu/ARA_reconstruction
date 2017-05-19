@@ -6667,7 +6667,7 @@ int lastBin  = nSamp / 2;
 //TFile *dtFile = new TFile("dtFile.txt","UPDATE");
 //FILE *dtFile = fopen("dtFile.txt","a+");
 
-FILE *xCorrGraphDataFile = fopen("hilbertEnvGraphDataFile_A2_run8573_IC22S_10Events.csv","a+");
+FILE *xCorrGraphDataFile = fopen("hilbertEnvGraphDataFile_A3_run3811_IC22S_10Events.csv","a+");
 
 for(int baseline=0; baseline<nBaseline; baseline++){
 
