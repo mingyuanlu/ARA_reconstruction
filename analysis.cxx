@@ -54,8 +54,8 @@ static TGraph *sillygr = new TGraph();
 
 int main( int argc, char **argv){
 
-timer *t;
-recordTime(t,0);
+timer *tmr;
+recordTime(tmr,0);
 
 if(argc < 3){ cerr<<"Insufficient arguments. Usage: 1.recoSetupFile 2. Run Number 3. Data ROOT file 4. AraSim: more Data ROOT file. Real: Pedestal File\n"; return -1; }
 
@@ -314,7 +314,7 @@ int nLayer, nDir;
 float *recoDelays, *recoDelays_V, *recoDelays_H;
 Healpix_Onion *onion;
 
-recordTime(t,1);
+recordTime(tmr,1);
 
 if( settings->skymapSearchMode == 0){ //No zoom search
 
@@ -357,7 +357,7 @@ if( settings->skymapSearchMode == 0){ //No zoom search
    }
 */
 }
-recordTime(t,2);
+recordTime(tmr,2);
 /*
  * Set up reco environment. In this case, an OpenCL environment
  */
@@ -447,7 +447,7 @@ dataTree->Branch("summary", &summary);
 
 if(settings->dataType == 1){
 
-recordTime(t,3);
+recordTime(tmr,3);
 
 trigEventCount = runEventCount;
 for (Long64_t ev=0; ev<runEventCount; ev++){
@@ -874,7 +874,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
 }//end of dataType == 0
 
-recordTime(t,4);
+recordTime(tmr,4);
 
 cout<<"runEventCount: "<<runEventCount<<" recoEventCount: "<<recoEventCount<<" trigEventCount: "<<trigEventCount<<endl;
 
@@ -896,58 +896,58 @@ delete settings;
 free(mapDataHist);
 free(mapData);
 
-recordTime(t,5);
+recordTime(tmr,5);
 
 printf("Chrono time (us)\n");
 printf("Total program : %f\tTotal overhead : %f\tGenerating recoDelay: %f\tReco loop: %f\t program - (reco loop + overhead): %f\n",
-chrono::duration_cast<chrono::microseconds>(t->chronoVec[5] - t->chronoVec[0]).count(),
-chrono::duration_cast<chrono::microseconds>(t->chronoVec[3] - t->chronoVec[0]).count() +
-chrono::duration_cast<chrono::microseconds>(t->chronoVec[5] - t->chronoVec[4]).count(),
-chrono::duration_cast<chrono::microseconds>(t->chronoVec[2] - t->chronoVec[1]).count(),
-chrono::duration_cast<chrono::microseconds>(t->chronoVec[4] - t->chronoVec[3]).count(),
-chrono::duration_cast<chrono::microseconds>(t->chronoVec[5] - t->chronoVec[0]).count() -
-chrono::duration_cast<chrono::microseconds>(t->chronoVec[4] - t->chronoVec[3]).count() -
-(chrono::duration_cast<chrono::microseconds>(t->chronoVec[3] - t->chronoVec[0]).count() +
-chrono::duration_cast<chrono::microseconds>(t->chronoVec[5] - t->chronoVec[4]).count())
+chrono::duration_cast<chrono::microseconds>(tmr->chronoVec[5] - tmr->chronoVec[0]).count(),
+chrono::duration_cast<chrono::microseconds>(tmr->chronoVec[3] - tmr->chronoVec[0]).count() +
+chrono::duration_cast<chrono::microseconds>(tmr->chronoVec[5] - tmr->chronoVec[4]).count(),
+chrono::duration_cast<chrono::microseconds>(tmr->chronoVec[2] - tmr->chronoVec[1]).count(),
+chrono::duration_cast<chrono::microseconds>(tmr->chronoVec[4] - tmr->chronoVec[3]).count(),
+chrono::duration_cast<chrono::microseconds>(tmr->chronoVec[5] - tmr->chronoVec[0]).count() -
+chrono::duration_cast<chrono::microseconds>(tmr->chronoVec[4] - tmr->chronoVec[3]).count() -
+(chrono::duration_cast<chrono::microseconds>(tmr->chronoVec[3] - tmr->chronoVec[0]).count() +
+chrono::duration_cast<chrono::microseconds>(tmr->chronoVec[5] - tmr->chronoVec[4]).count())
 );
 
 printf("Chrono time (ns)\n");
 printf("Total program : %f\tTotal overhead : %f\tGenerating recoDelay: %f\tReco loop: %f\t program - (reco loop + overhead): %f\n",
-chrono::duration_cast<chrono::nanoseconds>(t->chronoVec[5] - t->chronoVec[0]).count(),
-chrono::duration_cast<chrono::nanoseconds>(t->chronoVec[3] - t->chronoVec[0]).count() +
-chrono::duration_cast<chrono::nanoseconds>(t->chronoVec[5] - t->chronoVec[4]).count(),
-chrono::duration_cast<chrono::nanoseconds>(t->chronoVec[2] - t->chronoVec[1]).count(),
-chrono::duration_cast<chrono::nanoseconds>(t->chronoVec[4] - t->chronoVec[3]).count(),
-chrono::duration_cast<chrono::nanoseconds>(t->chronoVec[5] - t->chronoVec[0]).count() -
-chrono::duration_cast<chrono::nanoseconds>(t->chronoVec[4] - t->chronoVec[3]).count() -
-(chrono::duration_cast<chrono::nanoseconds>(t->chronoVec[3] - t->chronoVec[0]).count() +
-chrono::duration_cast<chrono::nanoseconds>(t->chronoVec[5] - t->chronoVec[4]).count())
+chrono::duration_cast<chrono::nanoseconds>(tmr->chronoVec[5] - tmr->chronoVec[0]).count(),
+chrono::duration_cast<chrono::nanoseconds>(tmr->chronoVec[3] - tmr->chronoVec[0]).count() +
+chrono::duration_cast<chrono::nanoseconds>(tmr->chronoVec[5] - tmr->chronoVec[4]).count(),
+chrono::duration_cast<chrono::nanoseconds>(tmr->chronoVec[2] - tmr->chronoVec[1]).count(),
+chrono::duration_cast<chrono::nanoseconds>(tmr->chronoVec[4] - tmr->chronoVec[3]).count(),
+chrono::duration_cast<chrono::nanoseconds>(tmr->chronoVec[5] - tmr->chronoVec[0]).count() -
+chrono::duration_cast<chrono::nanoseconds>(tmr->chronoVec[4] - tmr->chronoVec[3]).count() -
+(chrono::duration_cast<chrono::nanoseconds>(tmr->chronoVec[3] - tmr->chronoVec[0]).count() +
+chrono::duration_cast<chrono::nanoseconds>(tmr->chronoVec[5] - tmr->chronoVec[4]).count())
 );
 
 printf("Clock time (s)\n");
 printf("Total program : %f\tTotal overhead : %f\tGenerating recoDelay: %f\tReco loop: %f\t program - (reco loop + overhead): %f\n",
-(double)(t->clockVec[5]-t->clockVec[0])/CLOCKS_PER_SEC,
-(double)(t->clockVec[3]-t->clockVec[0])/CLOCKS_PER_SEC +
-(double)(t->clockVec[5]-t->clockVec[4])/CLOCKS_PER_SEC,
-(double)(t->clockVec[2]-t->clockVec[1])/CLOCKS_PER_SEC,
-(double)(t->clockVec[4]-t->clockVec[3])/CLOCKS_PER_SEC,
-(double)(t->clockVec[5]-t->clockVec[0])/CLOCKS_PER_SEC -
-(double)(t->clockVec[4]-t->clockVec[3])/CLOCKS_PER_SEC -
-((double)(t->clockVec[3]-t->clockVec[0])/CLOCKS_PER_SEC +
-(double)(t->clockVec[5]-t->clockVec[4])/CLOCKS_PER_SEC)
+(double)(tmr->clockVec[5]-tmr->clockVec[0])/CLOCKS_PER_SEC,
+(double)(tmr->clockVec[3]-tmr->clockVec[0])/CLOCKS_PER_SEC +
+(double)(tmr->clockVec[5]-tmr->clockVec[4])/CLOCKS_PER_SEC,
+(double)(tmr->clockVec[2]-tmr->clockVec[1])/CLOCKS_PER_SEC,
+(double)(tmr->clockVec[4]-tmr->clockVec[3])/CLOCKS_PER_SEC,
+(double)(tmr->clockVec[5]-tmr->clockVec[0])/CLOCKS_PER_SEC -
+(double)(tmr->clockVec[4]-tmr->clockVec[3])/CLOCKS_PER_SEC -
+((double)(tmr->clockVec[3]-tmr->clockVec[0])/CLOCKS_PER_SEC +
+(double)(tmr->clockVec[5]-tmr->clockVec[4])/CLOCKS_PER_SEC)
 );
 
 printf("Time_t time (s)\n");
 printf("Total program : %f\tTotal overhead : %f\tGenerating recoDelay: %f\tReco loop: %f\t program - (reco loop + overhead): %f\n",
-difftime(t->timeVec[5], t->timeVec[0]),
-difftime(t->timeVec[3], t->timeVec[0]) +
-difftime(t->timeVec[5], t->timeVec[4]),
-difftime(t->timeVec[2], t->timeVec[1]),
-difftime(t->timeVec[4], t->timeVec[3]),
-difftime(t->timeVec[5], t->timeVec[0]) -
-difftime(t->timeVec[4], t->timeVec[3]) -
-(difftime(t->timeVec[3], t->timeVec[0]) +
-difftime(t->timeVec[5], t->timeVec[4]))
+difftime(tmr->timeVec[5], tmr->timeVec[0]),
+difftime(tmr->timeVec[3], tmr->timeVec[0]) +
+difftime(tmr->timeVec[5], tmr->timeVec[4]),
+difftime(tmr->timeVec[2], tmr->timeVec[1]),
+difftime(tmr->timeVec[4], tmr->timeVec[3]),
+difftime(tmr->timeVec[5], tmr->timeVec[0]) -
+difftime(tmr->timeVec[4], tmr->timeVec[3]) -
+(difftime(tmr->timeVec[3], tmr->timeVec[0]) +
+difftime(tmr->timeVec[5], tmr->timeVec[4]))
 );
 
 cout<<"Successfully reached end of main()"<<endl;
