@@ -399,4 +399,5 @@ int doNchnlScan(const double eventWeight, const vector<TGraph *>& cleanEvent, TH
 int computeMapLikelihoodAndPValue(const int nDir, const int nLayer, const char *fitFunc, const char *fitFuncFile, float *mapData, double& likelihood, double& pValue);
 double getPeakSqValRange(TGraph *gr, int *index, int firstBin, int lastBin);
 int recordTime(timer *t, const int count);
+void resetTimer(timer *t);
 #endif

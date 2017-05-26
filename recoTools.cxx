@@ -10346,7 +10346,7 @@ t->timeVec.push_back(time(0));
 
 }
 
-int resetTimer(timer *t){
+void resetTimer(timer *t){
 
    t->clockVec.clear();
    t->chronoVec.clear();
