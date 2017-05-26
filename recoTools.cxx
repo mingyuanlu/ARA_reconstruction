@@ -10329,3 +10329,17 @@ double getPeakSqValRange(TGraph *gr, int *index, int firstBin, int lastBin)
    return peakVal;
 
 }
+
+int recordTime(timer *t, const int count){
+
+if(count != t->clockVec.size() || count != t->chronoVec.size() || count != t->timeVec.size()){
+
+   cerr<<"Error. timer count inconsistent.\n";
+
+}
+
+t->clockVec.push_back(clock());
+t->chronoVec.push_back(std::chrono::monotonic_clock::now());
+t->timeVec.push_back(time(0));
+
+}

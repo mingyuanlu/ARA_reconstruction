@@ -6,6 +6,8 @@
 #include <iostream>
 #include <string>
 #include <cmath>
+#include <time.h>
+#include <chrono>
 
 /* OpenCL/CLFFT includes */
 //#include <CL/opencl.h>
@@ -119,6 +121,16 @@ struct recoEnvData{
    clfftPlanHandle  planHandle;
    clfftSetupData   fftSetup;
 };
+
+struct timer{
+
+   vector<clock_t> clockVec;
+   vector<std::chrono:monotonic_clock::time_point> chronoVec;
+   vector<time_t> timeVec;
+
+
+}
+
 /*
 class Healpix_Onion : public TObject
 {
@@ -386,4 +398,5 @@ int doNchnlScan(const double eventWeight, const vector<TGraph *>& cleanEvent, TH
 int doNchnlScan(const double eventWeight, const vector<TGraph *>& cleanEvent, TH2F *mnMap, TH2F *mnMap_V, TH2F *mnMap_H, int *nchnlArray, const int *chanMask, int *goodChan, const int nThresStep = 250, const double minThres = 0., const double maxThres = 10.);
 int computeMapLikelihoodAndPValue(const int nDir, const int nLayer, const char *fitFunc, const char *fitFuncFile, float *mapData, double& likelihood, double& pValue);
 double getPeakSqValRange(TGraph *gr, int *index, int firstBin, int lastBin);
+int recordTime(timer *t);
 #endif
