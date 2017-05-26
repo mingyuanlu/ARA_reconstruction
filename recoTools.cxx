@@ -10334,6 +10334,8 @@ int recordTime(timer *t, const int count){
 
 if(count != t->clockVec.size() || count != t->chronoVec.size() || count != t->timeVec.size()){
 
+   printf("count: %d\tclockVec.size(): %d\tchronoVec.size(): %d\ttimeVec.size(): %d\n",
+   count, t->clockVec.size(), t->chronoVec.size(), t->timeVec.size());
    cerr<<"Error. timer count inconsistent.\n";
 
 }
@@ -10349,5 +10351,5 @@ int resetTimer(timer *t){
    t->clockVec.clear();
    t->chronoVec.clear();
    t->timeVec.clear();
-  
+
 }
