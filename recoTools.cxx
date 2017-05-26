@@ -10343,3 +10343,11 @@ t->chronoVec.push_back(std::chrono::monotonic_clock::now());
 t->timeVec.push_back(time(0));
 
 }
+
+int resetTimer(timer *t){
+
+   t->clockVec.clear();
+   t->chronoVec.clear();
+   t->timeVec.clear();
+  
+}

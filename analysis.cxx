@@ -55,6 +55,7 @@ static TGraph *sillygr = new TGraph();
 int main( int argc, char **argv){
 
 timer *tmr;
+resetTimer(tmr);
 recordTime(tmr,0);
 
 if(argc < 3){ cerr<<"Insufficient arguments. Usage: 1.recoSetupFile 2. Run Number 3. Data ROOT file 4. AraSim: more Data ROOT file. Real: Pedestal File\n"; return -1; }
