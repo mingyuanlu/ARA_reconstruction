@@ -10348,6 +10348,7 @@ t->timeVec.push_back(time(0));
 
 void resetTimer(timer *t){
 
+   cout<<"Resetting timer..."<<endl;
    t->clockVec.clear();
    t->chronoVec.clear();
    t->timeVec.clear();
