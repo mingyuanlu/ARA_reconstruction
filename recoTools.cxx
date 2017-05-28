@@ -10348,7 +10348,8 @@ cout<<t->clockVec.size()<<" "<<t->timeVec.size()<<endl;
 //t->clockVec.push_back(cnow);
 cout<<"10346\n";
 //t->chronoVec.push_back(std::chrono::monotonic_clock::now());
-time_t tnow = time(0);
+time_t tnow;
+time(&tnow);
 t->timeVec.push_back(tnow);
 cout<<"10349\n";
 
