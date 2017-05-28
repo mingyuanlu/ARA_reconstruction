@@ -10342,7 +10342,8 @@ if(count != t->clockVec.size() /*|| count != t->chronoVec.size()*/ || count != t
 
 }
 cout<<"10344\n";
-t->clockVec.push_back(clock());
+clock_t cnow = clock();
+t->clockVec.push_back(cnow);
 cout<<"10346\n";
 //t->chronoVec.push_back(std::chrono::monotonic_clock::now());
 t->timeVec.push_back(time(0));
