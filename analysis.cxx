@@ -62,7 +62,7 @@ recordTime(tmr,0);
 if(argc < 3){ cerr<<"Insufficient arguments. Usage: 1.recoSetupFile 2. Run Number 3. Data ROOT file 4. AraSim: more Data ROOT file. Real: Pedestal File\n"; return -1; }
 
 int err;
-gROOT->ProcessLine("#include <vector>");
+//gROOT->ProcessLine("#include <vector>");
 /*
  * Specify the channels to be used in the analysis
  * 1: use, 0: don't use
@@ -447,9 +447,9 @@ cout<<"runEventCount: "<<runEventCount<<endl;
 recoData *summary = new recoData();
 dataTree->Branch("summary", &summary);
 
-if(settings->dataType == 1){
-
 recordTime(tmr,3);
+
+if(settings->dataType == 1){
 
 trigEventCount = runEventCount;
 for (Long64_t ev=0; ev<runEventCount; ev++){
