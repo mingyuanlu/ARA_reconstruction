@@ -7,7 +7,7 @@
 #include <string>
 #include <cmath>
 #include <time.h>
-#include <chrono>
+//#include <chrono>
 
 /* OpenCL/CLFFT includes */
 //#include <CL/opencl.h>
