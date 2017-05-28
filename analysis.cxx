@@ -898,7 +898,7 @@ free(mapDataHist);
 free(mapData);
 
 recordTime(tmr,5);
-
+/*
 printf("Chrono time (us)\n");
 printf("Total program : %f\tTotal overhead : %f\tGenerating recoDelay: %f\tReco loop: %f\t program - (reco loop + overhead): %f\n",
 chrono::duration_cast<chrono::microseconds>(tmr->chronoVec[5] - tmr->chronoVec[0]).count(),
@@ -924,7 +924,7 @@ chrono::duration_cast<chrono::nanoseconds>(tmr->chronoVec[4] - tmr->chronoVec[3]
 (chrono::duration_cast<chrono::nanoseconds>(tmr->chronoVec[3] - tmr->chronoVec[0]).count() +
 chrono::duration_cast<chrono::nanoseconds>(tmr->chronoVec[5] - tmr->chronoVec[4]).count())
 );
-
+*/
 printf("Clock time (s)\n");
 printf("Total program : %f\tTotal overhead : %f\tGenerating recoDelay: %f\tReco loop: %f\t program - (reco loop + overhead): %f\n",
 (double)(tmr->clockVec[5]-tmr->clockVec[0])/CLOCKS_PER_SEC,

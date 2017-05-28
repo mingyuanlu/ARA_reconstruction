@@ -10332,16 +10332,18 @@ double getPeakSqValRange(TGraph *gr, int *index, int firstBin, int lastBin)
 
 int recordTime(timer *t, const int count){
 
-if(count != t->clockVec.size() || count != t->chronoVec.size() || count != t->timeVec.size()){
+if(count != t->clockVec.size() /*|| count != t->chronoVec.size()*/ || count != t->timeVec.size()){
 
-   printf("count: %d\tclockVec.size(): %d\tchronoVec.size(): %d\ttimeVec.size(): %d\n",
-   count, t->clockVec.size(), t->chronoVec.size(), t->timeVec.size());
+   //printf("count: %d\tclockVec.size(): %d\tchronoVec.size(): %d\ttimeVec.size(): %d\n",
+   //count, t->clockVec.size(), t->chronoVec.size(), t->timeVec.size());
+   printf("count: %d\tclockVec.size(): %d\ttimeVec.size(): %d\n",
+   count, t->clockVec.size(), t->timeVec.size());
    cerr<<"Error. timer count inconsistent.\n";
 
 }
 
 t->clockVec.push_back(clock());
-t->chronoVec.push_back(std::chrono::monotonic_clock::now());
+//t->chronoVec.push_back(std::chrono::monotonic_clock::now());
 t->timeVec.push_back(time(0));
 
 }
@@ -10350,7 +10352,7 @@ void resetTimer(timer *t){
 
    cout<<"Resetting timer..."<<endl;
    t->clockVec.clear();
-   t->chronoVec.clear();
+   //t->chronoVec.clear();
    t->timeVec.clear();
 
 }
