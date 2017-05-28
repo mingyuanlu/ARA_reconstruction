@@ -10341,11 +10341,12 @@ if(count != t->clockVec.size() /*|| count != t->chronoVec.size()*/ || count != t
    cerr<<"Error. timer count inconsistent.\n";
 
 }
-
+cout<<"10344\n";
 t->clockVec.push_back(clock());
+cout<<"10346\n";
 //t->chronoVec.push_back(std::chrono::monotonic_clock::now());
 t->timeVec.push_back(time(0));
-
+cout<<"10349\n";
 }
 
 void resetTimer(timer *t){
