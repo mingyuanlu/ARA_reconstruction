@@ -10341,6 +10341,8 @@ if(count != t->clockVec.size() /*|| count != t->chronoVec.size()*/ || count != t
    cerr<<"Error. timer count inconsistent.\n";
 
 }
+
+cout<<t->clockVec.size()<<" "<<t->timeVec.size()<<endl;
 cout<<"10344\n";
 clock_t cnow = clock();
 t->clockVec.push_back(cnow);

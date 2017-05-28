@@ -54,6 +54,7 @@ static TGraph *sillygr = new TGraph();
 
 int main( int argc, char **argv){
 
+gROOT->ProcessLine("#include <vector>");
 timer *tmr;
 resetTimer(tmr);
 recordTime(tmr,0);
