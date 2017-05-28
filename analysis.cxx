@@ -55,9 +55,13 @@ static TGraph *sillygr = new TGraph();
 int main( int argc, char **argv){
 
 gROOT->ProcessLine("#include <vector>");
+/*
 timer *tmr;
 resetTimer(tmr);
 recordTime(tmr,0);
+*/
+time_t t_program_start = time(NULL);
+clock_t c_program_start = clock();
 
 if(argc < 3){ cerr<<"Insufficient arguments. Usage: 1.recoSetupFile 2. Run Number 3. Data ROOT file 4. AraSim: more Data ROOT file. Real: Pedestal File\n"; return -1; }
 
@@ -316,7 +320,9 @@ int nLayer, nDir;
 float *recoDelays, *recoDelays_V, *recoDelays_H;
 Healpix_Onion *onion;
 
-recordTime(tmr,1);
+//recordTime(tmr,1);
+time_t t_before_recoDelays = time(NULL);
+clock_t c_before_recoDelays = clock();
 
 if( settings->skymapSearchMode == 0){ //No zoom search
 
@@ -359,7 +365,10 @@ if( settings->skymapSearchMode == 0){ //No zoom search
    }
 */
 }
-recordTime(tmr,2);
+//recordTime(tmr,2);
+time_t t_after_recoDelays = time(NULL);
+clock_t c_after_recoDelays = clock();
+
 /*
  * Set up reco environment. In this case, an OpenCL environment
  */
@@ -447,7 +456,9 @@ cout<<"runEventCount: "<<runEventCount<<endl;
 recoData *summary = new recoData();
 dataTree->Branch("summary", &summary);
 
-recordTime(tmr,3);
+//recordTime(tmr,3);
+time_t t_before_event_loop = time(NULL);
+clock_t c_before_event_loop = clock();
 
 if(settings->dataType == 1){
 
@@ -876,7 +887,9 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
 }//end of dataType == 0
 
-recordTime(tmr,4);
+//recordTime(tmr,4);
+time_t t_after_event_loop = time(NULL);
+clock_t c_after_event_loop = clock();
 
 cout<<"runEventCount: "<<runEventCount<<" recoEventCount: "<<recoEventCount<<" trigEventCount: "<<trigEventCount<<endl;
 
@@ -898,7 +911,10 @@ delete settings;
 free(mapDataHist);
 free(mapData);
 
-recordTime(tmr,5);
+//recordTime(tmr,5);
+time_t t_program_end = time(NULL);
+clock_t c_program_end = clock();
+
 /*
 printf("Chrono time (us)\n");
 printf("Total program : %f\tTotal overhead : %f\tGenerating recoDelay: %f\tReco loop: %f\t program - (reco loop + overhead): %f\n",
@@ -928,7 +944,7 @@ chrono::duration_cast<chrono::nanoseconds>(tmr->chronoVec[5] - tmr->chronoVec[4]
 */
 printf("Clock time (s)\n");
 printf("Total program : %f\tTotal overhead : %f\tGenerating recoDelay: %f\tReco loop: %f\t program - (reco loop + overhead): %f\n",
-(double)(tmr->clockVec[5]-tmr->clockVec[0])/CLOCKS_PER_SEC,
+/*(double)(tmr->clockVec[5]-tmr->clockVec[0])/CLOCKS_PER_SEC,
 (double)(tmr->clockVec[3]-tmr->clockVec[0])/CLOCKS_PER_SEC +
 (double)(tmr->clockVec[5]-tmr->clockVec[4])/CLOCKS_PER_SEC,
 (double)(tmr->clockVec[2]-tmr->clockVec[1])/CLOCKS_PER_SEC,
@@ -937,11 +953,19 @@ printf("Total program : %f\tTotal overhead : %f\tGenerating recoDelay: %f\tReco 
 (double)(tmr->clockVec[4]-tmr->clockVec[3])/CLOCKS_PER_SEC -
 ((double)(tmr->clockVec[3]-tmr->clockVec[0])/CLOCKS_PER_SEC +
 (double)(tmr->clockVec[5]-tmr->clockVec[4])/CLOCKS_PER_SEC)
+*/
+(double)(c_program_end - c_program_start)/CLOCKS_PER_SEC,
+(double)(c_before_event_loop - c_program_start + c_program_end - c_after_event_loop)/CLOCKS_PER_SEC,
+(double)(c_after_recoDelays - c_before_recoDelays)/CLOCKS_PER_SEC,
+(double)(c_after_event_loop - c_before_event_loop)/CLOCKS_PER_SEC,
+(double)(c_program_end - c_program_start)/CLOCKS_PER_SEC -
+(double)(c_after_event_loop - c_before_event_loop)/CLOCKS_PER_SEC -
+(double)(c_before_event_loop - c_program_start + c_program_end - c_after_event_loop)/CLOCKS_PER_SEC
 );
 
 printf("Time_t time (s)\n");
 printf("Total program : %f\tTotal overhead : %f\tGenerating recoDelay: %f\tReco loop: %f\t program - (reco loop + overhead): %f\n",
-difftime(tmr->timeVec[5], tmr->timeVec[0]),
+/*difftime(tmr->timeVec[5], tmr->timeVec[0]),
 difftime(tmr->timeVec[3], tmr->timeVec[0]) +
 difftime(tmr->timeVec[5], tmr->timeVec[4]),
 difftime(tmr->timeVec[2], tmr->timeVec[1]),
@@ -950,6 +974,14 @@ difftime(tmr->timeVec[5], tmr->timeVec[0]) -
 difftime(tmr->timeVec[4], tmr->timeVec[3]) -
 (difftime(tmr->timeVec[3], tmr->timeVec[0]) +
 difftime(tmr->timeVec[5], tmr->timeVec[4]))
+*/
+difftime(t_program_end, t_program_start),
+difftime(t_before_event_loop, t_program_start) + difftime(t_program_end, t_after_event_loop),
+difftime(t_after_recoDelays, t_before_recoDelays),
+difftime(t_after_event_loop, t_before_event_loop),
+difftime(t_program_end, t_program_start) -
+difftime(t_after_event_loop, t_before_event_loop) -
+difftime(t_before_event_loop, t_program_start) + difftime(t_program_end, t_after_event_loop)
 );
 
 cout<<"Successfully reached end of main()"<<endl;

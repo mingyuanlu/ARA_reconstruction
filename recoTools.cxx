@@ -10330,10 +10330,10 @@ double getPeakSqValRange(TGraph *gr, int *index, int firstBin, int lastBin)
 
 }
 
-int recordTime(timer *t, const int count){
+//int recordTime(timer *t, const int count){
 
-if(count != t->clockVec.size() /*|| count != t->chronoVec.size()*/ || count != t->timeVec.size()){
-
+//if(count != t->clockVec.size() /*|| count != t->chronoVec.size()*/ || count != t->timeVec.size()){
+/*
    //printf("count: %d\tclockVec.size(): %d\tchronoVec.size(): %d\ttimeVec.size(): %d\n",
    //count, t->clockVec.size(), t->chronoVec.size(), t->timeVec.size());
    printf("count: %d\tclockVec.size(): %d\ttimeVec.size(): %d\n",
@@ -10364,3 +10364,4 @@ void resetTimer(timer *t){
    t->timeVec.clear();
 
 }
+*/

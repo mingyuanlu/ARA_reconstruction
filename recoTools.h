@@ -121,7 +121,7 @@ struct recoEnvData{
    clfftPlanHandle  planHandle;
    clfftSetupData   fftSetup;
 };
-
+/*
 struct timer{
 
    vector<clock_t> clockVec;
@@ -130,7 +130,7 @@ struct timer{
 
 
 };
-
+*/
 /*
 class Healpix_Onion : public TObject
 {
