@@ -6332,6 +6332,9 @@ cerr<<"dataType undefined\n"; return -1; }
 int nSideExp = settings->nSideExp;
 int nDir   = /*summary->onion*/12 * pow(2,nSideExp) * pow(2,nSideExp);;
 int nLayer = /*summary->onion*/settings->nLayer;
+/* Using Seckel's delays */
+nDir = 1331;
+nLayer = 1;
 printf("nDir: %d nLayer: %d\n",nDir,nLayer);
 /*
  * Loading voltsFlat array
@@ -7008,7 +7011,7 @@ cvs.SaveAs("testPValueDist.C");
 /*
  * Write FITS file
  */
-
+/*
 cout<<"Creating Healpix map and writing to FITS....\n";
 //arr<float> MArr = arr<float>(&M[0], (size_t)nDir);
 arr<float> MArr = arr<float>(&M[rank[0] / nDir], (size_t)nDir);
@@ -7025,7 +7028,7 @@ fitsOut.create(filename);
 
 write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
 cout<<"Healpix map written\n";
-
+*/
 //int nSideExp = 7;
 //Healpix_Base hpBase = Healpix_Base(pow(2,nSideExp), NEST/*RING*/, SET_NSIDE);
 /*
@@ -9153,6 +9156,76 @@ for(int layer=0; layer<nLayer; layer++){
    return 0;
 }
 
+int getRecoDelaysFromSeckel(char *filename, vector<double>& srcPos, vector<vector<float> >& ctrDelays, vector<vector<float> >& recoDelays, vector<vector<float> >& recoDelays_V, vector<vector<float> >& recoDelays_H){
+
+   ifstream dlFile(filename);
+   string line;
+   int lineNumber = 0;
+   int rowNumber  = 0;
+   vector<float> tqd, tqr, tqdctr, tqrctr, tqdnew tqrnew, tqdvnew, tqrvnew, tqdhnew, tqrhnew;
+
+   if( dlFile.is_open()){
+      while( dlFile.good() ){
+
+      getline(dlFile,line);
+      istringstream iss(line);
+
+      rowNumber = 0;
+      while(iss){
+
+         string sub;
+         iss >> sub;
+         if(lineNumber%18 == 0) srcPos.push_back( atof(sub.c_str()) );
+         else if(lineNumber%18 == 1){ if(rowNumber==1) tqdctr.push_back( atof(sub.c_str()) ); else if (rowNumber==4) tqrctr.push_back( atof(sub.c_str()) ); }
+         else{ if(rowNumber==1) tqd.push_back( atof(sub.c_str()) ); else if (rowNumber==4) tqr.push_back( atof(sub.c_str()) ); }
+
+         rowNumber++;
+      }
+
+      lineNumber++;
+
+      }
+      dlFile.close();
+   }
+
+   ctrDelays.push_back(tqdctr);
+   ctrDelays.push_back(tqrctr);
+
+   /* Re-ordering to TV BV TH BH */
+
+   for(int i=0; i<tqd.size(); i++){
+
+     if(i%4==2){ tqdnew.push_back(tqd[i]); tqrnew.push_back(tqr[i]); tqdvnew.push_back(tqd[i]); tqrvnew.push_back(tqr[i]); }
+
+   }
+
+   for(int i=0; i<tqd.size(); i++){
+
+     if(i%4==0){ tqdnew.push_back(tqd[i]); tqrnew.push_back(tqr[i]); tqdvnew.push_back(tqd[i]); tqrvnew.push_back(tqr[i]); }
+
+   }
+
+   for(int i=0; i<tqd.size(); i++){
+
+     if(i%4==3){ tqdnew.push_back(tqd[i]); tqrnew.push_back(tqr[i]); tqdhnew.push_back(tqd[i]); tqrhnew.push_back(tqr[i]);}
+
+   }
+
+   for(int i=0; i<tqd.size(); i++){
+
+     if(i%4==1){ tqdnew.push_back(tqd[i]); tqrnew.push_back(tqr[i]); tqdhnew.push_back(tqd[i]); tqrhnew.push_back(tqr[i]);}
+
+   }
+
+
+   recoDelays.push_back(tqdnew); recoDelays.push_back(tqrnew);
+   recoDelays_V.push_back(tqdvnew); recoDelays_V.push_back(tqrvnew);
+   recoDelays_H.push_back(tqdhnew); recoDelays_H.push_back(tqrhnew);
+   cout<<"Check: recoDelays[0],size/recoDelays[1].size: "<<recoDelays[0],size()/recoDelays[1].size()<<" recoDelays[0].size / recoDelays_V[0].size: "<<recoDelays[0].size()/ recoDelays_V[0].size()<<" recoDelays_V[1].size/recoDelays_H[0].size: "<<recoDelays_V[1].size()/recoDelays_H[0].size()<<endl;
+
+   return 0;
+}
+
 int getMaxBin(TGraph *gr){
 
    double t, v, max;
@@ -10093,6 +10166,66 @@ int record3DDiffGetFlag(recoSettings *settings, recoData *summary, TH1F *dZenDis
 
 return flag;
 }
+
+int record3DDiffSeckel(vector<double>& srcPosVec, recoSettings *settings, recoData *summary, TH1F *dZenDist, TH1F *dAziDist, TH2F *recoTrueZenDist, TH2F *recoTrueAziDist){
+
+   cout<<"*********** record3DDiffSeckel ***********\n";
+
+//   int flag = 0;
+
+//   int nSideExp = /*summary->onion*/settings->nSideExp;
+//   int nLayer   = /*summary->onion*/settings->nLayer;
+/*
+   //if(nSideExp < 0 || nSideExp > 7){ cerr<<"Invalid nSideExp\n"; return -1; }
+   int nSide = pow(2, nSideExp);
+   Healpix_Base hpBase = Healpix_Base(nSide, HEALPIX_ORDERING, SET_NSIDE);
+   int nDir = hpBase.Npix();
+   pointing pt;
+
+   Healpix_Onion onion(nSideExp, nLayer, settings->layerFirstRadius, settings->layerLastRadius);
+
+   cout<<"maxPixIdx: "<<summary->maxPixIdx<<" maxPixIdx on the skymap: "<<summary->maxPixIdx%nDir<<endl;
+   pt = hpBase.pix2ang( summary->maxPixIdx % nDir );
+   //float dZen = (pt.theta - zen_true) * 180.f / M_PI;
+   //float dAzi = (pt.phi   - azi_true) * 180.f / M_PI;
+*/
+
+   int nDir= 1331;
+
+//   double recZen = pt.theta * 180.f / M_PI;
+//   double recAzi = pt.phi   * 180.f / M_PI;
+   double recR   = srcPosVec[3*summary->maxPixIdx];
+   double recZen = srcPosVec[3*summary->maxPixIdx + 1];
+   double recAzi = srcPosVec[3*summary->maxPixIdx + 2];
+
+   float dZen = recZen - summary->trueZen;
+   float dAzi = recAzi - summary->trueAzi;
+
+   //double w = weight;
+   //double zen = zen_true * 180.f / M_PI;
+   //double azi = azi_true * 180.f / M_PI;
+   //double recZen = pt.theta * 180.f / M_PI;
+   //double recAzi = pt.phi   * 180.f / M_PI;
+   summary->setRecoDir(recZen, recAzi);
+   summary->setRecoRadius( /*summary->onion->*//*onion.getLayerRadius(summary->maxPixIdx)*/recR );
+
+   dZenDist->Fill(dZen);
+   dAziDist->Fill(dAzi);
+   //recoTrueZenDist->Fill(zen, recZen);
+   //recioTrueAziDist->Fill(azi, recAzi);
+   recoTrueZenDist->Fill(summary->trueZen, recZen);
+   recoTrueAziDist->Fill(summary->trueAzi, recAzi);
+
+/*
+ * Set flag condition here!!!
+ */
+
+   //if( fabs(dZen) > 15.f ) flag = 1;
+
+//return flag;
+return 0;
+}
+
 
 int record3DZoomedDiffGetFlag(recoSettings *settings, recoData *summary, TH1F *dZenDist, TH1F *dAziDist, TH2F *recoTrueZenDist, TH2F *recoTrueAziDist){
 
