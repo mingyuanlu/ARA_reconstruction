@@ -259,27 +259,29 @@ int getSeckelStationGeometry(vector<vector<double> >& ant_loc){
    vector<double> antl;
    double stationCenter[3] = {4001.59, -2595.01, -184.267};
 
+   double xyz[3];
+
    /* TVpols */
 
-   double xyz[] = {3993.34, -2589.51, -177.654};
+   xyz[0] = 3993.34; xyz[1] = -2589.51; xyz[2] =  -177.654;
    for(int i=0; i<3; i++) xyz[i] -= stationCenter[i];
    antl.assign(xyz,xyz+3);
    ant_loc.push_back(antl);
 
    antl.clear();
-   double xyz[] = {4006.98, -2586.51, -176.17};
+   xyz[0] = 4006.98; xyz[1] =  -2586.51; xyz[2] = -176.17;
    for(int i=0; i<3; i++) xyz[i] -= stationCenter[i];
    antl.assign(xyz,xyz+3);
    ant_loc.push_back(antl);
 
    antl.clear();
-   double xyz[] = {3996.2, -2603.94, -176.12};
+   xyz[0] = 3996.2; xyz[1] = -2603.94; xyz[2] =  -176.12;
    for(int i=0; i<3; i++) xyz[i] -= stationCenter[i];
    antl.assign(xyz,xyz+3);
    ant_loc.push_back(antl);
 
    antl.clear();
-   double xyz[] = {4009.75, -2600.1, -176.359};
+   xyz[0] = 4009.75; xyz[1] = -2600.1; xyz[2] = -176.359;
    for(int i=0; i<3; i++) xyz[i] -= stationCenter[i];
    antl.assign(xyz,xyz+3);
    ant_loc.push_back(antl);
@@ -287,25 +289,25 @@ int getSeckelStationGeometry(vector<vector<double> >& ant_loc){
    /* BVpols */
 
    antl.clear();
-   double xyz[] = {3993.4, -2589.49, -195.229};
+   xyz[0] = 3993.4; xyz[1] = -2589.49; xyz[2] = -195.229;
    for(int i=0; i<3; i++) xyz[i] -= stationCenter[i];
    antl.assign(xyz,xyz+3);
    ant_loc.push_back(antl);
 
    antl.clear();
-   double xyz[] = {4007.04, -2586.49, -195.223};
+   xyz[0] = 4007.04; xyz[1] = -2586.49; xyz[2] = -195.223;
    for(int i=0; i<3; i++) xyz[i] -= stationCenter[i];
    antl.assign(xyz,xyz+3);
    ant_loc.push_back(antl);
 
    antl.clear();
-   double xyz[] = {3996.26, -2603.92, -195.173};
+   xyz[0] = 3996.26; xyz[1] = -2603.92; xyz[2] = -195.173;
    for(int i=0; i<3; i++) xyz[i] -= stationCenter[i];
    antl.assign(xyz,xyz+3);
    ant_loc.push_back(antl);
 
    antl.clear();
-   double xyz[] = {4009.81, -2600.08, -195.248};
+   xyz[0] = 4009.81; xyz[1] = -2600.08; xyz[2] = -195.248;
    for(int i=0; i<3; i++) xyz[i] -= stationCenter[i];
    antl.assign(xyz,xyz+3);
    ant_loc.push_back(antl);
@@ -313,25 +315,25 @@ int getSeckelStationGeometry(vector<vector<double> >& ant_loc){
    /* THpols */
 
    antl.clear();
-   double xyz[] = {3993.35, -2589.5, -173.219};
+   xyz[0] = 3993.35; xyz[1] = -2589.5; xyz[2] = -173.219;
    for(int i=0; i<3; i++) xyz[i] -= stationCenter[i];
    antl.assign(xyz,xyz+3);
    ant_loc.push_back(antl);
 
    antl.clear();
-   double xyz[] = {4006.97, -2586.51, -173.251};
+   xyz[0] = 4006.97; xyz[1] = -2586.51; xyz[2] = -173.251;
    for(int i=0; i<3; i++) xyz[i] -= stationCenter[i];
    antl.assign(xyz,xyz+3);
    ant_loc.push_back(antl);
 
    antl.clear();
-   double xyz[] = {3996.19, -2603.94, -172.999};
+   xyz[0] = 3996.19; xyz[1] = -2603.94; xyz[2] = -172.999;
    for(int i=0; i<3; i++) xyz[i] -= stationCenter[i];
    antl.assign(xyz,xyz+3);
    ant_loc.push_back(antl);
 
    antl.clear();
-   double xyz[] = {4009.74, -2600.11, -173.402};
+   xyz[0] = 4009.74; xyz[1] = -2600.11; xyz[2] = -173.402;
    for(int i=0; i<3; i++) xyz[i] -= stationCenter[i];
    antl.assign(xyz,xyz+3);
    ant_loc.push_back(antl);
@@ -339,25 +341,25 @@ int getSeckelStationGeometry(vector<vector<double> >& ant_loc){
    /* BHpols */
 
    antl.clear();
-   double xyz[] = {3993.39, -2589.49, -192.272};
+   xyz[0] = 3993.39; xyz[1] = -2589.49; xyz[2] = -192.272;
    for(int i=0; i<3; i++) xyz[i] -= stationCenter[i];
    antl.assign(xyz,xyz+3);
    ant_loc.push_back(antl);
 
    antl.clear();
-   double xyz[] = {4007.03, -2586.49, -191.938};
+   xyz[0] = 4007.03; xyz[1] = -2586.49; xyz[2] = -191.938;
    for(int i=0; i<3; i++) xyz[i] -= stationCenter[i];
    antl.assign(xyz,xyz+3);
    ant_loc.push_back(antl);
 
    antl.clear();
-   double xyz[] = {3996.25, -2603.92, -192.052};
+   xyz[0] = 3996.25; xyz[1] = -2603.92; xyz[2] = -192.052;
    for(int i=0; i<3; i++) xyz[i] -= stationCenter[i];
    antl.assign(xyz,xyz+3);
    ant_loc.push_back(antl);
 
    antl.clear();
-   double xyz[] = {4009.8. -2600.08, -191.963};
+   xyz[0] = 4009.8; xyz[1] = -2600.08; xyz[2] = -191.963;
    for(int i=0; i<3; i++) xyz[i] -= stationCenter[i];
    antl.assign(xyz,xyz+3);
    ant_loc.push_back(antl);
