@@ -10167,7 +10167,7 @@ int record3DDiffGetFlag(recoSettings *settings, recoData *summary, TH1F *dZenDis
 return flag;
 }
 
-int record3DDiffSeckel(vector<double>& srcPosVec, recoSettings *settings, recoData *summary, TH1F *dZenDist, TH1F *dAziDist, TH2F *recoTrueZenDist, TH2F *recoTrueAziDist){
+int record3DDiffSeckel(const vector<double>& srcPosVec, recoSettings *settings, recoData *summary, TH1F *dZenDist, TH1F *dAziDist, TH2F *recoTrueZenDist, TH2F *recoTrueAziDist){
 
    cout<<"*********** record3DDiffSeckel ***********\n";
 

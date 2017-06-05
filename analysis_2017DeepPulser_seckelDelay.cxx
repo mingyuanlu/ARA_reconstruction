@@ -970,7 +970,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    if(summary->flag > 0) recoFlagCnt++;
 */
-   record3DDiffSeckel(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist);
+   record3DDiffSeckel(srcPosVec, settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist);
    maxPix[maxPixIdx]++;
    dataTree->Fill();
    unpaddedEvent.clear();

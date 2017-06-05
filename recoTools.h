@@ -394,7 +394,7 @@ int recordDiffGetFlag(int nSideExp, recoData *summary, char *rootFilename);
 //int record3DDiffGetFlag(recoData *summary, char *rootFilename);
 int record3DDiffGetFlag(recoSettings *settings, recoData *summary, TH1F *dZenDist, TH1F *dAziDist, TH2F *recoTrueZenDist, TH2F *recoTrueAziDist);
 int record3DZoomedDiffGetFlag(recoSettings *settings, recoData *summary, TH1F *dZenDist, TH1F *dAziDist, TH2F *recoTrueZenDist, TH2F *recoTrueAziDist);
-int record3DDiffSeckel(vector<double>& srcPosVec, recoSettings *settings, recoData *summary, TH1F *dZenDist, TH1F *dAziDist, TH2F *recoTrueZenDist, TH2F *recoTrueAziDist);
+int record3DDiffSeckel(const vector<double>& srcPosVec, recoSettings *settings, recoData *summary, TH1F *dZenDist, TH1F *dAziDist, TH2F *recoTrueZenDist, TH2F *recoTrueAziDist);
 float getSpaceAngle(float theta1, float phi1, float theta2, float phi2);
 void stackXCorrAroundPeak(const TGraph *gr, TH1F *hist, float plusMinusTime);
 int doNchnlScan(const double eventWeight, const vector<TGraph *>& cleanEvent, TH2F *mnMap, int *nchnlArray, const int *chanMask, int *goodChan, const int nThresStep = 250, const double minThres = 0., const double maxThres = 10.);
