@@ -383,7 +383,18 @@ if( settings->skymapSearchMode == 0){ //No zoom search
 cout<<"srcPosVec.size: "<<srcPosVec.size()<<endl;
 cout<<"recoDelaysVec_ctr.size: "<<recoDelaysVec_ctr.size()<<" recoDelaysVec[0].size: "<<recoDelaysVec[0].size()<<" recoDelaysVec_V[0].size: "<<recoDelaysVec_V[0].size()<<" recoDelaysVec_H[1].size: "<<recoDelaysVec_H[1].size()<<endl;
 
-for(int i=0; i<1331; i++) cout<<"r: "<<srcPosVec[3*i+0]<<" theta "<<srcPosVec[3*i+1]<<" phi: "<<srcPosVec[3*i+2]<<endl;
+
+TPolyMarker3D *grid = new TPolyMarker3d(1331, 6);
+double r, theta, phi;
+for(int i=0; i<1331; i++){
+
+   r = srcPosVec[3*i+0];
+   theta = (-1.*srcPosVec[3*i+1] + 90.)*TMath::DegToRad();
+   phi = srcPosVec[3*i+2]*TMath::DegToRad();
+   cout<<"r: "<<srcPosVec[3*i+0]<<" theta "<<srcPosVec[3*i+1]<<" phi: "<<srcPosVec[3*i+2]<<endl;
+   grid->SetPoint(i, r*sin(theta)*cos(phi), r*sin(theta)*sin(phi), r*cos(theta));
+
+ }
 
 for(int pix=0; pix<nLayer*nDir; pix++){
    for(int ant=0; ant<nAnt; ant++){
@@ -1007,6 +1018,14 @@ free(recoDelays_H);
 delete settings;
 free(mapDataHist);
 free(mapData);
+
+TH3D *hist = new TH3D("hist","hist",10,-5000,5000,10,-5000,5000,5,-3000,100);
+TCanvas *cvs = new TCanvas("cvs","cvs",800,800);
+hist->Draw();
+hist->SetStats(0);
+grid->ls();
+gird->Draw("same");
+cvs->SaveAs("seckelGrid.C");
 
 //fclose(dtFile_radioSpline);
 //fclose(dtFile_constantN);
