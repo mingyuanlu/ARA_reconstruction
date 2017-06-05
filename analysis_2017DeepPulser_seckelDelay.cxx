@@ -763,6 +763,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
                     : record3DDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist) );
    if(summary->flag > 0) recoFlagCnt++;
 */
+   record3DDiffSeckel(srcPosVec, settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist);
    maxPix[maxPixIdx]++;
 /*
    postDelays_radioSpline = (float*)malloc(sizeof(float)*nAnt);
@@ -969,14 +970,14 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    //int recoFlag = record3DDiffGetFlag(summary, outputFile);
    //if( recoFlag ) recoFlagCnt++;
-/*
+
    summary->setFlag( (settings->skymapSearchMode)
                     ? record3DZoomedDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist)
                     : record3DDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist) );
 
    if(summary->flag > 0) recoFlagCnt++;
-*/
-   record3DDiffSeckel(srcPosVec, settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist);
+
+   //record3DDiffSeckel(srcPosVec, settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist);
    maxPix[maxPixIdx]++;
    dataTree->Fill();
    unpaddedEvent.clear();

@@ -9175,7 +9175,7 @@ int getRecoDelaysFromSeckel(string filename, vector<double>& srcPos, vector<vect
 
          string sub;
          iss >> sub;
-         if(lineNumber%18 == 0) srcPos.push_back( atof(sub.c_str()) );
+         if(lineNumber%18 == 0 && rowNumber!=3) srcPos.push_back( atof(sub.c_str()) );
          else if(lineNumber%18 == 1){ if(rowNumber==1) tqdctr.push_back( atof(sub.c_str()) ); else if (rowNumber==4) tqrctr.push_back( atof(sub.c_str()) ); }
          else{ if(rowNumber==1) tqd.push_back( atof(sub.c_str()) ); else if (rowNumber==4) tqr.push_back( atof(sub.c_str()) ); }
 
