@@ -9162,7 +9162,7 @@ int getRecoDelaysFromSeckel(char *filename, vector<double>& srcPos, vector<vecto
    string line;
    int lineNumber = 0;
    int rowNumber  = 0;
-   vector<float> tqd, tqr, tqdctr, tqrctr, tqdnew tqrnew, tqdvnew, tqrvnew, tqdhnew, tqrhnew;
+   vector<float> tqd, tqr, tqdctr, tqrctr, tqdnew, tqrnew, tqdvnew, tqrvnew, tqdhnew, tqrhnew;
 
    if( dlFile.is_open()){
       while( dlFile.good() ){
@@ -9221,7 +9221,7 @@ int getRecoDelaysFromSeckel(char *filename, vector<double>& srcPos, vector<vecto
    recoDelays.push_back(tqdnew); recoDelays.push_back(tqrnew);
    recoDelays_V.push_back(tqdvnew); recoDelays_V.push_back(tqrvnew);
    recoDelays_H.push_back(tqdhnew); recoDelays_H.push_back(tqrhnew);
-   cout<<"Check: recoDelays[0],size/recoDelays[1].size: "<<recoDelays[0],size()/recoDelays[1].size()<<" recoDelays[0].size / recoDelays_V[0].size: "<<recoDelays[0].size()/ recoDelays_V[0].size()<<" recoDelays_V[1].size/recoDelays_H[0].size: "<<recoDelays_V[1].size()/recoDelays_H[0].size()<<endl;
+   cout<<"Check: recoDelays[0].size/recoDelays[1].size: "<<recoDelays[0].size()/recoDelays[1].size()<<" recoDelays[0].size / recoDelays_V[0].size: "<<recoDelays[0].size()/ recoDelays_V[0].size()<<" recoDelays_V[1].size/recoDelays_H[0].size: "<<recoDelays_V[1].size()/recoDelays_H[0].size()<<endl;
 
    return 0;
 }
