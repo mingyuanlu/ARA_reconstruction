@@ -386,7 +386,7 @@ cout<<"srcPosVec.size: "<<srcPosVec.size()<<endl;
 cout<<"recoDelaysVec_ctr.size: "<<recoDelaysVec_ctr.size()<<" recoDelaysVec[0].size: "<<recoDelaysVec[0].size()<<" recoDelaysVec_V[0].size: "<<recoDelaysVec_V[0].size()<<" recoDelaysVec_H[1].size: "<<recoDelaysVec_H[1].size()<<endl;
 
 
-TPolyMarker3D *grid = new TPolyMarker3d(1331, 6);
+TPolyMarker3D *grid = new TPolyMarker3D(1331, 6);
 double r, theta, phi;
 for(int i=0; i<1331; i++){
 
@@ -1026,7 +1026,7 @@ TCanvas *cvs = new TCanvas("cvs","cvs",800,800);
 hist->Draw();
 hist->SetStats(0);
 grid->ls();
-gird->Draw("same");
+grid->Draw("same");
 cvs->SaveAs("seckelGrid.C");
 
 //fclose(dtFile_radioSpline);
