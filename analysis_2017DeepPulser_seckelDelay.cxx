@@ -19,6 +19,8 @@
 #include "TCanvas.h"
 #include "TTree.h"
 #include "TObject.h"
+#include "TPolyMarker3D.h"
+#include "TH3D.h"
 
 #include "calibrationTools.h"
 #include "calibrationToolsVs3.h"
