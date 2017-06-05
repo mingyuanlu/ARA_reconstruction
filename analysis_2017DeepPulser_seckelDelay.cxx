@@ -380,6 +380,11 @@ if( settings->skymapSearchMode == 0){ //No zoom search
 */
 }
 
+cout<<"srcPosVec.size: "<<srcPosVec.size()<<endl;
+cout<<"recoDelaysVec_ctr.size: "<<recoDelaysVec_ctr.size()<<" recoDelaysVec[0].size: "<<recoDelaysVec[0].size()<<" recoDelaysVec_V[0].size: "<<recoDelaysVec_V[0].size()<<" recoDelaysVec_H[1].size: "<<recoDelaysVec_H[1].size()<<endl;
+
+for(int i=0; i<1331; i++) cout<<"r: "<<srcPosVec[0]<<" theta "<<srcPosVec[1]<<" phi: "<<srcPosVec[2]<<endl;
+
 for(int pix=0; pix<nLayer*nDir; pix++){
    for(int ant=0; ant<nAnt; ant++){
 
@@ -388,6 +393,7 @@ for(int pix=0; pix<nLayer*nDir; pix++){
    if(ant%2 == 0){
      recoDelays_V[pix*nAnt/2+ant/2]       = recoDelaysVec_V[0][pix*nAnt/2+ant/2];
      recoRefracDelays_V[pix*nAnt/2+ant/2] = recoDelaysVec_V[1][pix*nAnt/2+ant/2];
+     cout<<recoDelays_V[pix*nAnt/2+ant/2]<<" "<<recoRefracDelays_V[pix*nAnt/2+ant/2]<<endl;
    } else {
      recoDelays_H[pix*nAnt/2+ant/2]       = recoDelaysVec_H[0][pix*nAnt/2+ant/2];
      recoRefracDelays_H[pix*nAnt/2+ant/2] = recoDelaysVec_H[1][pix*nAnt/2+ant/2];

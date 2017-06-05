@@ -9156,9 +9156,9 @@ for(int layer=0; layer<nLayer; layer++){
    return 0;
 }
 
-int getRecoDelaysFromSeckel(char *filename, vector<double>& srcPos, vector<vector<float> >& ctrDelays, vector<vector<float> >& recoDelays, vector<vector<float> >& recoDelays_V, vector<vector<float> >& recoDelays_H){
+int getRecoDelaysFromSeckel(string filename, vector<double>& srcPos, vector<vector<float> >& ctrDelays, vector<vector<float> >& recoDelays, vector<vector<float> >& recoDelays_V, vector<vector<float> >& recoDelays_H){
 
-   ifstream dlFile(filename);
+   ifstream dlFile(filename.c_str());
    string line;
    int lineNumber = 0;
    int rowNumber  = 0;
@@ -10197,6 +10197,9 @@ int record3DDiffSeckel(const vector<double>& srcPosVec, recoSettings *settings, 
    double recR   = srcPosVec[3*summary->maxPixIdx];
    double recZen = srcPosVec[3*summary->maxPixIdx + 1];
    double recAzi = srcPosVec[3*summary->maxPixIdx + 2];
+
+   cout<<"recR: "<<recR<<" recZen: "<<recZen<<" recAzi: "<<recAzi<<endl;
+
 
    float dZen = recZen - summary->trueZen;
    float dAzi = recAzi - summary->trueAzi;

@@ -376,7 +376,7 @@ int compute3DZoomedRecoDelaysWithRadioSpline(const int nAnt, const float zCenter
                                      float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                                      const int last2DMaxPixIdx, const int nPix_nested);
 
-int getRecoDelaysFromSeckel(char *filename, vector<double>& srcPos, vector<vector<float> >& ctrDelays, vector<vector<float> >& recoDelays, vector<vector<float> >& recoDelays_V, vector<vector<float> >& recoDelays_H);
+int getRecoDelaysFromSeckel(string filename, vector<double>& srcPos, vector<vector<float> >& ctrDelays, vector<vector<float> >& recoDelays, vector<vector<float> >& recoDelays_V, vector<vector<float> >& recoDelays_H);
 
 int plotMaxPix(const int nDir, int *maxPix, char *filename);
 int plotMaxPixZenAzi(const int nSideExp, int *maxPix, char *rootFilename);
