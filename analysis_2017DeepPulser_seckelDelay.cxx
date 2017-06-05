@@ -364,7 +364,7 @@ if( settings->skymapSearchMode == 0){ //No zoom search
                                             onion, recoDelays, recoDelays_V, recoDelays_H);
    } else { cerr<<"Undefined iceModel parameter\n"; return -1; }
    */
-   err = getRecoDelaysFromSeckel("raygrid.txt", srcPosVec,recoDelaysVec_ctr, recoDelaysVec, recoDelaysVec_V, recoDelaysVec_H);
+   err = getRecoDelaysFromSeckel("raygrid.txt", srcPosVec, recoDelaysVec_ctr, recoDelaysVec, recoDelaysVec_V, recoDelaysVec_H);
    if( err<0 ){ cerr<<"Error computing reco delays\n"; return -1; }
 
 } else {// zoom search mode
@@ -383,7 +383,7 @@ if( settings->skymapSearchMode == 0){ //No zoom search
 cout<<"srcPosVec.size: "<<srcPosVec.size()<<endl;
 cout<<"recoDelaysVec_ctr.size: "<<recoDelaysVec_ctr.size()<<" recoDelaysVec[0].size: "<<recoDelaysVec[0].size()<<" recoDelaysVec_V[0].size: "<<recoDelaysVec_V[0].size()<<" recoDelaysVec_H[1].size: "<<recoDelaysVec_H[1].size()<<endl;
 
-for(int i=0; i<1331; i++) cout<<"r: "<<srcPosVec[0]<<" theta "<<srcPosVec[1]<<" phi: "<<srcPosVec[2]<<endl;
+for(int i=0; i<1331; i++) cout<<"r: "<<srcPosVec[3*i+0]<<" theta "<<srcPosVec[3*i+1]<<" phi: "<<srcPosVec[3*i+2]<<endl;
 
 for(int pix=0; pix<nLayer*nDir; pix++){
    for(int ant=0; ant<nAnt; ant++){
