@@ -6324,7 +6324,7 @@ if( dataType == 0 ) wInt = 0.5f; //AraSim event
 else if( dataType == 1 ){ //real event
 if( pol == "vpol" ) wInt = 0.4f;
 else if ( pol == "hpol" ) wInt = 0.625f;
-else if ( pol == "both" ) wInt = 0.5f;
+else if ( pol == "both" ) wInt = /*0.5f*/0.4f; //0.4f for both ray reco using Vpols
 else { cerr<<"recoPolType undefined\n"; return -1; }
 } else {
 cerr<<"dataType undefined\n"; return -1; }
@@ -9193,33 +9193,38 @@ int getRecoDelaysFromSeckel(string filename, vector<double>& srcPos, vector<vect
    ctrDelays.push_back(tqrctr);
 
    cout<<"lineNumber: "<<lineNumber<<endl;
-
+   cout<<"tqdctr.size: "<<tqdctr.size()<<" tqrctr.size: "<<tqrctr.size()<<endl;
    /* Re-ordering to TV BV TH BH */
+
+   double tqdctrVal, tqrctrVal; //Offset the delays back for both-ray reco
 
    //for(int i=0; i<tqd.size(); i++){
    for(int pix = 0; pix<1331; pix++){
 
+     tqdctrVal = tqdctr[pix];
+     tqrctrVal = tqrctr[pix];
+
      for(int i=0; i<16; i++){
 
-     if(i%4==2){ tqdnew.push_back(tqd[pix*16+i]); tqrnew.push_back(tqr[pix*16+i]); tqdvnew.push_back(tqd[pix*16+i]); tqrvnew.push_back(tqr[pix*16+i]); }
+     if(i%4==2){ tqdnew.push_back(tqd[pix*16+i]+tqdctrVal); tqrnew.push_back(tqr[pix*16+i]+tqrctrVal); tqdvnew.push_back(tqd[pix*16+i]+tqdctrVal); tqrvnew.push_back(tqr[pix*16+i]+tqrctrVal); }
 
      }
 
      for(int i=0; i<16; i++){
 
-     if(i%4==0){ tqdnew.push_back(tqd[pix*16+i]); tqrnew.push_back(tqr[pix*16+i]); tqdvnew.push_back(tqd[pix*16+i]); tqrvnew.push_back(tqr[pix*16+i]); }
+     if(i%4==0){ tqdnew.push_back(tqd[pix*16+i]+tqdctrVal); tqrnew.push_back(tqr[pix*16+i]+tqrctrVal); tqdvnew.push_back(tqd[pix*16+i]+tqdctrVal); tqrvnew.push_back(tqr[pix*16+i]+tqrctrVal); }
 
      }
 
      for(int i=0; i<16; i++){
 
-     if(i%4==3){ tqdnew.push_back(tqd[pix*16+i]); tqrnew.push_back(tqr[pix*16+i]); tqdhnew.push_back(tqd[pix*16+i]); tqrhnew.push_back(tqr[pix*16+i]);}
+     if(i%4==3){ tqdnew.push_back(tqd[pix*16+i]+tqdctrVal); tqrnew.push_back(tqr[pix*16+i]+tqrctrVal); tqdhnew.push_back(tqd[pix*16+i]+tqdctrVal); tqrhnew.push_back(tqr[pix*16+i]+tqrctrVal);}
 
      }
 
      for(int i=0; i<16; i++){
 
-     if(i%4==1){ tqdnew.push_back(tqd[pix*16+i]); tqrnew.push_back(tqr[pix*16+i]); tqdhnew.push_back(tqd[pix*16+i]); tqrhnew.push_back(tqr[pix*16+i]);}
+     if(i%4==1){ tqdnew.push_back(tqd[pix*16+i]+tqdctrVal); tqrnew.push_back(tqr[pix*16+i]+tqrctrVal); tqdhnew.push_back(tqd[pix*16+i]+tqdctrVal); tqrhnew.push_back(tqr[pix*16+i]+tqrctrVal);}
 
      }
 
