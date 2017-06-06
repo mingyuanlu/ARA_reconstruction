@@ -9192,33 +9192,38 @@ int getRecoDelaysFromSeckel(string filename, vector<double>& srcPos, vector<vect
    ctrDelays.push_back(tqdctr);
    ctrDelays.push_back(tqrctr);
 
+   cout<<"lineNumber: "<<lineNumber<<endl;
+
    /* Re-ordering to TV BV TH BH */
 
-   for(int i=0; i<tqd.size(); i++){
+   //for(int i=0; i<tqd.size(); i++){
+   for(int pix = 0; pix<1331; pix++){
 
-     if(i%4==2){ tqdnew.push_back(tqd[i]); tqrnew.push_back(tqr[i]); tqdvnew.push_back(tqd[i]); tqrvnew.push_back(tqr[i]); }
+     for(int i=0; i<16; i++){
+
+     if(i%4==2){ tqdnew.push_back(tqd[pix*16+i]); tqrnew.push_back(tqr[pix*16+i]); tqdvnew.push_back(tqd[pix*16+i]); tqrvnew.push_back(tqr[pix*16+i]); }
+
+     }
+
+     for(int i=0; i<16; i++){
+
+     if(i%4==0){ tqdnew.push_back(tqd[pix*16+i]); tqrnew.push_back(tqr[pix*16+i]); tqdvnew.push_back(tqd[pix*16+i]); tqrvnew.push_back(tqr[pix*16+i]); }
+
+     }
+
+     for(int i=0; i<16; i++){
+
+     if(i%4==3){ tqdnew.push_back(tqd[pix*16+i]); tqrnew.push_back(tqr[pix*16+i]); tqdhnew.push_back(tqd[pix*16+i]); tqrhnew.push_back(tqr[pix*16+i]);}
+
+     }
+
+     for(int i=0; i<16; i++){
+
+     if(i%4==1){ tqdnew.push_back(tqd[pix*16+i]); tqrnew.push_back(tqr[pix*16+i]); tqdhnew.push_back(tqd[pix*16+i]); tqrhnew.push_back(tqr[pix*16+i]);}
+
+     }
 
    }
-
-   for(int i=0; i<tqd.size(); i++){
-
-     if(i%4==0){ tqdnew.push_back(tqd[i]); tqrnew.push_back(tqr[i]); tqdvnew.push_back(tqd[i]); tqrvnew.push_back(tqr[i]); }
-
-   }
-
-   for(int i=0; i<tqd.size(); i++){
-
-     if(i%4==3){ tqdnew.push_back(tqd[i]); tqrnew.push_back(tqr[i]); tqdhnew.push_back(tqd[i]); tqrhnew.push_back(tqr[i]);}
-
-   }
-
-   for(int i=0; i<tqd.size(); i++){
-
-     if(i%4==1){ tqdnew.push_back(tqd[i]); tqrnew.push_back(tqr[i]); tqdhnew.push_back(tqd[i]); tqrhnew.push_back(tqr[i]);}
-
-   }
-
-
    recoDelays.push_back(tqdnew); recoDelays.push_back(tqrnew);
    recoDelays_V.push_back(tqdvnew); recoDelays_V.push_back(tqrvnew);
    recoDelays_H.push_back(tqdhnew); recoDelays_H.push_back(tqrhnew);
