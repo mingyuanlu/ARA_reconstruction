@@ -415,7 +415,7 @@ for(int pix=0; pix<nLayer*nDir; pix++){
      recoBothDelays_V[pix*nAnt+ant]     = recoDelaysVec_V[0][pix*nAnt/2+ant];
      recoBothDelays_V[pix*nAnt+ant+8]   = recoDelaysVec_V[1][pix*nAnt/2+ant];
      //cout<<recoDelays_V[pix*nAnt/2+ant]<<" "<<recoRefracDelays_V[pix*nAnt/2+ant]<<endl;
-     cout<<recoBothDelays_V[pix*nAnt+ant]<<" "<<recoBothDelays_V[pix*nAnt+ant+8]<<end;
+     cout<<recoBothDelays_V[pix*nAnt+ant]<<" "<<recoBothDelays_V[pix*nAnt+ant+8]<<endl;
    } else {
      recoDelays_H[pix*nAnt/2+ant-8]       = recoDelaysVec_H[0][pix*nAnt/2+ant-8];
      recoRefracDelays_H[pix*nAnt/2+ant-8] = recoDelaysVec_H[1][pix*nAnt/2+ant-8];
