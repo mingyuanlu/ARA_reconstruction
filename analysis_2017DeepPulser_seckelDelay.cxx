@@ -407,14 +407,14 @@ for(int pix=0; pix<nLayer*nDir; pix++){
    recoDelays[pix*nAnt+ant]       = recoDelaysVec[0][pix*nAnt+ant];
    recoRefracDelays[pix*nAnt+ant] = recoDelaysVec[1][pix*nAnt+ant];
    cout<<"recoDelays: "<< recoDelays[pix*nAnt+ant]<<" recoRefracDelays: "<<recoRefracDelays[pix*nAnt+ant]<<endl;
-   if(ant%2 == 0){
-     recoDelays_V[pix*nAnt/2+ant/2]       = recoDelaysVec_V[0][pix*nAnt/2+ant/2];
-     recoRefracDelays_V[pix*nAnt/2+ant/2] = recoDelaysVec_V[1][pix*nAnt/2+ant/2];
-     cout<<recoDelays_V[pix*nAnt/2+ant/2]<<" "<<recoRefracDelays_V[pix*nAnt/2+ant/2]<<endl;
+   if(ant < 8){
+     recoDelays_V[pix*nAnt/2+ant]       = recoDelaysVec_V[0][pix*nAnt/2+ant];
+     recoRefracDelays_V[pix*nAnt/2+ant] = recoDelaysVec_V[1][pix*nAnt/2+ant];
+     cout<<recoDelays_V[pix*nAnt/2+ant]<<" "<<recoRefracDelays_V[pix*nAnt/2+ant]<<endl;
    } else {
-     recoDelays_H[pix*nAnt/2+ant/2]       = recoDelaysVec_H[0][pix*nAnt/2+ant/2];
-     recoRefracDelays_H[pix*nAnt/2+ant/2] = recoDelaysVec_H[1][pix*nAnt/2+ant/2];
-     cout<<recoDelays_H[pix*nAnt/2+ant/2]<<" "<<recoRefracDelays_H[pix*nAnt/2+ant/2]<<endl;
+     recoDelays_H[pix*nAnt/2+ant-8]       = recoDelaysVec_H[0][pix*nAnt/2+ant-8];
+     recoRefracDelays_H[pix*nAnt/2+ant-8] = recoDelaysVec_H[1][pix*nAnt/2+ant-8];
+     cout<<recoDelays_H[pix*nAnt/2+ant-8]<<" "<<recoRefracDelays_H[pix*nAnt/2+ant-8]<<endl;
    }
 
    }
