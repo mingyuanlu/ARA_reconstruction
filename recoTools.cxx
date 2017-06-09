@@ -6667,7 +6667,9 @@ int lastBin  = nSamp / 2;
 //TFile *dtFile = new TFile("dtFile.txt","UPDATE");
 //FILE *dtFile = fopen("dtFile.txt","a+");
 
-//FILE *xCorrGraphDataFile = fopen("hilbertEnvGraphDataFile_A3_run3811_IC22S_10Events.csv","a+");
+FILE *xCorrGraphDataFile = fopen("xCorrGraphDataFile_A2_run8573_IC1S_10Events_allAnt.csv","a+");
+
+FILE *hilbertEnvelopeGraphDataFile = fopen("hilbertEnvGraphDataFile_A2_run8573_IC1S_10Events_allAnt.csv","a+");
 
 for(int baseline=0; baseline<nBaseline; baseline++){
 
@@ -6679,12 +6681,12 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 
    dt[s] = wInt*s;
    xCorrValue[s] = xCorrTime[nSamp*baseline + s];
-/*
+
    if(s!=nSamp-1)
    fprintf(xCorrGraphDataFile,"%f,%f,",dt[s],xCorrValue[s]);
    else
    fprintf(xCorrGraphDataFile,"%f,%f\n",dt[s],xCorrValue[s]);
-*/
+
    }
 
    TGraph *xCorrGraph = new TGraph(nSamp, dt, xCorrValue);
@@ -6796,12 +6798,12 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 
    envelope->GetPoint(s,t_temp,v_temp);
    xCorrTime[nSamp*baseline + s] = static_cast<float>(v_temp);
-/*
+
    if(s!=nSamp-1)
-   fprintf(xCorrGraphDataFile,"%f,%f,",t_temp,v_temp);
+   fprintf(hilbertEnvelopeGraphDataFile,"%f,%f,",t_temp,v_temp);
    else
-   fprintf(xCorrGraphDataFile,"%f,%f\n",t_temp,v_temp);
-*/
+   fprintf(hilbertEnvelopeGraphDataFile,"%f,%f\n",t_temp,v_temp);
+
    }
    //if(lock == 0) lock=1;
 /*
@@ -6827,7 +6829,8 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 //dtFile->Close();
 fclose(dtFile);
 */
-//fclose(xCorrGraphDataFile);
+fclose(xCorrGraphDataFile);
+fclose(hilbertEnvelopeGraphDataFile);
 
 cl_mem xCorrEnvBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
                                        sizeof(float)*nBaseline*nSamp,

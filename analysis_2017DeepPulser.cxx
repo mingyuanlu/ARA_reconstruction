@@ -487,12 +487,12 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
      continue;
    }
 */
-   if(//(rawAtriEvPtr->timeStamp < deepPulserString1StartTimeStamp_2017)
-      //||
-      //(rawAtriEvPtr->timeStamp > deepPulserString1EndTimeStamp_2017)
-      (/*rawAtriEvPtr->timeStamp > deepPulserString1EndTimeStamp_2017 &&*/ rawAtriEvPtr->timeStamp < deepPulserString22StartTimeStamp_2017)
+   if((rawAtriEvPtr->timeStamp < deepPulserString1StartTimeStamp_2017)
       ||
-      (rawAtriEvPtr->timeStamp > deepPulserString22EndTimeStamp_2017)
+      (rawAtriEvPtr->timeStamp > deepPulserString1EndTimeStamp_2017)
+      //(/*rawAtriEvPtr->timeStamp > deepPulserString1EndTimeStamp_2017 &&*/ rawAtriEvPtr->timeStamp < deepPulserString22StartTimeStamp_2017)
+      //||
+      //(rawAtriEvPtr->timeStamp > deepPulserString22EndTimeStamp_2017)
    ) {
      //cout<<"Skipping event not in deep pulser period....\n";
      continue;
@@ -616,9 +616,11 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    for(int ch=0; ch<16; ch++){
 
-
+/*
    if(ch<8){wInt=0.4; maxSamp=2048;}
    else{wInt=0.625; maxSamp=2048;}
+*/
+   wInt = 0.5; maxSamp=2048;
 
    /* Interpolate + apply windowing + zero-pad + equalize wf beginning  to maxSamp */
    //cout<<"N: "<<gr_v[ch]->GetN()<<endl;
