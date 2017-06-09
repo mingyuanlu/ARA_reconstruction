@@ -940,7 +940,9 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    }
    }
    else {
-   for(int i=0; i<16; i++) goodChan[i] = chanMask[i];
+   for(int i=0; i<16; i++){
+     goodChan[i] = chanMask[i]; cout<<"goodChan["<<i<<"]: "<<goodChan[i]<<endl;
+   }
    }
 
    getChannelSNR(unpaddedEvent, snrArray);
