@@ -67,11 +67,11 @@ gROOT->ProcessLine("#include <vector>");
 
 int chanMask[16] = {  1 //chan 0  D1TV
                      ,1 //chan 1  D2TV
-                     ,1 //chan 2  D3TV
+                     ,0 //chan 2  D3TV
                      ,1 //chan 3  D4TV
-                     ,1 //chan 4  D1BV
+                     ,0 //chan 4  D1BV
                      ,1 //chan 5  D2BV
-                     ,1 //chan 6  D3BV
+                     ,0 //chan 6  D3BV
                      ,1 //chan 7  D4BV
                      ,1 //chan 8  D1TH
                      ,1 //chan 9  D2TH
@@ -420,7 +420,7 @@ for(int pix=0; pix<nLayer*nDir; pix++){
      recoDelays_H[pix*nAnt/2+ant-8]       = recoDelaysVec_H[0][pix*nAnt/2+ant-8];
      recoRefracDelays_H[pix*nAnt/2+ant-8] = recoDelaysVec_H[1][pix*nAnt/2+ant-8];
      recoBothDelays_H[pix*nAnt+ant-8]     = recoDelaysVec_H[0][pix*nAnt/2+ant-8];
-     recoBothDelays_H[pix*nAnt+ant]       = recoDelaysVec_V[1][pix*nAnt/2+ant-8];
+     recoBothDelays_H[pix*nAnt+ant]       = recoDelaysVec_H[1][pix*nAnt/2+ant-8];
      //cout<<recoDelays_H[pix*nAnt/2+ant-8]<<" "<<recoRefracDelays_H[pix*nAnt/2+ant-8]<<endl;
      cout<<recoBothDelays_H[pix*nAnt+ant-8]<<" "<<recoBothDelays_H[pix*nAnt+ant]<<endl;
    }
