@@ -196,12 +196,16 @@ int nchnl_tmp;
 
 int runEventCount, trigEventCount, recoEventCount;
 runEventCount = trigEventCount = recoEventCount = 0;
+int cutWaveEventCount, nonIncreasingSampleTimeEventCount, cutWaveAndNonIncreasingEventCount;
+cutWaveEventCount = nonIncreasingSampleTimeEventCount = cutWaveAndNonIncreasingEventCount = 0;
 runInfoTree->Branch("runEventCount",  &runEventCount);
 runInfoTree->Branch("trigEventCount", &trigEventCount);
 runInfoTree->Branch("recoEventCount", &recoEventCount);
 runInfoTree->Branch("utime_runStart", &utime_runStart);
 runInfoTree->Branch("utime_runEnd",   &utime_runEnd);
-
+runInfoTree->Branch("cutWaveEventCount", &cutWaveEventCount);
+runInfoTree->Branch("nonIncreasingSampleTimeEventCount", &nonIncreasingSampleTimeEventCount);
+runInfoTree->Branch("cutWaveAndNonIncreasingEventCount", &cutWaveAndNonIncreasingEventCount);
 
 if(settings->dataType == 1)//real events
 {
@@ -477,6 +481,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    cout<<"Code loop ev: "<<ev<<" eventId: "<<rawAtriEvPtr->eventId<<" eventNumber: "<<rawAtriEvPtr->eventNumber<<endl;
    summary->setEventId(rawAtriEvPtr->eventId);
    summary->setEventNumber(rawAtriEvPtr->eventNumber);
+   summary->setEventTime(rawAtriEvPtr->unixTime, rawAtriEvPtr->unixTimeUs, rawAtriEvPtr->timeStamp);
 
    if(rawAtriEvPtr->isRFTrigger()){
       if(rawAtriEvPtr->isCalpulserEvent()){
@@ -525,7 +530,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 	  //*** The following is to avoid reading corrupted waveforms. ***//
 	  //*** I encountered only a few of them, so maybe this is not ***//
 	  //*** really neccessary anymore. *******************************//
-	  if(gr_v_temp[a]->GetN()<5 ){ cerr<< "BAD EVENT: " << ev << " Channel: " << a << ", points: " << gr_v_temp[a]->GetN() << endl;cutWaveAlert=1;continue;}
+	  if(gr_v_temp[a]->GetN()<5 ){ cerr<< "BAD EVENT: " << ev << " Channel: " << a << ", points: " << gr_v_temp[a]->GetN() << endl;cutWaveAlert=1; cutWaveEventCount++; /*continue;*/}
 	  int pc = 0;
 
 	  //*** The first 20 samples can be corrupted. Therefore, we need to exclude them! ***//
@@ -559,13 +564,13 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
             if( (times - previous_times) > 0.)
             gr_v[a]->SetPoint(pc, times, volts-average[a]);
-            else {cerr<< "BAD EVENT Non-increasing sample time: " << event << " Channel: " << a << "this sample time: "<< times << "previous sample time: " << previous_times << endl;nonIncreasingSampleTimeAlert=1;}
+            else {cerr<< "BAD EVENT Non-increasing sample time: " << event << " Channel: " << a << "this sample time: "<< times << "previous sample time: " << previous_times << endl;nonIncreasingSampleTimeAlert=1; nonIncreasingSampleTimeEventCount++; if(cutWaveAlert==1){cutWaveAndNonIncreasingEventCount++;}}
 
             previous_times = times;
 
          }//end of pc
 
-         } else {cerr<< "BAD EVENT type 2: " << event << " Channel: " << a << ", original number of points: " << gr_v_temp[a]->GetN() << endl;cutWaveAlert=1;/*continue;*/}
+       } else {cerr<< "BAD EVENT type 2: " << event << " Channel: " << a << ", original number of points: " << gr_v_temp[a]->GetN() << endl; if(cutWaveAlert!=1){ cutWaveEventCount++;} cutWaveAlert=1; /*continue;*/}
 
 /*
       average[a]/=(double)gr_v[a]->GetN();
@@ -892,6 +897,7 @@ time_t t_after_event_loop = time(NULL);
 clock_t c_after_event_loop = clock();
 
 cout<<"runEventCount: "<<runEventCount<<" recoEventCount: "<<recoEventCount<<" trigEventCount: "<<trigEventCount<<endl;
+cout<<"cutWaveEventCount: "<<cutWaveEventCount<<" nonIncreasingSampleTimeEventCount: "<<nonIncreasingSampleTimeEventCount<<" cutWaveAndNonIncreasingEventCount: "<<cutWaveAndNonIncreasingEventCount<<endl;
 
 runInfoTree->Fill();
 

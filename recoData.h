@@ -47,6 +47,7 @@ public:
    void initialize();
    void setAllData(
      int _eventId, int _eventNumber
+   , int _unixTime, int _unixTimeUs, int _timeStamp
    , double w
    , int _eventTrigType
    , float zen_true, float azi_true, float zen_reco, float azi_reco, float r_true, float r_reco
@@ -90,7 +91,14 @@ public:
    void setEventId(int _eventId);
    void setEventNumber(int _eventNumber);
 
-   ClassDef(recoData, 3);
+//ClassDef 4
+
+   int unixTime; //unixTime copied from AraRoot AraStationEventHeader_t
+   int unixTimeUs; //unixTimeUs as above
+   int timeStamp; //timeStamp as above
+   void setEventTime(int _unixTime, int _unixTimeUs, int _timeStamp);
+
+   ClassDef(recoData, 4);
 };
 
 

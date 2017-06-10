@@ -35,12 +35,17 @@ using namespace std;
    eventId = 0;
    eventNumber = 0;
 
+   unixTime = 0;
+   unixTimeUs = 0;
+   timeStamp = 0;
+
    }
 
 
 
    void recoData::setAllData(
      int _eventId, int _eventNumber
+   , int _unixTime, int _unixTimeUs, int _timeStamp
    , double w
    , int _eventTrigType
    , float zen_true, float azi_true, float zen_reco, float azi_reco, float r_true, float r_reco
@@ -58,6 +63,9 @@ using namespace std;
 
    eventId = _eventId;
    eventNumber = _eventNumber;
+   unixTime = _unixTime;
+   unixTimeUs = _unixTimeUs;
+   timeStamp = _timeStamp;
    weight = w;
    trueZen = zen_true;
    trueAzi = azi_true;
@@ -223,6 +231,14 @@ using namespace std;
 
    }
 
+   void recoData::setEventTime(int _unixTime, int _unixTimeUs, int _timeStamp){
+
+    unixTime = _unixTime;
+    unixTimeUs = _unixTimeUs;
+    timeStamp = _timeStamp;
+
+   }
+
    void recoData::duplicate(recoSettings *settings, recoData *old){
 
    int *_topMaxPixIdx         = (int*)calloc(old->topN, sizeof(int));
@@ -240,6 +256,7 @@ using namespace std;
    }
 
    setAllData(old->eventId,     old->eventNumber
+             , old->unixTime, old->unixTimeUs, old->timeStamp
              , old->weight
              , old->eventTrigType
              , old->trueZen,    old->trueAzi
@@ -318,4 +335,8 @@ using namespace std;
    eventTrigType = 0;
    eventId = 0;
    eventNumber = 0;
+   unixTime = 0;
+   unixTimeUs = 0;
+   timeStamp = 0;
+
    }
