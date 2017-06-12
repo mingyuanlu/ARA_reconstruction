@@ -80,7 +80,7 @@ int setupCLRecoEnv(recoSettings *settings, recoEnvData *clEnv, const char *progr
      }//end of if settings->openCLMaxNumberOfCores != 0
    } else if (string(settings->openCLDeviceType) == "gpu"){
      //cerr<<"GPU device not supported yet\n"; return -1;
-     cout<"NB: GPU devices do not support device fission. Param. openCLMaxNumberOfCores will not be used\n";
+     cout<<"NB: GPU devices do not support device fission. Param. openCLMaxNumberOfCores will not be used\n";
 
      for(int platform_count = 0; platform_count<num_platforms; platform_count++){
      err = clGetDeviceIDs(clEnv->platforms[platform_count], CL_DEVICE_TYPE_GPU, num_devices, clEnv->devices, NULL);
