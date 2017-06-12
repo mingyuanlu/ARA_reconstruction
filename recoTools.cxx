@@ -44,11 +44,18 @@ int setupCLRecoEnv(recoSettings *settings, recoEnvData *clEnv, const char *progr
    clGetPlatformIDs(num_platforms, clEnv->platforms, NULL);
    clGetPlatformInfo(clEnv->platforms[0], CL_PLATFORM_NAME, sizeof(name_data), &name_data, NULL);
    cout<<"Platform 0 name: "<<name_data<<endl;
+   clGetPlatformInfo(clEnv->platforms[1], CL_PLATFORM_NAME, sizeof(name_data), &name_data, NULL);
+   cout<<"Platform 1 name: "<<name_data<<endl;
    clEnv->devices = (cl_device_id*)malloc(sizeof(cl_device_id)*num_devices);
 
    if(string(settings->openCLDeviceType) == "cpu"){
 
-     err = clGetDeviceIDs(clEnv->platforms[0], CL_DEVICE_TYPE_CPU, num_devices, clEnv->devices, NULL);
+     for(int platform_count = 0; platform_count<num_platforms; platform_count++){
+     err = clGetDeviceIDs(clEnv->platforms[platform_count], CL_DEVICE_TYPE_CPU, num_devices, clEnv->devices, NULL);
+     if( err >= 0 ){ cout<<"CPU device found. Exiting...\n"; break;}
+     else          { cout<<"No CPU device found in platform: "<<platform_count<<", continuing...\n"; }
+     }
+     if(err<0){ cerr<<"No CPU device found in any platforms !!\n"; return -1; }
 
      if(settings->openCLMaxNumberOfCores != 0){
 
@@ -72,8 +79,17 @@ int setupCLRecoEnv(recoSettings *settings, recoEnvData *clEnv, const char *progr
        }//end of if max_compute_units > settings->openCLMaxNumberOfCores
      }//end of if settings->openCLMaxNumberOfCores != 0
    } else if (string(settings->openCLDeviceType) == "gpu"){
-     cerr<<"GPU device not supported yet\n"; return -1;
-     //err = clGetDeviceIDs(clEnv->platforms[0], CL_DEVICE_TYPE_GPU, num_devices, clEnv->devices, NULL);
+     //cerr<<"GPU device not supported yet\n"; return -1;
+     cout<"NB: GPU devices do not support device fission. Param. openCLMaxNumberOfCores will not be used\n";
+
+     for(int platform_count = 0; platform_count<num_platforms; platform_count++){
+     err = clGetDeviceIDs(clEnv->platforms[platform_count], CL_DEVICE_TYPE_GPU, num_devices, clEnv->devices, NULL);
+     if( err >= 0 ){ cout<<"GPU device found. Exiting...\n"; break;}
+     else          { cout<<"No GPU device found in platform: "<<platform_count<<", continuing...\n"; }
+     }
+     if(err<0){ cerr<<"No GPU device found in any platforms !!\n"; return -1; }
+
+     //err = clGetDeviceIDs(clEnv->platforms[1], CL_DEVICE_TYPE_GPU, num_devices, clEnv->devices, NULL);
    }
    if(err<0){ cerr<<"No device found"<<endl; return -1; }
 
