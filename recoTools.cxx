@@ -6345,6 +6345,13 @@ else { cerr<<"recoPolType undefined\n"; return -1; }
 } else {
 cerr<<"dataType undefined\n"; return -1; }
 
+int nGoodChan = 0;
+if(pol == "vpol")      for(int ch=0; ch<8; ch++)  nGoodChan += chanMask[ch];
+else if(pol == "hpol") for(int ch=8; ch<16; ch++) nGoodChan += chanMask[ch];
+else if(pol == "both") nGoodChan = unmaskedNChan;
+
+cout<<"nGoodChan: "<<nGoodChan<<endl;
+
 int nSideExp = settings->nSideExp;
 int nDir   = /*summary->onion*/12 * pow(2,nSideExp) * pow(2,nSideExp);;
 int nLayer = /*summary->onion*/settings->nLayer;
@@ -6925,6 +6932,7 @@ clSetKernelArg(clEnv->computeCoherence, 2, sizeof(int),    &nBaseline);
 clSetKernelArg(clEnv->computeNormalizedCoherence, 0, sizeof(cl_mem), &MBuffer);
 clSetKernelArg(clEnv->computeNormalizedCoherence, 1, sizeof(cl_mem), &CijBuffer);
 clSetKernelArg(clEnv->computeNormalizedCoherence, 2, sizeof(int),    &nBaseline);
+clSetKernelArg(clEnv->computeNormalizedCoherence, 3, sizeof(int),    &nGoodChan);
 
 workDim = 2;
 size_t MGlobalWorkSize[2] = {(size_t)nLayer, (size_t)nDir};
