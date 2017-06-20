@@ -15,9 +15,12 @@ Radio Interferometric Neutrino Reconstruction. This is a software that utilizes 
 # Building
 ----------
 To make use of the software tools:
-1. Include line "scl enable devtoolset-2 $SHELL" in your .bashrc or equivalent file.
+1. In your .bashrc or equivalent file, include line
 
-2. Set up a working AraRoot copy. Set up a working AraSim copy in the same directory, otherwise AraSim events analysis will not run properly.
+		$ scl enable devtoolset-2 $SHELL"
+
+2. Set up a working AraRoot copy. Set up a working AraSim copy in the same directory, otherwise AraSim events analysis will not run properly. An area containing these (AraRoot analysis + AraSim) can be found at the WIPAC server at /data/user/mlu27/analysis/RIvR_skeleton.
+
 3. In this common work area, create libAraSim.a with
 
 		$ ar rcs libAraSim.a *.o
@@ -34,16 +37,16 @@ To make use of the software tools:
 
 		$ add_executable(analysis analysis.cxx)
 		$ target_link_libraries(analysis ${ARAEVENT_LIBRARIES} ${ROOT_LIBRARIES} ${ZLIB_LIBRARIES} ${ExtraLibs} ${HealpixLibs})
- 
+
  This enables you to run the analysis.
 
 6. Do
- 
+
 		$ sh INSTALL.sh 0
-		
+
 # Usage
 ----------
-The "analysis" executable is generated in #5 above. 
+The "analysis" executable is generated in #5 above.
 To reconstruct AraSim events, do:
 
 		./build/analysis recoSetupFile_default.txt 0 ${PATH_TO_SIMULATION}/AraOut.root
@@ -51,7 +54,7 @@ To reconstruct AraSim events, do:
 To reconstruct real data, do:
 
 		./build/analysis recoSetupFile_default.txt 0 ${PATH_TO_REAL_DATA}/eventXXXX.root ${PATH_TO_PEDESTAL_FILE}/pedestalValues.run00XXXX.dat
-		
+
 In the above examples, '0' is the run number given to the analysis runs. The analysis output will be a ROOT file named recoOut.${recoSetupFile}.run${RunNumber}.root
 
 # Configuring the reconstruction
@@ -61,5 +64,3 @@ All configuration parameters for the reconstruction are defined and explained in
 # OpenCL kernels
 ----------
 All OpenCL kernels used are implemented in kernel_3D_analysis.c
-
-
