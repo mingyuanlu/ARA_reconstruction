@@ -372,7 +372,7 @@ int compute3DRecoDelaysWithRadioSplineForSinglePixel(const int nAnt, const float
 
 int compute3DRecoAnglesWithRadioSplineForSinglePixel(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc, Healpix_Onion *onion, float *recoLauAngles, float *recoRecAngles, const int pix);
 
-int compute3DRecoAnglesWithRadioSplineForSinglePoint(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc, float *recoLauAngles, float *recoRecAngles, const double *coordSrc);
+int compute3DRecoAnglesWithRadioSplineForSinglePoint(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc, float *recoLauAngles, float *recoRecAngles, const double *srcLoc);
 
 int compute3DZoomedRecoDelaysWithRadioSpline(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
                                      //const float radius, const int nSideExp,

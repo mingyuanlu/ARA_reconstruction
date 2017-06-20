@@ -8849,7 +8849,7 @@ int compute3DRecoAnglesWithRadioSplineForSinglePoint(const int nAnt, const float
                                      //Healpix_Onion *onion,
                                      float *recoLauAngles, /*float *recoLauAngles_V, float *recoLauAngles_H,*/
                                      float *recoRecAngles, /*float *recoRecAngles_V, float *recoRecAngles_H,*/
-                                     const double *coordSrc)
+                                     const double *srcLoc)
 {
 
 if(zCenter > 0 ) cerr<<"zCenter should be negative under the ice surfac\n";
@@ -8902,7 +8902,7 @@ double r, zRec, zSrc;
 //float tempLauAngle = 0.f;
 //float tempRecAngle = 0.f;
 //vector<float> solvedDelay;
-double /*coordSrc[3],*/ coordTrg[3];
+double coordSrc[3], coordTrg[3];
 //cout<<"recoDelays:\n";
 //for(int layer=0; layer<nLayer; layer++){
 
@@ -8925,6 +8925,9 @@ double /*coordSrc[3],*/ coordTrg[3];
       //coordSrc[1] = test_r*sin(test_zenith)*sin(test_azimuth);
       //coordSrc[2] = test_r*cos(test_zenith);
 
+      coordSrc[0] = srcLoc[0];
+      coordSrc[1] = srcLoc[1];
+      coordSrc[2] = srcLoc[2];
 
       //cout<<"coordSrc: "<<coordSrc[0]<<"\t"<<coordSrc[1]<<"\t"<<coordSrc[2]<<endl;
       //cout<<"nAnt: "<<nAnt<<endl;
