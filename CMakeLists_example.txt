@@ -4,6 +4,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 #message( STATUS "CMAKE_SOURCE_DIR:")
 #message( STATUS ${CMAKE_SOURCE_DIR})
 #include(FindROOT)
+SET(CMAKE_CXX_STANDARD 11)
 
 set(SQLITE3_HINT_INCLUDES "/net/local/ara/install_dir/utilities/include")
 set(SQLITE3_HINT_LIBRARIES "/net/local/ara/install_dir/utilities/lib")
@@ -16,7 +17,8 @@ set(FFTW3_HINT_LIBRARIES "/net/local/ara/install_dir/utilities/lib")
 set (CURRENT_WORK_DIR "/data/user/mlu27/analysis/tmp_for_git")
 set (CLFFT_INCLUDE_DIR  "/data/user/mlu27/softwares/clFFT-2.2/src/include")
 set (RADIOSPLINE_INCLUDE_DIR "/data/user/mlu27/softwares/radiospline/src/public")
-set (PHOTOSPLINE_INCLUDE_DIR "/data/user/mlu27/softwares/radiospline/photospline/public")
+set (PHOTOSPLINE_INCLUDE_DIR "/data/user/mlu27/softwares/radiospline/photospline/include")
+#set (PHOTOSPLINE_INCLUDE_DIR "/data/user/mlu27/softwares/radiospline/photospline/public")
 set (ARASIM_INCLUDE_DIR "/data/user/mlu27/analysis/tmp_for_git")
 # Using I3_PORT CFITSIO
 #set (CFITSIO_INCLUDE_DIR "/data/user/mlu27/tools/RHEL_6.0_amd64/include")
@@ -81,9 +83,13 @@ set_property( TARGET radiospline PROPERTY IMPORTED_LOCATION
 /data/user/mlu27/softwares/radiospline/build/radiospline-prefix/src/radiospline-build/libradiospline.so )
 add_library(libAraSim STATIC IMPORTED)
 set_property( TARGET libAraSim PROPERTY IMPORTED_LOCATION ${ARASIM_INCLUDE_DIR}/libAraSim.a)
+add_library(libRootFftWrapper STATIC IMPORTED)
+set_property(TARGET libRootFftWrapper PROPERTY IMPORTED_LOCATION /home/local/ara/install_dir/AraRoot/trunk/lib/libRootFftwWrapper.so)
+add_library(cfitsio STATIC IMPORTED)
+set_property(TARGET cfitsio PROPERTY IMPORTED_LOCATION /cvmfs/icecube.opensciencegrid.org/py2-v2/RHEL_6_x86_64/lib/libcfitsio.so.2)
 
 set(ExtraLibs ${ExtraLibs} calibrationToolsVs3 evProcessTools calibrationTools
-recoTools OpenCL clFFT radiospline recoSettings Healpix_Onion libAraSim recoData)
+recoTools OpenCL clFFT radiospline recoSettings Healpix_Onion libAraSim recoData libRootFftWrapper cfitsio)
 
 add_library(healpix_cxx STATIC IMPORTED)
 set_property( TARGET healpix_cxx PROPERTY IMPORTED_LOCATION ${HEALPIX_LIB_DIR}/libhealpix_cxx.a )

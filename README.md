@@ -15,13 +15,14 @@ Radio Interferometric Neutrino Reconstruction. This is a software that utilizes 
 # Building
 ----------
 To make use of the software tools:
+1. Include line "scl enable devtoolset-2 $SHELL" in your .bashrc or equivalent file.
 
-1. Set up a working AraRoot copy. Set up a working AraSim copy in the same directory, otherwise AraSim events analysis will not run properly.
-2. In this common work area, create libAraSim.a with
+2. Set up a working AraRoot copy. Set up a working AraSim copy in the same directory, otherwise AraSim events analysis will not run properly.
+3. In this common work area, create libAraSim.a with
 
 		$ ar rcs libAraSim.a *.o
 
-3. Modify CMakeLists.txt according to the enclosed CMakeLists_example.txt. Point the include paths to where the softwares tools are installed. In particular, if you set up the common work area for AraRoot and AraSim as in #1, ${ARASIM_INCLUDE_DIR} should be the same as ${CURRENT_WORK_DIR}. Also, make sure the line
+4. Modify CMakeLists.txt according to the enclosed CMakeLists_example.txt. Point the include paths to where the softwares tools are installed. In particular, if you set up the common work area for AraRoot and AraSim as in #1, ${ARASIM_INCLUDE_DIR} should be the same as ${CURRENT_WORK_DIR}. Also, make sure the line
 
 		$ find_package(ROOT REQUIRED COMPONENTS MathMore Gui)
 
@@ -29,14 +30,14 @@ To make use of the software tools:
 
 		$ ROOT_GENERATE_DICTIONARY(...)
 
-4. In CMakeLists.txt, add lines
+5. In CMakeLists.txt, add lines
 
 		$ add_executable(analysis analysis.cxx)
 		$ target_link_libraries(analysis ${ARAEVENT_LIBRARIES} ${ROOT_LIBRARIES} ${ZLIB_LIBRARIES} ${ExtraLibs} ${HealpixLibs})
  
  This enables you to run the analysis.
 
-5. Do
+6. Do
  
 		$ sh INSTALL.sh 0
 		
