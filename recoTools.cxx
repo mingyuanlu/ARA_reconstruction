@@ -8849,7 +8849,7 @@ int compute3DRecoAnglesWithRadioSplineForSinglePoint(const int nAnt, const float
                                      //Healpix_Onion *onion,
                                      float *recoLauAngles, /*float *recoLauAngles_V, float *recoLauAngles_H,*/
                                      float *recoRecAngles, /*float *recoRecAngles_V, float *recoRecAngles_H,*/
-                                     const float *coordSrc)
+                                     const double *coordSrc)
 {
 
 if(zCenter > 0 ) cerr<<"zCenter should be negative under the ice surfac\n";
