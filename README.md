@@ -17,7 +17,7 @@ Radio Interferometric Neutrino Reconstruction. This is a software that utilizes 
 To make use of the software tools:
 1. In your .bashrc or equivalent file, include line
 
-		$ scl enable devtoolset-2 $SHELL"
+		$ scl enable devtoolset-2 $SHELL
 
 2. Set up a working AraRoot copy. Set up a working AraSim copy in the same directory, otherwise AraSim events analysis will not run properly. An area containing these (AraRoot analysis + AraSim) can be found at the WIPAC server at /data/user/mlu27/analysis/RIvR_skeleton.
 
