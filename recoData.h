@@ -103,8 +103,8 @@ public:
 
    float recoRecAngle[16], recoLauAngle[16];
    float trueRecAngle[16], trueLauAngle[16];
-   void setRecoAngles(float *recAngle. float *lauAngle);
-   void setTrueAngles(float *recAngle. float *lauAngle);
+   void setRecoAngles(float *recAngle, float *lauAngle);
+   void setTrueAngles(float *recAngle, float *lauAngle);
 
 
    ClassDef(recoData, 5);
