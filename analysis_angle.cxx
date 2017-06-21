@@ -832,8 +832,8 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       antenna_i = detector->getAntennafromArbAntID(0, a);
       AraRootChannel = detector->GetChannelfromStringAntenna (0, string_i, antenna_i, AraSim_settings);
 
-      trueRecAngles[a] = report->stations[0].strins[string_i].antennas[antenna_i].rec_ang[0];
-      trueLauAngles[a] = report->stations[0].strins[string_i].antennas[antenna_i].launch_ang[0];
+      trueRecAngles[a] = report->stations[0].strings[string_i].antennas[antenna_i].rec_ang[0];
+      trueLauAngles[a] = report->stations[0].strings[string_i].antennas[antenna_i].launch_ang[0];
 
    }
 
