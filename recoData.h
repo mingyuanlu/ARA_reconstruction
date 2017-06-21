@@ -51,6 +51,7 @@ public:
    , double w
    , int _eventTrigType
    , float zen_true, float azi_true, float zen_reco, float azi_reco, float r_true, float r_reco
+   , float *_trueRecAngle, float *_trueLauAngle, float *_recoRecAngle, float *_recoLauAngle
    , int *usedChan
    , int idx, float xCorrValue
    //, Healpix_Onion *_onion
@@ -98,7 +99,15 @@ public:
    int timeStamp; //timeStamp as above
    void setEventTime(int _unixTime, int _unixTimeUs, int _timeStamp);
 
-   ClassDef(recoData, 4);
+//ClassDef 5
+
+   float recoRecAngle[16], recoLauAngle[16];
+   float trueRecAngle[16], trueLauAngle[16];
+   void setRecoAngles(float *recAngle. float *lauAngle);
+   void setTrueAngles(float *recAngle. float *lauAngle);
+
+
+   ClassDef(recoData, 5);
 };
 
 

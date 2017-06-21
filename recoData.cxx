@@ -39,6 +39,11 @@ using namespace std;
    unixTimeUs = 0;
    timeStamp = 0;
 
+   std::fill(&recoRecAngle[0], &recoRecAngle[16], -1.);
+   std::fill(&recoLauAngle[0], &recoLauAngle[16], -1.);
+   std::fill(&trueRecAngle[0], &trueRecAngle[16], -1.);
+   std::fill(&trueLauAngle[0], &trueLauAngle[16], -1.);
+
    }
 
 
@@ -49,6 +54,7 @@ using namespace std;
    , double w
    , int _eventTrigType
    , float zen_true, float azi_true, float zen_reco, float azi_reco, float r_true, float r_reco
+   , double *_trueRecAngle, double *_trueLauAngle, double *_recoRecAngle, double *_recoLauAngle
    , int *usedChan
    , int idx, float xCorrValue
    //, Healpix_Onion *_onion
@@ -74,7 +80,13 @@ using namespace std;
    trueRadius = r_true;
    recoRadius = r_reco;
 
-   for(int i=0; i<16; i++) recoChan[i] = usedChan[i];
+   for(int i=0; i<16; i++){
+      recoChan[i] = usedChan[i];
+      trueRecAngle[i] = _trueRecAngle[i];
+      trueLauAngle[i] = _trueLauAngle[i];
+      recoRecAngle[i] = _recoRecAngle[i];
+      recoLauAngle[i] = _recoLauAngle[i];
+   }
 
    maxPixIdx = idx;
    maxPixCoherence = xCorrValue;
@@ -144,6 +156,23 @@ using namespace std;
    void recoData::setRecoChan(int *usedChan){
 
    for(int i=0; i<16; i++) recoChan[i] = usedChan[i];
+
+   }
+
+   void recoData::setRecoAngles(float *recAngle. float *lauAngle){
+
+   for(int i=0; i<16; i++){
+     recoRecAngle[i] = recAngle[i];
+     recoLauAngle[i] = lauAngle[i];
+   }
+
+   }
+   void recoData::setTrueAngles(float *recAngle. float *lauAngle){
+
+   for(int i=0; i<16; i++){
+     trueRecAngle[i] = recAngle[i];
+     trueLauAngle[i] = lauAngle[i];
+   }
 
    }
 
@@ -262,6 +291,8 @@ using namespace std;
              , old->trueZen,    old->trueAzi
              , old->recoZen,    old->recoAzi
              , old->trueRadius, old->recoRadius
+             , old->trueRecAngle, old->trueLauAngle
+             , old->recoRecAngle, old->recoLauAngle
              , old->recoChan
              , old->maxPixIdx,  old->maxPixCoherence
              //, old->onion
@@ -318,6 +349,10 @@ using namespace std;
    weight = 0.;
    trueZen = trueAzi = recoZen = recoAzi = 0.f;
    trueRadius = recoRadius = 0.f;
+   std::fill(&recoRecAngle[0], &recoRecAngle[16], -1.);
+   std::fill(&recoLauAngle[0], &recoLauAngle[16], -1.);
+   std::fill(&trueRecAngle[0], &trueRecAngle[16], -1.);
+   std::fill(&trueLauAngle[0], &trueLauAngle[16], -1.);
    std::fill(&recoChan[0], &recoChan[16], 0);
    maxPixIdx = 0;
    maxPixCoherence = 0.f;
