@@ -54,7 +54,7 @@ using namespace std;
    , double w
    , int _eventTrigType
    , float zen_true, float azi_true, float zen_reco, float azi_reco, float r_true, float r_reco
-   , double *_trueRecAngle, double *_trueLauAngle, double *_recoRecAngle, double *_recoLauAngle
+   , float *_trueRecAngle, float *_trueLauAngle, float *_recoRecAngle, float *_recoLauAngle
    , int *usedChan
    , int idx, float xCorrValue
    //, Healpix_Onion *_onion
@@ -159,7 +159,7 @@ using namespace std;
 
    }
 
-   void recoData::setRecoAngles(float *recAngle. float *lauAngle){
+   void recoData::setRecoAngles(float *recAngle, float *lauAngle){
 
    for(int i=0; i<16; i++){
      recoRecAngle[i] = recAngle[i];
@@ -167,7 +167,7 @@ using namespace std;
    }
 
    }
-   void recoData::setTrueAngles(float *recAngle. float *lauAngle){
+   void recoData::setTrueAngles(float *recAngle, float *lauAngle){
 
    for(int i=0; i<16; i++){
      trueRecAngle[i] = recAngle[i];
