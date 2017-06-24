@@ -6484,6 +6484,7 @@ cout<<"Plan prepared\n";
 /* The plan is now ready to be executed */
 cl_mem voltsFlatBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*nSamp*sizeof(float), NULL, &err);
 err = clEnqueueWriteBuffer(clEnv->queue, voltsFlatBuffer, CL_TRUE, 0, nAnt*nSamp*sizeof(float), voltsFlat, 0, NULL, NULL);
+err = clFinish(clEnv->queue);
 
 cl_mem intensityRBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
                          NULL, &err);
@@ -6499,6 +6500,7 @@ clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*
                     0, NULL, NULL);
 clEnqueueReadBuffer(clEnv->queue, outBuffers[1], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_c,
                     0, NULL, NULL);
+err = clFinish(clEnv->queue);
 cout<<"FFT done\n";
 /*
  * Clean up CLFFT
@@ -6532,7 +6534,7 @@ clEnqueueReadBuffer(clEnv->queue, intensityRBuffer, CL_TRUE, 0, sizeof(float)*nA
                     0, NULL, NULL);
 clEnqueueReadBuffer(clEnv->queue, intensityCBuffer, CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_c,
                     0, NULL, NULL);
-
+err = clFinish(clEnv->queue);
 cout<<"Bandpass filter done"<<endl;
 #endif
 
@@ -6564,6 +6566,7 @@ clEnqueueNDRangeKernel(clEnv->queue, clEnv->xCorrWf, workDim, NULL, globalWorkSi
 clFinish(clEnv->queue);
 clEnqueueReadBuffer(clEnv->queue, xCorrRBuffer, CL_TRUE, 0, sizeof(float)*nBaseline*planarHermOutputSize, xCorr_data_r, 0, NULL, NULL);
 clEnqueueReadBuffer(clEnv->queue, xCorrCBuffer, CL_TRUE, 0, sizeof(float)*nBaseline*planarHermOutputSize, xCorr_data_c, 0, NULL, NULL);
+err = clFinish(clEnv->queue);
 cout<<"Done xCorrWf\n";
 
 /*
@@ -6596,10 +6599,11 @@ cl_mem inBuffers[2] = {xCorrRBuffer, xCorrCBuffer};
 float *xCorrTime = (float*)calloc(nBaseline*nSamp, sizeof(float));
 cl_mem xCorrTimeBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nBaseline*nSamp*sizeof(float),
                            NULL, &err);
+
 err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_BACKWARD, 1, &clEnv->queue, 0, NULL, NULL, inBuffers, &xCorrTimeBuffer, NULL);
 err = clFinish(clEnv->queue);
 clEnqueueReadBuffer(clEnv->queue, xCorrTimeBuffer, CL_TRUE, 0, sizeof(float)*nBaseline*nSamp, xCorrTime, 0, NULL, NULL);
-
+err = clFinish(clEnv->queue);
 /*
  * Clean up FFT
  */
@@ -6914,7 +6918,7 @@ size_t CijGlobalWorkSize[3] = {(size_t)nLayer, (size_t)nDir, (size_t)nBaseline};
 err = clEnqueueNDRangeKernel(clEnv->queue, clEnv->computeXCorrCoef, workDim, NULL, CijGlobalWorkSize, NULL, 0, NULL, NULL);
 clFinish(clEnv->queue);
 clEnqueueReadBuffer(clEnv->queue, CijBuffer, CL_TRUE, 0, sizeof(float)*nLayer*nDir*nBaseline, Cij, 0, NULL, NULL);
-
+err = clFinish(clEnv->queue);
 cout<<"Done computeXCorrCoef\n";
 
 /*
@@ -6941,7 +6945,7 @@ size_t MGlobalWorkSize[2] = {(size_t)nLayer, (size_t)nDir};
 clEnqueueNDRangeKernel(clEnv->queue, clEnv->computeNormalizedCoherence, workDim, NULL, MGlobalWorkSize, NULL, 0, NULL, NULL);
 clFinish(clEnv->queue);
 clEnqueueReadBuffer(clEnv->queue, MBuffer, CL_TRUE, 0, sizeof(float)*nLayer*nDir, M, 0, NULL, NULL);
-
+err = clFinish(clEnv->queue);
 cout<<"Done computeNormalizedCoherence\n";
 
 /*
@@ -6985,7 +6989,7 @@ clEnqueueNDRangeKernel(clEnv->queue, clEnv->getMaxPixInfoEachLayer, workDim, NUL
 clFinish(clEnv->queue);
 clEnqueueReadBuffer(clEnv->queue, maxPixIdxEachLayerBuffer, CL_TRUE, 0, sizeof(int)*nLayer, maxPixIdxEachLayer, 0, NULL, NULL);
 clEnqueueReadBuffer(clEnv->queue, maxPixCoherenceEachLayerBuffer, CL_TRUE, 0, sizeof(float)*nLayer, maxPixCoherenceEachLayer, 0, NULL, NULL);
-
+err = clFinish(clEnv->queue);
 summary->setMaxPixInfoEachLayer(settings, maxPixIdxEachLayer, maxPixCoherenceEachLayer);
 
 /*
