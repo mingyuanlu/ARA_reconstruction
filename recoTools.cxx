@@ -8445,10 +8445,11 @@ for(int layer=0; layer<nLayer; layer++){
       //cout<<"nAnt: "<<nAnt<<endl;
       //cout<<"tempDelay:\n";
       for(int k=0; k<nAnt; k++){
-      //cout<<"k: "<<k<<endl;
+      cout<<"k: "<<k<<endl;
       coordTrg[0] = (antLoc[k][0]);
       coordTrg[1] = (antLoc[k][1]);
       coordTrg[2] = (antLoc[k][2]);
+        cout<<"coordTrg: "<<coordTrg[0]<<"\t"<<coordTrg[1]<<"\t"<<coordTrg[2]<<endl;
       if (Detector2Cylinder(coordSrc, coordTrg, zCenter, &r, &zRec, &zSrc) != 0)
       std::cout << "ERROR: couldn't convert to cylindrical coordinates." << std::endl;
 
