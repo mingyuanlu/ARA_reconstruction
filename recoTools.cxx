@@ -8419,11 +8419,11 @@ double r, zRec, zSrc;
 float tempDelay, meanDelay=0.f;
 vector<float> solvedDelay;
 double coordSrc[3], coordTrg[3];
-//cout<<"recoDelays:\n";
+cout<<"recoDelays:\n";
 for(int layer=0; layer<nLayer; layer++){
 
    test_r = onion->layerRadii[layer]; //in meters
-   //cout<<"test_r at layer "<<layer<<" is: "<<test_r<<endl;
+   cout<<"test_r at layer "<<layer<<" is: "<<test_r<<endl;
    for(int pix=0; pix<nDir; pix++){
 
       //pt = hpBase.pix2ang( pix );
@@ -8441,7 +8441,7 @@ for(int layer=0; layer<nLayer; layer++){
       coordSrc[2] = test_r*cos(test_zenith);
 
 
-      //cout<<"coordSrc: "<<coordSrc[0]<<"\t"<<coordSrc[1]<<"\t"<<coordSrc[2]<<endl;
+      cout<<"coordSrc: "<<coordSrc[0]<<"\t"<<coordSrc[1]<<"\t"<<coordSrc[2]<<endl;
       //cout<<"nAnt: "<<nAnt<<endl;
       //cout<<"tempDelay:\n";
       for(int k=0; k<nAnt; k++){
@@ -8453,7 +8453,7 @@ for(int layer=0; layer<nLayer; layer++){
       std::cout << "ERROR: couldn't convert to cylindrical coordinates." << std::endl;
 
       tempDelay = static_cast<float>(ray.GetPropagationTime(r, zRec, zSrc));
-      //cout<<tempDelay<<" ";
+      cout<<tempDelay<<" ";
       if( tempDelay > 1.f )
          //if( k<8 || k>11 )
             solvedDelay.push_back(tempDelay);
@@ -8464,22 +8464,22 @@ for(int layer=0; layer<nLayer; layer++){
       }//end of k
       //cout<<endl;
       meanDelay = getMeanDelay( solvedDelay );
-      //cout<<"meanDelay = "<<meanDelay<<endl;
+      cout<<"meanDelay = "<<meanDelay<<endl;
 
       for(int k=0; k<nAnt; k++){
 
       if(recoDelays[layer*nDir*nAnt + pix*nAnt + k] > 1.f ){
          recoDelays[layer*nDir*nAnt + pix*nAnt + k] -= meanDelay;
-         //cout<<recoDelays[layer*nDir*nAnt + pix*nAnt + k]<<" ";
+         cout<<recoDelays[layer*nDir*nAnt + pix*nAnt + k]<<" ";
          if(k<8) recoDelays_V[layer*nDir*nAnt/2 + pix*nAnt/2 + k]   = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
          else    recoDelays_H[layer*nDir*nAnt/2 + pix*nAnt/2 + k-8] = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
       } else {
           recoDelays[layer*nDir*nAnt + pix*nAnt + k] = -1e10; // no solution!
           if(k<8) recoDelays_V[layer*nDir*nAnt/2 + pix*nAnt/2 + k]   = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
           else    recoDelays_H[layer*nDir*nAnt/2 + pix*nAnt/2 + k-8] = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
-          //cout<<"recoDelays: "<<recoDelays[layer*nDir*nAnt + pix*nAnt + k]<<"\t";
+          cout<<"recoDelays: "<<recoDelays[layer*nDir*nAnt + pix*nAnt + k]<<"\t";
       }
-      //cout<<"End of assigning delays\n";
+      cout<<"End of assigning delays\n";
       }//end of nAnt
       //cout<<endl;
    }//end of pix
