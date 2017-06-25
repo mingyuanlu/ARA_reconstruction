@@ -8441,7 +8441,7 @@ for(int layer=0; layer<nLayer; layer++){
       coordSrc[2] = test_r*cos(test_zenith);
 
 
-      cout<<"coordSrc: "<<coordSrc[0]<<"\t"<<coordSrc[1]<<"\t"<<coordSrc[2]<<endl;
+      //cout<<"coordSrc: "<<coordSrc[0]<<"\t"<<coordSrc[1]<<"\t"<<coordSrc[2]<<endl;
       //cout<<"nAnt: "<<nAnt<<endl;
       //cout<<"tempDelay:\n";
       for(int k=0; k<nAnt; k++){
