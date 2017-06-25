@@ -8406,7 +8406,7 @@ if (tablePath == NULL) {
     std::cout << " the spline .fits table directory." << std::endl;
     return -1;
 }
-cout<<"8409\n"
+cout<<"8409\n";
 std::string tablePathStr(tablePath);
 //RayDelay ray(tablePathStr+"/"+ICE_FILE,
 //             tablePathStr+"/"+AIR_FILE,
