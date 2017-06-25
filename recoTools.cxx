@@ -8398,7 +8398,7 @@ cout<<"Healpix_Onion info obtained. nDir: "<<nDir<<" nLayer: "<<nLayer<<endl;
 //recoDelays_V= (float*)malloc(nDir*(nAnt/2)*sizeof(float));
 //recoDelays_H= (float*)malloc(nDir*(nAnt/2)*sizeof(float));
 float test_r, test_zenith, test_azimuth;
-
+cout<<"8401\n";
 /* Using radiospline to delay times */
 char * tablePath = getenv("RADIOSPLINE_TABLE_DIR");
 if (tablePath == NULL) {
@@ -8406,10 +8406,12 @@ if (tablePath == NULL) {
     std::cout << " the spline .fits table directory." << std::endl;
     return -1;
 }
+cout<<"8409\n"
 std::string tablePathStr(tablePath);
 //RayDelay ray(tablePathStr+"/"+ICE_FILE,
 //             tablePathStr+"/"+AIR_FILE,
 //             tablePathStr+"/"+SHADOW_FILE);
+cout<<"8414\n";
 RayTrace ray(tablePathStr);
 cout<<"RayTrace object created\n";
 
