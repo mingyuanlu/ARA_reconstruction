@@ -538,7 +538,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
          gr_v_temp[a]->GetPoint(p, times, volts);
 
-if(a == 6 || a == 14) { cout<<"a: "<<a<<" p: "<<p<<" times: "<<times<<endl; }
+         //cout<<"a: "<<a<<" p: "<<p<<" times: "<<times<<endl;
 
          if(times>20.0)
          {
