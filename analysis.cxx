@@ -530,12 +530,13 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 	  //*** The following is to avoid reading corrupted waveforms. ***//
 	  //*** I encountered only a few of them, so maybe this is not ***//
 	  //*** really neccessary anymore. *******************************//
-	  if(gr_v_temp[a]->GetN()<5 ){ cerr<< "BAD EVENT: " << ev << " Channel: " << a << ", points: " << gr_v_temp[a]->GetN() << endl;cutWaveAlert=1; cutWaveEventCount++; /*continue;*/}
+	  if(gr_v_temp[a]->GetN()<5 ){ cerr<< "BAD EVENT: " << ev << " Channel: " << a << ", points: " << gr_v_temp[a]->GetN() << endl;cutWaveAlert=1; /*cutWaveEventCount++;*/ /*continue;*/}
 	  int pc = 0;
 
 	  //*** The first 20 samples can be corrupted. Therefore, we need to exclude them! ***//
       for(int p=0;p<gr_v_temp[a]->GetN();p++){
-	  gr_v_temp[a]->GetPoint(p, times, volts);
+
+         gr_v_temp[a]->GetPoint(p, times, volts);
 
          if(times>20.0)
          {
@@ -564,13 +565,13 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
             if( (times - previous_times) > 0.)
             gr_v[a]->SetPoint(pc, times, volts-average[a]);
-            else {cerr<< "BAD EVENT Non-increasing sample time: " << event << " Channel: " << a << "this sample time: "<< times << "previous sample time: " << previous_times << endl;nonIncreasingSampleTimeAlert=1; nonIncreasingSampleTimeEventCount++; if(cutWaveAlert==1){cutWaveAndNonIncreasingEventCount++;}}
+            else {cerr<< "BAD EVENT Non-increasing sample time: " << event << " Channel: " << a << "this sample time: "<< times << "previous sample time: " << previous_times << endl;nonIncreasingSampleTimeAlert=1; /*nonIncreasingSampleTimeEventCount++; if(cutWaveAlert==1){cutWaveAndNonIncreasingEventCount++;}*/}
 
             previous_times = times;
 
          }//end of pc
 
-       } else {cerr<< "BAD EVENT type 2: " << event << " Channel: " << a << ", original number of points: " << gr_v_temp[a]->GetN() << endl; if(cutWaveAlert!=1){ cutWaveEventCount++;} cutWaveAlert=1; /*continue;*/}
+       } else {cerr<< "BAD EVENT type 2: " << event << " Channel: " << a << ", original number of points: " << gr_v_temp[a]->GetN() << endl; /*if(cutWaveAlert!=1){ cutWaveEventCount++;}*/ cutWaveAlert=1; /*continue;*/}
 
 /*
       average[a]/=(double)gr_v[a]->GetN();
@@ -585,8 +586,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    double wInt;
    int maxSamp;
-   if (cutWaveAlert == 1) { cerr<<"Event "<<ev<<" discarded due to cutWaveAlert\n"; continue; }
-   if (nonIncreasingSampleTimeAlert == 1) { cerr<<"Event "<<ev<<" discarded due to nonIncreasingSampleTimeAlert\n"; continue; }
+   if (cutWaveAlert == 1) { cerr<<"Event "<<ev<<" discarded due to cutWaveAlert\n"; cutWaveEventCount++; continue; }
+   if (nonIncreasingSampleTimeAlert == 1) { cerr<<"Event "<<ev<<" discarded due to nonIncreasingSampleTimeAlert\n"; nonIncreasingSampleTimeEventCount++; if(cutWaveAlert==1) cutWaveAndNonIncreasingEventCount++;
+   continue; }
 
    for(int ch=0; ch<16; ch++){
 
