@@ -538,8 +538,6 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
          gr_v_temp[a]->GetPoint(p, times, volts);
 
-if(a == 6 || a == 14) { cout<<"a: "<<a<<" p: "<<p<<" times: "<<times<<endl; }
-
          if(times>20.0)
          {
          if(stationId==3 && utime_runStart>=dropD4Time && (a%4==3))
@@ -573,15 +571,7 @@ if(a == 6 || a == 14) { cout<<"a: "<<a<<" p: "<<p<<" times: "<<times<<endl; }
 
          }//end of pc
 
-       } else {cerr<< "BAD EVENT type 2: " << event << " Channel: " << a << ", original number of points: " << gr_v_temp[a]->GetN() << endl; /*if(cutWaveAlert!=1){ cutWaveEventCount++;}*/ cutWaveAlert=1; /*continue;*/
-
-       for(int p=0; p<gr_v_temp[a]->GetN(); p++){
-          gr_v_temp[a]->GetPoint(p, times, volts);
-          cout<<"p: "<<p<<" times: "<<times<<" ";
-       }
-       cout<<endl;
-
-       }
+       } else {cerr<< "BAD EVENT type 2: " << event << " Channel: " << a << ", original number of points: " << gr_v_temp[a]->GetN() << endl; /*if(cutWaveAlert!=1){ cutWaveEventCount++;}*/ cutWaveAlert=1; /*continue;*/}
 
 /*
       average[a]/=(double)gr_v[a]->GetN();
