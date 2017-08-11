@@ -154,6 +154,8 @@ float radius, r_xy;
 float dx, dy, dz;
 float r_true, zen_true, azi_true;
 
+bool recoSuccess;
+
 /*
  * Variables used in dataType == 0 case
  */
@@ -650,11 +652,11 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    for(int i=0; i<16; i++) goodChan[i] = chanMask[i];
    }
 
-    getChannelSNR(unpaddedEvent, snrArray);
-    TMath::Sort(16,snrArray,index);
+   getChannelSNR(unpaddedEvent, snrArray);
+   TMath::Sort(16,snrArray,index);
 
-    getChannelUnmodifiedSNR(unpaddedEvent, unmodSNRArray);
-    TMath::Sort(16,unmodSNRArray,index);
+   getChannelUnmodifiedSNR(unpaddedEvent, unmodSNRArray);
+   TMath::Sort(16,unmodSNRArray,index);
 
     //recoData *summary = new recoData();
 /*
@@ -665,15 +667,16 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
     }
 */
     //summary->setOnion(onion);
-    summary->setTopN(topN);
-    summary->setRecoChan(goodChan);
-    summary->setInWindowSNR(snrArray[index[2]]);
-    summary->setUnmodSNR(unmodSNRArray[index[2]]);
+   summary->setTopN(topN);
+   summary->setRecoChan(goodChan);
+   summary->setInWindowSNR(snrArray[index[2]]);
+   summary->setUnmodSNR(unmodSNRArray[index[2]]);
 
-    recoEventCount++;
+   recoEventCount++;
 
+   recoSuccess = false;
 
-
+   while( !recoSuccess ){
    if(settings->beamformMethod == 1){
    if(settings->getSkymapMode == 0){
        err = reconstructCSW(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, fitsFile/*argv[5]*/);
@@ -706,6 +709,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    }
    if( err<0 || maxPixIdx<0){ cerr<<"Error reconstructing\n"; return -1; }
+   if(summary->maxPixCoherence != 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
+   else { cout<<"maxPixCoherence returns 0!! Re-running reco...\n"; }
+   }//end of while
 
    //int recoFlag = record3DDiffGetFlag(summary, outputFile);
    //if( recoFlag ) recoFlagCnt++;
@@ -855,6 +861,9 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    recoEventCount++;
 
+   recoSuccess = false;
+
+   while( !recoSuccess ){
    if(settings->beamformMethod == 1){
    if(settings->getSkymapMode == 0){
        err = reconstructCSW(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, fitsFile/*argv[5]*/);
@@ -884,9 +893,12 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       maxPixIdx = reconstructXCorrEnvelopeGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, goodChan/*chanMask*/, summary);
 
    }
-
    }
+
    if( err<0 || maxPixIdx<0){ cerr<<"Error reconstructing\n"; return -1; }
+   if(summary->maxPixCoherence != 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
+   else { cout<<"maxPixCoherence returns 0!! Re-running reco...\n"; }
+   }//end of while
 
    //int recoFlag = record3DDiffGetFlag(summary, outputFile);
    //if( recoFlag ) recoFlagCnt++;
