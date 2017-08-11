@@ -532,7 +532,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 	  //*** really neccessary anymore. *******************************//
 	  if(gr_v_temp[a]->GetN()<5 ){ cerr<< "BAD EVENT: " << ev << " Channel: " << a << ", points: " << gr_v_temp[a]->GetN() << endl;cutWaveAlert=1; /*cutWaveEventCount++;*/ /*continue;*/}
 	  int pc = 0;
-    gr_v_temp->GetPoint(0, times, volts);
+    gr_v_temp[a]->GetPoint(0, times, volts);
     previous_times = times;
 	  //*** The first 20 samples can be corrupted. Therefore, we need to exclude them! ***//
       for(int p=0;p<gr_v_temp[a]->GetN();p++){
