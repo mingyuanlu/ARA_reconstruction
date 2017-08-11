@@ -532,7 +532,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 	  //*** really neccessary anymore. *******************************//
 	  if(gr_v_temp[a]->GetN()<5 ){ cerr<< "BAD EVENT: " << ev << " Channel: " << a << ", points: " << gr_v_temp[a]->GetN() << endl;cutWaveAlert=1; /*cutWaveEventCount++;*/ /*continue;*/}
 	  int pc = 0;
-
+    gr_v_temp->GetPoint(0, times, volts);
+    previous_times = times;
 	  //*** The first 20 samples can be corrupted. Therefore, we need to exclude them! ***//
       for(int p=0;p<gr_v_temp[a]->GetN();p++){
 
@@ -540,7 +541,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
          //cout<<"a: "<<a<<" p: "<<p<<" times: "<<times<<endl;
 
-         if(times>20.0)
+         if((times - previous_times)>20.0)
          {
          if(stationId==3 && utime_runStart>=dropD4Time && (a%4==3))
          gr_v[a]->SetPoint(pc, times-addDelay, 0.); //Drop 2014 ARA03 D4
@@ -574,13 +575,13 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          }//end of pc
 
        } else {cerr<< "BAD EVENT type 2: " << event << " Channel: " << a << ", original number of points: " << gr_v_temp[a]->GetN() << endl; /*if(cutWaveAlert!=1){ cutWaveEventCount++;}*/ cutWaveAlert=1; /*continue;*/
-
+       /*
        for(int p=0; p<gr_v_temp[a]->GetN(); p++){
           gr_v_temp[a]->GetPoint(p, times, volts);
           cout<<"p: "<<p<<" times: "<<times<<" ";
        }
        cout<<endl;
-
+       */
        }
 
 /*
