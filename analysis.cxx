@@ -576,7 +576,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
          }//end of pc
 
-       } else {cerr<< "BAD EVENT type 2: " << event << " Channel: " << a << ", original number of points: " << gr_v_temp[a]->GetN() << endl; /*if(cutWaveAlert!=1){ cutWaveEventCount++;}*/ cutWaveAlert=1; /*continue;*/
+       } //else {cerr<< "BAD EVENT type 2: " << event << " Channel: " << a << ", original number of points: " << gr_v_temp[a]->GetN() << endl; /*if(cutWaveAlert!=1){ cutWaveEventCount++;}*/ cutWaveAlert=1; /*continue;*/
        /*
        for(int p=0; p<gr_v_temp[a]->GetN(); p++){
           gr_v_temp[a]->GetPoint(p, times, volts);
@@ -584,7 +584,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
        }
        cout<<endl;
        */
-       }
+       //}
 
 /*
       average[a]/=(double)gr_v[a]->GetN();
