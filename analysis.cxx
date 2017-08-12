@@ -414,7 +414,7 @@ if(settings->dataType == 1){
       if(rawAtriEvPtr->isCalpulserEvent()){ runCalEventCount++; }
       else { runRFEventCount++; }
    } else if (rawAtriEvPtr->isSoftwareTrigger()){ runSoftEventCount++; }
-   else { cerr<<"Undefined trigger type!!\n"; continue; }
+   else { cerr<<"Undefined trigger type!!\n"; /*continue;*/ }
 /*
  * Loop over events once to determine run start/end time
  */
@@ -614,7 +614,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    double wInt;
    int maxSamp;
-   bool shouldSkip == false;
+   bool shouldSkip = false;
    if (cutWaveAlert == 1 && nonIncreasingSampleTimeAlert == 1){ cutWaveAndNonIncreasingEventCount++; shouldSkip = true; }
    if (cutWaveAlert == 1) { cerr<<"Event "<<ev<<" discarded due to cutWaveAlert\n"; cutWaveEventCount++; shouldSkip = true; }
    if (nonIncreasingSampleTimeAlert == 1) { cerr<<"Event "<<ev<<" discarded due to nonIncreasingSampleTimeAlert\n"; nonIncreasingSampleTimeEventCount++; shouldSkip = true; }
