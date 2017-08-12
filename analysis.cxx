@@ -558,7 +558,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
          //cout<<"a: "<<a<<" p: "<<p<<" times: "<<times<<endl;
 
-         if(times/*(times - previous_times)*/>20.0)
+         if(/*times*/(times - previous_times)>20.0)
          {
          if(stationId==3 && utime_runStart>=dropD4Time && (a%4==3))
          gr_v[a]->SetPoint(pc, times-addDelay, 0.); //Drop 2014 ARA03 D4
