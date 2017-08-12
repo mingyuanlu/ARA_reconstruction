@@ -198,9 +198,14 @@ int nchnl_tmp;
 
 int runEventCount, trigEventCount, recoEventCount;
 runEventCount = trigEventCount = recoEventCount = 0;
+int runRFEventCount, runCalEventCount, runSoftEventCount;
+runRFEventCount = runCalEventCount = runSoftEventCount = 0;
 int cutWaveEventCount, nonIncreasingSampleTimeEventCount, cutWaveAndNonIncreasingEventCount;
 cutWaveEventCount = nonIncreasingSampleTimeEventCount = cutWaveAndNonIncreasingEventCount = 0;
 runInfoTree->Branch("runEventCount",  &runEventCount);
+runInfoTree->Branch("runRFEventCount", &runRFEventCount);
+runInfoTree->Branch("runCalEventCount", &runCalEventCount);
+runInfoTree->Branch("runSoftEventCount", &runSoftEventCount);
 runInfoTree->Branch("trigEventCount", &trigEventCount);
 runInfoTree->Branch("recoEventCount", &recoEventCount);
 runInfoTree->Branch("utime_runStart", &utime_runStart);
@@ -405,6 +410,11 @@ if(settings->dataType == 1){
    eventTree->GetEntry(0);
    utime_runStart=utime_runEnd=rawAtriEvPtr->unixTime;
 
+   if(rawAtriEvPtr->isRFTrigger()){
+      if(rawAtriEvPtr->isCalpulserEvent()){ runCalEventCount++; }
+      else { runRFEventCount++; }
+   } else if (rawAtriEvPtr->isSoftwareTrigger()){ runSoftEventCount++; }
+   else { cerr<<"Undefined trigger type!!\n"; continue; }
 /*
  * Loop over events once to determine run start/end time
  */
@@ -413,6 +423,11 @@ if(settings->dataType == 1){
       eventTree->GetEntry(ev);
       if(rawAtriEvPtr->unixTime < utime_runStart) utime_runStart=rawAtriEvPtr->unixTime;
       if(rawAtriEvPtr->unixTime > utime_runEnd  ) utime_runEnd  =rawAtriEvPtr->unixTime;
+      if(rawAtriEvPtr->isRFTrigger()){
+         if(rawAtriEvPtr->isCalpulserEvent()){ runCalEventCount++; }
+         else { runRFEventCount++; }
+      } else if (rawAtriEvPtr->isSoftwareTrigger()){ runSoftEventCount++; }
+      else { cerr<<"Undefined trigger type!!\n"; continue; }
    }
    cout<<"utime_runStart: "<<utime_runStart<<" dropD4Time: "<<dropD4Time<<endl;
    cout<<"Run time span: "<<utime_runEnd-utime_runStart<<endl;
@@ -576,7 +591,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
          }//end of pc
 
-       } //else {cerr<< "BAD EVENT type 2: " << event << " Channel: " << a << ", original number of points: " << gr_v_temp[a]->GetN() << endl; /*if(cutWaveAlert!=1){ cutWaveEventCount++;}*/ cutWaveAlert=1; /*continue;*/
+       } else {cerr<< "BAD EVENT type 2: " << event << " Channel: " << a << ", original number of points: " << gr_v_temp[a]->GetN() << endl; /*if(cutWaveAlert!=1){ cutWaveEventCount++;}*/ cutWaveAlert=1; /*continue;*/
        /*
        for(int p=0; p<gr_v_temp[a]->GetN(); p++){
           gr_v_temp[a]->GetPoint(p, times, volts);
@@ -584,7 +599,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
        }
        cout<<endl;
        */
-       //}
+       }
 
 /*
       average[a]/=(double)gr_v[a]->GetN();
@@ -599,9 +614,11 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    double wInt;
    int maxSamp;
-   if (cutWaveAlert == 1) { cerr<<"Event "<<ev<<" discarded due to cutWaveAlert\n"; cutWaveEventCount++; continue; }
-   if (nonIncreasingSampleTimeAlert == 1) { cerr<<"Event "<<ev<<" discarded due to nonIncreasingSampleTimeAlert\n"; nonIncreasingSampleTimeEventCount++; if(cutWaveAlert==1) cutWaveAndNonIncreasingEventCount++;
-   continue; }
+   bool shouldSkip == false;
+   if (cutWaveAlert == 1 && nonIncreasingSampleTimeAlert == 1){ cutWaveAndNonIncreasingEventCount++; shouldSkip = true; }
+   if (cutWaveAlert == 1) { cerr<<"Event "<<ev<<" discarded due to cutWaveAlert\n"; cutWaveEventCount++; shouldSkip = true; }
+   if (nonIncreasingSampleTimeAlert == 1) { cerr<<"Event "<<ev<<" discarded due to nonIncreasingSampleTimeAlert\n"; nonIncreasingSampleTimeEventCount++; shouldSkip = true; }
+   if (shouldSkip) continue;
 
    for(int ch=0; ch<16; ch++){
 
