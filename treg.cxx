@@ -740,7 +740,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
              cosine = (peakT[anti] - peakT[antf]) / uvec[anti][antf].dt;
              if(cosine>1.) cosine=1.;
-             cout<<"cosine: "<<cosine<<endl;
+             //cout<<"cosine: "<<cosine<<endl;
              track[0] += uvec[antf][anti].ndx * cosine;
              track[1] += uvec[antf][anti].ndy * cosine;
              track[2] += uvec[antf][anti].ndz * cosine;
@@ -749,7 +749,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
              cosine = (peakT[antf] - peakT[anti]) / uvec[anti][antf].dt;
              if(cosine>1.) cosine=1.;
-             cout<<"cosine: "<<cosine<<endl;
+             //cout<<"cosine: "<<cosine<<endl;
              track[0] += uvec[anti][antf].ndx * cosine;
              track[1] += uvec[anti][antf].ndy * cosine;
              track[2] += uvec[anti][antf].ndz * cosine;
@@ -763,9 +763,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
   if(goodPairCount>0){
 
-    cout<<"goodPairCount: "<<goodPairCount<<" track_x: "<<track[0]<<" track_y: "<<track[1]<<" track_z: "<<track[2]<<endl;
+    //cout<<"goodPairCount: "<<goodPairCount<<" track_x: "<<track[0]<<" track_y: "<<track[1]<<" track_z: "<<track[2]<<endl;
     trackLen = sqrt(track[0]*track[0] + track[1]*track[1] + track[2]*track[2]) / static_cast<double>(goodPairCount);
-    cout<<"trackLend: "<<trackLen<<endl;
+    //cout<<"trackLend: "<<trackLen<<endl;
   }
     //recoData *summary = new recoData();
 /*
