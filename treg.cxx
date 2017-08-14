@@ -173,10 +173,12 @@ int goodPairCount = 0;
 int intolerablePairCount = 0;
 double cosine;
 double peakT[16];
+double wght = 1.; //weight
 
 tregTree->Branch("trackLen", &trackLen);
 tregTree->Branch("goodPairCount", &goodPairCount);
 tregTree->Branch("intolerablePairCount", &intolerablePairCount);
+tregTree->Branch("weight", &wght);
 //tregTree->Branch("cosine", &cosine);
 
 /*
@@ -775,6 +777,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
     summary->setTrueDir(zen_true*180./M_PI, azi_true*180./M_PI);
     }
 */
+
+    wght = 1.;
+
     //summary->setOnion(onion);
     summary->setTopN(topN);
     summary->setRecoChan(goodChan);
@@ -962,6 +967,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
  }
 
+   wght = event->Nu_Interaction[0].weight;
    //recoData *summary = new recoData();
    //if(settings->dataType == 0){
    summary->setWeight(event->Nu_Interaction[0].weight);
