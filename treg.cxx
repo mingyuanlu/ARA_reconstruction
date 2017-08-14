@@ -44,6 +44,7 @@ RawAtriStationEvent *rawAtriEvPtr;
 RawAraStationEvent *rawEvPtr;
 
 double getMean(TGraph *);
+double getPeakTime(TGraph *);
 /*
 #ifndef XCORRSUMGRAPH
 static TGraph *sillygr = new TGraph();
@@ -60,7 +61,7 @@ public:
 
   double dx, dy, dz, ndx, ndy, ndz, dt, d;
 
-}
+};
 
 
 int main( int argc, char **argv){
@@ -171,6 +172,7 @@ double tolerance = 5.; //in ns
 int goodPairCount = 0;
 int intolerablePairCount = 0;
 double cosine;
+double peakT[16];
 
 tregTree->Branch("trackLen", &trackLen);
 tregTree->Branch("goodPairCount", &goodPairCount);
