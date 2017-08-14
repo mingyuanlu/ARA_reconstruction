@@ -729,7 +729,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    intolerablePairCount = 0;
 
    for(int anti=0; anti<nAnt; anti++){
-      for(int antf=anti; antf<nAnt; antf++){
+      for(int antf=anti+1; antf<nAnt; antf++){
 
       if( peakT[anti] > -1e9 && peakT[antf] > -1e9 ){
          if(fabs(peakT[anti]-peakT[antf]) < uvec[anti][antf].dt + tolerance){
@@ -926,7 +926,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
   intolerablePairCount = 0;
 
   for(int anti=0; anti<nAnt; anti++){
-     for(int antf=anti; antf<nAnt; antf++){
+     for(int antf=anti+1; antf<nAnt; antf++){
 
      if( peakT[anti] > -1e9 && peakT[antf] > -1e9 ){
         if(fabs(peakT[anti]-peakT[antf]) < uvec[anti][antf].dt + tolerance){
