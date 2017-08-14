@@ -1122,6 +1122,8 @@ uVector::uVector(vector<double>& ant1, vector<double>& ant2){
    ndy = dy / d;
    ndz = dz / d;
 
+   printf("dx:%f dy:%f dz: %f d:%f dt:%f\n",dx,dy,dz,d,dt);
+
 }
 
 double getPeakTime(TGraph *gr){
