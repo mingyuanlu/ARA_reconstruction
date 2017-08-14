@@ -52,6 +52,17 @@ static TGraph *sillygr = new TGraph();
 #endif
 */
 
+class uVector{
+
+public:
+  uVector();
+  uVector(vector<double>& ant1, vector<double>& ant2);
+
+  double dx, dy, dz, ndx, ndy, ndz, dt, d;
+
+}
+
+
 int main( int argc, char **argv){
 
 gROOT->ProcessLine("#include <vector>");
@@ -141,6 +152,7 @@ TTree *recoSettingsTree = new TTree("recoSettingsTree", "recoSettingsTree");
 //TTree *onionTree = new TTree("onionTree", "onionTree");
 TTree *dataTree  = new TTree("dataTree",  "dataTree");
 TTree *runInfoTree = new TTree("runInfoTree", "runInfoTree");
+TTree *tregTree = new TTree("tregTree", "tregTree");
 
 recoSettingsTree->Branch("settings", &settings);
 recoSettingsTree->Fill();
@@ -153,6 +165,17 @@ TH2F *recoTrueAziDist = new TH2F("recoTrueAziDist", "recoTrueAziDist", 360, 0, 3
 float radius, r_xy;
 float dx, dy, dz;
 float r_true, zen_true, azi_true;
+
+double trackLen = 0.;
+double tolerance = 5.; //in ns
+int goodPairCount = 0;
+int intolerablePairCount = 0;
+double cosine;
+
+tregTree->Branch("trackLen", &trackLen);
+tregTree->Branch("goodPairCount", &goodPairCount);
+tregTree->Branch("intolerablePairCount", &intolerablePairCount);
+tregTree->Branch("cosine", &cosine);
 
 /*
  * Variables used in dataType == 0 case
@@ -196,9 +219,14 @@ int nchnl_tmp;
 
 int runEventCount, trigEventCount, recoEventCount;
 runEventCount = trigEventCount = recoEventCount = 0;
+int runRFEventCount, runCalEventCount, runSoftEventCount;
+runRFEventCount = runCalEventCount = runSoftEventCount = 0;
 int cutWaveEventCount, nonIncreasingSampleTimeEventCount, cutWaveAndNonIncreasingEventCount;
 cutWaveEventCount = nonIncreasingSampleTimeEventCount = cutWaveAndNonIncreasingEventCount = 0;
 runInfoTree->Branch("runEventCount",  &runEventCount);
+runInfoTree->Branch("runRFEventCount", &runRFEventCount);
+runInfoTree->Branch("runCalEventCount", &runCalEventCount);
+runInfoTree->Branch("runSoftEventCount", &runSoftEventCount);
 runInfoTree->Branch("trigEventCount", &trigEventCount);
 runInfoTree->Branch("recoEventCount", &recoEventCount);
 runInfoTree->Branch("utime_runStart", &utime_runStart);
@@ -321,17 +349,17 @@ int topN = settings->topN;
 
 int nSideExp;
 int nLayer, nDir;
-float *recoDelays, *recoDelays_V, *recoDelays_H;
-Healpix_Onion *onion;
+//float *recoDelays, *recoDelays_V, *recoDelays_H;
+//Healpix_Onion *onion;
 
 //recordTime(tmr,1);
 time_t t_before_recoDelays = time(NULL);
 clock_t c_before_recoDelays = clock();
 
-if( settings->skymapSearchMode == 0){ //No zoom search
+//if( settings->skymapSearchMode == 0){ //No zoom search
 
 /* Set n-side for Healpix and compute reco delays */
-
+/*
    nSideExp = settings->nSideExp;
    nLayer = settings->nLayer;
    nDir = 12 * pow(2, nSideExp) * pow(2, nSideExp);
@@ -356,8 +384,8 @@ if( settings->skymapSearchMode == 0){ //No zoom search
                                             onion, recoDelays, recoDelays_V, recoDelays_H);
    } else { cerr<<"Undefined iceModel parameter\n"; return -1; }
    if( err<0 ){ cerr<<"Error computing reco delays\n"; return -1; }
-
-} else {// zoom search mode
+*/
+//} else {// zoom search mode
 
    //Dir = 12 * pow(2, settings->nSideExpEnd) * pow(2, settings->nSideExpEnd);
 /*
@@ -368,19 +396,44 @@ if( settings->skymapSearchMode == 0){ //No zoom search
       topN = nDir*nLayer; //in case topN < total number of pixels
    }
 */
-}
+//}
 //recordTime(tmr,2);
+
+//*********************************************
+
+//uVector facotry - building all uVectors here
+//uvec[i][j] is the unit vector from ant i to ant j
+
+//*********************************************
+
+vector<vector<uVector> > uvec;
+vector<uVector> uvec_tmp;
+for(int ant1 = 0; ant1<nAnt; ant1++){
+   for(int ant2 = 0; ant2<nAnt; ant2++){
+
+      uVector vec(antLocation[ant1], antLocation[ant2]);
+      uvec_tmp.push_back(vec);
+
+   }
+   cout<<"uvec_tmp.size(): "<<uvec_tmp.size()<<endl;
+   uvec.push_back(uvec_tmp);
+   uvec_tmp.clear();
+}
+
+cout<<"uvec.size(): "<<uvec.size()<<endl;
+
 time_t t_after_recoDelays = time(NULL);
 clock_t c_after_recoDelays = clock();
 
 /*
  * Set up reco environment. In this case, an OpenCL environment
  */
-recoEnvData clEnv;
-err = setupCLRecoEnv(settings, &clEnv, settings->programFile/*.c_str()*/);
-if( err<0 ){
-   cerr<<"Error setting up reco env\n"; return -1;
-}
+
+//recoEnvData clEnv;
+//err = setupCLRecoEnv(settings, &clEnv, settings->programFile/*.c_str()*/);
+//if( err<0 ){
+//   cerr<<"Error setting up reco env\n"; return -1;
+//}
 
 
    TGraph *gr_v_temp[16];
@@ -403,6 +456,12 @@ if(settings->dataType == 1){
    eventTree->GetEntry(0);
    utime_runStart=utime_runEnd=rawAtriEvPtr->unixTime;
 
+   if(rawAtriEvPtr->isRFTrigger()){
+      if(rawAtriEvPtr->isCalpulserEvent()){ runCalEventCount++; }
+      else { runRFEventCount++; }
+   } else if (rawAtriEvPtr->isSoftwareTrigger()){ runSoftEventCount++; }
+   else { cerr<<"Undefined trigger type!!\n"; /*continue;*/ }
+
 /*
  * Loop over events once to determine run start/end time
  */
@@ -423,12 +482,13 @@ vector<TGraph *> cleanEvent;
 //int recoEventCnt = 0;
 int recoFlagCnt = 0;
 double t, v, beginTime = 0.;
-
+/*
 int *maxPix;
 if(settings->skymapSearchMode == 0) maxPix = (int*)calloc(nDir*nLayer, sizeof(int));
 else                                maxPix = (int*)calloc(12*pow(2,settings->nSideExpEnd)*pow(2,settings->nSideExpEnd)*settings->nLayer, sizeof(int));
 
 int maxPixIdx = 0;
+
 float *mapData = (float*)calloc(nDir*nLayer, sizeof(float));
 char histName[200];
 TH1F **mapDataHist = (TH1F**)malloc(nDir*nLayer*sizeof(TH1F*));
@@ -440,6 +500,7 @@ if(settings->recordMapData == 1){
       mapDataHist[pix] = new TH1F(histName, histName, 5000, 0.f, 1.f);
    }
 }
+*/
 int index[16]={0};
 float snrArray[16], unmodSNRArray[16];
 vector<TGraph *> unpaddedEvent;
@@ -532,13 +593,14 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 	  //*** really neccessary anymore. *******************************//
 	  if(gr_v_temp[a]->GetN()<5 ){ cerr<< "BAD EVENT: " << ev << " Channel: " << a << ", points: " << gr_v_temp[a]->GetN() << endl;cutWaveAlert=1; /*cutWaveEventCount++;*/ /*continue;*/}
 	  int pc = 0;
-
+    gr_v_temp[a]->GetPoint(0, times, volts);
+    previous_times = times;
 	  //*** The first 20 samples can be corrupted. Therefore, we need to exclude them! ***//
       for(int p=0;p<gr_v_temp[a]->GetN();p++){
 
          gr_v_temp[a]->GetPoint(p, times, volts);
 
-         if(times>20.0)
+         if((times - previous_times)>20.0)
          {
          if(stationId==3 && utime_runStart>=dropD4Time && (a%4==3))
          gr_v[a]->SetPoint(pc, times-addDelay, 0.); //Drop 2014 ARA03 D4
@@ -586,9 +648,11 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    double wInt;
    int maxSamp;
-   if (cutWaveAlert == 1) { cerr<<"Event "<<ev<<" discarded due to cutWaveAlert\n"; cutWaveEventCount++; continue; }
-   if (nonIncreasingSampleTimeAlert == 1) { cerr<<"Event "<<ev<<" discarded due to nonIncreasingSampleTimeAlert\n"; nonIncreasingSampleTimeEventCount++; if(cutWaveAlert==1) cutWaveAndNonIncreasingEventCount++;
-   continue; }
+   bool shouldSkip = false;
+   if (cutWaveAlert == 1 && nonIncreasingSampleTimeAlert == 1){ cutWaveAndNonIncreasingEventCount++; shouldSkip = true; }
+   if (cutWaveAlert == 1) { cerr<<"Event "<<ev<<" discarded due to cutWaveAlert\n"; cutWaveEventCount++; shouldSkip = true; }
+   if (nonIncreasingSampleTimeAlert == 1) { cerr<<"Event "<<ev<<" discarded due to nonIncreasingSampleTimeAlert\n"; nonIncreasingSampleTimeEventCount++; shouldSkip = true; }
+   if (shouldSkip) continue;
 
    for(int ch=0; ch<16; ch++){
 
@@ -645,6 +709,59 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
     getChannelUnmodifiedSNR(unpaddedEvent, unmodSNRArray);
     TMath::Sort(16,unmodSNRArray,index);
 
+
+//******************************************
+
+//Starting getting peakT's and construct final vector (track)
+
+//******************************************
+
+   for(int i=0; i<16; i++){
+
+     peakT[i] = getPeakTime( unpaddedEvent[i] );
+
+   }
+
+   double track[3] = {0.};
+   goodPairCount = 0;
+   intolerablePairCount = 0;
+
+   for(int anti=0; anti<nAnt; anti++){
+      for(int antf=anti; antf<nAnt; antf++){
+
+      if( peakT[anti] > -1e9 && peakT[antf] > -1e9 ){
+         if(fabs(peakT[anti]-peakT[antf]) < uvec[anti][antf].dt + tolerance){
+
+           goodPairCount++;
+
+           if(peakT[anti] > peakT[antf]){
+
+             cosine = (peakT[anti] - peakT[antf]) / uvec[anti][antf].dt;
+             if(cosine>1.) cosine=1.;
+             track[0] += uvec[antf][anti].ndx * cosine;
+             track[1] += uvec[antf][anti].ndy * cosine;
+             track[2] += uvec[antf][anti].ndz * cosine;
+
+           } else {
+
+             cosine = (peakT[antf] - peakT[anti]) / uvec[anti][antf].dt;
+             if(cosine>1.) cosine=1.;
+             track[0] += uvec[anti][antf].ndx * cosine;
+             track[1] += uvec[anti][antf].ndy * cosine;
+             track[2] += uvec[anti][antf].ndz * cosine;
+
+           }
+         }//if tolerance
+         else { intolerablePairCount++; }
+      }//if t > -1e9
+    }//end of antf
+  }//end of anti
+
+  if(goodPairCount>0){
+
+    trackLen = sqrt(track[0]*track[0] + track[1]*track[1] + track[2]*track[2]) / static_cast<double>(goodPairCount);
+
+  }
     //recoData *summary = new recoData();
 /*
     if(settings->dataType == 0){
@@ -661,51 +778,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
     recoEventCount++;
 
-
-
-   if(settings->beamformMethod == 1){
-   if(settings->getSkymapMode == 0){
-       err = reconstructCSW(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, fitsFile/*argv[5]*/);
-   }
-   else{
-       maxPixIdx = reconstructCSWGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, summary);
-   }
-   } else {
-   if(settings->getSkymapMode == 0){
-
-      //evStr = std::to_string(ev);
-      stringstream ss;
-      ss << ev;
-      evStr = ss.str();
-      fitsFileStr = fitsFile_tmp + /*".ev" + evStr +*/ ".fits";
-      sprintf(fitsFile, fitsFileStr.c_str());
-
-      if(settings->skymapSearchMode == 0){ //no zoom mode
-      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
-      if(settings->recordMapData == 1){
-      for(int pix=0; pix<nDir*nLayer; pix++) mapDataHist[pix]->Fill(mapData[pix]);
-      }
-      } else { //zoom search mode
-      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode(settings, cleanEvent, &clEnv, stationCenterDepth, antLocation, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile);
-      }
-   } else {
-      maxPixIdx = reconstructXCorrEnvelopeGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, goodChan/*chanMask*/, summary);
-
-   }
-
-   }
-   if( err<0 || maxPixIdx<0){ cerr<<"Error reconstructing\n"; return -1; }
-
-   //int recoFlag = record3DDiffGetFlag(summary, outputFile);
-   //if( recoFlag ) recoFlagCnt++;
-   summary->setFlag( (settings->skymapSearchMode)
-                    ? record3DZoomedDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist)
-                    : record3DDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist) );
-   if(summary->flag > 0) recoFlagCnt++;
-   maxPix[maxPixIdx]++;
-
+   tregTree->Fill();
    dataTree->Fill();
-
    unpaddedEvent.clear();
    cleanEvent.clear();
    delete realAtriEvPtr;
@@ -830,6 +904,59 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    getChannelUnmodifiedSNR(unpaddedEvent, unmodSNRArray);
    TMath::Sort(16,unmodSNRArray,index);
 
+//******************************************
+
+//Starting getting peakT's and construct final vector (track)
+
+//******************************************
+
+  for(int i=0; i<16; i++){
+
+    peakT[i] = getPeakTime( unpaddedEvent[i] );
+
+  }
+
+  double track[3] = {0.};
+  goodPairCount = 0;
+  intolerablePairCount = 0;
+
+  for(int anti=0; anti<nAnt; anti++){
+     for(int antf=anti; antf<nAnt; antf++){
+
+     if( peakT[anti] > -1e9 && peakT[antf] > -1e9 ){
+        if(fabs(peakT[anti]-peakT[antf]) < uvec[anti][antf].dt + tolerance){
+
+          goodPairCount++;
+
+          if(peakT[anti] > peakT[antf]){
+
+            cosine = (peakT[anti] - peakT[antf]) / uvec[anti][antf].dt;
+            if(cosine>1.) cosine=1.;
+            track[0] += uvec[antf][anti].ndx * cosine;
+            track[1] += uvec[antf][anti].ndy * cosine;
+            track[2] += uvec[antf][anti].ndz * cosine;
+
+          } else {
+
+            cosine = (peakT[antf] - peakT[anti]) / uvec[anti][antf].dt;
+            if(cosine>1.) cosine=1.;
+            track[0] += uvec[anti][antf].ndx * cosine;
+            track[1] += uvec[anti][antf].ndy * cosine;
+            track[2] += uvec[anti][antf].ndz * cosine;
+
+          }
+        }//if tolerance
+        else { intolerablePairCount++; }
+     }//if t > -1e9
+   }//end of antf
+ }//end of anti
+
+ if(goodPairCount>0){
+
+ trackLen = sqrt(track[0]*track[0] + track[1]*track[1] + track[2]*track[2]) / static_cast<double>(goodPairCount);
+
+ }
+
    //recoData *summary = new recoData();
    //if(settings->dataType == 0){
    summary->setWeight(event->Nu_Interaction[0].weight);
@@ -844,47 +971,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    recoEventCount++;
 
-   if(settings->beamformMethod == 1){
-   if(settings->getSkymapMode == 0){
-       err = reconstructCSW(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, fitsFile/*argv[5]*/);
-   }
-   else{
-       maxPixIdx = reconstructCSWGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, summary);
-   }
-   } else {
-   if(settings->getSkymapMode == 0){
-
-      //evStr = std::to_string(ev);
-      stringstream ss;
-      ss << ev;
-      evStr = ss.str();
-      fitsFileStr = fitsFile_tmp + /*".ev" + evStr +*/ ".fits";
-      sprintf(fitsFile, fitsFileStr.c_str());
-
-      if(settings->skymapSearchMode == 0){ //no zoom mode
-      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
-      if(settings->recordMapData == 1){
-      for(int pix=0; pix<nDir*nLayer; pix++) mapDataHist[pix]->Fill(mapData[pix]);
-      }
-      } else {//zoom search mode
-      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode(settings, cleanEvent, &clEnv, stationCenterDepth, antLocation, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile);
-      }
-   } else {
-      maxPixIdx = reconstructXCorrEnvelopeGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, goodChan/*chanMask*/, summary);
-
-   }
-
-   }
-   if( err<0 || maxPixIdx<0){ cerr<<"Error reconstructing\n"; return -1; }
-
-   //int recoFlag = record3DDiffGetFlag(summary, outputFile);
-   //if( recoFlag ) recoFlagCnt++;
-   summary->setFlag( (settings->skymapSearchMode)
-                    ? record3DZoomedDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist)
-                    : record3DDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist) );
-
-   if(summary->flag > 0) recoFlagCnt++;
-   maxPix[maxPixIdx]++;
+   tregTree->Fill();
    dataTree->Fill();
    unpaddedEvent.clear();
    cleanEvent.clear();
@@ -906,18 +993,18 @@ runInfoTree->Fill();
 outputFile->Write();
 outputFile->Close();
 
-clfftTeardown();
-err = tearDown(&clEnv);
+//clfftTeardown();
+//err = tearDown(&clEnv);
 delete summary;
-if(settings->skymapSearchMode == 0){
-delete onion;
-free(recoDelays);
-free(recoDelays_V);
-free(recoDelays_H);
-}
+//if(settings->skymapSearchMode == 0){
+//delete onion;
+//free(recoDelays);
+//free(recoDelays_V);
+//free(recoDelays_H);
+//}
 delete settings;
-free(mapDataHist);
-free(mapData);
+//free(mapDataHist);
+//free(mapData);
 
 //recordTime(tmr,5);
 time_t t_program_end = time(NULL);
@@ -1009,4 +1096,41 @@ mean+=v;
 
 mean = mean / double(gr->GetN());
 return mean;
+}
+
+uVector::uVector(){
+
+   dx = dy = dz = ndx = ndy = ndz = d = dt = 0.;
+
+}
+
+uVector::uVector(vector<double>& ant1, vector<double>& ant2){
+
+   dx = ant2[0] - ant1[0];
+   dy = ant2[1] - ant1[1];
+   dz = ant2[2] - ant1[2];
+
+   d = sqrt(dx*dx+dy*dy+dz*dz);
+   dt = d * nIce / speedOfLight; //in ns
+
+   ndx = dx / d;
+   ndy = dy / d;
+   ndz = dz / d;
+
+}
+
+double getPeakTime(TGraph *gr){
+
+   double peakV, peakT, v, t;
+   peakV = 0.;
+   peakT = -1e10;
+
+   for(int i=0; i<gr->GetN(); i++){
+
+      gr->GetPoint(i, t, v);
+
+      if( fabs(v) > peakV ){ peakV = fabs(v); peakT = t; }
+
+   }
+   return peakT;
 }
