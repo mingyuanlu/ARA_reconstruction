@@ -153,7 +153,7 @@ TH2F *recoTrueAziDist = new TH2F("recoTrueAziDist", "recoTrueAziDist", 360, 0, 3
 float radius, r_xy;
 float dx, dy, dz;
 float r_true, zen_true, azi_true;
-
+float recoRecAngles[16], recoLauAngles[16], trueRecAngles[16], trueLauAngles[16];
 bool recoSuccess;
 
 /*
@@ -738,6 +738,10 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    if(summary->flag > 0) recoFlagCnt++;
    maxPix[maxPixIdx]++;
 
+   compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
+
+   summary->setRecoAngles(recoRecAngles, recoLauAngles);
+
    dataTree->Fill();
 
    unpaddedEvent.clear();
@@ -858,6 +862,19 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    for(int i=0; i<16; i++) goodChan[i] = chanMask[i];
    }
 
+   for(int a=0;a<16;a++)
+   {
+      string_i  = detector->getStringfromArbAntID(0, a);
+      antenna_i = detector->getAntennafromArbAntID(0, a);
+      AraRootChannel = detector->GetChannelfromStringAntenna (0, string_i, antenna_i, AraSim_settings);
+
+      trueRecAngles[a] = report->stations[0].strings[string_i].antennas[antenna_i].rec_ang[0];
+      trueLauAngles[a] = report->stations[0].strings[string_i].antennas[antenna_i].launch_ang[0];
+
+   }
+
+   summary->setTrueAngles(trueRecAngles, trueLauAngles);
+
    getChannelSNR(unpaddedEvent, snrArray);
    TMath::Sort(16,snrArray,index);
 
@@ -925,6 +942,11 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    if(summary->flag > 0) recoFlagCnt++;
    maxPix[maxPixIdx]++;
+
+   compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
+
+   summary->setRecoAngles(recoRecAngles, recoLauAngles);
+
    dataTree->Fill();
    unpaddedEvent.clear();
    cleanEvent.clear();
