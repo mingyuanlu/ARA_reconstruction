@@ -536,8 +536,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 	  if(a/4==2){addDelay+=(0.0  + delays[a%4][3]);}
 	  if(a/4==3){addDelay+=(8.0  + delays[a%4][3]);}
 
-      stdDelay= geom->getStationInfo(stationId)->getCableDelay(a);
-      addDelay += stdDelay;
+      //stdDelay= geom->getStationInfo(stationId)->getCableDelay(a);
+      //addDelay += stdDelay;
 
 	  //*** We put the waveform into a graph. ***//
 	  gr_v_temp[a] = realAtriEvPtr->getGraphFromRFChan(a);
@@ -620,6 +620,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    if (nonIncreasingSampleTimeAlert == 1) { cerr<<"Event "<<ev<<" discarded due to nonIncreasingSampleTimeAlert\n"; nonIncreasingSampleTimeEventCount++; shouldSkip = true; }
    if (shouldSkip) continue;
 
+   beginTime = 1e10;
    for(int ch=0; ch<16; ch++){
 
       gr_v[ch]->GetPoint(0,t,v);
@@ -820,6 +821,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    double wInt;
    int maxSamp;
 
+   beginTime = 1e10;
    for(int ch=0; ch<16; ch++){
 
       gr_v[ch]->GetPoint(0,t,v);
