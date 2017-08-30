@@ -600,10 +600,11 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 	  if(a/4==1){addDelay+=(12.0 + delays[a%4][3]);}
 	  if(a/4==2){addDelay+=(0.0  + delays[a%4][3]);}
 	  if(a/4==3){addDelay+=(8.0  + delays[a%4][3]);}
-
-      stdDelay= geom->getStationInfo(stationId)->getCableDelay(a);
-      addDelay += stdDelay;
 */
+      stdDelay= geom->getStationInfo(stationId)->getCableDelay(a);
+      //addDelay += stdDelay;
+      addDelay -= stdDelay; //Seckel's delays are corrected for standard cable delays, but now event calibration also apply these delays. So we should compensate for that.
+
 	  //*** We put the waveform into a graph. ***//
 	  gr_v_temp[a] = realAtriEvPtr->getGraphFromRFChan(a);
 	  gr_v[a] = new TGraph();
@@ -614,7 +615,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 	  //*** really neccessary anymore. *******************************//
 	  if(gr_v_temp[a]->GetN()<5 ){ cerr<< "BAD EVENT: " << ev << " Channel: " << a << ", points: " << gr_v_temp[a]->GetN() << endl;cutWaveAlert=1;continue;}
 	  int pc = 0;
-
+    gr_v_temp[a]->GetPoint(0, times, volts);
+    previous_times = times;
 	  //*** The first 20 samples can be corrupted. Therefore, we need to exclude them! ***//
       for(int p=0;p<gr_v_temp[a]->GetN();p++){
 	  gr_v_temp[a]->GetPoint(p, times, volts);
