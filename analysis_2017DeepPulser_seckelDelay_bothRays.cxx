@@ -146,6 +146,7 @@ TH2F *recoTrueAziDist = new TH2F("recoTrueAziDist", "recoTrueAziDist", 360, 0, 3
 float radius, r_xy;
 float dx, dy, dz;
 float r_true, zen_true, azi_true;
+bool recoSuccess;
 
 /*
  * Variables used in dataType == 0 case
@@ -619,9 +620,10 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
     previous_times = times;
 	  //*** The first 20 samples can be corrupted. Therefore, we need to exclude them! ***//
       for(int p=0;p<gr_v_temp[a]->GetN();p++){
-	  gr_v_temp[a]->GetPoint(p, times, volts);
 
-         if(times>20.0)
+         gr_v_temp[a]->GetPoint(p, times, volts);
+
+         if(/*times*/(times - previous_times)>20.0)
          {
          if(stationId==3 && utime_runStart>=dropD4Time && (a%4==3))
          gr_v[a]->SetPoint(pc, times-addDelay, 0.); //Drop 2014 ARA03 D4
@@ -752,6 +754,10 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
     fclose(dtFile);
 */
+
+   recoSuccess = false;
+
+   while( !recoSuccess ){
    if(settings->beamformMethod == 1){
    if(settings->getSkymapMode == 0){
        err = reconstructCSW(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, fitsFile/*argv[5]*/);
@@ -784,6 +790,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    }
    if( err<0 || maxPixIdx<0){ cerr<<"Error reconstructing\n"; return -1; }
+   if(summary->maxPixCoherence != 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
+   else { cout<<"maxPixCoherence returns 0!! Re-running reco...\n"; }
+   }//end of while
 
    //int recoFlag = record3DDiffGetFlag(summary, outputFile);
    //if( recoFlag ) recoFlagCnt++;
