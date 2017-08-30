@@ -595,15 +595,15 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       //cout<<"*** Channel "<<a<<"***"<<endl;
       addDelay = 0.0;
       //*** Now we add the cable delays from the file and the forgotten antenna feedthrough (4,8,12 ns). ***//
-/*
+
 	  if(a/4==0){addDelay+=(4.0  + delays[a%4][3]);}
 	  if(a/4==1){addDelay+=(12.0 + delays[a%4][3]);}
 	  if(a/4==2){addDelay+=(0.0  + delays[a%4][3]);}
 	  if(a/4==3){addDelay+=(8.0  + delays[a%4][3]);}
-*/
-      stdDelay= geom->getStationInfo(stationId)->getCableDelay(a);
+
+      //stdDelay= geom->getStationInfo(stationId)->getCableDelay(a);
       //addDelay += stdDelay;
-      addDelay -= stdDelay; //Seckel's delays are corrected for standard cable delays, but now event calibration also apply these delays. So we should compensate for that.
+      //addDelay -= stdDelay; //Seckel's delays are corrected for standard cable delays, but now event calibration also apply these delays. So we should compensate for that.
 
 	  //*** We put the waveform into a graph. ***//
 	  gr_v_temp[a] = realAtriEvPtr->getGraphFromRFChan(a);
