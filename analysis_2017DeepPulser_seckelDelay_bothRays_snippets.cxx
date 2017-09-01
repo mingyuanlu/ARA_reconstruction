@@ -768,7 +768,7 @@ cout<<"766\n";
 
     if(gr2ndPulse[ch]->GetN() != 0)
     grWinPad2ndPulse[ch] = evProcessTools::getWindowedAndPaddedEqualBeginGraph(gr2ndPulse[ch], maxSamp, beginTime);
-    else for(int s=0; s<maxSamp; s++) grWinPad2ndPulse[ch]->SetPoint(s, beginTime+s*0.4, 0);
+    else{ grWinPad2ndPulse[ch]=new TGraph(); for(int s=0; s<maxSamp; s++) grWinPad2ndPulse[ch]->SetPoint(s, beginTime+s*0.4, 0); }
 
     cleanEvent.push_back(grWinPad2ndPulse[ch]);
     delete gr2ndPulse[ch];
