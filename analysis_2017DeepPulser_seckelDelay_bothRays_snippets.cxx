@@ -449,13 +449,13 @@ if( err<0 ){
    TGraph *gr1stPulse[8], *gr2ndPulse[8];
    TGraph *grWinPad1stPulse[8], *grWinPad2ndPulse[8];
 
-   float 1stPulseStart[8] = {150.f, 70.f, 175.f, 80.f, 120.f, 25.f, 150.f, 50.f};  //Approximate time of 1st pulser rising edge
-   float 2ndPulseStart[8] = {229.9, 230.5, 1e10, 248.1, 1e10, 308.3, 1e10, 321.4}; //This is now just the pulse separation time between the 1st and the 2nd pulse.
+   float directPulseStart[8] = {150.f, 70.f, 175.f, 80.f, 120.f, 25.f, 150.f, 50.f};  //Approximate time of 1st pulser rising edge
+   float refractPulseStart[8] = {229.9, 230.5, 1e10, 248.1, 1e10, 308.3, 1e10, 321.4}; //This is now just the pulse separation time between the 1st and the 2nd pulse.
                                                                                    //Note that for channel 4, only very few events have a 2nd pulse. It is treated as always having none here.
    for(int i=0; i<8; i++){
 
-     1stPulseStart[i] -= 50.f; //Start the snippet 50ns before the pulse rising edge
-     2ndPulseStart[i] += 1stPulseStart[i];
+     directPulseStart[i] -= 50.f; //Start the snippet 50ns before the pulse rising edge
+     refractPulseStart[i] += directPulseStart[i];
 
    }
 
@@ -621,7 +621,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       //addDelay += stdDelay;
       //addDelay -= stdDelay; //Seckel's delays are corrected for standard cable delays, but now event calibration also apply these delays. So we should compensate for that.
     if(a<8){
-    1stPulseStart[a] -= addDelay;
+    directPulseStart[a] -= addDelay;
     2nsPulseStart[a] -= addDelay;
     }
 
@@ -717,8 +717,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
      for(int s=0; s<grInt[ch]->GetN(); s++){
 
        grInt[ch]->GetPoint(s, t,v);
-       if( t>= 1stPulseStart[ch] && t<=(1stPulseStart[ch]+150.)){  gr1stPulse[ch]->SetPoint(pc1, t, v); pc1++;}
-       else if( t>=2ndPulseStart[ch] && t<=(2ndPulseStart[ch]+150.)){ gr2ndPulse[ch]->SetPoint(pc2, t, v); pc2++;}
+       if( t>= directPulseStart[ch] && t<=(directPulseStart[ch]+150.)){  gr1stPulse[ch]->SetPoint(pc1, t, v); pc1++;}
+       else if( t>=refractPulseStart[ch] && t<=(refractPulseStart[ch]+150.)){ gr2ndPulse[ch]->SetPoint(pc2, t, v); pc2++;}
 
      }
 
