@@ -261,6 +261,8 @@ int getSeckelStationGeometry(vector<vector<double> >& ant_loc){
 
    double xyz[3];
 
+   ant_loc.clear();
+
    /* TVpols */
 
    xyz[0] = 3993.34; xyz[1] = -2589.51; xyz[2] =  -177.654;

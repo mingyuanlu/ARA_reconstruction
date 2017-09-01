@@ -281,7 +281,8 @@ vector<vector<double> > antLocation;
 if(settings->dataType == 1){
 
    //vector<vector<double> > pulserLocation;
-   //err = calibrateGeometryAndDelays(rawEvPtr, delays, pulserCorr, stationCenterDepth, antLocation, pulserLocation);
+   err = calibrateGeometryAndDelays(rawEvPtr, delays, pulserCorr, stationCenterDepth, antLocation, pulserLocation); //just to get the "delays", antLocation will be overwritten in the next function - getSeckelStationGeometry
+   antLocation.clear();
    err = getSeckelStationGeometry(antLocation);
    if( err<0 ){ cerr<<"Error calibrating geometry and delays\n"; return -1; }
 
@@ -459,6 +460,30 @@ if( err<0 ){
 
    }
 
+/*************************************************************/
+/* Apply TM and feedthrough delays to the pulser start times */
+/*************************************************************/
+
+   for(int a=0;a<8;a++)
+   {
+      addDelay = 0.0;
+      //*** Now we add the cable delays from the file and the forgotten antenna feedthrough (4,8,12 ns). ***//
+
+	  if(a/4==0){addDelay+=(4.0  + delays[a%4][3]);}
+	  if(a/4==1){addDelay+=(12.0 + delays[a%4][3]);}
+	  if(a/4==2){addDelay+=(0.0  + delays[a%4][3]);}
+	  if(a/4==3){addDelay+=(8.0  + delays[a%4][3]);}
+
+      //stdDelay= geom->getStationInfo(stationId)->getCableDelay(a);
+      //addDelay += stdDelay;
+      //addDelay -= stdDelay; //Seckel's delays are corrected for standard cable delays, but now event calibration also apply these delays. So we should compensate for that.
+
+    directPulseStart[a] -= addDelay;
+    refractPulseStart[a] -= addDelay;
+   }
+
+/*************************************************************/
+
    TCanvas *c1 = new TCanvas("c1","c1",800,800);
    c1->Divide(4,2);
    char c1name[200];
@@ -621,10 +646,6 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       //stdDelay= geom->getStationInfo(stationId)->getCableDelay(a);
       //addDelay += stdDelay;
       //addDelay -= stdDelay; //Seckel's delays are corrected for standard cable delays, but now event calibration also apply these delays. So we should compensate for that.
-    if(a<8){
-    directPulseStart[a] -= addDelay;
-    refractPulseStart[a] -= addDelay;
-    }
 
 	  //*** We put the waveform into a graph. ***//
 	  gr_v_temp[a] = realAtriEvPtr->getGraphFromRFChan(a);
@@ -843,9 +864,9 @@ cout<<"785\n";
     fclose(dtFile);
 */
 
-//   recoSuccess = false;
+   recoSuccess = false;
 
-//   while( !recoSuccess ){
+   while( !recoSuccess ){
    if(settings->beamformMethod == 1){
    if(settings->getSkymapMode == 0){
        err = reconstructCSW(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, fitsFile/*argv[5]*/);
@@ -878,9 +899,9 @@ cout<<"785\n";
 
    }
    if( err<0 || maxPixIdx<0){ cerr<<"Error reconstructing\n"; return -1; }
-   //if(summary->maxPixCoherence != 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
-   //else { cout<<"maxPixCoherence returns 0!! Re-running reco...\n"; }
-   //}//end of while
+   if(summary->maxPixCoherence != 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
+   else { cout<<"maxPixCoherence returns 0!! Re-running reco...\n"; }
+   }//end of while
 
    //int recoFlag = record3DDiffGetFlag(summary, outputFile);
    //if( recoFlag ) recoFlagCnt++;
