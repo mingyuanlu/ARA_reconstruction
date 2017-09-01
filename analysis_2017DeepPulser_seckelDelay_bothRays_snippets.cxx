@@ -738,7 +738,7 @@ cout<<"734\n";
   c1->SaveAs("snippets.C");
 
   maxSamp = 1024;
-
+cout<<"741\n";
   beginTime = 1e10;
   for(int ch=0; ch<8; ch++){
 
@@ -746,7 +746,7 @@ cout<<"734\n";
     if( t<beginTime) beginTime = t;
 
   }
-
+cout<<"749\n";
   for(int ch=0; ch<8; ch++){
 
     grWinPad1stPulse[ch] = evProcessTools::getWindowedAndPaddedEqualBeginGraph(gr1stPulse[ch], maxSamp, beginTime);
@@ -754,7 +754,7 @@ cout<<"734\n";
     delete gr1stPulse[ch];
 
   }
-
+cout<<"757\n";
   beginTime = 1e10;
   for(int ch=0; ch<8; ch++){
 
@@ -763,7 +763,7 @@ cout<<"734\n";
     if( t<beginTime) beginTime = t;
     }
   }
-
+cout<<"766\n";
   for(int ch=0; ch<8; ch++){
 
     if(gr2ndPulse[ch]->GetN() != 0)
@@ -774,7 +774,7 @@ cout<<"734\n";
     delete gr2ndPulse[ch];
 
   }
-
+cout<<"777\n";
   for(int ch=0; ch<16; ch++){
    /* Use a modified Hann window for now */
    grWinPad[ch]     = evProcessTools::getWindowedAndPaddedEqualBeginGraph(grInt[ch], maxSamp, beginTime);
