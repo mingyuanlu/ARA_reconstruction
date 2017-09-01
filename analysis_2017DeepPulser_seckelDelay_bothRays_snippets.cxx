@@ -709,7 +709,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 */
       delete gr_v_temp[a];
    }//End looping channels
-cout<<"690\n";
+
    double wInt;
    int maxSamp;
    if (cutWaveAlert == 1) { cerr<<"Event "<<ev<<" discarded due to cutWaveAlert\n"; continue; }
@@ -738,7 +738,6 @@ cout<<"690\n";
      gr2ndPulse[ch] = new TGraph();
      int pc1, pc2;
      pc1=pc2=0;
-     cout<<"717\n";
      for(int s=0; s<grInt[ch]->GetN(); s++){
 
        grInt[ch]->GetPoint(s, t,v);
@@ -746,23 +745,19 @@ cout<<"690\n";
        else if( t>=refractPulseStart[ch] && t<=(refractPulseStart[ch]+200.)){ gr2ndPulse[ch]->SetPoint(pc2, t, v); pc2++;}
 
      }
-cout<<"725\n";
      c1->cd(ch+1);
      gr1stPulse[ch]->Draw("AL");
      gr1stPulse[ch]->GetXaxis()->SetLimits(-100,500);
      gr2ndPulse[ch]->SetLineColor(kRed);
      gr2ndPulse[ch]->Draw("Lsame");
-cout<<"730\n";
    }//if ch<8
    unpaddedEvent.push_back(grInt[ch]);
 
   }
-cout<<"734\n";
   snprintf(c1name,sizeof(char)*200,"snippet_%d.C",ev);
   c1->SaveAs(c1name);
 
   maxSamp = 1024;
-cout<<"741\n";
   beginTime = 1e10;
   for(int ch=0; ch<8; ch++){
 
@@ -770,7 +765,6 @@ cout<<"741\n";
     if( t<beginTime) beginTime = t;
 
   }
-cout<<"749\n";
   for(int ch=0; ch<8; ch++){
 
     grWinPad1stPulse[ch] = evProcessTools::getWindowedAndPaddedEqualBeginGraph(gr1stPulse[ch], maxSamp, beginTime);
@@ -778,7 +772,6 @@ cout<<"749\n";
     delete gr1stPulse[ch];
 
   }
-cout<<"757\n";
   beginTime = 1e10;
   for(int ch=0; ch<8; ch++){
 
@@ -787,7 +780,6 @@ cout<<"757\n";
     if( t<beginTime) beginTime = t;
     }
   }
-cout<<"766\n";
   for(int ch=0; ch<8; ch++){
 
     if(gr2ndPulse[ch]->GetN() != 0)
@@ -798,7 +790,6 @@ cout<<"766\n";
     delete gr2ndPulse[ch];
 
   }
-cout<<"777\n";
   for(int ch=0; ch<16; ch++){
    /* Use a modified Hann window for now */
    grWinPad[ch]     = evProcessTools::getWindowedAndPaddedEqualBeginGraph(grInt[ch], maxSamp, beginTime);
@@ -810,7 +801,6 @@ cout<<"777\n";
    delete gr_v[ch];
    }//end of ch
 
-cout<<"785\n";
    numSatChan = 0;
    if(settings->nchnlFilter > 0){
 
