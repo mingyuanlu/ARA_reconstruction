@@ -687,7 +687,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 */
       delete gr_v_temp[a];
    }//End looping channels
-
+cout<<"690\n";
    double wInt;
    int maxSamp;
    if (cutWaveAlert == 1) { cerr<<"Event "<<ev<<" discarded due to cutWaveAlert\n"; continue; }
@@ -731,7 +731,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    unpaddedEvent.push_back(grInt[ch]);
 
   }
-
+cout<<"734\n";
   c1->SaveAs("snippets.C");
 
   maxSamp = 1024;
@@ -782,7 +782,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    delete gr_v[ch];
    }//end of ch
 
-
+cout<<"785\n";
    numSatChan = 0;
    if(settings->nchnlFilter > 0){
 
