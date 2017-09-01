@@ -712,6 +712,8 @@ cout<<"690\n";
 
    if(ch<8){
 
+     gr1stPulse[ch] = new TGraph();
+     gr2ndPulse[ch] = new TGraph();
      int pc1, pc2;
      pc1=pc2=0;
      cout<<"717\n";
@@ -926,7 +928,7 @@ cout<<"785\n";
    cleanEvent.clear();
    delete realAtriEvPtr;
    //delete summary;
-   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; }
+   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; if(ch<8){ delete grWinPad2ndPulse[ch]; delete grWinPad1stPulse[ch]; }}
    }//end of ev loop
 
    fp->Close();
