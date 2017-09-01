@@ -843,9 +843,9 @@ cout<<"785\n";
     fclose(dtFile);
 */
 
-   recoSuccess = false;
+//   recoSuccess = false;
 
-   while( !recoSuccess ){
+//   while( !recoSuccess ){
    if(settings->beamformMethod == 1){
    if(settings->getSkymapMode == 0){
        err = reconstructCSW(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, fitsFile/*argv[5]*/);
@@ -878,9 +878,9 @@ cout<<"785\n";
 
    }
    if( err<0 || maxPixIdx<0){ cerr<<"Error reconstructing\n"; return -1; }
-   if(summary->maxPixCoherence != 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
-   else { cout<<"maxPixCoherence returns 0!! Re-running reco...\n"; }
-   }//end of while
+   //if(summary->maxPixCoherence != 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
+   //else { cout<<"maxPixCoherence returns 0!! Re-running reco...\n"; }
+   //}//end of while
 
    //int recoFlag = record3DDiffGetFlag(summary, outputFile);
    //if( recoFlag ) recoFlagCnt++;
