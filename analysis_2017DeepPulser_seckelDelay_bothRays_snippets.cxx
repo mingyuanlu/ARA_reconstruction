@@ -461,6 +461,7 @@ if( err<0 ){
 
    TCanvas *c1 = new TCanvas("c1","c1",800,800);
    c1->Divide(4,2);
+   char c1name[200];
 
 if(settings->dataType == 1){
 /*
@@ -736,7 +737,8 @@ cout<<"730\n";
 
   }
 cout<<"734\n";
-  c1->SaveAs("snippets.C");
+  snprintf(c1name,sizeof(char)*200,"snippet_%d.C",ev);
+  c1->SaveAs(c1name);
 
   maxSamp = 1024;
 cout<<"741\n";
