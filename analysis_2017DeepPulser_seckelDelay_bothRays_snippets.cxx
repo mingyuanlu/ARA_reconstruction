@@ -714,6 +714,7 @@ cout<<"690\n";
 
      int pc1, pc2;
      pc1=pc2=0;
+     cout<<"717\n";
      for(int s=0; s<grInt[ch]->GetN(); s++){
 
        grInt[ch]->GetPoint(s, t,v);
@@ -721,12 +722,12 @@ cout<<"690\n";
        else if( t>=refractPulseStart[ch] && t<=(refractPulseStart[ch]+150.)){ gr2ndPulse[ch]->SetPoint(pc2, t, v); pc2++;}
 
      }
-
+cout<<"725\n";
      c1->cd(ch+1);
      gr1stPulse[ch]->Draw("AL");
      gr2ndPulse[ch]->SetLineColor(kRed);
      gr2ndPulse[ch]->Draw("Lsame");
-
+cout<<"730\n";
    }//if ch<8
    unpaddedEvent.push_back(grInt[ch]);
 
