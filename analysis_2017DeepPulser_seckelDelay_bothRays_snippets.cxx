@@ -727,6 +727,7 @@ cout<<"690\n";
 cout<<"725\n";
      c1->cd(ch+1);
      gr1stPulse[ch]->Draw("AL");
+     gr1stPulse[ch]->GetXaxis()->SetLimits(-100,500);
      gr2ndPulse[ch]->SetLineColor(kRed);
      gr2ndPulse[ch]->Draw("Lsame");
 cout<<"730\n";
