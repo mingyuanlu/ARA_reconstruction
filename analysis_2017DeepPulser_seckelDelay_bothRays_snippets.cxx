@@ -622,7 +622,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       //addDelay -= stdDelay; //Seckel's delays are corrected for standard cable delays, but now event calibration also apply these delays. So we should compensate for that.
     if(a<8){
     directPulseStart[a] -= addDelay;
-    2nsPulseStart[a] -= addDelay;
+    refractPulseStart[a] -= addDelay;
     }
 
 	  //*** We put the waveform into a graph. ***//
