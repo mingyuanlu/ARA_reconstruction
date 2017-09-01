@@ -758,9 +758,10 @@ cout<<"734\n";
   beginTime = 1e10;
   for(int ch=0; ch<8; ch++){
 
+    if(gr2ndPulse[ch]->GetN()!=0){
     gr2ndPulse[ch]->GetPoint(0,t,v);
     if( t<beginTime) beginTime = t;
-
+    }
   }
 
   for(int ch=0; ch<8; ch++){
