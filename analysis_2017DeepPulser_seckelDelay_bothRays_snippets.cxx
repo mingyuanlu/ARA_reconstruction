@@ -721,8 +721,8 @@ cout<<"690\n";
      for(int s=0; s<grInt[ch]->GetN(); s++){
 
        grInt[ch]->GetPoint(s, t,v);
-       if( t>= directPulseStart[ch] && t<=(directPulseStart[ch]+150.)){  gr1stPulse[ch]->SetPoint(pc1, t, v); pc1++;}
-       else if( t>=refractPulseStart[ch] && t<=(refractPulseStart[ch]+150.)){ gr2ndPulse[ch]->SetPoint(pc2, t, v); pc2++;}
+       if( t>= directPulseStart[ch] && t<=(directPulseStart[ch]+200.)){  gr1stPulse[ch]->SetPoint(pc1, t, v); pc1++;}
+       else if( t>=refractPulseStart[ch] && t<=(refractPulseStart[ch]+200.)){ gr2ndPulse[ch]->SetPoint(pc2, t, v); pc2++;}
 
      }
 cout<<"725\n";
