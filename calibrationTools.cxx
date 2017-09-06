@@ -33,16 +33,16 @@ using namespace std;
 /*
 void invertGraph(TGraph *gr)
 {
-        double t1, v1; 
+        double t1, v1;
         for(int i=0;i<gr->GetN();i++)
-        {   
+        {
                 gr->GetPoint(i,t1,v1);
                 gr->SetPoint(i,t1,-v1);
-        }   
+        }
 }
 */
-int calibrateGeometryAndDelays(const RawAraStationEvent *rawEvPtr, 
-                                double (&posDelayArray)[4][4], double *pulserCorr, 
+int calibrateGeometryAndDelays(const RawAraStationEvent *rawEvPtr,
+                                double (&posDelayArray)[4][4], double *pulserCorr,
                                 const float stationCenterDepth,
                                 vector<vector<double> >& ant_loc,
                                 vector<vector<double> >& pul_loc){
@@ -104,39 +104,39 @@ int calibrateGeometryAndDelays(const RawAraStationEvent *rawEvPtr,
         //std::vector<std::vector<double> > ant_loc;
         Double_t *antloc=0;
 
-/* 
+/*
  * Calibrating antenna positions
  */
 
         for(int a=0;a<16;a++){
                 antloc = geom->getStationInfo(rawEvPtr->stationId)->getAntennaInfo(a)->getLocationXYZ();
-                cout << "The location is then: " << antloc[0] << "  " << antloc[1] << "   " << antloc[2] << endl;       
+                cout << "The location is then: " << antloc[0] << "  " << antloc[1] << "   " << antloc[2] << endl;
                 if(stationId==2 && a==0)  antloc[2] = antloc[2] + 1.68;
                 if(stationId==3 && a==10) antloc[2] = antloc[2] + 2.01;
 
                 antl.push_back(antloc[0] + posDelayArray[a%4][0]);
                 antl.push_back(antloc[1] + posDelayArray[a%4][1]);
                 //if((a/4)%2==1)antl.push_back(antloc[2]+180.0 + posDelayArray[a%4][2] + slackArray[a%4]);
-                //else 
+                //else
                 antl.push_back(antloc[2]+ stationCenterDepth + posDelayArray[a%4][2]);
 
-                cout << "Correcting: " << posDelayArray[a%4][0] << "  " << posDelayArray[a%4][1] << "  " << posDelayArray[a%4][2] << //"  " << slackArray[a%4] << 
+                cout << "Correcting: " << posDelayArray[a%4][0] << "  " << posDelayArray[a%4][1] << "  " << posDelayArray[a%4][2] << //"  " << slackArray[a%4] <<
                 endl;
                 cout << "antDepth[1]["<<a<<"] = " << antl[2] << endl;
                 printf("Corrected Rx %d X Y Z: %f %f %f\n", a, antl[0], antl[1], antl[2]);
-            
+
                 ant_loc.push_back(antl);
                 antl.clear();
          }
-         
+
 /*
- * Calibrating pulser positions 
+ * Calibrating pulser positions
  */
          cout<<"Number of of calpulsers for station "<<rawEvPtr->stationId<<": "
              <<geom->getStationInfo(rawEvPtr->stationId)->getNumCalAnts()<<endl;
-         
+
          for(int c=0; c<geom->getStationInfo(rawEvPtr->stationId)->getNumCalAnts(); c++){
-                 
+
                  antloc = geom->getStationInfo(rawEvPtr->stationId)->getCalAntennaInfo(c)->getLocationXYZ();
                  string locName(&geom->getStationInfo(rawEvPtr->stationId)->getCalAntennaInfo(c)->locationName[0]);
                  cout<<"locName: "<<locName<<endl;
@@ -154,7 +154,7 @@ int calibrateGeometryAndDelays(const RawAraStationEvent *rawEvPtr,
                  }
                  printf("Corrected pulser %d X: %f Y: %f Z: %f\n", c, antl[0], antl[1], antl[2]);
                  pul_loc.push_back(antl);
-                 antl.clear();       
+                 antl.clear();
          }
 return 0;
 }
@@ -237,8 +237,8 @@ for(int AraRootChan=0; AraRootChan<16; AraRootChan++){
    antenna_i= detector->getAntennafromArbAntID(0,AraSimChan);
    AraRootChannel = detector->GetChannelfromStringAntenna(0, string_i, antenna_i, settings) - 1;
 
-   //cout<<"AraSimChan: "<<AraSimChan<<" string_i: "<<string_i<<" antenna_i: "<<antenna_i<<" AraRootChannel: "<<AraRootChannel<<endl;
- 
+   cout<<"AraSimChan: "<<AraSimChan<<" string_i: "<<string_i<<" antenna_i: "<<antenna_i<<" AraRootChannel: "<<AraRootChannel<<endl;
+
    if( AraRootChannel == AraRootChan ){
    xyz.push_back(detector->stations[0].strings[string_i].antennas[antenna_i].GetX() - stationX);
    xyz.push_back(detector->stations[0].strings[string_i].antennas[antenna_i].GetY() - stationY);
@@ -246,11 +246,10 @@ for(int AraRootChan=0; AraRootChan<16; AraRootChan++){
    cout<<"x: "<<xyz[0]<<" y: "<<xyz[1]<<" z: "<<xyz[2]<<endl;
    ant_loc.push_back(xyz);
    xyz.clear();
-   }   
-  
-   }   
    }
-                                  
+
+   }
+   }
+
 return 0;
 }
- 
