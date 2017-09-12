@@ -9897,7 +9897,7 @@ void getChannelSNR(const vector<TGraph *>& cleanEvent, float *snrArray){
 
       //delete gr;
       snrArray[ch] = static_cast<float>(absPeak / sigma);
-
+      cout<<"ch: "<<ch<<" mean: "<<mean<<" sigma: "<<sigma<<" snr: "<<snrArray[ch]<<endl;
    }//end of ch
    /*
    for(int ch=0; ch<16; ch++){
@@ -9964,7 +9964,7 @@ void getChannelUnmodifiedSNR(const vector<TGraph *>& cleanEvent, float *snrArray
 
          mean  = statsArray[0];
          sigma = statsArray[1];
-
+         //cout<<"ch: "<<ch<<" mean: "<<mean<<" sigma: "<<sigma<<endl;
          for (int binCounter=(bin/mod); binCounter<((bin*(mod-1))/mod); binCounter++){
 
             cleanEvent[ch]->GetPoint(binCounter, t, v);
@@ -9995,7 +9995,7 @@ void getChannelUnmodifiedSNR(const vector<TGraph *>& cleanEvent, float *snrArray
 
       //delete gr;
       snrArray[ch] = static_cast<float>(absPeak / sigma);
-
+       cout<<"ch: "<<ch<<" mean: "<<mean<<" sigma: "<<sigma<<" unmod snr: "<<snrArray[ch]<<endl;
    }//end of ch
    /*
    for(int ch=0; ch<16; ch++){
