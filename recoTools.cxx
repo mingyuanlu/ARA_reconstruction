@@ -8536,10 +8536,12 @@ if (tablePath == NULL) {
     return -1;
 }
 std::string tablePathStr(tablePath);
-RayDelay ray(tablePathStr+"/"+ICE_FILE,
+/*RayDelay ray(tablePathStr+"/"+ICE_FILE,
              tablePathStr+"/"+AIR_FILE,
              tablePathStr+"/"+SHADOW_FILE);
-cout<<"RayDelay object created\n";
+*/
+RayTrace ray(tablePathStr);
+cout<<"RayTrace object created\n";
 
 double r, zRec, zSrc;
 float tempDelay, meanDelay=0.f;
