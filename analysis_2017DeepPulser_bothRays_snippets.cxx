@@ -281,9 +281,9 @@ vector<vector<double> > antLocation;
 if(settings->dataType == 1){
 
    //vector<vector<double> > pulserLocation;
-   err = calibrateGeometryAndDelays(rawEvPtr, delays, pulserCorr, stationCenterDepth, antLocation, pulserLocation); //just to get the "delays", antLocation will be overwritten in the next function - getSeckelStationGeometry
-   antLocation.clear();
-   err = getSeckelStationGeometry(antLocation);
+   err = calibrateGeometryAndDelays(rawEvPtr, delays, pulserCorr, stationCenterDepth, antLocation, pulserLocation);
+   //antLocation.clear();
+   //err = getSeckelStationGeometry(antLocation);
    if( err<0 ){ cerr<<"Error calibrating geometry and delays\n"; return -1; }
 
 } else {
@@ -329,8 +329,8 @@ float *postDelays_radioSpline, *postDelays_radioSpline_V, *postDelays_radioSplin
       *postDelays_constantN, *postDelays_constantN_V, *postDelays_constantN_H;
 Healpix_Onion *onion;
 
-vector<double> srcPosVec;
-vector<vector<float> > recoDelaysVec, recoDelaysVec_V, recoDelaysVec_H, recoDelaysVec_ctr;
+//vector<double> srcPosVec;
+//vector<vector<float> > recoDelaysVec, recoDelaysVec_V, recoDelaysVec_H, recoDelaysVec_ctr;
 
 if( settings->skymapSearchMode == 0){ //No zoom search
 
@@ -342,8 +342,8 @@ if( settings->skymapSearchMode == 0){ //No zoom search
    onion = new Healpix_Onion(nSideExp, nLayer, settings->layerFirstRadius, settings->layerLastRadius);
 
    /* For delays from Seckel */
-   nDir =  1331;
-   nLayer = 1;
+   //nDir =  1331;
+   //nLayer = 1;
 
    if(nDir*nLayer < topN) {
       cerr<<"topN greater than total number of pixles. Setting topN to equal nDir*nLayer...\n";
@@ -360,17 +360,20 @@ if( settings->skymapSearchMode == 0){ //No zoom search
 
    recoBothDelays_V = (float*)malloc(nLayer*nDir*nAnt*sizeof(float));
    recoBothDelays_H = (float*)malloc(nLayer*nDir*nAnt*sizeof(float));
-   /*
+
    if(settings->iceModel == 1){
    err = computeRecoDelaysWithConstantN(nAnt, -1.f*stationCenterDepth, antLocation,
                                         //radius, nSideExp,
                                         onion, recoDelays, recoDelays_V, recoDelays_H);
    } else if(settings->iceModel == 0){
-   err = compute3DRecoDelaysWithRadioSpline(nAnt, -1.f*stationCenterDepth, antLocation,
-                                            onion, recoDelays, recoDelays_V, recoDelays_H);
+   //err = compute3DRecoDelaysWithRadioSpline(nAnt, -1.f*stationCenterDepth, antLocation,
+   //                                        onion, recoDelays, recoDelays_V, recoDelays_H);
+   err = compute3DRecoBothDelaysWithRadioSpline(nAnt, -1.f*stationCenterDepth, antLocation,
+                                             onion, recoDelays, recoDelays_V, recoDelays_H,
+                                             recoRefracDelays, recoRefracDelays_V, recoRefracDelays_H);
    } else { cerr<<"Undefined iceModel parameter\n"; return -1; }
-   */
-   err = getRecoDelaysFromSeckel("raygrid.txt", srcPosVec, recoDelaysVec_ctr, recoDelaysVec, recoDelaysVec_V, recoDelaysVec_H);
+
+   //err = getRecoDelaysFromSeckel("raygrid.txt", srcPosVec, recoDelaysVec_ctr, recoDelaysVec, recoDelaysVec_V, recoDelaysVec_H);
    if( err<0 ){ cerr<<"Error computing reco delays\n"; return -1; }
 
 } else {// zoom search mode
@@ -386,10 +389,10 @@ if( settings->skymapSearchMode == 0){ //No zoom search
 */
 }
 
-cout<<"srcPosVec.size: "<<srcPosVec.size()<<endl;
-cout<<"recoDelaysVec_ctr.size: "<<recoDelaysVec_ctr.size()<<" recoDelaysVec[0].size: "<<recoDelaysVec[0].size()<<" recoDelaysVec_V[0].size: "<<recoDelaysVec_V[0].size()<<" recoDelaysVec_H[1].size: "<<recoDelaysVec_H[1].size()<<endl;
+//cout<<"srcPosVec.size: "<<srcPosVec.size()<<endl;
+//cout<<"recoDelaysVec_ctr.size: "<<recoDelaysVec_ctr.size()<<" recoDelaysVec[0].size: "<<recoDelaysVec[0].size()<<" recoDelaysVec_V[0].size: "<<recoDelaysVec_V[0].size()<<" recoDelaysVec_H[1].size: "<<recoDelaysVec_H[1].size()<<endl;
 
-
+/*
 TPolyMarker3D *grid = new TPolyMarker3D(1331, 6);
 double r, theta, phi;
 for(int i=0; i<1331; i++){
@@ -401,6 +404,7 @@ for(int i=0; i<1331; i++){
    grid->SetPoint(i, r*sin(theta)*cos(phi), r*sin(theta)*sin(phi), r*cos(theta));
 
  }
+*/
 
 for(int pix=0; pix<nLayer*nDir; pix++){
 
@@ -408,21 +412,21 @@ for(int pix=0; pix<nLayer*nDir; pix++){
    for(int ant=0; ant<nAnt; ant++){
 
    cout<<"ant: "<<ant<<endl;
-   recoDelays[pix*nAnt+ant]       = recoDelaysVec[0][pix*nAnt+ant];
-   recoRefracDelays[pix*nAnt+ant] = recoDelaysVec[1][pix*nAnt+ant];
+   //recoDelays[pix*nAnt+ant]       = recoDelaysVec[0][pix*nAnt+ant];
+   //recoRefracDelays[pix*nAnt+ant] = recoDelaysVec[1][pix*nAnt+ant];
    cout<<"recoDelays: "<< recoDelays[pix*nAnt+ant]<<" recoRefracDelays: "<<recoRefracDelays[pix*nAnt+ant]<<endl;
    if(ant < 8){
-     recoDelays_V[pix*nAnt/2+ant]       = recoDelaysVec_V[0][pix*nAnt/2+ant];
-     recoRefracDelays_V[pix*nAnt/2+ant] = recoDelaysVec_V[1][pix*nAnt/2+ant];
-     recoBothDelays_V[pix*nAnt+ant]     = recoDelaysVec_V[0][pix*nAnt/2+ant];
-     recoBothDelays_V[pix*nAnt+ant+8]   = recoDelaysVec_V[1][pix*nAnt/2+ant];
+     //recoDelays_V[pix*nAnt/2+ant]       = recoDelaysVec_V[0][pix*nAnt/2+ant];
+     //recoRefracDelays_V[pix*nAnt/2+ant] = recoDelaysVec_V[1][pix*nAnt/2+ant];
+     recoBothDelays_V[pix*nAnt+ant]     = recoDelays_V[pix*nAnt/2+ant];
+     recoBothDelays_V[pix*nAnt+ant+8]   = recoRefracDelays_V[pix*nAnt/2+ant];
      //cout<<recoDelays_V[pix*nAnt/2+ant]<<" "<<recoRefracDelays_V[pix*nAnt/2+ant]<<endl;
      cout<<recoBothDelays_V[pix*nAnt+ant]<<" "<<recoBothDelays_V[pix*nAnt+ant+8]<<endl;
    } else {
-     recoDelays_H[pix*nAnt/2+ant-8]       = recoDelaysVec_H[0][pix*nAnt/2+ant-8];
-     recoRefracDelays_H[pix*nAnt/2+ant-8] = recoDelaysVec_H[1][pix*nAnt/2+ant-8];
-     recoBothDelays_H[pix*nAnt+ant-8]     = recoDelaysVec_H[0][pix*nAnt/2+ant-8];
-     recoBothDelays_H[pix*nAnt+ant]       = recoDelaysVec_H[1][pix*nAnt/2+ant-8];
+     //recoDelays_H[pix*nAnt/2+ant-8]       = recoDelaysVec_H[0][pix*nAnt/2+ant-8];
+     //recoRefracDelays_H[pix*nAnt/2+ant-8] = recoDelaysVec_H[1][pix*nAnt/2+ant-8];
+     recoBothDelays_H[pix*nAnt+ant-8]     = recoDelays_H[pix*nAnt/2+ant-8];
+     recoBothDelays_H[pix*nAnt+ant]       = recoRefracDelays_H[1][pix*nAnt/2+ant-8];
      //cout<<recoDelays_H[pix*nAnt/2+ant-8]<<" "<<recoRefracDelays_H[pix*nAnt/2+ant-8]<<endl;
      cout<<recoBothDelays_H[pix*nAnt+ant-8]<<" "<<recoBothDelays_H[pix*nAnt+ant]<<endl;
    }
@@ -450,7 +454,7 @@ if( err<0 ){
    TGraph *gr1stPulse[8], *gr2ndPulse[8];
    TGraph *grWinPad1stPulse[8], *grWinPad2ndPulse[8];
 
-   float directPulseStart[8] = {150.f, 70.f, 175.f, 80.f, 120.f, 25.f, 150.f, 50.f};  //Approximate time of 1st pulser rising edge
+   float directPulseStart[8] = {150.f, 70.f, 175.f, 80.f, 120.f, 25.f, 150.f, 50.f};  //Approximate time of 1st pulse rising edge
    float refractPulseStart[8] = {229.9, 230.5, 1e10, 248.1, 1e10, 308.3, 1e10, 321.4}; //This is now just the pulse separation time between the 1st and the 2nd pulse.
                                                                                    //Note that for channel 4, only very few events have a 2nd pulse. It is treated as always having none here.
    for(int i=0; i<8; i++){
@@ -875,7 +879,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       sprintf(fitsFile, fitsFileStr.c_str());
 
       if(settings->skymapSearchMode == 0){ //no zoom mode
-    maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, /*recoDelays*/recoBothDelays_V, recoDelays_V, /*recoDelays_H*/recoRefracDelays_V, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
+      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, /*recoDelays*/recoBothDelays_V, recoDelays_V, /*recoDelays_H*/recoRefracDelays_V, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
       if(settings->recordMapData == 1){
       for(int pix=0; pix<nDir*nLayer; pix++) mapDataHist[pix]->Fill(mapData[pix]);
       }
@@ -895,13 +899,13 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    //int recoFlag = record3DDiffGetFlag(summary, outputFile);
    //if( recoFlag ) recoFlagCnt++;
-   /*
+
    summary->setFlag( (settings->skymapSearchMode)
                     ? record3DZoomedDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist)
                     : record3DDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist) );
    if(summary->flag > 0) recoFlagCnt++;
-*/
-   record3DDiffSeckel(srcPosVec, settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist);
+
+   //record3DDiffSeckel(srcPosVec, settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist);
    maxPix[maxPixIdx]++;
 /*
    postDelays_radioSpline = (float*)malloc(sizeof(float)*nAnt);
@@ -1147,7 +1151,7 @@ free(recoDelays_H);
 delete settings;
 free(mapDataHist);
 free(mapData);
-
+/*
 TH3D *hist = new TH3D("hist","hist",10,-5000,5000,10,-5000,5000,5,-3000,100);
 TCanvas *cvs = new TCanvas("cvs","cvs",800,800);
 hist->Draw();
@@ -1155,7 +1159,7 @@ hist->SetStats(0);
 grid->ls();
 grid->Draw("same");
 cvs->SaveAs("seckelGrid.C");
-
+*/
 //fclose(dtFile_radioSpline);
 //fclose(dtFile_constantN);
 
