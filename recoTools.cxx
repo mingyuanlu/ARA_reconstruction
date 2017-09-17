@@ -8584,7 +8584,7 @@ for(int layer=0; layer<nLayer; layer++){
 
       tempDelay       = static_cast<float>(ray.GetPropagationTime(r, zRec, zSrc));
       tempRefracDelay = static_cast<float>(ray.GetReflectedPropagationTime(r, zRec, zSrc));
-      //cout<<tempDelay<<" ";
+      cout<<"tempDelay: "<<tempDelay<<" tempRefracDelay: "<<tempRefracDelay<<endl;
 
       if( tempDelay > 1.f )
          //if( k<8 || k>11 )
@@ -8640,7 +8640,7 @@ for(int layer=0; layer<nLayer; layer++){
 /*
  * Write FITS file
  */
-/*
+
 cout<<"Creating Healpix map of channel 0 & 4 delays, and writing to FITS....\n";
 
 float *delays = (float*)calloc(nDir, sizeof(float));
@@ -8661,7 +8661,7 @@ delaysArr = arr<float>(&delays[0], (size_t)nDir);
 delaysSkyMap = Healpix_Map<float>(delaysArr, RING);
 
 //fitshandle fitsOut;
-sprintf(filename, "delaysSkyMap_A3_layer%d_chan0_4.fits", layer);
+sprintf(filename, "delaysSkyMap_A2_layer%d_chan0_4.fits", layer);
 remove(filename);
 fitsOut.create(filename);
 
@@ -8671,7 +8671,7 @@ cout<<"Healpix map written\n";
 }
 
 free(delays);
-*/
+
    return 0;
 }
 
