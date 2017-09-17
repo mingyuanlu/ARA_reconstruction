@@ -8658,7 +8658,7 @@ for(int layer=0; layer<nLayer; layer++){
    }
    cout<<endl;
 delaysArr = arr<float>(&delays[0], (size_t)nDir);
-delaysSkyMap = Healpix_Map<float>(delaysArr, RING);
+delaysSkyMap = Healpix_Map<float>(delaysArr, HEALPIX_ORDERING);
 
 //fitshandle fitsOut;
 sprintf(filename, "delaysSkyMap_A2_layer%d_chan0_4.fits", layer);
