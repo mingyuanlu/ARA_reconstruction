@@ -8584,7 +8584,7 @@ for(int layer=0; layer<nLayer; layer++){
 
       tempDelay       = static_cast<float>(ray.GetPropagationTime(r, zRec, zSrc));
       tempRefracDelay = static_cast<float>(ray.GetReflectedPropagationTime(r, zRec, zSrc));
-      cout<<"tempDelay: "<<tempDelay<<" tempRefracDelay: "<<tempRefracDelay<<endl;
+      //cout<<"tempDelay: "<<tempDelay<<" tempRefracDelay: "<<tempRefracDelay<<endl;
 
       if( tempDelay > 1.f )
          //if( k<8 || k>11 )

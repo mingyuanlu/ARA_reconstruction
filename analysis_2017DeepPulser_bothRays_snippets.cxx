@@ -762,7 +762,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
   }
   snprintf(c1name,sizeof(char)*200,"snippet_%d.C",ev);
   c1->SaveAs(c1name);
-/*
+
   maxSamp = 1024;
   beginTime = 1e10;
   for(int ch=0; ch<8; ch++){
@@ -774,7 +774,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
   for(int ch=0; ch<8; ch++){
 
     grWinPad1stPulse[ch] = evProcessTools::getWindowedAndPaddedEqualBeginGraph(gr1stPulse[ch], maxSamp, beginTime);
-    //cleanEvent.push_back(grWinPad1stPulse[ch]);
+    cleanEvent.push_back(grWinPad1stPulse[ch]);
     delete gr1stPulse[ch];
 
   }
@@ -792,17 +792,17 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
     grWinPad2ndPulse[ch] = evProcessTools::getWindowedAndPaddedEqualBeginGraph(gr2ndPulse[ch], maxSamp, beginTime);
     else{ grWinPad2ndPulse[ch]=new TGraph(); for(int s=0; s<maxSamp; s++) grWinPad2ndPulse[ch]->SetPoint(s, beginTime+s*0.4, 0); }
 
-    //cleanEvent.push_back(grWinPad2ndPulse[ch]);
+    cleanEvent.push_back(grWinPad2ndPulse[ch]);
     delete gr2ndPulse[ch];
 
   }
-*/
+
 
   for(int ch=0; ch<16; ch++){
    /* Use a modified Hann window for now */
    grWinPad[ch]     = evProcessTools::getWindowedAndPaddedEqualBeginGraph(grInt[ch], maxSamp, beginTime);
    /* The task of normalizing wf should be the responsibility of each reco method */
-   cleanEvent.push_back(grWinPad[ch]);
+   //cleanEvent.push_back(grWinPad[ch]);
    //if(ch<8) cleanEvent.push_back(grWinPad[ch]);
    //else     cleanEvent.push_back(grWinPad[ch-8]);
 
@@ -951,7 +951,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    cleanEvent.clear();
    delete realAtriEvPtr;
    //delete summary;
-   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; /*if(ch<8){ delete grWinPad2ndPulse[ch]; delete grWinPad1stPulse[ch]; }*/}
+   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; if(ch<8){ delete grWinPad2ndPulse[ch]; delete grWinPad1stPulse[ch]; }}
    }//end of ev loop
 
    fp->Close();
