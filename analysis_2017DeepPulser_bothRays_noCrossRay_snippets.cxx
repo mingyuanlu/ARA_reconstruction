@@ -896,7 +896,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_getCoherenceData(settings, cleanEvent, &clEnv, /*recoDelays*/recoBothDelays_V, recoDelays_V, /*recoDelays_H*/recoRefracDelays_V, goodChan, /*summary,*/ fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/, MData);
       /* Force 2ndRay (taking up hpol wfs) reco here */
       snprintf(settings->recoPolType,sizeof(settings->recoPolType),"hpol");
-      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_loadCoherenceData(settings, cleanEvent, &clEnv, /*recoDelays*/recoBothDelays_V, recoDelays_V, /*recoDelays_H*/recoRefracDelays_V, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/MData);
+      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_loadCoherenceData(settings, cleanEvent, &clEnv, /*recoDelays*/recoBothDelays_V, recoDelays_V, /*recoDelays_H*/recoRefracDelays_V, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/, MData);
       if(settings->recordMapData == 1){
       for(int pix=0; pix<nDir*nLayer; pix++) mapDataHist[pix]->Fill(mapData[pix]);
       }
