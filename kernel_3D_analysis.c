@@ -189,7 +189,7 @@ __kernel void computeXCorrCoef( __global float *Cij, __global float *xCorrTime,
    int ant1 = gid2 / nAnt;
    int ant2 = gid2 % nAnt;
 
-   if( (gid0*nDir*nAnt + gid1*nAnt + ant1) >= nLayer*nDir*nBaseline || (gid0*nDir*nAnt + gid1*nAnt + ant2) >= nLayer*nDir*nBaseline ) printf("****** Warning! out of range!!! **** nLayer: %d nDir: %d nBaseline: %d ant1: %d ant2: %d\n",nLayer, nDir, nBaseline, gid0*nDir*nAnt + gid1*nAnt + ant1, gid0*nDir*nAnt + gid1*nAnt + ant2);
+   if( (gid0*nDir*nAnt + gid1*nAnt + ant1) >= nLayer*nDir*nBaseline || (gid0*nDir*nAnt + gid1*nAnt + ant2) >= nLayer*nDir*nBaseline ) printf("****** Warning! out of range!!! **** nLayer: %d nDir: %d nBaseline: %d ant1: %d ant2: %d\n",nLayer, nDir, nBaseline, gid0*nDir*nAnt + gid1*nAnt + ant1 -  nLayer*nDir*nBaseline, gid0*nDir*nAnt + gid1*nAnt + ant2 -  nLayer*nDir*nBaseline);
    if( sqrtWfPwr[ant1] != 0.f && sqrtWfPwr[ant2] != 0.f ){
    if(delays[gid0*nDir*nAnt + gid1*nAnt + ant1] > -1e9 && delays[gid0*nDir*nAnt + gid1*nAnt + ant2] > -1e9 ){
    int shiftBin = (delays[gid0*nDir*nAnt + gid1*nAnt + ant1] - delays[gid0*nDir*nAnt + gid1*nAnt + ant2]) / wInt;
