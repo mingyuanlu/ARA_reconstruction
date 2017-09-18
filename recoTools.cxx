@@ -7125,6 +7125,1671 @@ cout<<"Memories deallocated\n";
 return maxPixIdx;
 }
 
+int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_getCoherenceData(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
+                float *recoDelays, float *recoDelays_V, float *recoDelays_H,
+                const int *chanMask, /*recoData *summary,*/ char *filename, float *mapData, float *MData)
+{
+
+cout<<"Entered reconstruct3DXCorrEnvelopeGetMaxPixAndMapData method\n";
+int nSamp;
+//int nAnt = (int)cleanEvent.size()/2; // Divide by 2 for only one polarization
+int nAnt;// = (int)cleanEvent.size();
+string pol = string(settings->recoPolType);
+if( pol == "vpol" || pol == "hpol" ) nAnt = (int)cleanEvent.size()/2; else  nAnt = (int)cleanEvent.size();
+int unmaskedNChan=0;
+for(int ch=0; ch<(int)cleanEvent.size(); ch++) unmaskedNChan+=chanMask[ch];
+cout<<"unmaskedNChan: "<<unmaskedNChan<<" nAnt: "<<nAnt<<endl;
+float wInt;
+int dataType = settings->dataType;
+if( dataType == 0 ) wInt = 0.5f; //AraSim event
+else if( dataType == 1 ){ //real event
+if( pol == "vpol" ) wInt = 0.4f;
+else if ( pol == "hpol" ) wInt = /*0.625f*/0.4f; //0.4f for 2nd ray reco
+else if ( pol == "both" ) wInt = /*0.5f*/0.4f; //0.4f for both ray reco using Vpols
+else { cerr<<"recoPolType undefined\n"; return -1; }
+} else {
+cerr<<"dataType undefined\n"; return -1; }
+
+cout<<"recoPolType_getData: "<<pol<<endl;
+
+int nSideExp = settings->nSideExp;
+int nDir   = /*summary->onion*/12 * pow(2,nSideExp) * pow(2,nSideExp);;
+int nLayer = /*summary->onion*/settings->nLayer;
+/* Using Seckel's delays */
+//nDir = 1331;
+//nLayer = 1;
+//printf("nDir: %d nLayer: %d\n",nDir,nLayer);
+/*
+ * Loading voltsFlat array
+ */
+
+double t, v;
+float *voltsFlat;
+
+if( pol == "vpol" ){
+
+   /* Using the 1st vpol wf for nSamp. Should make sure all vpol channels have the same nSamp. FIXME */
+   nSamp = cleanEvent[0]->GetN();
+   voltsFlat = (float*)calloc(nAnt*nSamp, sizeof(float));
+   if(voltsFlat == NULL){ cerr<<"Null pointer to voltsFlat\n"; return -1; }
+
+   for(int ch=0; ch<nAnt; ch++){
+       if( chanMask[ch] ){
+         for(int s=0; s<nSamp; s++){
+            cleanEvent[ch]->GetPoint(s,t,v);
+            /* Bartlett window applied in main analysis code */
+            //voltsFlat[nSamp*ch + s] = static_cast<float>(v * FFTtools::bartlettWindow(s, nSamp));
+            voltsFlat[nSamp*ch + s] = static_cast<float>(v);
+         }
+      } else {
+         for(int s=0; s<nSamp; s++){
+            voltsFlat[nSamp*ch + s] = 0.f;
+         }
+      }
+   }
+
+} else if ( pol == "hpol" ){
+
+   /* Using the 1st hpol wf for nSamp. Should make sure all hpol channels have the same nSamp. FIXME */
+   nSamp = cleanEvent[nAnt]->GetN();
+   voltsFlat = (float*)calloc(nAnt*nSamp, sizeof(float));
+   if(voltsFlat == NULL){ cerr<<"Null pointer to voltsFlat\n"; return -1; }
+
+   for(int ch=0; ch<nAnt; ch++){
+       if( chanMask[ch+nAnt] ){
+         for(int s=0; s<nSamp; s++){
+            cleanEvent[ch+nAnt]->GetPoint(s,t,v);
+            /* Bartlett window applied in main analysis code */
+            //voltsFlat[nSamp*ch + s] = static_cast<float>(v * FFTtools::bartlettWindow(s, nSamp));
+            voltsFlat[nSamp*ch + s] = static_cast<float>(v);
+         }
+      } else {
+         for(int s=0; s<nSamp; s++){
+            voltsFlat[nSamp*ch + s] = 0.f;
+         }
+      }
+   }
+
+} else if ( pol == "both" ){
+
+   /* Using the 1st vpol wf for nSamp. Should make sure all hpol channels have the same nSamp. FIXME */
+   nSamp = cleanEvent[0]->GetN();
+   voltsFlat = (float*)calloc(nAnt*nSamp, sizeof(float));
+   if(voltsFlat == NULL){ cerr<<"Null pointer to voltsFlat\n"; return -1; }
+
+   for(int ch=0; ch<nAnt; ch++){
+       if( chanMask[ch] ){
+         for(int s=0; s<nSamp; s++){
+            cleanEvent[ch]->GetPoint(s,t,v);
+            /* Bartlett window applied in main analysis code */
+            //voltsFlat[nSamp*ch + s] = static_cast<float>(v * FFTtools::bartlettWindow(s, nSamp));
+            voltsFlat[nSamp*ch + s] = static_cast<float>(v);
+         }
+      } else {
+         for(int s=0; s<nSamp; s++){
+            voltsFlat[nSamp*ch + s] = 0.f;
+         }
+      }
+   }
+
+} else {
+   cerr<<"recoPolType not defined\n"; return -1;
+}
+cout<<"voltsFlat loaded\n";
+
+/*
+ * Preparation for OUT_OF_PLACE transforms
+ */
+
+int interlvHermOutputSize = 2*(1 + nSamp/2); //Hermitian layout
+int interlvOutputSize     = 2*nSamp;         //Not Hermitian layout
+int planarHermOutputSize = (1 + nSamp/2);    //Hermitian planar layout
+
+float *intensity_data_r, *intensity_data_c;
+intensity_data_r = (float*)calloc(nAnt*planarHermOutputSize, sizeof(float));
+intensity_data_c = (float*)calloc(nAnt*planarHermOutputSize, sizeof(float));
+
+/*
+ * FFT library related declarations
+ */
+//clfftPlanHandle planHandle;
+clfftDim fftDim = CLFFT_1D;
+size_t clLengths[1]   = {nSamp};
+size_t clInStride[1]  = {1};
+size_t clOutStride[1] = {1};
+size_t inDist  = nSamp;
+size_t outDist   = planarHermOutputSize;
+size_t batchSize = nAnt;
+
+/*
+ * Set up clFFT
+ */
+//clfftSetupData fftSetup;
+//err = clfftInitSetupData(&fftSetup);
+//err = clfftSetup(&fftSetup);
+
+/*
+ * Prepare plan
+ */
+cout<<"Preparing plan...\n";
+int err;
+err = clfftCreateDefaultPlan(&clEnv->planHandle, clEnv->context, fftDim, clLengths);
+err = clfftSetPlanPrecision(clEnv->planHandle, CLFFT_SINGLE);
+err = clfftSetLayout(clEnv->planHandle, CLFFT_REAL, CLFFT_HERMITIAN_PLANAR);
+err = clfftSetPlanScale(clEnv->planHandle, CLFFT_FORWARD, 1.f);
+err = clfftSetPlanBatchSize(clEnv->planHandle, batchSize);
+err = clfftSetPlanInStride(clEnv->planHandle, fftDim, clInStride);
+err = clfftSetPlanOutStride(clEnv->planHandle, fftDim, clOutStride);
+err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist);
+err = clfftSetResultLocation(clEnv->planHandle, CLFFT_OUTOFPLACE);
+err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL);
+cout<<"Plan prepared\n";
+/* The plan is now ready to be executed */
+cl_mem voltsFlatBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*nSamp*sizeof(float), NULL, &err);
+err = clEnqueueWriteBuffer(clEnv->queue, voltsFlatBuffer, CL_TRUE, 0, nAnt*nSamp*sizeof(float), voltsFlat, 0, NULL, NULL);
+
+cl_mem intensityRBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
+                         NULL, &err);
+cl_mem intensityCBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
+                         NULL, &err);
+cl_mem outBuffers[2] = {intensityRBuffer, intensityCBuffer};
+
+cout<<"Enqueueing FFT\n";
+err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL,
+                            &voltsFlatBuffer, outBuffers, NULL);
+err = clFinish(clEnv->queue);
+clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r,
+                    0, NULL, NULL);
+clEnqueueReadBuffer(clEnv->queue, outBuffers[1], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_c,
+                    0, NULL, NULL);
+cout<<"FFT done\n";
+/*
+ * Clean up CLFFT
+ */
+cout<<"Destroying plan...\n";
+err = clfftDestroyPlan(&clEnv->planHandle);
+//clfftTeardown();
+cout<<"Plan destroyed\n";
+
+
+#ifdef bandpass
+/*
+ * Bandpass signals
+ */
+cout<<"Preparing bandpass filter..."<<endl;
+float freqBin = 1e3 / (wInt * (float)nSamp); // wInt in ns. 1e3 for MHz
+float lowFreq = 200.f;
+float highFreq= 450.f;
+
+clSetKernelArg(clEnv->bandPassFilter, 0, sizeof(cl_mem), &intensityRBuffer);
+clSetKernelArg(clEnv->bandPassFilter, 1, sizeof(cl_mem), &intensityCBuffer);
+clSetKernelArg(clEnv->bandPassFilter, 2, sizeof(float),  &freqBin);
+clSetKernelArg(clEnv->bandPassFilter, 3, sizeof(float),  &lowFreq);
+clSetKernelArg(clEnv->bandPassFilter, 4, sizeof(float),  &highFreq);
+
+unsigned int dim = 2;
+size_t bandPassWorkSize[2] = {(size_t)nAnt, (size_t)planarHermOutputSize};
+clEnqueueNDRangeKernel(clEnv->queue, clEnv->bandPassFilter, dim, NULL, bandPassWorkSize, NULL, 0, NULL, NULL);
+clFinish(clEnv->queue);
+clEnqueueReadBuffer(clEnv->queue, intensityRBuffer, CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r,
+                    0, NULL, NULL);
+clEnqueueReadBuffer(clEnv->queue, intensityCBuffer, CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_c,
+                    0, NULL, NULL);
+
+cout<<"Bandpass filter done"<<endl;
+#endif
+
+/*
+ * Cross-correlate wfs
+ */
+
+const int nBaseline = nAnt*nAnt;
+cout<<"nBaseline: "<<nBaseline<<endl;
+
+float *xCorr_data_r = (float*)calloc(nBaseline*planarHermOutputSize, sizeof(float));
+float *xCorr_data_c = (float*)calloc(nBaseline*planarHermOutputSize, sizeof(float));
+
+cl_mem xCorrRBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
+                                    sizeof(float)*nBaseline*planarHermOutputSize, xCorr_data_r, &err);
+
+cl_mem xCorrCBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
+                                    sizeof(float)*nBaseline*planarHermOutputSize, xCorr_data_c, &err);
+
+clSetKernelArg(clEnv->xCorrWf, 0, sizeof(cl_mem), &xCorrRBuffer);
+clSetKernelArg(clEnv->xCorrWf, 1, sizeof(cl_mem), &xCorrCBuffer);
+clSetKernelArg(clEnv->xCorrWf, 2, sizeof(cl_mem), &intensityRBuffer);
+clSetKernelArg(clEnv->xCorrWf, 3, sizeof(cl_mem), &intensityCBuffer);
+clSetKernelArg(clEnv->xCorrWf, 4, sizeof(int),    &nAnt);
+
+unsigned int workDim = 2;
+size_t globalWorkSize[2] = {(size_t)nBaseline, (size_t)planarHermOutputSize};
+clEnqueueNDRangeKernel(clEnv->queue, clEnv->xCorrWf, workDim, NULL, globalWorkSize, NULL, 0, NULL, NULL);
+clFinish(clEnv->queue);
+clEnqueueReadBuffer(clEnv->queue, xCorrRBuffer, CL_TRUE, 0, sizeof(float)*nBaseline*planarHermOutputSize, xCorr_data_r, 0, NULL, NULL);
+clEnqueueReadBuffer(clEnv->queue, xCorrCBuffer, CL_TRUE, 0, sizeof(float)*nBaseline*planarHermOutputSize, xCorr_data_c, 0, NULL, NULL);
+cout<<"Done xCorrWf\n";
+
+/*
+ * Inverse FFT cross-correlation
+ */
+
+inDist  = planarHermOutputSize;
+outDist = nSamp;
+batchSize = nBaseline;
+
+/*
+ * Prepare plan
+ */
+
+err = clfftCreateDefaultPlan(&clEnv->planHandle, clEnv->context, fftDim, clLengths);
+err = clfftSetPlanPrecision(clEnv->planHandle, CLFFT_SINGLE);
+err = clfftSetLayout(clEnv->planHandle, CLFFT_HERMITIAN_PLANAR, CLFFT_REAL);
+err = clfftSetPlanScale(clEnv->planHandle, CLFFT_BACKWARD, 1.f/(float)nSamp);
+err = clfftSetPlanBatchSize(clEnv->planHandle, batchSize);
+err = clfftSetPlanInStride(clEnv->planHandle, fftDim, clInStride);
+err = clfftSetPlanOutStride(clEnv->planHandle, fftDim, clOutStride);
+err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist);
+err = clfftSetResultLocation(clEnv->planHandle, CLFFT_OUTOFPLACE);
+err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL);
+
+/* The plan is now ready to be executed */
+
+cl_mem inBuffers[2] = {xCorrRBuffer, xCorrCBuffer};
+
+float *xCorrTime = (float*)calloc(nBaseline*nSamp, sizeof(float));
+cl_mem xCorrTimeBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nBaseline*nSamp*sizeof(float),
+                           NULL, &err);
+err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_BACKWARD, 1, &clEnv->queue, 0, NULL, NULL, inBuffers, &xCorrTimeBuffer, NULL);
+err = clFinish(clEnv->queue);
+clEnqueueReadBuffer(clEnv->queue, xCorrTimeBuffer, CL_TRUE, 0, sizeof(float)*nBaseline*nSamp, xCorrTime, 0, NULL, NULL);
+
+/*
+ * Clean up FFT
+ */
+
+err = clfftDestroyPlan(&clEnv->planHandle);
+clfftTeardown();
+cout<<"Done inverse FFT\n";
+
+/*
+ * Get Hilbert transform of XCorr function
+ */
+
+TCanvas cvs("cvs","cvs",800,600);
+//cvs.Divide(1,2);
+char envelopename[200];
+
+float dt[nSamp];
+float xCorrValue[nSamp];
+double t_temp, v_temp;
+double t_temp2, v_temp2;
+int ant1, ant2;
+float plusMinusTime = 25.f; //record +-25 ns around peak in XCorr function
+//int plusMinusRange = (int)(plusMinusTime / wInt);
+//static TGraph *sillygr[64];// = new TGraph();
+/*
+static TGraph *sillygr = (TGraph*)malloc(nBaseline*sizeof(TGraph));
+
+for(int i=0; i<nBaseline; i++){
+
+   sillygr[i]=new TGraph();
+
+}
+*/
+//static int lock;
+char sillygrname[200];
+
+char histName[200];
+
+//TH1F *xCorrPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
+//TH1F *envPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
+/*
+TH1F *xCorrPeakHist[64];
+TH1F *envPeakHist[64];
+TFile *xCorrPeakFile;
+char xCorrEnvPeakFileName[200];
+snprintf(xCorrEnvPeakFileName,sizeof(char)*200,"xCorrEnvPeakFile_2015DeepPulser_IC22S_2ndPulse.root");
+
+xCorrPeakFile = new TFile(xCorrEnvPeakFileName); //if file exists, it will stay unopened
+
+if( xCorrPeakFile->IsZombie() ){
+
+  xCorrPeakFile->Close();
+  delete xCorrPeakFile;
+  xCorrPeakFile = new TFile(xCorrEnvPeakFileName,"RECREATE");
+
+  for(int i=0; i<nBaseline; i++){
+
+    snprintf(histName,sizeof(char)*200,"xCorrPeakHist_chan%d_%d",i/nAnt,i%nAnt);
+    xCorrPeakHist[i] = new TH1F(histName,histName,2500,0,1000);
+    xCorrPeakHist[i]->Write();
+    //snprintf(histName,sizeof(char)*200,"envPeakHist_chan%d_%d",i/nAnt,i%nAnt);
+    //envPeakHist[i] = new TH1F(histName,histName,2500,0,1000);
+    //envPeakHist[i]->Write();
+
+  }
+} else {
+//if( !xCorrPeakFile->IsOpen() ){
+
+  xCorrPeakFile->Close();
+  delete xCorrPeakFile;
+  xCorrPeakFile = new TFile(xCorrEnvPeakFileName,"UPDATE");
+
+  for(int i=0; i<nBaseline; i++){
+
+    snprintf(histName,sizeof(char)*200,"xCorrPeakHist_chan%d_%d",i/nAnt,i%nAnt);
+    xCorrPeakHist[i] = (TH1F*)xCorrPeakFile->Get(histName);
+    //snprintf(histName,sizeof(char)*200,"envPeakHist_chan%d_%d",i/nAnt,i%nAnt);
+    //envPeakHist[i] = (TH1F*)xCorrPeakFile->Get(histName);
+
+  }
+}
+*/
+int peakBin;
+double x, y;
+int firstBin = 100. / wInt;
+int lastBin  = nSamp / 2;
+//cout<<"firstBin: "<<firstBin<<" lastBin: "<<lastBin<<" time range: ("<<wInt*firstBin<<", "<<wInt*lastBin<<")"<<endl;
+//TFile *dtFile = new TFile("dtFile.txt","UPDATE");
+//FILE *dtFile = fopen("dtFile.txt","a+");
+
+//FILE *xCorrGraphDataFile = fopen("hilbertEnvGraphDataFile_A3_run3811_IC22S_10Events.csv","a+");
+
+for(int baseline=0; baseline<nBaseline; baseline++){
+
+
+   ant1 = baseline / nAnt;
+   ant2 = baseline % nAnt;
+
+   for(int s=0; s<nSamp; s++){
+
+   dt[s] = wInt*s;
+   xCorrValue[s] = xCorrTime[nSamp*baseline + s];
+/*
+   if(s!=nSamp-1)
+   fprintf(xCorrGraphDataFile,"%f,%f,",dt[s],xCorrValue[s]);
+   else
+   fprintf(xCorrGraphDataFile,"%f,%f\n",dt[s],xCorrValue[s]);
+*/
+   }
+
+   TGraph *xCorrGraph = new TGraph(nSamp, dt, xCorrValue);
+
+//   y = getPeakSqValRange(xCorrGraph, &peakBin, firstBin, lastBin);
+//   xCorrGraph->GetPoint(peakBin,x,y);
+//   xCorrPeakHist[baseline]->Fill(x);
+   //cout<<"xCorr Range Peak Bin: "<<peakBin<<" Peak Sq Value: "<<y<<endl;
+/*
+   y = FFTtools::getPeakSqVal(xCorrGraph, &peakBin);
+   xCorrGraph->GetPoint(peakBin,x,y);
+   xCorrPeakHist[baseline]->Fill(x);
+   //cout<<"xCorr Peak Bin: "<<peakBin<<" Peak Sq Value: "<<y<<endl;
+
+   if(baseline!=nBaseline-1){
+      fprintf(dtFile, "%d,", baseline);
+      fprintf(dtFile, "%f,", x);
+   } else {
+     fprintf(dtFile, "%d,", baseline);
+     fprintf(dtFile, "%f\n", x);
+   }
+*/ //cvs.cd(1);
+   //cvs.cd();
+   //xCorrGraph->Draw("AL");
+
+   TGraph* envelope = FFTtools::getHilbertEnvelope( xCorrGraph );
+/*
+   peakBin = FFTtools::getPeakBin(envelope);
+   envelope->GetPoint(peakBin,x,y);
+   envPeakHist[baseline]->Fill(x);
+*/  //cout<<"env Peak Bin: "<<peakBin<<" Peak Value: "<<y<<endl;
+
+   //sprintf(envelopename,"xCorrEnvelope_2014_A3_burn_RF_chan%d_%d.C", ant1, ant2);
+   //sprintf(envelopename,"xCorrSumGraph_baseline%d_chan%d_%d.C",baseline,ant1,ant2);
+   //cvs.cd();
+   //envelope->Draw("AL");
+   //envelope->SetLineColor(kRed);
+   //xCorrGraph->Draw("AL");
+   //envelope->Draw("Lsame");
+   //cvs.SaveAs(envelopename);
+/*
+   snprintf(envelopename,sizeof(char)*200,"xCorrEnvelope_chan%d_%d.C",ant1,ant2);
+   cvs.cd();
+   xCorrGraph->Draw("AL");
+   envelope->SetLineColor(kRed);
+   envelope->Draw("Lsame");
+   cvs.SaveAs(envelopename);
+*/
+/*
+   if( ant1 == 0 && ant2 == 3){
+   cvs.cd(1);
+   envelope->Draw("AL");
+   //xCorrGraph->Draw("AL");
+   cvs.SaveAs("xCorrEnvelope_chan0_3.C");
+   }
+*/
+/*
+   if( ant1 == 3 && ant2 == 0){
+   cvs.cd(2);
+   envelope->Draw("AL");
+   }
+
+   cvs.SaveAs("xCorrEnvelope_chan0_3.C");
+*/
+/*
+   if( ant1 == 0 && chanMask[ant1] ){
+      cout<<"recording XCorr values around peak of each baseline\n";
+
+      if( ant2 == 1 && chanMask[ant2] ){
+      stackXCorrAroundPeak(envelope, xCorrAroundPeakHist[0], plusMinusTime);
+      } else if
+      ( ant2 == 3 && chanMask[ant2] ){
+      stackXCorrAroundPeak(envelope, xCorrAroundPeakHist[1], plusMinusTime);
+      } else if
+      ( ant2 == 7 && chanMask[ant2] ){
+      stackXCorrAroundPeak(envelope, xCorrAroundPeakHist[2], plusMinusTime);
+      }
+   }
+*/
+   //if(ant1==1 && ant2==5){
+   //if(ant1 < ant2 ){
+   //for(int s=0; s<nSamp; s++){
+
+   //if(ant1 == 0  && ant2 == 4 ){
+   //xCorrGraph->GetPoint(s,t_temp,v_temp);
+   //if(lock == 0){
+   //if(envelopeSum->GetN() != 0 ) cerr<<"Both TGraphs should be uninitialized!"<<endl;
+/*
+   if(sillygr[baseline]->GetN() == 0){
+
+      for(int s=0; s<nSamp; s++){
+      xCorrGraph->GetPoint(s,t_temp,v_temp);
+      sillygr[baseline]->SetPoint(s, t_temp, v_temp);
+      }
+
+   } else {
+
+      for(int s=0; s<nSamp; s++){
+      xCorrGraph->GetPoint(s,t_temp,v_temp);
+      sillygr[baseline]->GetPoint(s, t_temp2, v_temp2);
+      if(t_temp != t_temp2) cerr<<"t_temp != t_temp2 !!\n";
+      sillygr[baseline]->SetPoint(s, t_temp2, v_temp+v_temp2);
+      }
+   }
+*/
+   //}
+
+   for(int s=0; s<nSamp; s++){
+
+   envelope->GetPoint(s,t_temp,v_temp);
+   xCorrTime[nSamp*baseline + s] = static_cast<float>(v_temp);
+/*
+   if(s!=nSamp-1)
+   fprintf(xCorrGraphDataFile,"%f,%f,",t_temp,v_temp);
+   else
+   fprintf(xCorrGraphDataFile,"%f,%f\n",t_temp,v_temp);
+*/
+   }
+   //if(lock == 0) lock=1;
+/*
+  cvs.cd();
+  sprintf(sillygrname,"xCorrSumGraph_chan%d_%d.C",ant1,ant2);
+  sillygr[baseline]->Draw("AL");
+  cvs.SaveAs(sillygrname);
+*/
+
+  //xCorrPeakHist[baseline]->Write();
+//  envPeakHist[baseline]->Write();
+
+  delete xCorrGraph;
+  delete envelope;
+
+}
+
+//xCorrPeakFile->Close();
+//free(xCorrPeakHist);
+//free(envPeakHist);
+//delete xCorrPeakFile;
+/*
+//dtFile->Close();
+fclose(dtFile);
+*/
+//fclose(xCorrGraphDataFile);
+
+cl_mem xCorrEnvBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
+                                       sizeof(float)*nBaseline*nSamp,
+                                       xCorrTime, &err);
+
+
+/*
+ * Compute cross-correlation coefficients Cij in each direction
+ */
+
+/* Compute the square root of each channel's total wf power */
+
+float *sqrtWfPwr = (float*)calloc(nAnt, sizeof(float));
+float pwr=0.f;
+for(int ant=0; ant<nAnt; ant++){
+   pwr = 0.;
+   for(int s=0; s<nSamp; s++){
+      pwr += (voltsFlat[ant*nSamp + s] * voltsFlat[ant*nSamp + s]);
+   }
+   sqrtWfPwr[ant] = sqrt(pwr);
+   //sqrtWfPwr[ant] = 1.f;
+}
+cout<<"Done sqrtWfPwr\n";
+
+cl_mem sqrtWfPwrBuffer  = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(float)*nAnt,
+                          sqrtWfPwr, &err);
+cl_mem recoDelaysBuffer;
+if(pol == "vpol" ){
+recoDelaysBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(float)*nAnt*nDir*nLayer,
+                                  recoDelays_V, &err);
+} else if (pol == "hpol" ) {
+recoDelaysBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(float)*nAnt*nDir*nLayer,
+                                  recoDelays_H, &err);
+} else if (pol == "both" ) {
+recoDelaysBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(float)*nAnt*nDir*nLayer,
+                                  recoDelays, &err);
+} else {
+cerr<<"recoPolType not defined\n"; return -1;
+}
+cout<<"recoDelaysBuffer created\n";
+
+float *Cij = (float*)calloc(nLayer*nDir*nBaseline, sizeof(float));
+
+cl_mem CijBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(float)*nLayer*nDir*nBaseline,
+                   Cij, &err);
+
+clSetKernelArg(clEnv->computeXCorrCoef, 0, sizeof(cl_mem), &CijBuffer);
+clSetKernelArg(clEnv->computeXCorrCoef, 1, sizeof(cl_mem), &xCorrEnvBuffer);
+clSetKernelArg(clEnv->computeXCorrCoef, 2, sizeof(cl_mem), &recoDelaysBuffer);
+clSetKernelArg(clEnv->computeXCorrCoef, 3, sizeof(cl_mem), &sqrtWfPwrBuffer);
+clSetKernelArg(clEnv->computeXCorrCoef, 4, sizeof(float),  &wInt);
+clSetKernelArg(clEnv->computeXCorrCoef, 5, sizeof(int),    &nAnt);
+clSetKernelArg(clEnv->computeXCorrCoef, 6, sizeof(int),    &nSamp);
+
+workDim = 3;
+size_t CijGlobalWorkSize[3] = {(size_t)nLayer, (size_t)nDir, (size_t)nBaseline};
+
+err = clEnqueueNDRangeKernel(clEnv->queue, clEnv->computeXCorrCoef, workDim, NULL, CijGlobalWorkSize, NULL, 0, NULL, NULL);
+clFinish(clEnv->queue);
+clEnqueueReadBuffer(clEnv->queue, CijBuffer, CL_TRUE, 0, sizeof(float)*nLayer*nDir*nBaseline, Cij, 0, NULL, NULL);
+
+cout<<"Done computeXCorrCoef\n";
+
+/*
+ * Sum Cij's of all baselines in each reco direction to obtain coherence M(r-hat)
+ */
+
+float *M = (float*)calloc(nLayer*nDir, sizeof(float));
+cl_mem MBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(float)*nLayer*nDir,
+                  M, &err);
+/*
+clSetKernelArg(clEnv->computeCoherence, 0, sizeof(cl_mem), &MBuffer);
+clSetKernelArg(clEnv->computeCoherence, 1, sizeof(cl_mem), &CijBuffer);
+clSetKernelArg(clEnv->computeCoherence, 2, sizeof(int),    &nBaseline);
+*/
+clSetKernelArg(clEnv->computeNormalizedCoherence, 0, sizeof(cl_mem), &MBuffer);
+clSetKernelArg(clEnv->computeNormalizedCoherence, 1, sizeof(cl_mem), &CijBuffer);
+clSetKernelArg(clEnv->computeNormalizedCoherence, 2, sizeof(int),    &nBaseline);
+
+workDim = 2;
+size_t MGlobalWorkSize[2] = {(size_t)nLayer, (size_t)nDir};
+
+//clEnqueueNDRangeKernel(clEnv->queue, clEnv->computeCoherence, workDim, NULL, MGlobalWorkSize, NULL, 0, NULL, NULL);
+clEnqueueNDRangeKernel(clEnv->queue, clEnv->computeNormalizedCoherence, workDim, NULL, MGlobalWorkSize, NULL, 0, NULL, NULL);
+clFinish(clEnv->queue);
+clEnqueueReadBuffer(clEnv->queue, MBuffer, CL_TRUE, 0, sizeof(float)*nLayer*nDir, M, 0, NULL, NULL);
+
+cout<<"Done computeNormalizedCoherence\n";
+
+/*
+ * Loop over M to find the max coherence and its pix index
+ */
+
+float max=0.f;
+int maxPixIdx;
+int *rank = (int*)calloc(nLayer*nDir, sizeof(int));
+
+TMath::Sort(nLayer*nDir, M, rank);
+/*
+int *topMaxPixIdx = (int*)calloc(summary->topN, sizeof(int));
+float *topMaxPixCoherence = (float*)calloc(summary->topN, sizeof(float));
+
+for(int i=0; i<summary->topN; i++){
+   topMaxPixIdx[i] = rank[i];
+   topMaxPixCoherence[i] = M[rank[i]];
+}
+
+summary->setTopMaxPixInfo(topMaxPixIdx, topMaxPixCoherence);
+
+//int *rankEachLayer = (int*)calloc(nDir, sizeof(int));
+int *maxPixIdxEachLayer = (int*)calloc(nLayer, sizeof(int));
+float *maxPixCoherenceEachLayer = (float*)calloc(nLayer, sizeof(float));
+
+cl_mem maxPixIdxEachLayerBuffer       = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(int)*nLayer,
+                                        maxPixIdxEachLayer, &err);
+cl_mem maxPixCoherenceEachLayerBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(float)*nLayer,
+                                        maxPixCoherenceEachLayer, &err);
+
+clSetKernelArg(clEnv->getMaxPixInfoEachLayer, 0, sizeof(cl_mem), &maxPixIdxEachLayerBuffer);
+clSetKernelArg(clEnv->getMaxPixInfoEachLayer, 1, sizeof(cl_mem), &maxPixCoherenceEachLayerBuffer);
+clSetKernelArg(clEnv->getMaxPixInfoEachLayer, 2, sizeof(cl_mem), &MBuffer);
+clSetKernelArg(clEnv->getMaxPixInfoEachLayer, 3, sizeof(int),    &nDir);
+
+workDim = 1;
+size_t maxPixInfoGlobalWorkSize = nLayer;
+
+clEnqueueNDRangeKernel(clEnv->queue, clEnv->getMaxPixInfoEachLayer, workDim, NULL, &maxPixInfoGlobalWorkSize, NULL, 0, NULL, NULL);
+clFinish(clEnv->queue);
+clEnqueueReadBuffer(clEnv->queue, maxPixIdxEachLayerBuffer, CL_TRUE, 0, sizeof(int)*nLayer, maxPixIdxEachLayer, 0, NULL, NULL);
+clEnqueueReadBuffer(clEnv->queue, maxPixCoherenceEachLayerBuffer, CL_TRUE, 0, sizeof(float)*nLayer, maxPixCoherenceEachLayer, 0, NULL, NULL);
+
+summary->setMaxPixInfoEachLayer(settings, maxPixIdxEachLayer, maxPixCoherenceEachLayer);
+*/
+/*
+for(int idx=0; idx<nDir; idx++){
+   if(M[idx] > max){
+      max = M[idx];
+      maxPixIdx = idx;
+   }
+}
+*/
+maxPixIdx = rank[0];
+cout<<"max: "<<M[rank[0]]<<endl;
+//summary->setMaxPixInfo(rank[0], M[rank[0]]);
+
+/*
+ * Transferring map data
+ */
+
+cout<<"Transferring maxPixIdx map data...\n";
+//mapData[0] = &M[rank[0] / nDir];
+for(int dir=0; dir<nDir; dir++) mapData[dir] = M[rank[0] / nDir + dir];
+
+for(int layer=0; layer<nLayer; layer++){
+  for(int dir=0; dir<nDir; dir++){
+
+    MData[layer*nDir+dir] = M[layer*nDir+dir];
+
+  }
+
+}
+
+/*
+ * Compute likelihood and p value of skymap compared to reference map fits
+ */
+/*
+if(settings->computeLLHAndPValue == 1){
+cout<<"Computing map likelihood and p-value w.r.t. the referenc map..."<<endl;
+
+double pValue, likelihood;
+//err = computeMapLikelihoodAndPValue(/*summary->onion*/nDir, /*summary->onion*/nLayer,
+//settings->referenceMapFitFunc/*.c_str()*/, settings->referenceMapFitFile/*.c_str()*/, M, likelihood, pValue);
+/*summary->setLikelihoodAndPValue(likelihood, pValue);
+cout<<"LLH: "<<likelihood<<" P Value: "<<pValue<<endl;
+}
+*/
+/*
+TH1F *likelihoodDist =  new TH1F("likelihoodDist","likelihoodDist",1000, -5000,50000);
+TH1F *pValueDist     =  new TH1F("pValueDist","pValueDist",1000, -1000,1000);
+
+likelihoodDist->Fill(likelihood);
+pValueDist->Fill(pValue);
+
+likelihoodDist->Draw();
+cvs.SaveAs("testLikelihoodDist.C");
+pValueDist->Draw();
+cvs.SaveAs("testPValueDist.C");
+*/
+/*
+ * Write FITS file
+ */
+
+cout<<"Creating Healpix map and writing to FITS....\n";
+//arr<float> MArr = arr<float>(&M[0], (size_t)nDir);
+arr<float> MArr = arr<float>(&M[rank[0] / nDir], (size_t)nDir);
+Healpix_Map<float> skyMap = Healpix_Map<float>(MArr, HEALPIX_ORDERING);
+
+fitshandle fitsOut;
+//#ifdef CSW
+//char filename[] = "testCSWSkyMap.fits";
+//#else
+//char filename[] = "testXCorrSkyMap.fits";
+//#endif
+remove(filename);
+fitsOut.create(filename);
+
+write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
+cout<<"Healpix map written\n";
+
+//int nSideExp = 7;
+//Healpix_Base hpBase = Healpix_Base(pow(2,nSideExp), NEST/*RING*/, SET_NSIDE);
+/*
+pointing pt;
+
+int NBinsX = 0.5*(250.-220.)/0.4581;
+int NBinsY = 0.5*(-5.-(-35.))/0.4581;
+
+TH2F *skymapHist = new TH2F("skymapHist","skymapHist",NBinsX,220,250,NBinsY,-35,-5);
+TH2F *countHist = new TH2F("countHist","countHist",NBinsX,220,250,NBinsY,-35,-5);
+double theta;
+
+for(int pix=0; pix<hpBase.Npix(); pix++){
+
+   pt = hpBase.pix2ang( pix );
+cout<<"MArr: "<<MArr[pix]<<"phi: "<<pt.phi*180.f/TMath::Pi()<<"theta :"<<90.- pt.theta*180.f/TMath::Pi()<<endl;
+
+
+
+   skymapHist->Fill(pt.phi*180.f/TMath::Pi(), 90.-pt.theta*180.f/TMath::Pi(), MArr[pix]);
+   countHist->Fill(pt.phi*180.f/TMath::Pi(), 90.-pt.theta*180.f/TMath::Pi());
+
+}
+
+for(int xbin=1; xbin<=NBinsX; xbin++){
+   for(int ybin=1; ybin<=NBinsY; ybin++){
+
+   if(countHist->GetBinContent(xbin,ybin)!=0)
+   skymapHist->SetBinContent(xbin,ybin, skymapHist->GetBinContent(xbin,ybin)/(double)countHist->GetBinContent(xbin,ybin));
+
+
+   }
+}
+
+
+TCanvas *c1 = new TCanvas("c1","c1",800,800);
+skymapHist->Draw("colz");
+c1->SaveAs("testSkymapHist.C");
+*/
+
+/*
+arr<float> MEachLayerArr;
+
+for(int i=0; i<nLayer; i++){
+
+   MEachLayerArr = arr<float>(&M[i*nDir], (size_t)nDir);
+   skyMap = Healpix_Map<float>(MEachLayerArr, RING);
+
+   char layerMap[200];
+   sprintf(layerMap,"layer_%d_skymap.fits",i);
+   remove(layerMap);
+   fitsOut.create(layerMap);
+   write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
+
+}
+*/
+
+/*
+ * Deallocate memories
+ */
+
+cout<<"Deallocating memories...\n";
+clReleaseMemObject(recoDelaysBuffer);
+clReleaseMemObject(intensityRBuffer);
+clReleaseMemObject(intensityCBuffer);
+clReleaseMemObject(voltsFlatBuffer);
+clReleaseMemObject(xCorrCBuffer);
+clReleaseMemObject(xCorrRBuffer);
+clReleaseMemObject(xCorrTimeBuffer);
+clReleaseMemObject(xCorrEnvBuffer);
+clReleaseMemObject(sqrtWfPwrBuffer);
+clReleaseMemObject(CijBuffer);
+clReleaseMemObject(MBuffer);
+//clReleaseMemObject(maxPixIdxEachLayerBuffer);
+//clReleaseMemObject(maxPixCoherenceEachLayerBuffer);
+free(voltsFlat);
+//free(volts);
+//free(recoDelays);
+free(intensity_data_r);
+free(intensity_data_c);
+free(xCorr_data_r);
+free(xCorr_data_c);
+free(xCorrTime);
+free(sqrtWfPwr);
+free(Cij);
+free(M);
+free(rank);
+//free(topMaxPixIdx);
+//free(topMaxPixCoherence);
+//free(maxPixIdxEachLayer);
+//free(maxPixCoherenceEachLayer);
+cout<<"Memories deallocated\n";
+
+return maxPixIdx;
+}
+
+int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_loadCoherenceData(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
+                float *recoDelays, float *recoDelays_V, float *recoDelays_H,
+                const int *chanMask, recoData *summary, char *filename, float *mapData, float *MData)
+{
+
+cout<<"Entered reconstruct3DXCorrEnvelopeGetMaxPixAndMapData method\n";
+int nSamp;
+//int nAnt = (int)cleanEvent.size()/2; // Divide by 2 for only one polarization
+int nAnt;// = (int)cleanEvent.size();
+string pol = string(settings->recoPolType);
+if( pol == "vpol" || pol == "hpol" ) nAnt = (int)cleanEvent.size()/2; else  nAnt = (int)cleanEvent.size();
+int unmaskedNChan=0;
+for(int ch=0; ch<(int)cleanEvent.size(); ch++) unmaskedNChan+=chanMask[ch];
+cout<<"unmaskedNChan: "<<unmaskedNChan<<" nAnt: "<<nAnt<<endl;
+float wInt;
+int dataType = settings->dataType;
+if( dataType == 0 ) wInt = 0.5f; //AraSim event
+else if( dataType == 1 ){ //real event
+if( pol == "vpol" ) wInt = 0.4f;
+else if ( pol == "hpol" ) wInt = /*0.625f*/0.4f; //0.4f for 2nd ray reco
+else if ( pol == "both" ) wInt = /*0.5f*/0.4f; //0.4f for both ray reco using Vpols
+else { cerr<<"recoPolType undefined\n"; return -1; }
+} else {
+cerr<<"dataType undefined\n"; return -1; }
+
+cout<<"recoPolType_loadData: "<<pol<<endl;
+
+int nSideExp = settings->nSideExp;
+int nDir   = /*summary->onion*/12 * pow(2,nSideExp) * pow(2,nSideExp);;
+int nLayer = /*summary->onion*/settings->nLayer;
+/* Using Seckel's delays */
+//nDir = 1331;
+//nLayer = 1;
+//printf("nDir: %d nLayer: %d\n",nDir,nLayer);
+/*
+ * Loading voltsFlat array
+ */
+
+double t, v;
+float *voltsFlat;
+
+if( pol == "vpol" ){
+
+   /* Using the 1st vpol wf for nSamp. Should make sure all vpol channels have the same nSamp. FIXME */
+   nSamp = cleanEvent[0]->GetN();
+   voltsFlat = (float*)calloc(nAnt*nSamp, sizeof(float));
+   if(voltsFlat == NULL){ cerr<<"Null pointer to voltsFlat\n"; return -1; }
+
+   for(int ch=0; ch<nAnt; ch++){
+       if( chanMask[ch] ){
+         for(int s=0; s<nSamp; s++){
+            cleanEvent[ch]->GetPoint(s,t,v);
+            /* Bartlett window applied in main analysis code */
+            //voltsFlat[nSamp*ch + s] = static_cast<float>(v * FFTtools::bartlettWindow(s, nSamp));
+            voltsFlat[nSamp*ch + s] = static_cast<float>(v);
+         }
+      } else {
+         for(int s=0; s<nSamp; s++){
+            voltsFlat[nSamp*ch + s] = 0.f;
+         }
+      }
+   }
+
+} else if ( pol == "hpol" ){
+
+   /* Using the 1st hpol wf for nSamp. Should make sure all hpol channels have the same nSamp. FIXME */
+   nSamp = cleanEvent[nAnt]->GetN();
+   voltsFlat = (float*)calloc(nAnt*nSamp, sizeof(float));
+   if(voltsFlat == NULL){ cerr<<"Null pointer to voltsFlat\n"; return -1; }
+
+   for(int ch=0; ch<nAnt; ch++){
+       if( chanMask[ch+nAnt] ){
+         for(int s=0; s<nSamp; s++){
+            cleanEvent[ch+nAnt]->GetPoint(s,t,v);
+            /* Bartlett window applied in main analysis code */
+            //voltsFlat[nSamp*ch + s] = static_cast<float>(v * FFTtools::bartlettWindow(s, nSamp));
+            voltsFlat[nSamp*ch + s] = static_cast<float>(v);
+         }
+      } else {
+         for(int s=0; s<nSamp; s++){
+            voltsFlat[nSamp*ch + s] = 0.f;
+         }
+      }
+   }
+
+} else if ( pol == "both" ){
+
+   /* Using the 1st vpol wf for nSamp. Should make sure all hpol channels have the same nSamp. FIXME */
+   nSamp = cleanEvent[0]->GetN();
+   voltsFlat = (float*)calloc(nAnt*nSamp, sizeof(float));
+   if(voltsFlat == NULL){ cerr<<"Null pointer to voltsFlat\n"; return -1; }
+
+   for(int ch=0; ch<nAnt; ch++){
+       if( chanMask[ch] ){
+         for(int s=0; s<nSamp; s++){
+            cleanEvent[ch]->GetPoint(s,t,v);
+            /* Bartlett window applied in main analysis code */
+            //voltsFlat[nSamp*ch + s] = static_cast<float>(v * FFTtools::bartlettWindow(s, nSamp));
+            voltsFlat[nSamp*ch + s] = static_cast<float>(v);
+         }
+      } else {
+         for(int s=0; s<nSamp; s++){
+            voltsFlat[nSamp*ch + s] = 0.f;
+         }
+      }
+   }
+
+} else {
+   cerr<<"recoPolType not defined\n"; return -1;
+}
+cout<<"voltsFlat loaded\n";
+
+/*
+ * Preparation for OUT_OF_PLACE transforms
+ */
+
+int interlvHermOutputSize = 2*(1 + nSamp/2); //Hermitian layout
+int interlvOutputSize     = 2*nSamp;         //Not Hermitian layout
+int planarHermOutputSize = (1 + nSamp/2);    //Hermitian planar layout
+
+float *intensity_data_r, *intensity_data_c;
+intensity_data_r = (float*)calloc(nAnt*planarHermOutputSize, sizeof(float));
+intensity_data_c = (float*)calloc(nAnt*planarHermOutputSize, sizeof(float));
+
+/*
+ * FFT library related declarations
+ */
+//clfftPlanHandle planHandle;
+clfftDim fftDim = CLFFT_1D;
+size_t clLengths[1]   = {nSamp};
+size_t clInStride[1]  = {1};
+size_t clOutStride[1] = {1};
+size_t inDist  = nSamp;
+size_t outDist   = planarHermOutputSize;
+size_t batchSize = nAnt;
+
+/*
+ * Set up clFFT
+ */
+//clfftSetupData fftSetup;
+//err = clfftInitSetupData(&fftSetup);
+//err = clfftSetup(&fftSetup);
+
+/*
+ * Prepare plan
+ */
+cout<<"Preparing plan...\n";
+int err;
+err = clfftCreateDefaultPlan(&clEnv->planHandle, clEnv->context, fftDim, clLengths);
+err = clfftSetPlanPrecision(clEnv->planHandle, CLFFT_SINGLE);
+err = clfftSetLayout(clEnv->planHandle, CLFFT_REAL, CLFFT_HERMITIAN_PLANAR);
+err = clfftSetPlanScale(clEnv->planHandle, CLFFT_FORWARD, 1.f);
+err = clfftSetPlanBatchSize(clEnv->planHandle, batchSize);
+err = clfftSetPlanInStride(clEnv->planHandle, fftDim, clInStride);
+err = clfftSetPlanOutStride(clEnv->planHandle, fftDim, clOutStride);
+err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist);
+err = clfftSetResultLocation(clEnv->planHandle, CLFFT_OUTOFPLACE);
+err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL);
+cout<<"Plan prepared\n";
+/* The plan is now ready to be executed */
+cl_mem voltsFlatBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*nSamp*sizeof(float), NULL, &err);
+err = clEnqueueWriteBuffer(clEnv->queue, voltsFlatBuffer, CL_TRUE, 0, nAnt*nSamp*sizeof(float), voltsFlat, 0, NULL, NULL);
+
+cl_mem intensityRBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
+                         NULL, &err);
+cl_mem intensityCBuffer= clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nAnt*planarHermOutputSize*sizeof(float),
+                         NULL, &err);
+cl_mem outBuffers[2] = {intensityRBuffer, intensityCBuffer};
+
+cout<<"Enqueueing FFT\n";
+err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_FORWARD, 1, &clEnv->queue, 0, NULL, NULL,
+                            &voltsFlatBuffer, outBuffers, NULL);
+err = clFinish(clEnv->queue);
+clEnqueueReadBuffer(clEnv->queue, outBuffers[0], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r,
+                    0, NULL, NULL);
+clEnqueueReadBuffer(clEnv->queue, outBuffers[1], CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_c,
+                    0, NULL, NULL);
+cout<<"FFT done\n";
+/*
+ * Clean up CLFFT
+ */
+cout<<"Destroying plan...\n";
+err = clfftDestroyPlan(&clEnv->planHandle);
+//clfftTeardown();
+cout<<"Plan destroyed\n";
+
+
+#ifdef bandpass
+/*
+ * Bandpass signals
+ */
+cout<<"Preparing bandpass filter..."<<endl;
+float freqBin = 1e3 / (wInt * (float)nSamp); // wInt in ns. 1e3 for MHz
+float lowFreq = 200.f;
+float highFreq= 450.f;
+
+clSetKernelArg(clEnv->bandPassFilter, 0, sizeof(cl_mem), &intensityRBuffer);
+clSetKernelArg(clEnv->bandPassFilter, 1, sizeof(cl_mem), &intensityCBuffer);
+clSetKernelArg(clEnv->bandPassFilter, 2, sizeof(float),  &freqBin);
+clSetKernelArg(clEnv->bandPassFilter, 3, sizeof(float),  &lowFreq);
+clSetKernelArg(clEnv->bandPassFilter, 4, sizeof(float),  &highFreq);
+
+unsigned int dim = 2;
+size_t bandPassWorkSize[2] = {(size_t)nAnt, (size_t)planarHermOutputSize};
+clEnqueueNDRangeKernel(clEnv->queue, clEnv->bandPassFilter, dim, NULL, bandPassWorkSize, NULL, 0, NULL, NULL);
+clFinish(clEnv->queue);
+clEnqueueReadBuffer(clEnv->queue, intensityRBuffer, CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_r,
+                    0, NULL, NULL);
+clEnqueueReadBuffer(clEnv->queue, intensityCBuffer, CL_TRUE, 0, sizeof(float)*nAnt*planarHermOutputSize, intensity_data_c,
+                    0, NULL, NULL);
+
+cout<<"Bandpass filter done"<<endl;
+#endif
+
+/*
+ * Cross-correlate wfs
+ */
+
+const int nBaseline = nAnt*nAnt;
+cout<<"nBaseline: "<<nBaseline<<endl;
+
+float *xCorr_data_r = (float*)calloc(nBaseline*planarHermOutputSize, sizeof(float));
+float *xCorr_data_c = (float*)calloc(nBaseline*planarHermOutputSize, sizeof(float));
+
+cl_mem xCorrRBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
+                                    sizeof(float)*nBaseline*planarHermOutputSize, xCorr_data_r, &err);
+
+cl_mem xCorrCBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
+                                    sizeof(float)*nBaseline*planarHermOutputSize, xCorr_data_c, &err);
+
+clSetKernelArg(clEnv->xCorrWf, 0, sizeof(cl_mem), &xCorrRBuffer);
+clSetKernelArg(clEnv->xCorrWf, 1, sizeof(cl_mem), &xCorrCBuffer);
+clSetKernelArg(clEnv->xCorrWf, 2, sizeof(cl_mem), &intensityRBuffer);
+clSetKernelArg(clEnv->xCorrWf, 3, sizeof(cl_mem), &intensityCBuffer);
+clSetKernelArg(clEnv->xCorrWf, 4, sizeof(int),    &nAnt);
+
+unsigned int workDim = 2;
+size_t globalWorkSize[2] = {(size_t)nBaseline, (size_t)planarHermOutputSize};
+clEnqueueNDRangeKernel(clEnv->queue, clEnv->xCorrWf, workDim, NULL, globalWorkSize, NULL, 0, NULL, NULL);
+clFinish(clEnv->queue);
+clEnqueueReadBuffer(clEnv->queue, xCorrRBuffer, CL_TRUE, 0, sizeof(float)*nBaseline*planarHermOutputSize, xCorr_data_r, 0, NULL, NULL);
+clEnqueueReadBuffer(clEnv->queue, xCorrCBuffer, CL_TRUE, 0, sizeof(float)*nBaseline*planarHermOutputSize, xCorr_data_c, 0, NULL, NULL);
+cout<<"Done xCorrWf\n";
+
+/*
+ * Inverse FFT cross-correlation
+ */
+
+inDist  = planarHermOutputSize;
+outDist = nSamp;
+batchSize = nBaseline;
+
+/*
+ * Prepare plan
+ */
+
+err = clfftCreateDefaultPlan(&clEnv->planHandle, clEnv->context, fftDim, clLengths);
+err = clfftSetPlanPrecision(clEnv->planHandle, CLFFT_SINGLE);
+err = clfftSetLayout(clEnv->planHandle, CLFFT_HERMITIAN_PLANAR, CLFFT_REAL);
+err = clfftSetPlanScale(clEnv->planHandle, CLFFT_BACKWARD, 1.f/(float)nSamp);
+err = clfftSetPlanBatchSize(clEnv->planHandle, batchSize);
+err = clfftSetPlanInStride(clEnv->planHandle, fftDim, clInStride);
+err = clfftSetPlanOutStride(clEnv->planHandle, fftDim, clOutStride);
+err = clfftSetPlanDistance(clEnv->planHandle, inDist, outDist);
+err = clfftSetResultLocation(clEnv->planHandle, CLFFT_OUTOFPLACE);
+err = clfftBakePlan(clEnv->planHandle, 1, &clEnv->queue, NULL, NULL);
+
+/* The plan is now ready to be executed */
+
+cl_mem inBuffers[2] = {xCorrRBuffer, xCorrCBuffer};
+
+float *xCorrTime = (float*)calloc(nBaseline*nSamp, sizeof(float));
+cl_mem xCorrTimeBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE, nBaseline*nSamp*sizeof(float),
+                           NULL, &err);
+err = clfftEnqueueTransform(clEnv->planHandle, CLFFT_BACKWARD, 1, &clEnv->queue, 0, NULL, NULL, inBuffers, &xCorrTimeBuffer, NULL);
+err = clFinish(clEnv->queue);
+clEnqueueReadBuffer(clEnv->queue, xCorrTimeBuffer, CL_TRUE, 0, sizeof(float)*nBaseline*nSamp, xCorrTime, 0, NULL, NULL);
+
+/*
+ * Clean up FFT
+ */
+
+err = clfftDestroyPlan(&clEnv->planHandle);
+clfftTeardown();
+cout<<"Done inverse FFT\n";
+
+/*
+ * Get Hilbert transform of XCorr function
+ */
+
+TCanvas cvs("cvs","cvs",800,600);
+//cvs.Divide(1,2);
+char envelopename[200];
+
+float dt[nSamp];
+float xCorrValue[nSamp];
+double t_temp, v_temp;
+double t_temp2, v_temp2;
+int ant1, ant2;
+float plusMinusTime = 25.f; //record +-25 ns around peak in XCorr function
+//int plusMinusRange = (int)(plusMinusTime / wInt);
+//static TGraph *sillygr[64];// = new TGraph();
+/*
+static TGraph *sillygr = (TGraph*)malloc(nBaseline*sizeof(TGraph));
+
+for(int i=0; i<nBaseline; i++){
+
+   sillygr[i]=new TGraph();
+
+}
+*/
+//static int lock;
+char sillygrname[200];
+
+char histName[200];
+
+//TH1F *xCorrPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
+//TH1F *envPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
+/*
+TH1F *xCorrPeakHist[64];
+TH1F *envPeakHist[64];
+TFile *xCorrPeakFile;
+char xCorrEnvPeakFileName[200];
+snprintf(xCorrEnvPeakFileName,sizeof(char)*200,"xCorrEnvPeakFile_2015DeepPulser_IC22S_2ndPulse.root");
+
+xCorrPeakFile = new TFile(xCorrEnvPeakFileName); //if file exists, it will stay unopened
+
+if( xCorrPeakFile->IsZombie() ){
+
+  xCorrPeakFile->Close();
+  delete xCorrPeakFile;
+  xCorrPeakFile = new TFile(xCorrEnvPeakFileName,"RECREATE");
+
+  for(int i=0; i<nBaseline; i++){
+
+    snprintf(histName,sizeof(char)*200,"xCorrPeakHist_chan%d_%d",i/nAnt,i%nAnt);
+    xCorrPeakHist[i] = new TH1F(histName,histName,2500,0,1000);
+    xCorrPeakHist[i]->Write();
+    //snprintf(histName,sizeof(char)*200,"envPeakHist_chan%d_%d",i/nAnt,i%nAnt);
+    //envPeakHist[i] = new TH1F(histName,histName,2500,0,1000);
+    //envPeakHist[i]->Write();
+
+  }
+} else {
+//if( !xCorrPeakFile->IsOpen() ){
+
+  xCorrPeakFile->Close();
+  delete xCorrPeakFile;
+  xCorrPeakFile = new TFile(xCorrEnvPeakFileName,"UPDATE");
+
+  for(int i=0; i<nBaseline; i++){
+
+    snprintf(histName,sizeof(char)*200,"xCorrPeakHist_chan%d_%d",i/nAnt,i%nAnt);
+    xCorrPeakHist[i] = (TH1F*)xCorrPeakFile->Get(histName);
+    //snprintf(histName,sizeof(char)*200,"envPeakHist_chan%d_%d",i/nAnt,i%nAnt);
+    //envPeakHist[i] = (TH1F*)xCorrPeakFile->Get(histName);
+
+  }
+}
+*/
+int peakBin;
+double x, y;
+int firstBin = 100. / wInt;
+int lastBin  = nSamp / 2;
+//cout<<"firstBin: "<<firstBin<<" lastBin: "<<lastBin<<" time range: ("<<wInt*firstBin<<", "<<wInt*lastBin<<")"<<endl;
+//TFile *dtFile = new TFile("dtFile.txt","UPDATE");
+//FILE *dtFile = fopen("dtFile.txt","a+");
+
+//FILE *xCorrGraphDataFile = fopen("hilbertEnvGraphDataFile_A3_run3811_IC22S_10Events.csv","a+");
+
+for(int baseline=0; baseline<nBaseline; baseline++){
+
+
+   ant1 = baseline / nAnt;
+   ant2 = baseline % nAnt;
+
+   for(int s=0; s<nSamp; s++){
+
+   dt[s] = wInt*s;
+   xCorrValue[s] = xCorrTime[nSamp*baseline + s];
+/*
+   if(s!=nSamp-1)
+   fprintf(xCorrGraphDataFile,"%f,%f,",dt[s],xCorrValue[s]);
+   else
+   fprintf(xCorrGraphDataFile,"%f,%f\n",dt[s],xCorrValue[s]);
+*/
+   }
+
+   TGraph *xCorrGraph = new TGraph(nSamp, dt, xCorrValue);
+
+//   y = getPeakSqValRange(xCorrGraph, &peakBin, firstBin, lastBin);
+//   xCorrGraph->GetPoint(peakBin,x,y);
+//   xCorrPeakHist[baseline]->Fill(x);
+   //cout<<"xCorr Range Peak Bin: "<<peakBin<<" Peak Sq Value: "<<y<<endl;
+/*
+   y = FFTtools::getPeakSqVal(xCorrGraph, &peakBin);
+   xCorrGraph->GetPoint(peakBin,x,y);
+   xCorrPeakHist[baseline]->Fill(x);
+   //cout<<"xCorr Peak Bin: "<<peakBin<<" Peak Sq Value: "<<y<<endl;
+
+   if(baseline!=nBaseline-1){
+      fprintf(dtFile, "%d,", baseline);
+      fprintf(dtFile, "%f,", x);
+   } else {
+     fprintf(dtFile, "%d,", baseline);
+     fprintf(dtFile, "%f\n", x);
+   }
+*/ //cvs.cd(1);
+   //cvs.cd();
+   //xCorrGraph->Draw("AL");
+
+   TGraph* envelope = FFTtools::getHilbertEnvelope( xCorrGraph );
+/*
+   peakBin = FFTtools::getPeakBin(envelope);
+   envelope->GetPoint(peakBin,x,y);
+   envPeakHist[baseline]->Fill(x);
+*/  //cout<<"env Peak Bin: "<<peakBin<<" Peak Value: "<<y<<endl;
+
+   //sprintf(envelopename,"xCorrEnvelope_2014_A3_burn_RF_chan%d_%d.C", ant1, ant2);
+   //sprintf(envelopename,"xCorrSumGraph_baseline%d_chan%d_%d.C",baseline,ant1,ant2);
+   //cvs.cd();
+   //envelope->Draw("AL");
+   //envelope->SetLineColor(kRed);
+   //xCorrGraph->Draw("AL");
+   //envelope->Draw("Lsame");
+   //cvs.SaveAs(envelopename);
+/*
+   snprintf(envelopename,sizeof(char)*200,"xCorrEnvelope_chan%d_%d.C",ant1,ant2);
+   cvs.cd();
+   xCorrGraph->Draw("AL");
+   envelope->SetLineColor(kRed);
+   envelope->Draw("Lsame");
+   cvs.SaveAs(envelopename);
+*/
+/*
+   if( ant1 == 0 && ant2 == 3){
+   cvs.cd(1);
+   envelope->Draw("AL");
+   //xCorrGraph->Draw("AL");
+   cvs.SaveAs("xCorrEnvelope_chan0_3.C");
+   }
+*/
+/*
+   if( ant1 == 3 && ant2 == 0){
+   cvs.cd(2);
+   envelope->Draw("AL");
+   }
+
+   cvs.SaveAs("xCorrEnvelope_chan0_3.C");
+*/
+/*
+   if( ant1 == 0 && chanMask[ant1] ){
+      cout<<"recording XCorr values around peak of each baseline\n";
+
+      if( ant2 == 1 && chanMask[ant2] ){
+      stackXCorrAroundPeak(envelope, xCorrAroundPeakHist[0], plusMinusTime);
+      } else if
+      ( ant2 == 3 && chanMask[ant2] ){
+      stackXCorrAroundPeak(envelope, xCorrAroundPeakHist[1], plusMinusTime);
+      } else if
+      ( ant2 == 7 && chanMask[ant2] ){
+      stackXCorrAroundPeak(envelope, xCorrAroundPeakHist[2], plusMinusTime);
+      }
+   }
+*/
+   //if(ant1==1 && ant2==5){
+   //if(ant1 < ant2 ){
+   //for(int s=0; s<nSamp; s++){
+
+   //if(ant1 == 0  && ant2 == 4 ){
+   //xCorrGraph->GetPoint(s,t_temp,v_temp);
+   //if(lock == 0){
+   //if(envelopeSum->GetN() != 0 ) cerr<<"Both TGraphs should be uninitialized!"<<endl;
+/*
+   if(sillygr[baseline]->GetN() == 0){
+
+      for(int s=0; s<nSamp; s++){
+      xCorrGraph->GetPoint(s,t_temp,v_temp);
+      sillygr[baseline]->SetPoint(s, t_temp, v_temp);
+      }
+
+   } else {
+
+      for(int s=0; s<nSamp; s++){
+      xCorrGraph->GetPoint(s,t_temp,v_temp);
+      sillygr[baseline]->GetPoint(s, t_temp2, v_temp2);
+      if(t_temp != t_temp2) cerr<<"t_temp != t_temp2 !!\n";
+      sillygr[baseline]->SetPoint(s, t_temp2, v_temp+v_temp2);
+      }
+   }
+*/
+   //}
+
+   for(int s=0; s<nSamp; s++){
+
+   envelope->GetPoint(s,t_temp,v_temp);
+   xCorrTime[nSamp*baseline + s] = static_cast<float>(v_temp);
+/*
+   if(s!=nSamp-1)
+   fprintf(xCorrGraphDataFile,"%f,%f,",t_temp,v_temp);
+   else
+   fprintf(xCorrGraphDataFile,"%f,%f\n",t_temp,v_temp);
+*/
+   }
+   //if(lock == 0) lock=1;
+/*
+  cvs.cd();
+  sprintf(sillygrname,"xCorrSumGraph_chan%d_%d.C",ant1,ant2);
+  sillygr[baseline]->Draw("AL");
+  cvs.SaveAs(sillygrname);
+*/
+
+  //xCorrPeakHist[baseline]->Write();
+//  envPeakHist[baseline]->Write();
+
+  delete xCorrGraph;
+  delete envelope;
+
+}
+
+//xCorrPeakFile->Close();
+//free(xCorrPeakHist);
+//free(envPeakHist);
+//delete xCorrPeakFile;
+/*
+//dtFile->Close();
+fclose(dtFile);
+*/
+//fclose(xCorrGraphDataFile);
+
+cl_mem xCorrEnvBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
+                                       sizeof(float)*nBaseline*nSamp,
+                                       xCorrTime, &err);
+
+
+/*
+ * Compute cross-correlation coefficients Cij in each direction
+ */
+
+/* Compute the square root of each channel's total wf power */
+
+float *sqrtWfPwr = (float*)calloc(nAnt, sizeof(float));
+float pwr=0.f;
+for(int ant=0; ant<nAnt; ant++){
+   pwr = 0.;
+   for(int s=0; s<nSamp; s++){
+      pwr += (voltsFlat[ant*nSamp + s] * voltsFlat[ant*nSamp + s]);
+   }
+   sqrtWfPwr[ant] = sqrt(pwr);
+   //sqrtWfPwr[ant] = 1.f;
+}
+cout<<"Done sqrtWfPwr\n";
+
+cl_mem sqrtWfPwrBuffer  = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(float)*nAnt,
+                          sqrtWfPwr, &err);
+cl_mem recoDelaysBuffer;
+if(pol == "vpol" ){
+recoDelaysBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(float)*nAnt*nDir*nLayer,
+                                  recoDelays_V, &err);
+} else if (pol == "hpol" ) {
+recoDelaysBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(float)*nAnt*nDir*nLayer,
+                                  recoDelays_H, &err);
+} else if (pol == "both" ) {
+recoDelaysBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(float)*nAnt*nDir*nLayer,
+                                  recoDelays, &err);
+} else {
+cerr<<"recoPolType not defined\n"; return -1;
+}
+cout<<"recoDelaysBuffer created\n";
+
+float *Cij = (float*)calloc(nLayer*nDir*nBaseline, sizeof(float));
+
+cl_mem CijBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(float)*nLayer*nDir*nBaseline,
+                   Cij, &err);
+
+clSetKernelArg(clEnv->computeXCorrCoef, 0, sizeof(cl_mem), &CijBuffer);
+clSetKernelArg(clEnv->computeXCorrCoef, 1, sizeof(cl_mem), &xCorrEnvBuffer);
+clSetKernelArg(clEnv->computeXCorrCoef, 2, sizeof(cl_mem), &recoDelaysBuffer);
+clSetKernelArg(clEnv->computeXCorrCoef, 3, sizeof(cl_mem), &sqrtWfPwrBuffer);
+clSetKernelArg(clEnv->computeXCorrCoef, 4, sizeof(float),  &wInt);
+clSetKernelArg(clEnv->computeXCorrCoef, 5, sizeof(int),    &nAnt);
+clSetKernelArg(clEnv->computeXCorrCoef, 6, sizeof(int),    &nSamp);
+
+workDim = 3;
+size_t CijGlobalWorkSize[3] = {(size_t)nLayer, (size_t)nDir, (size_t)nBaseline};
+
+err = clEnqueueNDRangeKernel(clEnv->queue, clEnv->computeXCorrCoef, workDim, NULL, CijGlobalWorkSize, NULL, 0, NULL, NULL);
+clFinish(clEnv->queue);
+clEnqueueReadBuffer(clEnv->queue, CijBuffer, CL_TRUE, 0, sizeof(float)*nLayer*nDir*nBaseline, Cij, 0, NULL, NULL);
+
+cout<<"Done computeXCorrCoef\n";
+
+/*
+ * Sum Cij's of all baselines in each reco direction to obtain coherence M(r-hat)
+ */
+
+float *M = (float*)calloc(nLayer*nDir, sizeof(float));
+cl_mem MBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(float)*nLayer*nDir,
+                  M, &err);
+/*
+clSetKernelArg(clEnv->computeCoherence, 0, sizeof(cl_mem), &MBuffer);
+clSetKernelArg(clEnv->computeCoherence, 1, sizeof(cl_mem), &CijBuffer);
+clSetKernelArg(clEnv->computeCoherence, 2, sizeof(int),    &nBaseline);
+*/
+clSetKernelArg(clEnv->computeNormalizedCoherence, 0, sizeof(cl_mem), &MBuffer);
+clSetKernelArg(clEnv->computeNormalizedCoherence, 1, sizeof(cl_mem), &CijBuffer);
+clSetKernelArg(clEnv->computeNormalizedCoherence, 2, sizeof(int),    &nBaseline);
+
+workDim = 2;
+size_t MGlobalWorkSize[2] = {(size_t)nLayer, (size_t)nDir};
+
+//clEnqueueNDRangeKernel(clEnv->queue, clEnv->computeCoherence, workDim, NULL, MGlobalWorkSize, NULL, 0, NULL, NULL);
+clEnqueueNDRangeKernel(clEnv->queue, clEnv->computeNormalizedCoherence, workDim, NULL, MGlobalWorkSize, NULL, 0, NULL, NULL);
+clFinish(clEnv->queue);
+clEnqueueReadBuffer(clEnv->queue, MBuffer, CL_TRUE, 0, sizeof(float)*nLayer*nDir, M, 0, NULL, NULL);
+
+cout<<"Done computeNormalizedCoherence\n";
+
+/*
+ * Loop over M to find the max coherence and its pix index
+ */
+
+float max=0.f;
+int maxPixIdx;
+int *rank = (int*)calloc(nLayer*nDir, sizeof(int));
+
+for(int layer=0; layer<nLayer; layer++){
+  for(int dir=0; dir<nDir; dir++){
+
+    M[layer*nDir+dir] += MData[layer*nDir+dir];
+
+  }
+}
+
+TMath::Sort(nLayer*nDir, M, rank);
+
+int *topMaxPixIdx = (int*)calloc(summary->topN, sizeof(int));
+float *topMaxPixCoherence = (float*)calloc(summary->topN, sizeof(float));
+
+for(int i=0; i<summary->topN; i++){
+   topMaxPixIdx[i] = rank[i];
+   topMaxPixCoherence[i] = M[rank[i]];
+}
+
+summary->setTopMaxPixInfo(topMaxPixIdx, topMaxPixCoherence);
+
+//int *rankEachLayer = (int*)calloc(nDir, sizeof(int));
+int *maxPixIdxEachLayer = (int*)calloc(nLayer, sizeof(int));
+float *maxPixCoherenceEachLayer = (float*)calloc(nLayer, sizeof(float));
+
+cl_mem maxPixIdxEachLayerBuffer       = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(int)*nLayer,
+                                        maxPixIdxEachLayer, &err);
+cl_mem maxPixCoherenceEachLayerBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(float)*nLayer,
+                                        maxPixCoherenceEachLayer, &err);
+
+clSetKernelArg(clEnv->getMaxPixInfoEachLayer, 0, sizeof(cl_mem), &maxPixIdxEachLayerBuffer);
+clSetKernelArg(clEnv->getMaxPixInfoEachLayer, 1, sizeof(cl_mem), &maxPixCoherenceEachLayerBuffer);
+clSetKernelArg(clEnv->getMaxPixInfoEachLayer, 2, sizeof(cl_mem), &MBuffer);
+clSetKernelArg(clEnv->getMaxPixInfoEachLayer, 3, sizeof(int),    &nDir);
+
+workDim = 1;
+size_t maxPixInfoGlobalWorkSize = nLayer;
+
+clEnqueueNDRangeKernel(clEnv->queue, clEnv->getMaxPixInfoEachLayer, workDim, NULL, &maxPixInfoGlobalWorkSize, NULL, 0, NULL, NULL);
+clFinish(clEnv->queue);
+clEnqueueReadBuffer(clEnv->queue, maxPixIdxEachLayerBuffer, CL_TRUE, 0, sizeof(int)*nLayer, maxPixIdxEachLayer, 0, NULL, NULL);
+clEnqueueReadBuffer(clEnv->queue, maxPixCoherenceEachLayerBuffer, CL_TRUE, 0, sizeof(float)*nLayer, maxPixCoherenceEachLayer, 0, NULL, NULL);
+
+summary->setMaxPixInfoEachLayer(settings, maxPixIdxEachLayer, maxPixCoherenceEachLayer);
+
+/*
+for(int idx=0; idx<nDir; idx++){
+   if(M[idx] > max){
+      max = M[idx];
+      maxPixIdx = idx;
+   }
+}
+*/
+maxPixIdx = rank[0];
+cout<<"max: "<<M[rank[0]]<<endl;
+summary->setMaxPixInfo(rank[0], M[rank[0]]);
+
+/*
+ * Transferring map data
+ */
+
+cout<<"Transferring maxPixIdx map data...\n";
+//mapData[0] = &M[rank[0] / nDir];
+for(int dir=0; dir<nDir; dir++) mapData[dir] = M[rank[0] / nDir + dir];
+
+/*
+ * Compute likelihood and p value of skymap compared to reference map fits
+ */
+
+if(settings->computeLLHAndPValue == 1){
+cout<<"Computing map likelihood and p-value w.r.t. the referenc map..."<<endl;
+
+double pValue, likelihood;
+err = computeMapLikelihoodAndPValue(/*summary->onion*/nDir, /*summary->onion*/nLayer, settings->referenceMapFitFunc/*.c_str()*/, settings->referenceMapFitFile/*.c_str()*/, M, likelihood, pValue);
+summary->setLikelihoodAndPValue(likelihood, pValue);
+cout<<"LLH: "<<likelihood<<" P Value: "<<pValue<<endl;
+}
+/*
+TH1F *likelihoodDist =  new TH1F("likelihoodDist","likelihoodDist",1000, -5000,50000);
+TH1F *pValueDist     =  new TH1F("pValueDist","pValueDist",1000, -1000,1000);
+
+likelihoodDist->Fill(likelihood);
+pValueDist->Fill(pValue);
+
+likelihoodDist->Draw();
+cvs.SaveAs("testLikelihoodDist.C");
+pValueDist->Draw();
+cvs.SaveAs("testPValueDist.C");
+*/
+/*
+ * Write FITS file
+ */
+
+cout<<"Creating Healpix map and writing to FITS....\n";
+//arr<float> MArr = arr<float>(&M[0], (size_t)nDir);
+arr<float> MArr = arr<float>(&M[rank[0] / nDir], (size_t)nDir);
+Healpix_Map<float> skyMap = Healpix_Map<float>(MArr, HEALPIX_ORDERING);
+
+fitshandle fitsOut;
+//#ifdef CSW
+//char filename[] = "testCSWSkyMap.fits";
+//#else
+//char filename[] = "testXCorrSkyMap.fits";
+//#endif
+remove(filename);
+fitsOut.create(filename);
+
+write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
+cout<<"Healpix map written\n";
+
+//int nSideExp = 7;
+//Healpix_Base hpBase = Healpix_Base(pow(2,nSideExp), NEST/*RING*/, SET_NSIDE);
+/*
+pointing pt;
+
+int NBinsX = 0.5*(250.-220.)/0.4581;
+int NBinsY = 0.5*(-5.-(-35.))/0.4581;
+
+TH2F *skymapHist = new TH2F("skymapHist","skymapHist",NBinsX,220,250,NBinsY,-35,-5);
+TH2F *countHist = new TH2F("countHist","countHist",NBinsX,220,250,NBinsY,-35,-5);
+double theta;
+
+for(int pix=0; pix<hpBase.Npix(); pix++){
+
+   pt = hpBase.pix2ang( pix );
+cout<<"MArr: "<<MArr[pix]<<"phi: "<<pt.phi*180.f/TMath::Pi()<<"theta :"<<90.- pt.theta*180.f/TMath::Pi()<<endl;
+
+
+
+   skymapHist->Fill(pt.phi*180.f/TMath::Pi(), 90.-pt.theta*180.f/TMath::Pi(), MArr[pix]);
+   countHist->Fill(pt.phi*180.f/TMath::Pi(), 90.-pt.theta*180.f/TMath::Pi());
+
+}
+
+for(int xbin=1; xbin<=NBinsX; xbin++){
+   for(int ybin=1; ybin<=NBinsY; ybin++){
+
+   if(countHist->GetBinContent(xbin,ybin)!=0)
+   skymapHist->SetBinContent(xbin,ybin, skymapHist->GetBinContent(xbin,ybin)/(double)countHist->GetBinContent(xbin,ybin));
+
+
+   }
+}
+
+
+TCanvas *c1 = new TCanvas("c1","c1",800,800);
+skymapHist->Draw("colz");
+c1->SaveAs("testSkymapHist.C");
+*/
+
+/*
+arr<float> MEachLayerArr;
+
+for(int i=0; i<nLayer; i++){
+
+   MEachLayerArr = arr<float>(&M[i*nDir], (size_t)nDir);
+   skyMap = Healpix_Map<float>(MEachLayerArr, RING);
+
+   char layerMap[200];
+   sprintf(layerMap,"layer_%d_skymap.fits",i);
+   remove(layerMap);
+   fitsOut.create(layerMap);
+   write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
+
+}
+*/
+
+/*
+ * Deallocate memories
+ */
+
+cout<<"Deallocating memories...\n";
+clReleaseMemObject(recoDelaysBuffer);
+clReleaseMemObject(intensityRBuffer);
+clReleaseMemObject(intensityCBuffer);
+clReleaseMemObject(voltsFlatBuffer);
+clReleaseMemObject(xCorrCBuffer);
+clReleaseMemObject(xCorrRBuffer);
+clReleaseMemObject(xCorrTimeBuffer);
+clReleaseMemObject(xCorrEnvBuffer);
+clReleaseMemObject(sqrtWfPwrBuffer);
+clReleaseMemObject(CijBuffer);
+clReleaseMemObject(MBuffer);
+clReleaseMemObject(maxPixIdxEachLayerBuffer);
+clReleaseMemObject(maxPixCoherenceEachLayerBuffer);
+free(voltsFlat);
+//free(volts);
+//free(recoDelays);
+free(intensity_data_r);
+free(intensity_data_c);
+free(xCorr_data_r);
+free(xCorr_data_c);
+free(xCorrTime);
+free(sqrtWfPwr);
+free(Cij);
+free(M);
+free(rank);
+free(topMaxPixIdx);
+free(topMaxPixCoherence);
+free(maxPixIdxEachLayer);
+free(maxPixCoherenceEachLayer);
+cout<<"Memories deallocated\n";
+
+return maxPixIdx;
+}
+
 int reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                 const float stationCenterDepth, const vector<vector<double> >& antLocation,
                 float *recoDelays, float *recoDelays_V, float *recoDelays_H,

@@ -330,6 +330,12 @@ int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(unsigned int dataType, vector<
 int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                     float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask,
                     recoData *summary, char *filename, float *mapData);
+int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_getCoherenceData(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
+                    float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask,
+                    /*recoData *summary,*/ char *filename, float *mapData, float *MData);
+int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_loadCoherenceData(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
+                    float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask,
+                    recoData *summary, char *filename, float *mapData, float *MData);                    
 int reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                     const float stationCenterDepth, const vector<vector<double> >& antLocation,
                     float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask,
