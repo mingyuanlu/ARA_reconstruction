@@ -7011,7 +7011,7 @@ cvs.SaveAs("testPValueDist.C");
 /*
  * Write FITS file
  */
-/
+
 cout<<"Creating Healpix map and writing to FITS....\n";
 //arr<float> MArr = arr<float>(&M[0], (size_t)nDir);
 arr<float> MArr = arr<float>(&M[rank[0] / nDir], (size_t)nDir);
