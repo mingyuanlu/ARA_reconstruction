@@ -6333,8 +6333,8 @@ int nSideExp = settings->nSideExp;
 int nDir   = /*summary->onion*/12 * pow(2,nSideExp) * pow(2,nSideExp);;
 int nLayer = /*summary->onion*/settings->nLayer;
 /* Using Seckel's delays */
-//nDir = 1331;
-//nLayer = 1;
+nDir = 1331;
+nLayer = 1;
 //printf("nDir: %d nLayer: %d\n",nDir,nLayer);
 /*
  * Loading voltsFlat array
