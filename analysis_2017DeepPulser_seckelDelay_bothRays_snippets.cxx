@@ -715,6 +715,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    if (cutWaveAlert == 1) { cerr<<"Event "<<ev<<" discarded due to cutWaveAlert\n"; continue; }
    if (nonIncreasingSampleTimeAlert == 1) { cerr<<"Event "<<ev<<" discarded due to nonIncreasingSampleTimeAlert\n"; continue; }
 
+   beginTime = 1e10;
+
    for(int ch=0; ch<16; ch++){
 
       gr_v[ch]->GetPoint(0,t,v);
@@ -756,7 +758,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
   }
   snprintf(c1name,sizeof(char)*200,"snippet_%d.C",ev);
   c1->SaveAs(c1name);
-
+/*
   maxSamp = 1024;
   beginTime = 1e10;
   for(int ch=0; ch<8; ch++){
@@ -765,6 +767,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
     if( t<beginTime) beginTime = t;
 
   }
+*/
   for(int ch=0; ch<8; ch++){
 
     grWinPad1stPulse[ch] = evProcessTools::getWindowedAndPaddedEqualBeginGraph(gr1stPulse[ch], maxSamp, beginTime);
@@ -772,6 +775,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
     delete gr1stPulse[ch];
 
   }
+/*
   beginTime = 1e10;
   for(int ch=0; ch<8; ch++){
 
@@ -780,6 +784,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
     if( t<beginTime) beginTime = t;
     }
   }
+*/
   for(int ch=0; ch<8; ch++){
 
     if(gr2ndPulse[ch]->GetN() != 0)
