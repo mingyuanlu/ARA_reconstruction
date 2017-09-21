@@ -69,7 +69,7 @@ int chanMask[16] = {  1 //chan 0  D1TV
                      ,1 //chan 1  D2TV
                      ,1 //chan 2  D3TV
                      ,1 //chan 3  D4TV
-                     ,1 //chan 4  D1BV
+                      ,1 //chan 4  D1BV
                      ,1 //chan 5  D2BV
                      ,1 //chan 6  D3BV
                      ,1 //chan 7  D4BV
@@ -404,27 +404,27 @@ for(int i=0; i<1331; i++){
 
 for(int pix=0; pix<nLayer*nDir; pix++){
 
-   cout<<"pix :"<<pix<<endl;
+   //cout<<"pix :"<<pix<<endl;
    for(int ant=0; ant<nAnt; ant++){
 
-   cout<<"ant: "<<ant<<endl;
+   //cout<<"ant: "<<ant<<endl;
    recoDelays[pix*nAnt+ant]       = recoDelaysVec[0][pix*nAnt+ant];
    recoRefracDelays[pix*nAnt+ant] = recoDelaysVec[1][pix*nAnt+ant];
-   cout<<"recoDelays: "<< recoDelays[pix*nAnt+ant]<<" recoRefracDelays: "<<recoRefracDelays[pix*nAnt+ant]<<endl;
+   //cout<<"recoDelays: "<< recoDelays[pix*nAnt+ant]<<" recoRefracDelays: "<<recoRefracDelays[pix*nAnt+ant]<<endl;
    if(ant < 8){
      recoDelays_V[pix*nAnt/2+ant]       = recoDelaysVec_V[0][pix*nAnt/2+ant];
      recoRefracDelays_V[pix*nAnt/2+ant] = recoDelaysVec_V[1][pix*nAnt/2+ant];
      recoBothDelays_V[pix*nAnt+ant]     = recoDelaysVec_V[0][pix*nAnt/2+ant];
      recoBothDelays_V[pix*nAnt+ant+8]   = recoDelaysVec_V[1][pix*nAnt/2+ant];
      //cout<<recoDelays_V[pix*nAnt/2+ant]<<" "<<recoRefracDelays_V[pix*nAnt/2+ant]<<endl;
-     cout<<recoBothDelays_V[pix*nAnt+ant]<<" "<<recoBothDelays_V[pix*nAnt+ant+8]<<endl;
+     //cout<<recoBothDelays_V[pix*nAnt+ant]<<" "<<recoBothDelays_V[pix*nAnt+ant+8]<<endl;
    } else {
      recoDelays_H[pix*nAnt/2+ant-8]       = recoDelaysVec_H[0][pix*nAnt/2+ant-8];
      recoRefracDelays_H[pix*nAnt/2+ant-8] = recoDelaysVec_H[1][pix*nAnt/2+ant-8];
      recoBothDelays_H[pix*nAnt+ant-8]     = recoDelaysVec_H[0][pix*nAnt/2+ant-8];
      recoBothDelays_H[pix*nAnt+ant]       = recoDelaysVec_H[1][pix*nAnt/2+ant-8];
      //cout<<recoDelays_H[pix*nAnt/2+ant-8]<<" "<<recoRefracDelays_H[pix*nAnt/2+ant-8]<<endl;
-     cout<<recoBothDelays_H[pix*nAnt+ant-8]<<" "<<recoBothDelays_H[pix*nAnt+ant]<<endl;
+     //cout<<recoBothDelays_H[pix*nAnt+ant-8]<<" "<<recoBothDelays_H[pix*nAnt+ant]<<endl;
    }
 
    }
