@@ -58,9 +58,9 @@ for(int layer=0; layer<11; layer++){
   //for(int ch=0; ch<nAnt; ch++){
 
     snprintf(histname,sizeof(histname),"direct_layer%d_ch%d",layer, ch);
-    d1stDelay[layer*nAnt +ch ] = new TH2F(histname, histname,11,-0.5,10.5,11,-0.5,10.5);
+    d1stDelay[layer] = new TH2F(histname, histname,11,-0.5,10.5,11,-0.5,10.5);
     snprintf(histname,sizeof(histname),"refracted_layer%d_ch%d",layer, ch);
-    d2ndDelay[layer*nAnt +ch ] = new TH2F(histname, histname,11,-0.5,10.5,11,-0.5,10.5);
+    d2ndDelay[layer] = new TH2F(histname, histname,11,-0.5,10.5,11,-0.5,10.5);
 
     for(int theta=0; theta<11; theta++){
       for(int phi=0; phi<11; phi++){
