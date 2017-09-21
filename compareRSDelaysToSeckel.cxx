@@ -66,7 +66,9 @@ for(int layer=0; layer<11; layer++){
       for(int phi=0; phi<11; phi++){
 
         d1stDelay[layer]->Fill(phi,theta,recoDelaysVec[0][(layer*11*11+theta*11+phi)*nAnt+ch] /*- recoDelays[(layer*11*11+theta*11+phi)*nAnt+ch]*/);
+        cout<<"recoDelays[(layer*11*11+theta*11+phi)*nAnt+ch]"<<endl;
         d2ndDelay[layer]->Fill(phi,theta,recoDelaysVec[1][(layer*11*11+theta*11+phi)*nAnt+ch] /*- recoRefracDelays[(layer*11*11+theta*11+phi)*nAnt+ch]*/);
+        cout<<"recoRefracDelays[(layer*11*11+theta*11+phi)*nAnt+ch]"<<endl;
 
       }
     }
