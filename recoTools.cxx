@@ -10343,8 +10343,7 @@ free(delays);
 
 int compute3DRecoBothDelaysWithRadioSplineWithSeckelGeom(const vector<double>& srcPosVec,
                                                          const vector<vector<double> >&antLocation,
-                                                         float* recoDelays, float* recoDelays_V, float*recoDelays_H,
-                                                         float* recoRefracDelays, float*recoRefracDelays_V, float* recoRefracDelays_H)
+                                                         float* recoDelays, float* recoRefracDelays)
 {
 
 float test_r, test_zenith, test_azimuth;
@@ -10389,7 +10388,7 @@ for(int layer=0; layer<11; layer++){
 
 coordSrc[0] = test_r*sin(test_zenith)*cos(test_azimuth) + stationCenter[0];
 coordSrc[1] = test_r*sin(test_zenith)*sin(test_azimuth) + stationCenter[1];
-coordSrc[2] = test_r*cos(test_zenith)                   + stationcenter[2];
+coordSrc[2] = test_r*cos(test_zenith)                   + stationCenter[2];
 
 for(int k=0; k<16; k++){
 
@@ -10409,13 +10408,13 @@ if( tempDelay > 1.f )
 solvedDelay.push_back(tempDelay);
 if( tempDelay > 1e9 ) cout<<"Unreasonbaly large delay\n";
 
-recoDelays[layer*nDir*nAnt + pix*nAnt + k] = tempDelay;
+recoDelays[(layer*11*11 + theta*11 + phi)*16+k] = tempDelay;
 
 if( tempRefracDelay > 1.f )
 solvedRefracDelay.push_back(tempRefracDelay);
 if( tempRefracDelay > 1e9 ) cout<<"Unreasonbaly large refrac delay\n";
 
-recoRefracDelays[layer*nDir*nAnt + pix*nAnt + k] = tempRefracDelay;
+recoRefracDelays[(layer*11*11 + theta*11 + phi)*16+k] = tempRefracDelay;
 
 }//end of k
 
@@ -10423,34 +10422,7 @@ meanDelay       = getMeanDelay( solvedDelay );
 meanRefracDelay = getMeanDelay( solvedRefracDelay );
 //cout<<"meanDelay = "<<meanDelay<<endl;
 
-for(int k=0; k<nAnt; k++){
-/* Direct ray */
-if(recoDelays[layer*nDir*nAnt + pix*nAnt + k] > 1.f ){
-//recoDelays[layer*nDir*nAnt + pix*nAnt + k] -= meanDelay;
-//cout<<recoDelays[layer*nDir*nAnt + pix*nAnt + k]<<" ";
-if(k<8) recoDelays_V[layer*nDir*nAnt/2 + pix*nAnt/2 + k]   = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
-else    recoDelays_H[layer*nDir*nAnt/2 + pix*nAnt/2 + k-8] = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
-} else {
-recoDelays[layer*nDir*nAnt + pix*nAnt + k] = -1e10; // no solution!
-if(k<8) recoDelays_V[layer*nDir*nAnt/2 + pix*nAnt/2 + k]   = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
-else    recoDelays_H[layer*nDir*nAnt/2 + pix*nAnt/2 + k-8] = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
-//cout<<"recoDelays: "<<recoDelays[layer*nDir*nAnt + pix*nAnt + k]<<"\t";
-}
 
-/* Refracted ray */
-if(recoRefracDelays[layer*nDir*nAnt + pix*nAnt + k] > 1.f ){
-//recoRefracDelays[layer*nDir*nAnt + pix*nAnt + k] -= meanRefracDelay;
-//cout<<recoDelays[layer*nDir*nAnt + pix*nAnt + k]<<" ";
-if(k<8) recoRefracDelays_V[layer*nDir*nAnt/2 + pix*nAnt/2 + k]   = recoRefracDelays[layer*nDir*nAnt + pix*nAnt + k];
-else    recoRefracDelays_H[layer*nDir*nAnt/2 + pix*nAnt/2 + k-8] = recoRefracDelays[layer*nDir*nAnt + pix*nAnt + k];
-} else {
-recoRefracDelays[layer*nDir*nAnt + pix*nAnt + k] = -1e10; // no solution!
-if(k<8) recoRefracDelays_V[layer*nDir*nAnt/2 + pix*nAnt/2 + k]   = recoRefracDelays[layer*nDir*nAnt + pix*nAnt + k];
-else    recoRefracDelays_H[layer*nDir*nAnt/2 + pix*nAnt/2 + k-8] = recoRefracDelays[layer*nDir*nAnt + pix*nAnt + k];
-//cout<<"recoDelays: "<<recoDelays[layer*nDir*nAnt + pix*nAnt + k]<<"\t";
-}
-                                                              //cout<<"End of assigning delays\n";
-}//end of nAnt
 
 //}//end of pix
 }//end of phi

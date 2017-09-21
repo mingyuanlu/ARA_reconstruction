@@ -40,9 +40,10 @@ if( err<0 ){ cerr<<"Error calibrating geometry and delays\n"; return -1; }
 /* Call RayTrace object, feed Seckel ant & src locations to it, and obtain delays */
 
 int nAnt = 16;
+float *recoDelays = (float*)malloc(11*11*11*nAnt*sizeof(float));
+float *recoRefracDelays = (float*)malloc(11*11*11*nAnt*sizeof(float));
 err = compute3DRecoBothDelaysWithRadioSplineWithSeckelGeom(srcPosVec, antLocation,
-                                          recoDelays,       recoDelays_V,       recoDelays_H,
-                                          recoRefracDelays, recoRefracDelays_V, recoRefracDelays_H);
+                                          recoDelays, recoRefracDelays);
 
 /* Compare delays */
 
@@ -64,8 +65,8 @@ for(int layer=0; layer<11; layer++){
     for(int theta=0; theta<11; theta++){
       for(int phi=0; phi<11; phi++){
 
-        d1stDelay[layer]->Fill(recoDelaysVec[0][layer*11*11+theta*11+phi] - recoDelays[layer*11*11+theta*11+phi]);
-        d2ndDelay[layer]->Fill(recoDelaysVec[1][layer*11*11+theta*11+phi] - recoRefracDelays[layer*11*11+theta*11+phi]);
+        d1stDelay[layer]->Fill(recoDelaysVec[0][(layer*11*11+theta*11+phi)*nAnt+ch] - recoDelays[(layer*11*11+theta*11+phi)*nAnt+ch]);
+        d2ndDelay[layer]->Fill(recoDelaysVec[1][(layer*11*11+theta*11+phi)*nAnt+ch] - recoRefracDelays[(layer*11*11+theta*11+phi)*nAnt+ch]);
 
       }
     }
