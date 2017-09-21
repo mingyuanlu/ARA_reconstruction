@@ -10341,9 +10341,10 @@ free(delays);
    return 0;
 }
 
-int compute3DRecoBothDelaysWithRadioSplineWithSeckelGeom(srcPosVec, antLocation,
-                                                        recoDelays,       recoDelays_V,       recoDelays_H,
-                                                        recoRefracDelays, recoRefracDelays_V, recoRefracDelays_H)
+int compute3DRecoBothDelaysWithRadioSplineWithSeckelGeom(const vector<double>& srcPosVec,
+                                                         const vector<vector<double> >&antLocation,
+                                                         float* recoDelays, float* recoDelays_V, float*recoDelays_H,
+                                                         float* recoRefracDelays, float*recoRefracDelays_V, float* recoRefracDelays_H)
 {
 
 float test_r, test_zenith, test_azimuth;
