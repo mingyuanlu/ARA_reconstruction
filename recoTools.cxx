@@ -10341,6 +10341,124 @@ free(delays);
    return 0;
 }
 
+int compute3DRecoBothDelaysWithRadioSplineWithSeckelGeom(srcPosVec, antLocation,
+                                                        recoDelays,       recoDelays_V,       recoDelays_H,
+                                                        recoRefracDelays, recoRefracDelays_V, recoRefracDelays_H)
+{
+
+float test_r, test_zenith, test_azimuth;
+/* Using radiospline to delay times */
+char * tablePath = getenv("RADIOSPLINE_TABLE_DIR");
+if (tablePath == NULL) {
+std::cout << "ERROR: please point the RADIOSPLINE_TABLE_DIR environment variable to" << std::endl;
+std::cout << " the spline .fits table directory." << std::endl;
+return -1;
+}
+std::string tablePathStr(tablePath);
+
+RayTrace ray(tablePathStr);
+cout<<"RayTrace object created\n";
+
+double stationCenter[3] = {4001.59, -2595.01, -184.267};
+double zCenter = stationCenter[2];
+
+double r, zRec, zSrc;
+float tempDelay, meanDelay=0.f;
+float tempRefracDelay, meanRefracDelay=0.f;
+vector<float> solvedDelay;
+vector<float> solvedRefracDelay;
+double coordSrc[3], coordTrg[3];
+//cout<<"recoDelays:\n";
+for(int layer=0; layer<11; layer++){
+  for(int theta=0; theta<11; theta++){
+    for(int phi=0; phi<11; phi++){
+
+      test_r = srcPosVec[(layer*11*11+theta*11+phi)*3];
+      test_zenith = (-1.*srcPosVec[3*(layer*11*11+theta*11+phi)+1] + 90.)*TMath::DegToRad();
+      test_azimuth = srcPosVec[3*(layer*11*11+theta*11+phi)+2]*TMath::DegToRad();
+
+
+ //cout<<"test_r at layer "<<layer<<" is: "<<test_r<<endl;
+//for(int pix=0; pix<nDir; pix++){
+
+//pt = hpBase.pix2ang( pix );
+//test_zenith  = pt.theta; //  in radians
+//test_azimuth = pt.phi  ;
+
+
+coordSrc[0] = test_r*sin(test_zenith)*cos(test_azimuth) + stationCenter[0];
+coordSrc[1] = test_r*sin(test_zenith)*sin(test_azimuth) + stationCenter[1];
+coordSrc[2] = test_r*cos(test_zenith)                   + stationcenter[2];
+
+for(int k=0; k<16; k++){
+
+//cout<<"k: "<<k<<endl;
+coordTrg[0] = (antLocation[k][0] + stationCenter[0]);
+coordTrg[1] = (antLocation[k][1] + stationCenter[1]);
+coordTrg[2] = (antLocation[k][2] + stationCenter[2]);
+if (Detector2Cylinder(coordSrc, coordTrg, zCenter, &r, &zRec, &zSrc) != 0)
+   std::cout << "ERROR: couldn't convert to cylindrical coordinates." << std::endl;
+
+  tempDelay       = static_cast<float>(ray.GetPropagationTime(r, zRec, zSrc));
+  tempRefracDelay = static_cast<float>(ray.GetReflectedPropagationTime(r, zRec, zSrc));
+//cout<<"tempDelay: "<<tempDelay<<" tempRefracDelay: "<<tempRefracDelay<<endl;
+
+if( tempDelay > 1.f )
+//if( k<8 || k>11 )
+solvedDelay.push_back(tempDelay);
+if( tempDelay > 1e9 ) cout<<"Unreasonbaly large delay\n";
+
+recoDelays[layer*nDir*nAnt + pix*nAnt + k] = tempDelay;
+
+if( tempRefracDelay > 1.f )
+solvedRefracDelay.push_back(tempRefracDelay);
+if( tempRefracDelay > 1e9 ) cout<<"Unreasonbaly large refrac delay\n";
+
+recoRefracDelays[layer*nDir*nAnt + pix*nAnt + k] = tempRefracDelay;
+
+}//end of k
+
+meanDelay       = getMeanDelay( solvedDelay );
+meanRefracDelay = getMeanDelay( solvedRefracDelay );
+//cout<<"meanDelay = "<<meanDelay<<endl;
+
+for(int k=0; k<nAnt; k++){
+/* Direct ray */
+if(recoDelays[layer*nDir*nAnt + pix*nAnt + k] > 1.f ){
+//recoDelays[layer*nDir*nAnt + pix*nAnt + k] -= meanDelay;
+//cout<<recoDelays[layer*nDir*nAnt + pix*nAnt + k]<<" ";
+if(k<8) recoDelays_V[layer*nDir*nAnt/2 + pix*nAnt/2 + k]   = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
+else    recoDelays_H[layer*nDir*nAnt/2 + pix*nAnt/2 + k-8] = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
+} else {
+recoDelays[layer*nDir*nAnt + pix*nAnt + k] = -1e10; // no solution!
+if(k<8) recoDelays_V[layer*nDir*nAnt/2 + pix*nAnt/2 + k]   = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
+else    recoDelays_H[layer*nDir*nAnt/2 + pix*nAnt/2 + k-8] = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
+//cout<<"recoDelays: "<<recoDelays[layer*nDir*nAnt + pix*nAnt + k]<<"\t";
+}
+
+/* Refracted ray */
+if(recoRefracDelays[layer*nDir*nAnt + pix*nAnt + k] > 1.f ){
+//recoRefracDelays[layer*nDir*nAnt + pix*nAnt + k] -= meanRefracDelay;
+//cout<<recoDelays[layer*nDir*nAnt + pix*nAnt + k]<<" ";
+if(k<8) recoRefracDelays_V[layer*nDir*nAnt/2 + pix*nAnt/2 + k]   = recoRefracDelays[layer*nDir*nAnt + pix*nAnt + k];
+else    recoRefracDelays_H[layer*nDir*nAnt/2 + pix*nAnt/2 + k-8] = recoRefracDelays[layer*nDir*nAnt + pix*nAnt + k];
+} else {
+recoRefracDelays[layer*nDir*nAnt + pix*nAnt + k] = -1e10; // no solution!
+if(k<8) recoRefracDelays_V[layer*nDir*nAnt/2 + pix*nAnt/2 + k]   = recoRefracDelays[layer*nDir*nAnt + pix*nAnt + k];
+else    recoRefracDelays_H[layer*nDir*nAnt/2 + pix*nAnt/2 + k-8] = recoRefracDelays[layer*nDir*nAnt + pix*nAnt + k];
+//cout<<"recoDelays: "<<recoDelays[layer*nDir*nAnt + pix*nAnt + k]<<"\t";
+}
+                                                              //cout<<"End of assigning delays\n";
+}//end of nAnt
+
+//}//end of pix
+}//end of phi
+}//end of theta
+}//end of layer
+
+return 0;
+}
+
 int compute3DRecoDelaysWithRadioSplineForSinglePixel(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
                                      //const float radius, const int nSideExp,
                                      Healpix_Onion *onion,

@@ -335,7 +335,7 @@ int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_getCoherenceData(recoSettings 
                     /*recoData *summary,*/ char *filename, float *mapData, float *MData);
 int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_loadCoherenceData(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                     float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask,
-                    recoData *summary, char *filename, float *mapData, float *MData);                    
+                    recoData *summary, char *filename, float *mapData, float *MData);
 int reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                     const float stationCenterDepth, const vector<vector<double> >& antLocation,
                     float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask,
@@ -375,7 +375,9 @@ int compute3DRecoBothDelaysWithRadioSpline(const int nAnt, const float zCenter, 
                                       Healpix_Onion *onion,
                                       float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                                       float *recoRefracDelays, float *recoRefracDelays_V, float *recoRefracDelays_H);
-
+int compute3DRecoBothDelaysWithRadioSplineWithSeckelGeom(srcPosVec, antLocation,
+                                                        recoDelays,       recoDelays_V,       recoDelays_H,
+                                                        recoRefracDelays, recoRefracDelays_V, recoRefracDelays_H);
 int compute3DRecoDelaysWithRadioSplineForSinglePixel(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
                                       //const float radius, const int nSideExp,
                                       Healpix_Onion *onion,
