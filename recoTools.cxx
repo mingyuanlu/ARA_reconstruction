@@ -6323,7 +6323,7 @@ int dataType = settings->dataType;
 if( dataType == 0 ) wInt = 0.5f; //AraSim event
 else if( dataType == 1 ){ //real event
 if( pol == "vpol" ) wInt = 0.4f;
-else if ( pol == "hpol" ) wInt = 0.625f;
+else if ( pol == "hpol" ) wInt = /*0.625f*/0.4f; //0.4f for 2nd ray reco, whose wf snippets take up Hpol places in cleanEvent
 else if ( pol == "both" ) wInt = /*0.5f*/0.4f; //0.4f for both ray reco using Vpols
 else { cerr<<"recoPolType undefined\n"; return -1; }
 } else {
@@ -6333,8 +6333,8 @@ int nSideExp = settings->nSideExp;
 int nDir   = /*summary->onion*/12 * pow(2,nSideExp) * pow(2,nSideExp);;
 int nLayer = /*summary->onion*/settings->nLayer;
 /* Using Seckel's delays */
-nDir = 1331;
-nLayer = 1;
+//nDir = 1331;
+//nLayer = 1;
 //printf("nDir: %d nLayer: %d\n",nDir,nLayer);
 /*
  * Loading voltsFlat array
@@ -7011,7 +7011,8 @@ cvs.SaveAs("testPValueDist.C");
 /*
  * Write FITS file
  */
-/* Comment out for Seckel delays
+// Comment out for Seckel delays
+
 cout<<"Creating Healpix map and writing to FITS....\n";
 //arr<float> MArr = arr<float>(&M[0], (size_t)nDir);
 arr<float> MArr = arr<float>(&M[rank[0] / nDir], (size_t)nDir);
@@ -7028,7 +7029,7 @@ fitsOut.create(filename);
 
 write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
 cout<<"Healpix map written\n";
-*/
+
 //int nSideExp = 7;
 //Healpix_Base hpBase = Healpix_Base(pow(2,nSideExp), NEST/*RING*/, SET_NSIDE);
 /*
