@@ -52,7 +52,7 @@ TH2F *d1stDelay[11], *d2ndDelay[11];
 char histname[200];
 char cvsname[200];
 
-int ch = 0;
+int ch = 7;
 
 for(int layer=0; layer<11; layer++){
   //for(int ch=0; ch<nAnt; ch++){
