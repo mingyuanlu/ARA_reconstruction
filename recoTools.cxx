@@ -10402,7 +10402,7 @@ if (Detector2Cylinder(coordSrc, coordTrg, zCenter, &r, &zRec, &zSrc) != 0)
   cout<<"r: "<<r<<" zRec: "<<zRec<<" zSrc: "<<zSrc<<endl;
   tempDelay       = static_cast<float>(ray.GetPropagationTime(r, zRec, zSrc));
   tempRefracDelay = static_cast<float>(ray.GetReflectedPropagationTime(r, zRec, zSrc));
-  cout<<"tempDelay: "<<tempDelay<<" tempRefracDelay: "<<tempRefracDelay<<endl;
+  if(tempDelay==-1 || tempRefracDelay==-1) cout<<"tempDelay: "<<tempDelay<<" tempRefracDelay: "<<tempRefracDelay<<endl;
 
 if( tempDelay > 1.f )
 //if( k<8 || k>11 )
