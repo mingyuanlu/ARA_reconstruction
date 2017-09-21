@@ -10360,7 +10360,7 @@ RayTrace ray(tablePathStr);
 cout<<"RayTrace object created\n";
 
 double stationCenter[3] = {4001.59, -2595.01, -184.267};
-double zCenter = stationCenter[2];
+double zCenter = /*stationCenter[2]*/0.;
 
 double r, zRec, zSrc;
 float tempDelay, meanDelay=0.f;
@@ -10396,7 +10396,7 @@ for(int k=0; k<16; k++){
 coordTrg[0] = (antLocation[k][0] + stationCenter[0]);
 coordTrg[1] = (antLocation[k][1] + stationCenter[1]);
 coordTrg[2] = (antLocation[k][2] + stationCenter[2]);
-cout<<"Trg x: "<<coordTrg[0]<<" y: "<<coordTrg[1]<<" z: "<<coordTrg[2]<<endl;  
+cout<<"Trg x: "<<coordTrg[0]<<" y: "<<coordTrg[1]<<" z: "<<coordTrg[2]<<endl;
 if (Detector2Cylinder(coordSrc, coordTrg, zCenter, &r, &zRec, &zSrc) != 0)
    std::cout << "ERROR: couldn't convert to cylindrical coordinates." << std::endl;
   cout<<"r: "<<r<<" zRec: "<<zRec<<" zSrc: "<<zSrc<<endl;
