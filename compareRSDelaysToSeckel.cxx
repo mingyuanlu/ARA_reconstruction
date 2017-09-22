@@ -54,7 +54,7 @@ TH2F *d1stDelay[11], *d2ndDelay[11];
 char histname[200];
 char cvsname[200];
 
-TH1F *hist=new TH1F("hist","hist",500,-10,10);
+TH1F *hist=new TH1F("hist","hist",1000,-100,100);
 TH1F *directHist[16*16], *refractHist[16*16];
 //directHist = new TH1F("directHist","directHist",100,-5,5);
 //refractHist = new TH1F("refractHist","refractHist",100,-5,5);
@@ -72,9 +72,9 @@ for(ch1=0; ch1<16;  ch1++){
 for(ch2=0; ch2<16; ch2++){
 
 snprintf(histname,sizeof(histname),"direct_%d_%d",ch1,ch2);
-directHist[ch1*16+ch2]=new TH1F(histname, histname, 500,-10,10);
+directHist[ch1*16+ch2]=new TH1F(histname, histname, 1000,-100,100);
 snprintf(histname,sizeof(histname),"refract_%d_%d",ch1,ch2);
-refractHist[ch1*16+ch2]=new TH1F(histname, histname, 500,-10,10);
+refractHist[ch1*16+ch2]=new TH1F(histname, histname, 1000,-100,100);
 
 for(int layer=0; layer<11; layer++){
   //for(int ch=0; ch<nAnt; ch++){
