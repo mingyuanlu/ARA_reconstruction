@@ -14,7 +14,7 @@
 #include "TObject.h"
 #include "TPolyMarker3D.h"
 #include "TH3D.h"
-#include "TRandom.h"
+#include "TRandom3.h"
 
 #include "calibrationTools.h"
 #include "calibrationToolsVs3.h"
