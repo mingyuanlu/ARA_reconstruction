@@ -64,17 +64,17 @@ int ch2 /*= 4*/;
 cvs = new TCanvas("cvs","cvs",800,600);
 cvs->Divide(2,1);
 TRandom3 *rnd = new TRandom3();
-cvs->cd(1); hist->Draw(); hist->SetStats(0); hist->GetYaxis()->SetRangeUser(0,1000);
-cvs->cd(2); hist->Draw(); hist->SetStats(0); hist->GetYaxis()->SetRangeUser(0,1000);
+cvs->cd(1); hist->Draw(); hist->SetStats(0); hist->GetYaxis()->SetRangeUser(0,1400);
+cvs->cd(2); hist->Draw(); hist->SetStats(0); hist->GetYaxis()->SetRangeUser(0,1400);
 int ci; //color index
 
 for(ch1=0; ch1<16;  ch1++){
 for(ch2=0; ch2<16; ch2++){
 
 snprintf(histname,sizeof(histname),"direct_%d_%d",ch1,ch2);
-directHist[ch1*16+ch2]=new TH1F(histname, histname, 100,-5,5);
+directHist[ch1*16+ch2]=new TH1F(histname, histname, 500,-10,10);
 snprintf(histname,sizeof(histname),"refract_%d_%d",ch1,ch2);
-refractHist[ch1*16+ch2]=new TH1F(histname, histname, 100,-5,5);
+refractHist[ch1*16+ch2]=new TH1F(histname, histname, 500,-10,10);
 
 for(int layer=0; layer<11; layer++){
   //for(int ch=0; ch<nAnt; ch++){
