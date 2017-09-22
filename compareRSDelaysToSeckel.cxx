@@ -14,6 +14,7 @@
 #include "TObject.h"
 #include "TPolyMarker3D.h"
 #include "TH3D.h"
+#include "TRandom.h"
 
 #include "calibrationTools.h"
 #include "calibrationToolsVs3.h"
@@ -53,32 +54,57 @@ TH2F *d1stDelay[11], *d2ndDelay[11];
 char histname[200];
 char cvsname[200];
 
-int ch1 = 0;
-int ch2 = 4;
+TH1F *hist=new TH1F("hist","hist",100,-5,5);
+TH1F *directHist[16*16], *refractHist[16*16];
+//directHist = new TH1F("directHist","directHist",100,-5,5);
+//refractHist = new TH1F("refractHist","refractHist",100,-5,5);
+int ch1 /*= 0*/;
+int ch2 /*= 4*/;
+
+cvs = new TCanvas("cvs","cvs",800,600);
+cvs->Divide(2,1);
+TRandom3 *rnd = new TRandom3();
+cvs->cd(1); hist->Draw(); hist->SetStats(0);
+cvs->cd(2); hist->Draw(); hist->SetStats(0);
+int ci; //color index
+
+for(ch1=0; ch1<16;  ch1++){
+for(ch2=0; ch2<16; ch2++){
+
+snprintf(histname,sizeof(histname),"direct_%d_%d",ch1,ch2);
+directHist[ch1*16+ch2]=new TH1F(histname, histname, 100,-5,5);
+snprintf(histname,sizeof(histname),"refract_%d_%d",ch1,ch2);
+refractHist[ch1*16+ch2]=new TH1F(histname, histname, 100,-5,5);
 
 for(int layer=0; layer<11; layer++){
   //for(int ch=0; ch<nAnt; ch++){
-
+    /*
     snprintf(histname,sizeof(histname),"direct_layer%d_ch%d_ch%d",layer, ch1, ch2);
     d1stDelay[layer] = new TH2F(histname, histname,11,-0.5,10.5,11,-0.5,10.5);
     snprintf(histname,sizeof(histname),"refracted_layer%d_ch%d_ch%d",layer, ch1, ch2);
     d2ndDelay[layer] = new TH2F(histname, histname,11,-0.5,10.5,11,-0.5,10.5);
-
+    */
     for(int theta=0; theta<11; theta++){
       for(int phi=0; phi<11; phi++){
 
-        d1stDelay[layer]->Fill(phi,theta,(recoDelaysVec[0][(layer*11*11+theta*11+phi)*nAnt+ch1] - recoDelaysVec[0][(layer*11*11+theta*11+phi)*nAnt+ch2]) -
-                                         (recoDelays[(layer*11*11+theta*11+phi)*nAnt+ch1] - recoDelays[(layer*11*11+theta*11+phi)*nAnt+ch2])
-                              );
+        //d1stDelay[layer]->Fill(phi,theta,(recoDelaysVec[0][(layer*11*11+theta*11+phi)*nAnt+ch1] - recoDelaysVec[0][(layer*11*11+theta*11+phi)*nAnt+ch2]) -
+        //                                 (recoDelays[(layer*11*11+theta*11+phi)*nAnt+ch1] - recoDelays[(layer*11*11+theta*11+phi)*nAnt+ch2])
+        //                      );
+        directHist[ch1*16+ch2]->Fill((recoDelaysVec[0][(layer*11*11+theta*11+phi)*nAnt+ch1] - recoDelaysVec[0][(layer*11*11+theta*11+phi)*nAnt+ch2]) -
+                                     (recoDelays[(layer*11*11+theta*11+phi)*nAnt+ch1] - recoDelays[(layer*11*11+theta*11+phi)*nAnt+ch2])
+                                    );
         //cout<<recoDelays[(layer*11*11+theta*11+phi)*nAnt+ch]<<endl;
-        d2ndDelay[layer]->Fill(phi,theta,(recoDelaysVec[1][(layer*11*11+theta*11+phi)*nAnt+ch1] - recoDelaysVec[1][(layer*11*11+theta*11+phi)*nAnt+ch2]) -
-                                         (recoRefracDelays[(layer*11*11+theta*11+phi)*nAnt+ch1] - recoRefracDelays[(layer*11*11+theta*11+phi)*nAnt+ch2])
-                              );
+        //d2ndDelay[layer]->Fill(phi,theta,(recoDelaysVec[1][(layer*11*11+theta*11+phi)*nAnt+ch1] - recoDelaysVec[1][(layer*11*11+theta*11+phi)*nAnt+ch2]) -
+        //                                 (recoRefracDelays[(layer*11*11+theta*11+phi)*nAnt+ch1] - recoRefracDelays[(layer*11*11+theta*11+phi)*nAnt+ch2])
+        //                      );
+        refractHist[ch1*16+ch2]->Fill((recoDelaysVec[1][(layer*11*11+theta*11+phi)*nAnt+ch1] - recoDelaysVec[1][(layer*11*11+theta*11+phi)*nAnt+ch2]) -
+                                      (recoRefracDelays[(layer*11*11+theta*11+phi)*nAnt+ch1] - recoRefracDelays[(layer*11*11+theta*11+phi)*nAnt+ch2])
+                                     );
         //cout<<recoRefracDelays[(layer*11*11+theta*11+phi)*nAnt+ch]<<endl;
 
       }
     }
-
+    /*
     cvs = new TCanvas("cvs","cvs",800,600);
     snprintf(cvsname,sizeof(cvsname),"layer_%d.C",layer);
     cvs->Divide(2,1);
@@ -88,8 +114,28 @@ for(int layer=0; layer<11; layer++){
     d2ndDelay[layer]->Draw("colz");
     cvs->SaveAs(cvsname);
     delete cvs;
+    */
   //}
 }
+
+if(ch1!=ch2){
+
+ci = rnd->Rndm()*29+20;
+
+cvs->cd(1);
+directHist[ch1*16+ch2]->SetLineColor(ci);
+directHist[ch1*16+ch2]->Draw("same");
+
+cvs->cd(2);
+refractHist[ch1*16+ch2]->SetLineColor(ci);
+refractHist[ch1*16+ch2]->Draw("same");
+
+}
+
+}
+}
+
+cvs->SaveAs("RS_Seckel_comparison.C");
 
 return 0;
 }
