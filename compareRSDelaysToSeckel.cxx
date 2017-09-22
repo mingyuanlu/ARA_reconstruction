@@ -54,7 +54,7 @@ TH2F *d1stDelay[11], *d2ndDelay[11];
 char histname[200];
 char cvsname[200];
 
-TH1F *hist=new TH1F("hist","hist",100,-5,5);
+TH1F *hist=new TH1F("hist","hist",500,-10,10);
 TH1F *directHist[16*16], *refractHist[16*16];
 //directHist = new TH1F("directHist","directHist",100,-5,5);
 //refractHist = new TH1F("refractHist","refractHist",100,-5,5);
@@ -64,8 +64,8 @@ int ch2 /*= 4*/;
 cvs = new TCanvas("cvs","cvs",800,600);
 cvs->Divide(2,1);
 TRandom3 *rnd = new TRandom3();
-cvs->cd(1); hist->Draw(); hist->SetStats(0);
-cvs->cd(2); hist->Draw(); hist->SetStats(0);
+cvs->cd(1); hist->Draw(); hist->SetStats(0); hist->GetYaxis()->SetRangeUser(0,1000);
+cvs->cd(2); hist->Draw(); hist->SetStats(0); hist->GetYaxis()->SetRangeUser(0,1000);
 int ci; //color index
 
 for(ch1=0; ch1<16;  ch1++){
