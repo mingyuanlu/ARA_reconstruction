@@ -49,26 +49,32 @@ err = compute3DRecoBothDelaysWithRadioSplineWithSeckelGeom(srcPosVec, antLocatio
 
 TCanvas *cvs;
 TH2F *d1stDelay[11], *d2ndDelay[11];
+
 char histname[200];
 char cvsname[200];
 
-int ch = 3;
+int ch1 = 0;
+int ch2 = 4;
 
 for(int layer=0; layer<11; layer++){
   //for(int ch=0; ch<nAnt; ch++){
 
-    snprintf(histname,sizeof(histname),"direct_layer%d_ch%d",layer, ch);
+    snprintf(histname,sizeof(histname),"direct_layer%d_ch%d_ch%d",layer, ch1, ch2);
     d1stDelay[layer] = new TH2F(histname, histname,11,-0.5,10.5,11,-0.5,10.5);
-    snprintf(histname,sizeof(histname),"refracted_layer%d_ch%d",layer, ch);
+    snprintf(histname,sizeof(histname),"refracted_layer%d_ch%d_ch%d",layer, ch1, ch2);
     d2ndDelay[layer] = new TH2F(histname, histname,11,-0.5,10.5,11,-0.5,10.5);
 
     for(int theta=0; theta<11; theta++){
       for(int phi=0; phi<11; phi++){
 
-        d1stDelay[layer]->Fill(phi,theta,recoDelaysVec[0][(layer*11*11+theta*11+phi)*nAnt+ch] - recoDelays[(layer*11*11+theta*11+phi)*nAnt+ch]);
-        cout<<recoDelays[(layer*11*11+theta*11+phi)*nAnt+ch]<<endl;
-        d2ndDelay[layer]->Fill(phi,theta,recoDelaysVec[1][(layer*11*11+theta*11+phi)*nAnt+ch] - recoRefracDelays[(layer*11*11+theta*11+phi)*nAnt+ch]);
-        cout<<recoRefracDelays[(layer*11*11+theta*11+phi)*nAnt+ch]<<endl;
+        d1stDelay[layer]->Fill(phi,theta,(recoDelaysVec[0][(layer*11*11+theta*11+phi)*nAnt+ch1] - recoDelaysVec[0][(layer*11*11+theta*11+phi)*nAnt+ch2]) -
+                                         (recoDelays[(layer*11*11+theta*11+phi)*nAnt+ch1] - recoDelays[(layer*11*11+theta*11+phi)*nAnt+ch2])
+                              );
+        //cout<<recoDelays[(layer*11*11+theta*11+phi)*nAnt+ch]<<endl;
+        d2ndDelay[layer]->Fill(phi,theta,(recoDelaysVec[1][(layer*11*11+theta*11+phi)*nAnt+ch1] - recoDelaysVec[1][(layer*11*11+theta*11+phi)*nAnt+ch2]) -
+                                         (recoRefracDelays[(layer*11*11+theta*11+phi)*nAnt+ch1] - recoRefracDelays[(layer*11*11+theta*11+phi)*nAnt+ch2])
+                              );
+        //cout<<recoRefracDelays[(layer*11*11+theta*11+phi)*nAnt+ch]<<endl;
 
       }
     }
