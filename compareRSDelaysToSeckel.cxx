@@ -118,7 +118,7 @@ for(int layer=0; layer<11; layer++){
   //}
 }
 
-if(ch1!=ch2){
+if(ch1<ch2){
 
 ci = rnd->Rndm()*29+20;
 
