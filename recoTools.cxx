@@ -6857,7 +6857,8 @@ xCorrPeakFile->Close();
 //free(xCorrPeakHist);
 //free(envPeakHist);
 delete xCorrPeakFile;
-delete [] envPeakHist;
+//delete [] envPeakHist;
+
 /*
 //dtFile->Close();
 fclose(dtFile);
