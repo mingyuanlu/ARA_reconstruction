@@ -6643,13 +6643,14 @@ char sillygrname[200];
 char histName[200];
 
 //TH1F *xCorrPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
-//TH1F *envPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
-/*
-TH1F *xCorrPeakHist[64];
+//static TH1F *envPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
+
+//TH1F *xCorrPeakHist[64];
 TH1F *envPeakHist[64];
 TFile *xCorrPeakFile;
 char xCorrEnvPeakFileName[200];
-snprintf(xCorrEnvPeakFileName,sizeof(char)*200,"xCorrEnvPeakFile_2015DeepPulser_IC22S_2ndPulse.root");
+//snprintf(xCorrEnvPeakFileName,sizeof(char)*200,"xCorrEnvPeakFile_2015DeepPulser_IC22S_2ndPulse.root");
+snprintf(xCorrEnvPeakFileName,sizeof(char)*200,"xCorrEnvPeakFile_2014_A3_rooftop_run2328.root");
 
 xCorrPeakFile = new TFile(xCorrEnvPeakFileName); //if file exists, it will stay unopened
 
@@ -6661,12 +6662,12 @@ if( xCorrPeakFile->IsZombie() ){
 
   for(int i=0; i<nBaseline; i++){
 
-    snprintf(histName,sizeof(char)*200,"xCorrPeakHist_chan%d_%d",i/nAnt,i%nAnt);
-    xCorrPeakHist[i] = new TH1F(histName,histName,2500,0,1000);
-    xCorrPeakHist[i]->Write();
-    //snprintf(histName,sizeof(char)*200,"envPeakHist_chan%d_%d",i/nAnt,i%nAnt);
-    //envPeakHist[i] = new TH1F(histName,histName,2500,0,1000);
-    //envPeakHist[i]->Write();
+    //snprintf(histName,sizeof(char)*200,"xCorrPeakHist_chan%d_%d",i/nAnt,i%nAnt);
+    //xCorrPeakHist[i] = new TH1F(histName,histName,2500,0,1000);
+    //xCorrPeakHist[i]->Write();
+    snprintf(histName,sizeof(char)*200,"envPeakHist_chan%d_%d",i/nAnt,i%nAnt);
+    envPeakHist[i] = new TH1F(histName,histName,2500,0,1000);
+    envPeakHist[i]->Write();
 
   }
 } else {
@@ -6678,14 +6679,14 @@ if( xCorrPeakFile->IsZombie() ){
 
   for(int i=0; i<nBaseline; i++){
 
-    snprintf(histName,sizeof(char)*200,"xCorrPeakHist_chan%d_%d",i/nAnt,i%nAnt);
-    xCorrPeakHist[i] = (TH1F*)xCorrPeakFile->Get(histName);
-    //snprintf(histName,sizeof(char)*200,"envPeakHist_chan%d_%d",i/nAnt,i%nAnt);
-    //envPeakHist[i] = (TH1F*)xCorrPeakFile->Get(histName);
+    //snprintf(histName,sizeof(char)*200,"xCorrPeakHist_chan%d_%d",i/nAnt,i%nAnt);
+    //xCorrPeakHist[i] = (TH1F*)xCorrPeakFile->Get(histName);
+    snprintf(histName,sizeof(char)*200,"envPeakHist_chan%d_%d",i/nAnt,i%nAnt);
+    envPeakHist[i] = (TH1F*)xCorrPeakFile->Get(histName);
 
   }
 }
-*/
+
 int peakBin;
 double x, y;
 int firstBin = 100. / wInt;
@@ -6697,6 +6698,7 @@ int lastBin  = nSamp / 2;
 //FILE *xCorrGraphDataFile = fopen("xCorrGraphDataFile_A3_run3811_IC22S_10Events_allAnt.csv","a+");
 
 //FILE *hilbertEnvelopeGraphDataFile = fopen("hilbertEnvGraphDataFile_A3_run3811_IC22S_10Events_allAnt.csv","a+");
+//TFile *hilbertEnvelopeGraphDataFile = new TFile("hilbertEnvGraphDataFile_A3_run2328_rooftop.root","UPDATE");
 
 for(int baseline=0; baseline<nBaseline; baseline++){
 
@@ -6740,11 +6742,11 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    //xCorrGraph->Draw("AL");
 
    TGraph* envelope = FFTtools::getHilbertEnvelope( xCorrGraph );
-/*
+
    peakBin = FFTtools::getPeakBin(envelope);
    envelope->GetPoint(peakBin,x,y);
    envPeakHist[baseline]->Fill(x);
-*/  //cout<<"env Peak Bin: "<<peakBin<<" Peak Value: "<<y<<endl;
+  //cout<<"env Peak Bin: "<<peakBin<<" Peak Value: "<<y<<endl;
 
    //sprintf(envelopename,"xCorrEnvelope_2014_A3_burn_RF_chan%d_%d.C", ant1, ant2);
    //sprintf(envelopename,"xCorrSumGraph_baseline%d_chan%d_%d.C",baseline,ant1,ant2);
@@ -6754,14 +6756,17 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    //xCorrGraph->Draw("AL");
    //envelope->Draw("Lsame");
    //cvs.SaveAs(envelopename);
-/*
+
+   if((ant1==1 && ant2==4) || (ant1==1 && ant2==5) || (ant1==4 && ant2==5)){
+
    snprintf(envelopename,sizeof(char)*200,"xCorrEnvelope_chan%d_%d.C",ant1,ant2);
    cvs.cd();
    xCorrGraph->Draw("AL");
    envelope->SetLineColor(kRed);
    envelope->Draw("Lsame");
    cvs.SaveAs(envelopename);
-*/
+
+   }
 /*
    if( ant1 == 0 && ant2 == 3){
    cvs.cd(1);
@@ -6841,23 +6846,25 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 */
 
   //xCorrPeakHist[baseline]->Write();
-//  envPeakHist[baseline]->Write();
+  envPeakHist[baseline]->Write();
 
   delete xCorrGraph;
   delete envelope;
 
 }
 
-//xCorrPeakFile->Close();
+xCorrPeakFile->Close();
 //free(xCorrPeakHist);
 //free(envPeakHist);
-//delete xCorrPeakFile;
+delete xCorrPeakFile;
+delete [] envPeakHist;
 /*
 //dtFile->Close();
 fclose(dtFile);
 */
 //fclose(xCorrGraphDataFile);
 //fclose(hilbertEnvelopeGraphDataFile);
+//hilbertEnvelopeGraphDataFile->Close();
 
 cl_mem xCorrEnvBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
                                        sizeof(float)*nBaseline*nSamp,
@@ -8449,7 +8456,7 @@ for(int layer=0; layer<nLayer; layer++){
       coordTrg[0] = (antLoc[k][0]);
       coordTrg[1] = (antLoc[k][1]);
       coordTrg[2] = (antLoc[k][2]);
-      //cout<<"coordTrg: "<<coordTrg[0]<<"\t"<<coordTrg[1]<<"\t"<<coordTrg[2]<<endl;
+        //cout<<"coordTrg: "<<coordTrg[0]<<"\t"<<coordTrg[1]<<"\t"<<coordTrg[2]<<endl;
       if (Detector2Cylinder(coordSrc, coordTrg, zCenter, &r, &zRec, &zSrc) != 0)
       std::cout << "ERROR: couldn't convert to cylindrical coordinates." << std::endl;
 
@@ -9897,7 +9904,7 @@ void getChannelSNR(const vector<TGraph *>& cleanEvent, float *snrArray){
 
       //delete gr;
       snrArray[ch] = static_cast<float>(absPeak / sigma);
-      //cout<<"ch: "<<ch<<" mean: "<<mean<<" sigma: "<<sigma<<" snr: "<<snrArray[ch]<<endl;
+
    }//end of ch
    /*
    for(int ch=0; ch<16; ch++){
@@ -9964,7 +9971,7 @@ void getChannelUnmodifiedSNR(const vector<TGraph *>& cleanEvent, float *snrArray
 
          mean  = statsArray[0];
          sigma = statsArray[1];
-         //cout<<"ch: "<<ch<<" mean: "<<mean<<" sigma: "<<sigma<<endl;
+
          for (int binCounter=(bin/mod); binCounter<((bin*(mod-1))/mod); binCounter++){
 
             cleanEvent[ch]->GetPoint(binCounter, t, v);
@@ -9995,7 +10002,7 @@ void getChannelUnmodifiedSNR(const vector<TGraph *>& cleanEvent, float *snrArray
 
       //delete gr;
       snrArray[ch] = static_cast<float>(absPeak / sigma);
-       //cout<<"ch: "<<ch<<" mean: "<<mean<<" sigma: "<<sigma<<" unmod snr: "<<snrArray[ch]<<endl;
+
    }//end of ch
    /*
    for(int ch=0; ch<16; ch++){
