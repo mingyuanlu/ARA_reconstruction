@@ -6650,7 +6650,7 @@ TH1F *envPeakHist[64];
 TFile *xCorrPeakFile;
 char xCorrEnvPeakFileName[200];
 //snprintf(xCorrEnvPeakFileName,sizeof(char)*200,"xCorrEnvPeakFile_2015DeepPulser_IC22S_2ndPulse.root");
-snprintf(xCorrEnvPeakFileName,sizeof(char)*200,"xCorrEnvPeakFile_2014_A3_rooftop_run2328.root");
+snprintf(xCorrEnvPeakFileName,sizeof(char)*200,"xCorrEnvPeakFile_2014_A3_roofto_planeWave_run2328.root");
 
 xCorrPeakFile = new TFile(xCorrEnvPeakFileName); //if file exists, it will stay unopened
 
@@ -6756,7 +6756,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    //xCorrGraph->Draw("AL");
    //envelope->Draw("Lsame");
    //cvs.SaveAs(envelopename);
-
+/*
    if((ant1==1 && ant2==4) || (ant1==1 && ant2==5) || (ant1==4 && ant2==5)){
 
    snprintf(envelopename,sizeof(char)*200,"xCorrEnvelope_chan%d_%d.C",ant1,ant2);
@@ -6767,6 +6767,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    cvs.SaveAs(envelopename);
 
    }
+*/
 /*
    if( ant1 == 0 && ant2 == 3){
    cvs.cd(1);
