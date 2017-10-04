@@ -6644,7 +6644,7 @@ char histName[200];
 
 //TH1F *xCorrPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
 //static TH1F *envPeakHist = (TH1F*)malloc(nBaseline*sizeof(TH1F));
-
+/*
 //TH1F *xCorrPeakHist[64];
 TH1F *envPeakHist[64];
 TFile *xCorrPeakFile;
@@ -6686,7 +6686,7 @@ if( xCorrPeakFile->IsZombie() ){
 
   }
 }
-
+*/
 int peakBin;
 double x, y;
 int firstBin = 100. / wInt;
@@ -6743,9 +6743,9 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 
    TGraph* envelope = FFTtools::getHilbertEnvelope( xCorrGraph );
 
-   peakBin = FFTtools::getPeakBin(envelope);
-   envelope->GetPoint(peakBin,x,y);
-   envPeakHist[baseline]->Fill(x);
+   //peakBin = FFTtools::getPeakBin(envelope);
+   //envelope->GetPoint(peakBin,x,y);
+   //envPeakHist[baseline]->Fill(x);
   //cout<<"env Peak Bin: "<<peakBin<<" Peak Value: "<<y<<endl;
 
    //sprintf(envelopename,"xCorrEnvelope_2014_A3_burn_RF_chan%d_%d.C", ant1, ant2);
@@ -6847,17 +6847,17 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 */
 
   //xCorrPeakHist[baseline]->Write();
-  envPeakHist[baseline]->Write();
+  //envPeakHist[baseline]->Write();
 
   delete xCorrGraph;
   delete envelope;
 
 }
 
-xCorrPeakFile->Close();
+//xCorrPeakFile->Close();
 //free(xCorrPeakHist);
 //free(envPeakHist);
-delete xCorrPeakFile;
+//delete xCorrPeakFile;
 //delete [] envPeakHist;
 
 /*
