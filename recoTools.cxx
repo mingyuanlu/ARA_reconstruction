@@ -7053,7 +7053,7 @@ cout<<"Creating Healpix map and writing to FITS....\n";
 //arr<float> MArr = arr<float>(&M[0], (size_t)nDir);
 cout<<"maxPixIdx: "<<rank[0]<<" nDir: "<<nDir<<endl;
 cout<<"layer: "<<rank[0]/nDir<<endl;
-cout<<"Mem loc "
+
 arr<float> MArr = arr<float>(&M[nDir*(rank[0] / nDir)], (size_t)nDir);
 Healpix_Map<float> skyMap = Healpix_Map<float>(MArr, HEALPIX_ORDERING);
 
