@@ -9398,22 +9398,22 @@ for(int layer=0; layer<nLayer; layer++){
                              + (coordTrg[2] - coordSrc[2])*(coordTrg[2] - coordSrc[2])
                              ) / speedOfLight;
       solvedDelay.push_back(tempDelay);
-      cout<<tempDelay<<" ";
+      //cout<<tempDelay<<" ";
       recoDelays[layer*nDir*nAnt + pix*nAnt + k] = tempDelay;
 
       }
       //cout<<endl;
       meanDelay = getMeanDelay( solvedDelay );
-      cout<<"meanDelay = "<<meanDelay<<endl;
+      //cout<<"meanDelay = "<<meanDelay<<endl;
 
       for(int k=0; k<nAnt; k++){
          recoDelays[layer*nDir*nAnt + pix*nAnt + k] -= meanDelay;
-         cout<<recoDelays[layer*nDir*nAnt + pix*nAnt + k]<<" ";
+         //cout<<recoDelays[layer*nDir*nAnt + pix*nAnt + k]<<" ";
          if(k<8) recoDelays_V[layer*nDir*nAnt/2 + pix*nAnt/2 + k]   = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
          else    recoDelays_H[layer*nDir*nAnt/2 + pix*nAnt/2 + k-8] = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
       //cout<<"End of assigning delays\n";
       }//end of nAnt
-      cout<<endl;
+      //cout<<endl;
       //}//end of else
    }//end of pix
 }//end of layer
