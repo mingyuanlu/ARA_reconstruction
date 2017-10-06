@@ -343,7 +343,7 @@ int computeRecoDelaysWithConstantN(const int nAnt, const float zCenter, const ve
 int computeRecoDelaysWithNoBoundConstantN(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
                                      //const float radius, const int nSideExp,
                                      Healpix_Onion *onion,
-                                     float *recoDelays, float *recoDelays_V, float *recoDelays_H)
+                                     float *recoDelays, float *recoDelays_V, float *recoDelays_H);
 int computeRecoDelaysWithConstantNForSinglePixel(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
                                      //const float radius, const int nSideExp,
                                      Healpix_Onion *onion,
