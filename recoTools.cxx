@@ -9401,7 +9401,7 @@ for(int layer=0; layer<nLayer; layer++){
       cout<<tempDelay<<" ";
       recoDelays[layer*nDir*nAnt + pix*nAnt + k] = tempDelay;
 
-      //}
+      }
       //cout<<endl;
       meanDelay = getMeanDelay( solvedDelay );
       cout<<"meanDelay = "<<meanDelay<<endl;
@@ -9414,7 +9414,7 @@ for(int layer=0; layer<nLayer; layer++){
       //cout<<"End of assigning delays\n";
       }//end of nAnt
       cout<<endl;
-      }//end of else
+      //}//end of else
    }//end of pix
 }//end of layer
 
