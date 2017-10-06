@@ -9308,6 +9308,119 @@ for(int layer=0; layer<nLayer; layer++){
    return 0;
 }
 
+int computeRecoDelaysWithNoBoundConstantN(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
+                                     //const float radius, const int nSideExp,
+                                     Healpix_Onion *onion,
+                                     float *recoDelays, float *recoDelays_V, float *recoDelays_H)
+{
+
+if(zCenter > 0 ) cerr<<"zCenter should be negative under the ice surfac\n";
+/*
+ * Initializing Healpix base
+ */
+//if(nSideExp < 0 || nSideExp > 7){ cerr<<"Invalid nSideExp\n"; return -1; }
+//int nSide = pow(2, nSideExp);
+//Healpix_Base hpBase = Healpix_Base(nSide, RING, SET_NSIDE);
+//int nDir = hpBase.Npix();
+//pointing pt;
+//cout<<"Healpix base initialization success. nDir: "<<nDir<<endl;
+
+/*
+ * Initialize variables related to Healpix_Onion
+ */
+
+int nDir   = onion->nDir;
+int nLayer = onion->nLayer;
+cout<<"Healpix_Onion info obtained. nDir: "<<nDir<<" nLayer: "<<nLayer<<endl;
+
+
+/*
+ * Get delay from each pixel direction
+ */
+
+//float *recoDelays;
+//recoDelays  = (float*)malloc(nDir*nAnt*sizeof(float));
+//recoDelays_V= (float*)malloc(nDir*(nAnt/2)*sizeof(float));
+//recoDelays_H= (float*)malloc(nDir*(nAnt/2)*sizeof(float));
+float test_r, test_zenith, test_azimuth;
+
+float tempDelay, meanDelay=0.f;
+vector<float> solvedDelay;
+double coordSrc[3], coordTrg[3];
+//cout<<"recoDelays:\n";
+for(int layer=0; layer<nLayer; layer++){
+
+   test_r = onion->layerRadii[layer];
+
+   for(int pix=0; pix<nDir; pix++){
+
+      //pt = hpBase.pix2ang( pix );
+      //test_zenith  = pt.theta; //  in radians
+      //test_azimuth = pt.phi  ;
+
+      test_zenith  = onion->getPointing( pix ).theta; // in radians
+      test_azimuth = onion->getPointing( pix ).phi  ;
+
+      coordSrc[0] = test_r*sin(test_zenith)*cos(test_azimuth);
+      coordSrc[1] = test_r*sin(test_zenith)*sin(test_azimuth);
+      coordSrc[2] = test_r*cos(test_zenith);
+      /*
+      if(coordSrc[2] > fabs(zCenter)){
+
+      cerr<<"Warning!! Source above ice surface. The different index of refraction in air is _NOT_ implemented!"<<endl;
+      for(int k=0; k<nAnt; k++){
+        recoDelays[layer*nDir*nAnt + pix*nAnt + k] = -1e10;;
+        if(k<8) recoDelays_V[layer*nDir*nAnt/2 + pix*nAnt/2 + k]   = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
+        else    recoDelays_H[layer*nDir*nAnt/2 + pix*nAnt/2 + k-8] = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
+      }
+      } else if ( (zCenter + coordSrc[2]) <= -3000){
+
+      cerr<<"Warning!! Source is in bedrock"<<endl;
+      for(int k=0; k<nAnt; k++){
+        recoDelays[layer*nDir*nAnt + pix*nAnt + k] = -1e10;;
+        if(k<8) recoDelays_V[layer*nDir*nAnt/2 + pix*nAnt/2 + k]   = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
+        else    recoDelays_H[layer*nDir*nAnt/2 + pix*nAnt/2 + k-8] = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
+      }
+      } else {
+      */
+      //cout<<"coordSrc: "<<coordSrc[0]<<"\t"<<coordSrc[1]<<"\t"<<coordSrc[2]<<endl;
+
+      for(int k=0; k<nAnt; k++){
+
+      coordTrg[0] = (antLoc[k][0]);
+      coordTrg[1] = (antLoc[k][1]);
+      coordTrg[2] = (antLoc[k][2]);
+      cout<<"k: "<<k<<" coordTrg 0: ">>coordTrg[0]<<" 1: "<<coordTrg[1]<<" 2: "<<coordTrg[2]<endl;
+
+      /* Assume simple spherical wave propagation with homogeneous isotropic ice */
+      tempDelay = nIce * sqrt( (coordTrg[0] - coordSrc[0])*(coordTrg[0] - coordSrc[0])
+                             + (coordTrg[1] - coordSrc[1])*(coordTrg[1] - coordSrc[1])
+                             + (coordTrg[2] - coordSrc[2])*(coordTrg[2] - coordSrc[2])
+                             ) / speedOfLight;
+      solvedDelay.push_back(tempDelay);
+      //cout<<tempDelay<<" ";
+      recoDelays[layer*nDir*nAnt + pix*nAnt + k] = tempDelay;
+
+      //}
+      //cout<<endl;
+      meanDelay = getMeanDelay( solvedDelay );
+      //cout<<"meanDelay = "<<meanDelay<<endl;
+
+      for(int k=0; k<nAnt; k++){
+         recoDelays[layer*nDir*nAnt + pix*nAnt + k] -= meanDelay;
+         //cout<<recoDelays[pix*nAnt + k]<<" ";
+         if(k<8) recoDelays_V[layer*nDir*nAnt/2 + pix*nAnt/2 + k]   = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
+         else    recoDelays_H[layer*nDir*nAnt/2 + pix*nAnt/2 + k-8] = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
+      //cout<<"End of assigning delays\n";
+      }//end of nAnt
+      //cout<<endl;
+      }//end of else
+   }//end of pix
+}//end of layer
+
+   return 0;
+}
+
 int computeRecoDelaysWithConstantNForSinglePixel(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
                                      //const float radius, const int nSideExp,
                                      Healpix_Onion *onion,
