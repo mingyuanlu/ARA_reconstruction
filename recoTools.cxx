@@ -9390,7 +9390,7 @@ for(int layer=0; layer<nLayer; layer++){
       coordTrg[0] = (antLoc[k][0]);
       coordTrg[1] = (antLoc[k][1]);
       coordTrg[2] = (antLoc[k][2]);
-      cout<<"k: "<<k<<" coordTrg 0: ">>coordTrg[0]<<" 1: "<<coordTrg[1]<<" 2: "<<coordTrg[2]<endl;
+      cout<<"k: "<<k<<" coordTrg 0: "<<coordTrg[0]<<" 1: "<<coordTrg[1]<<" 2: "<<coordTrg[2]<<endl;
 
       /* Assume simple spherical wave propagation with homogeneous isotropic ice */
       tempDelay = nIce * sqrt( (coordTrg[0] - coordSrc[0])*(coordTrg[0] - coordSrc[0])
