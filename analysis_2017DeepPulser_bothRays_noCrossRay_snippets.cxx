@@ -390,7 +390,8 @@ if( settings->skymapSearchMode == 0){ //No zoom search
 }
 
 /*For noCrossRay reconstruction, make an array to store coherence info from 1st ray reco */
-float *MData = (float*)malloc(nLayer*nDir*(nAnt/2)*sizeof(float));
+//float *MData = (float*)malloc(nLayer*nDir*(nAnt/2)*sizeof(float));
+float *MData = (float*)calloc(nLayer*nDir*(nAnt/2),sizeof(float));
 
 //cout<<"srcPosVec.size: "<<srcPosVec.size()<<endl;
 //cout<<"recoDelaysVec_ctr.size: "<<recoDelaysVec_ctr.size()<<" recoDelaysVec[0].size: "<<recoDelaysVec[0].size()<<" recoDelaysVec_V[0].size: "<<recoDelaysVec_V[0].size()<<" recoDelaysVec_H[1].size: "<<recoDelaysVec_H[1].size()<<endl;
@@ -892,11 +893,11 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       if(settings->skymapSearchMode == 0){ //no zoom mode
       //maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, /*recoDelays*/recoBothDelays_V, recoDelays_V, /*recoDelays_H*/recoRefracDelays_V, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
       /* Force 1stRay (taking up vpol wfs) reco here */
-      snprintf(settings->recoPolType,sizeof(settings->recoPolType),"vpol");
-      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_getCoherenceData(settings, cleanEvent, &clEnv, /*recoDelays*/recoBothDelays_V, recoDelays_V, /*recoDelays_H*/recoRefracDelays_V, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/, MData);
+      //snprintf(settings->recoPolType,sizeof(settings->recoPolType),"vpol");
+      //maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_getCoherenceData(settings, cleanEvent, &clEnv, /*recoDelays*/recoBothDelays_V, recoDelays_V, /*recoDelays_H*/recoRefracDelays_V, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/, MData);
       /* Force 2ndRay (taking up hpol wfs) reco here */
-      //snprintf(settings->recoPolType,sizeof(settings->recoPolType),"hpol");
-      //maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_loadCoherenceData(settings, cleanEvent, &clEnv, /*recoDelays*/recoBothDelays_V, recoDelays_V, /*recoDelays_H*/recoRefracDelays_V, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/, MData);
+      snprintf(settings->recoPolType,sizeof(settings->recoPolType),"hpol");
+      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_loadCoherenceData(settings, cleanEvent, &clEnv, /*recoDelays*/recoBothDelays_V, recoDelays_V, /*recoDelays_H*/recoRefracDelays_V, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/, MData);
       if(settings->recordMapData == 1){
       for(int pix=0; pix<nDir*nLayer; pix++) mapDataHist[pix]->Fill(mapData[pix]);
       }
