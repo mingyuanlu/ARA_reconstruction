@@ -6982,7 +6982,7 @@ summary->setMaxPixInfo(rank[0], M[rank[0]]);
 
 cout<<"Transferring maxPixIdx map data...\n";
 //mapData[0] = &M[rank[0] / nDir];
-for(int dir=0; dir<nDir; dir++) mapData[dir] = M[rank[0] / nDir + dir];
+for(int dir=0; dir<nDir; dir++) mapData[dir] = M[nDir * (rank[0] / nDir) + dir];
 
 /*
  * Compute likelihood and p value of skymap compared to reference map fits
@@ -7015,7 +7015,7 @@ cvs.SaveAs("testPValueDist.C");
 
 cout<<"Creating Healpix map and writing to FITS....\n";
 //arr<float> MArr = arr<float>(&M[0], (size_t)nDir);
-arr<float> MArr = arr<float>(&M[rank[0] / nDir], (size_t)nDir);
+arr<float> MArr = arr<float>(&M[nDir* (rank[0] / nDir)], (size_t)nDir);
 Healpix_Map<float> skyMap = Healpix_Map<float>(MArr, HEALPIX_ORDERING);
 
 fitshandle fitsOut;
@@ -7798,7 +7798,7 @@ for(int idx=0; idx<nDir; idx++){
 */
 maxPixIdx = rank[0];
 cout<<"max: "<<M[rank[0]]<<endl;
-//summary->setMaxPixInfo(rank[0], M[rank[0]]);
+summary->setMaxPixInfo(rank[0], M[rank[0]]);
 
 /*
  * Transferring map data
