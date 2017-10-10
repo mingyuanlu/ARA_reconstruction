@@ -38,6 +38,30 @@ vector<vector<double> > antLocation;
 err = getSeckelStationGeometry(antLocation);
 if( err<0 ){ cerr<<"Error calibrating geometry and delays\n"; return -1; }
 
+FILE *antLocFile = fopen("antLocFile.csv","w");
+FILE *srcLocFile = fopen("srcLocFile.csv","w");
+
+double stationCenter[3] = {4001.59, -2595.01, -184.267};
+fprintf(antLocFile,"%f,%f,%f\n",stationCenter[0],stationCenter[1],stationCenter[2]);
+for(int ant=0; ant<16; ant++){
+
+  fprintf(antLocFile, "%f,%f,%f\n", antLocation[ant][0], antLocation[ant][1], antLocation[ant][2]);
+
+}
+
+for(int layer=0; layer<11; layer++){
+  for(int theta=0; theta<11; theta++){
+    for(int phi=0; phi<11; phi++){
+
+      fprintf(srcLocFile,"%f,%f,%f\n",srcPosVec[(layer*11*11+theta*11+phi)*3], srcPosVec[(layer*11*11+theta*11+phi)*3+1], srcPosVec[(layer*11*11+theta*11+phi)*3+2]);
+
+    }
+  }
+}
+
+fclose(antLocFile);
+fclose(srcLocFile);
+
 /* Call RayTrace object, feed Seckel ant & src locations to it, and obtain delays */
 
 int nAnt = 16;
