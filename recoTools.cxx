@@ -7846,7 +7846,7 @@ cvs.SaveAs("testPValueDist.C");
 /*
  * Write FITS file
  */
-
+/*
 cout<<"Creating Healpix map and writing to FITS....\n";
 //arr<float> MArr = arr<float>(&M[0], (size_t)nDir);
 arr<float> MArr = arr<float>(&M[rank[0] / nDir], (size_t)nDir);
@@ -7863,7 +7863,7 @@ fitsOut.create(filename);
 
 write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
 cout<<"Healpix map written\n";
-
+*/
 //int nSideExp = 7;
 //Healpix_Base hpBase = Healpix_Base(pow(2,nSideExp), NEST/*RING*/, SET_NSIDE);
 /*
@@ -8680,7 +8680,7 @@ cvs.SaveAs("testPValueDist.C");
 
 cout<<"Creating Healpix map and writing to FITS....\n";
 //arr<float> MArr = arr<float>(&M[0], (size_t)nDir);
-arr<float> MArr = arr<float>(&M[rank[0] / nDir], (size_t)nDir);
+arr<float> MArr = arr<float>(&M[nDir * (rank[0] / nDir)], (size_t)nDir);
 Healpix_Map<float> skyMap = Healpix_Map<float>(MArr, HEALPIX_ORDERING);
 
 fitshandle fitsOut;
