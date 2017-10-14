@@ -10254,28 +10254,28 @@ for(int layer=0; layer<nLayer; layer++){
 
       if( tempDelay > 1.f )
          //if( k<8 || k>11 )
-            solvedDelay.push_back(tempDelay);
+            //solvedDelay.push_back(tempDelay);
       if( tempDelay > 1e9 ) cout<<"Unreasonbaly large delay\n";
 
       recoDelays[layer*nDir*nAnt + pix*nAnt + k] = tempDelay;
 
       if( tempRefracDelay > 1.f )
-            solvedRefracDelay.push_back(tempRefracDelay);
+            //solvedRefracDelay.push_back(tempRefracDelay);
       if( tempRefracDelay > 1e9 ) cout<<"Unreasonbaly large refrac delay\n";
 
       recoRefracDelays[layer*nDir*nAnt + pix*nAnt + k] = tempRefracDelay;
 
       }//end of k
       //cout<<endl;
-      meanDelay       = getMeanDelay( solvedDelay );
-      meanRefracDelay = getMeanDelay( solvedRefracDelay );
+      //meanDelay       = getMeanDelay( solvedDelay );
+      //meanRefracDelay = getMeanDelay( solvedRefracDelay );
       //cout<<"meanDelay = "<<meanDelay<<endl;
 
       for(int k=0; k<nAnt; k++){
 
       /* Direct ray */
       if(recoDelays[layer*nDir*nAnt + pix*nAnt + k] > 1.f ){
-         recoDelays[layer*nDir*nAnt + pix*nAnt + k] -= meanDelay;
+         //recoDelays[layer*nDir*nAnt + pix*nAnt + k] -= meanDelay;
          //cout<<recoDelays[layer*nDir*nAnt + pix*nAnt + k]<<" ";
          if(k<8) recoDelays_V[layer*nDir*nAnt/2 + pix*nAnt/2 + k]   = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
          else    recoDelays_H[layer*nDir*nAnt/2 + pix*nAnt/2 + k-8] = recoDelays[layer*nDir*nAnt + pix*nAnt + k];
@@ -10288,7 +10288,7 @@ for(int layer=0; layer<nLayer; layer++){
 
       /* Refracted ray */
       if(recoRefracDelays[layer*nDir*nAnt + pix*nAnt + k] > 1.f ){
-         recoRefracDelays[layer*nDir*nAnt + pix*nAnt + k] -= meanRefracDelay;
+         //recoRefracDelays[layer*nDir*nAnt + pix*nAnt + k] -= meanRefracDelay;
          //cout<<recoDelays[layer*nDir*nAnt + pix*nAnt + k]<<" ";
          if(k<8) recoRefracDelays_V[layer*nDir*nAnt/2 + pix*nAnt/2 + k]   = recoRefracDelays[layer*nDir*nAnt + pix*nAnt + k];
          else    recoRefracDelays_H[layer*nDir*nAnt/2 + pix*nAnt/2 + k-8] = recoRefracDelays[layer*nDir*nAnt + pix*nAnt + k];
