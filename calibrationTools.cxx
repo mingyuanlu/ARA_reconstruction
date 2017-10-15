@@ -163,7 +163,7 @@ int calibrateGeometryAndDelaysPlusAdHocDepthOffSet(const RawAraStationEvent *raw
                                 double (&posDelayArray)[4][4], double *pulserCorr,
                                 const float stationCenterDepth,
                                 vector<vector<double> >& ant_loc,
-                                vector<vector<double> >& pul_loc
+                                vector<vector<double> >& pul_loc,
                                 float adhocOffset){
 
 //From T Meures
