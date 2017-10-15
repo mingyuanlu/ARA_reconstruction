@@ -283,7 +283,7 @@ if(settings->dataType == 1){
    float adHocZOffset  = 5.f; //offset station depth to 5m shallower
    //vector<vector<double> > pulserLocation;
    //err = calibrateGeometryAndDelays(rawEvPtr, delays, pulserCorr, stationCenterDepth, antLocation, pulserLocation);
-   err = calibrateGeometryAndDelaysPlusAdHocDepthOffSet(rawEvPtr, delays, pulserCorr, stationCenterDepth, antLocation, pulserLocation, adHocZOffset);
+   err = calibrateGeometryAndDelaysPlusAdHocDepthOffset(rawEvPtr, delays, pulserCorr, stationCenterDepth, antLocation, pulserLocation, adHocZOffset);
    //antLocation.clear();
    //err = getSeckelStationGeometry(antLocation);
    if( err<0 ){ cerr<<"Error calibrating geometry and delays\n"; return -1; }
