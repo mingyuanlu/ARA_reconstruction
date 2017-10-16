@@ -158,6 +158,7 @@ int setupCLRecoEnv(recoSettings *settings, recoEnvData *clEnv, const char *progr
    else if (kernel_name=="getMaxPixInfoEachLayer") clEnv->getMaxPixInfoEachLayer =clEnv->kernels[i];
    //else if (kernel_name=="getRecoDelays") getRecoDelays=kernels[i];
    else if (kernel_name=="computeNormalizedCoherence") clEnv->computeNormalizedCoherence =clEnv->kernels[i];
+   else if (kernel_name=="computeNormalizedCoherence_onlyVerticalBaselines") clEnv->computeNormalizedCoherence_onlyVerticalBaselines =clEnv->kernels[i];
    else { cerr<<"Invalid kernel name!\n"; return -1; }
 
    }
