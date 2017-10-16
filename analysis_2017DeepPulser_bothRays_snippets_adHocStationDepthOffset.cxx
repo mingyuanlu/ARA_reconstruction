@@ -278,9 +278,10 @@ float stationCenterDepth = 180.f;
 
 vector<vector<double> > antLocation;
 
-if(settings->dataType == 1){
+ float adHocZOffset  = 5.f; //offset station depth to 5m shallower
 
-   float adHocZOffset  = 5.f; //offset station depth to 5m shallower
+if(settings->dataType == 1){
+  
    //vector<vector<double> > pulserLocation;
    //err = calibrateGeometryAndDelays(rawEvPtr, delays, pulserCorr, stationCenterDepth, antLocation, pulserLocation);
    err = calibrateGeometryAndDelaysPlusAdHocDepthOffset(rawEvPtr, delays, pulserCorr, stationCenterDepth, antLocation, pulserLocation, adHocZOffset);
