@@ -159,7 +159,7 @@ int calibrateGeometryAndDelays(const RawAraStationEvent *rawEvPtr,
 return 0;
 }
 
-int calibrateGeometryAndDelaysPlusAdHocDepthOffSet(const RawAraStationEvent *rawEvPtr,
+int calibrateGeometryAndDelaysPlusAdHocDepthOffset(const RawAraStationEvent *rawEvPtr,
                                 double (&posDelayArray)[4][4], double *pulserCorr,
                                 const float stationCenterDepth,
                                 vector<vector<double> >& ant_loc,
