@@ -248,6 +248,27 @@ __kernel void computeNormalizedCoherence( __global float *M, __global float *Cij
                                                       //This makes the comparison among events with different numbers of reco channel
                                                       //more natural. 16.15.16
 }
+
+__kernel void computeNormalizedCoherence_onlyVerticalBaselines( __global float *M, __global float *Cij,
+                                          int nBaseline, int nVerticalBaseline){
+
+   int gid0 = get_global_id(0); //which layer
+   int gid1 = get_global_id(1); //which direction
+   int nDir = get_global_size(1);
+   int nAnt = (int)sqrt((float)nBaseline);
+   //printf("nAnt in computeCoherence: %d\n", nAnt);
+
+   M[gid0*nDir + gid1] = 0.f;
+  for(int i=0; i<nAnt; i++){
+     for(int j=i+1; j<nAnt; j++){
+      M[gid0*nDir + gid1] += Cij[gid0*nDir*nBaseline + gid1*nBaseline + i*nAnt + j];
+      }
+   }
+   //M[gid0] = sqrt(M[gid0]*M[gid0]);
+   M[gid0*nDir + gid1] /= (float)(nVerticalBaseline); //Normalize M by the number of baselines summed.
+                                                      //This makes the comparison among events with different numbers of reco channel
+                                                      //more natural. 16.15.16
+}
 /*
 __kernel void bandStopFilter( __global float *full_intensity_r, __global float *full_intensity_c,
                               __global float *intensity_r, __global float *intensity_c,

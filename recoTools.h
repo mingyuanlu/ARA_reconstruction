@@ -112,7 +112,8 @@ struct recoEnvData{
    /* 3D reco: get info from Healpix_Onion kernel */
    cl_kernel         getMaxPixInfoEachLayer;
 
-
+   /* Deep pulser reco: use only vertical baseline in coherence computation */
+   cl_kernel         computeNormalizedCoherence_onlyVerticalBaselines;
 /*
     static cl_kernel         shiftwf;
     static cl_kernel         sumwf;
@@ -330,6 +331,9 @@ int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(unsigned int dataType, vector<
 int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                     float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask,
                     recoData *summary, char *filename, float *mapData);
+int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_onlyVerticalBaselines(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
+                    float *recoDelays, float *recoDelays_V, float *recoDelays_H,
+                    const int *chanMask, recoData *summary, char *filename, float *mapData)
 int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_getCoherenceData(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                     float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask,
                     recoData *summary, char *filename, float *mapData, float *MData);
