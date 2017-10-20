@@ -758,7 +758,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
      gr1stPulse[ch]->Draw("AL");
      gr1stPulse[ch]->GetXaxis()->SetRangeUser(-100,500);
      gr2ndPulse[ch]->SetLineColor(kRed);
-     gr2ndPulse[ch]->Draw("Lsame");
+     //gr2ndPulse[ch]->Draw("Lsame");
    }//if ch<8
    unpaddedEvent.push_back(grInt[ch]);
 
