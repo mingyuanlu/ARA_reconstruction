@@ -454,9 +454,12 @@ if( err<0 ){
    TGraph *gr1stPulse[8], *gr2ndPulse[8];
    TGraph *grWinPad1stPulse[8], *grWinPad2ndPulse[8];
 
-   float directPulseStart[8] = {150.f, 70.f, 175.f, 80.f, 120.f, 25.f, 150.f, 50.f};  //Approximate time of 1st pulse rising edge
-   float refractPulseStart[8] = {229.9, 230.5, 1e10, 248.1, 1e10, 308.3, 1e10, 321.4}; //This is now just the pulse separation time between the 1st and the 2nd pulse.
-                                                                                   //Note that for channel 4, only very few events have a 2nd pulse. It is treated as always having none here.
+   /* 2017 IC1S ARA02 run8573 */
+   //float directPulseStart[8] = {150.f, 70.f, 175.f, 80.f, 120.f, 25.f, 150.f, 50.f};  //Approximate time of 1st pulse rising edge
+   //float refractPulseStart[8] = {229.9, 230.5, 1e10, 248.1, 1e10, 308.3, 1e10, 321.4}; //This is now just the pulse separation time between the 1st and the 2nd pulse. Note that for channel 4, only very few events have a 2nd pulse. It is treated as always having none here.
+   /* 2017 IC22S ARA02 run8573 */
+   float directPulseStart[8] = {145.f, 70.f, 180.f, 95.f, 115.f, 45.f, 155.f, 65.f};
+   float refractPulseStart[8]= {239.4, 238.7, 1e10, 255.4, 1e10, 319.9, 1e10, 335.2}; //This is now just the pulse separation time between the 1st and the 2nd pulse. Note that for channel 4, only very few events have a 2nd pulse. It is treated as always having none here.
    for(int i=0; i<8; i++){
 
      directPulseStart[i] -= 50.f; //Start the snippet 50ns before the pulse rising edge
@@ -595,12 +598,12 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
      continue;
    }
 */
-   if((rawAtriEvPtr->timeStamp < deepPulserString1StartTimeStamp_2017)
-      ||
-      (rawAtriEvPtr->timeStamp > deepPulserString1EndTimeStamp_2017)
-      //(/*rawAtriEvPtr->timeStamp > deepPulserString1EndTimeStamp_2017 &&*/ rawAtriEvPtr->timeStamp < deepPulserString22StartTimeStamp_2017)
+   if(//(rawAtriEvPtr->timeStamp < deepPulserString1StartTimeStamp_2017)
       //||
-      //(rawAtriEvPtr->timeStamp > deepPulserString22EndTimeStamp_2017)
+      //(rawAtriEvPtr->timeStamp > deepPulserString1EndTimeStamp_2017)
+      (/*rawAtriEvPtr->timeStamp > deepPulserString1EndTimeStamp_2017 &&*/ rawAtriEvPtr->timeStamp < deepPulserString22StartTimeStamp_2017)
+      ||
+      (rawAtriEvPtr->timeStamp > deepPulserString22EndTimeStamp_2017)
    ) {
      //cout<<"Skipping event not in deep pulser period....\n";
      continue;
@@ -760,7 +763,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    unpaddedEvent.push_back(grInt[ch]);
 
   }
-  snprintf(c1name,sizeof(char)*200,"snippet_%d.C",ev);
+  snprintf(c1name,sizeof(char)*200,"snippet_2017_A2_IC22S_%d.C",ev);
   c1->SaveAs(c1name);
 /*
   maxSamp = 1024;
