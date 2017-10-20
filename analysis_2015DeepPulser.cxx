@@ -308,7 +308,7 @@ int topN = settings->topN;
 
 int nSideExp;
 int nLayer, nDir;
-float *recoDelays, *recoDelays_V, *recoDelays_H;
+float *recoDelays, *recoDelays_V, *recoDelays_H, *recoRefracDelays, *recoRefracDelays_V, *recoRefracDelays_H, *recoBothDelays_V, *recoBothDelays_H;
 float *postDelays_radioSpline, *postDelays_radioSpline_V, *postDelays_radioSpline_H,
       *postDelays_constantN, *postDelays_constantN_V, *postDelays_constantN_H;
 Healpix_Onion *onion;
@@ -332,13 +332,23 @@ if( settings->skymapSearchMode == 0){ //No zoom search
    recoDelays_V= (float*)malloc(nLayer*nDir*(nAnt/2)*sizeof(float));
    recoDelays_H= (float*)malloc(nLayer*nDir*(nAnt/2)*sizeof(float));
 
+   recoRefracDelays  = (float*)malloc(nLayer*nDir*nAnt*sizeof(float));
+   recoRefracDelays_V= (float*)malloc(nLayer*nDir*(nAnt/2)*sizeof(float));
+   recoRefracDelays_H= (float*)malloc(nLayer*nDir*(nAnt/2)*sizeof(float));
+
+   recoBothDelays_V = (float*)malloc(nLayer*nDir*nAnt*sizeof(float));
+   recoBothDelays_H = (float*)malloc(nLayer*nDir*nAnt*sizeof(float));
+
    if(settings->iceModel == 1){
    err = computeRecoDelaysWithConstantN(nAnt, -1.f*stationCenterDepth, antLocation,
                                         //radius, nSideExp,
                                         onion, recoDelays, recoDelays_V, recoDelays_H);
    } else if(settings->iceModel == 0){
-   err = compute3DRecoDelaysWithRadioSpline(nAnt, -1.f*stationCenterDepth, antLocation,
-                                            onion, recoDelays, recoDelays_V, recoDelays_H);
+   //err = DelaysWithRadioSpline(nAnt, -1.f*stationCenterDepth, antLocation,
+   //                            onion, recoDelays, recoDelays_V, recoDelays_H);
+   err = compute3DRecoBothDelaysWithRadioSpline(nAnt, -1.f*stationCenterDepth, antLocation,
+                                             onion, recoDelays, recoDelays_V, recoDelays_H,
+                                             recoRefracDelays, recoRefracDelays_V, recoRefracDelays_H);
    } else { cerr<<"Undefined iceModel parameter\n"; return -1; }
    if( err<0 ){ cerr<<"Error computing reco delays\n"; return -1; }
 
@@ -504,12 +514,17 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       //(rawAtriEvPtr->unixTime < 1420510020)
       //||
       //(rawAtriEvPtr->unixTime > 1420510620)
-      (rawAtriEvPtr->timeStamp < /*deepPulserString1StartTimeStamp_2017*//*5435e3*/5410e3)
-      ||
-      (rawAtriEvPtr->timeStamp > /*deepPulserString1EndTimeStamp_2017*/5535e3)
+      /* IC22S */
+      //(rawAtriEvPtr->timeStamp < /*deepPulserString1StartTimeStamp_2017*//*5435e3*/5410e3)
+      //||
+      //(rawAtriEvPtr->timeStamp > /*deepPulserString1EndTimeStamp_2017*/5535e3)
       //(/*rawAtriEvPtr->timeStamp > *//*deepPulserString1EndTimeStamp_2017*//*5530e3 &&*/ rawAtriEvPtr->timeStamp < /*deepPulserString22StartTimeStamp_2017*/8160e3)
       //||
       //(rawAtriEvPtr->timeStamp > /*deepPulserString22EndTimeStamp_2017*/8940e3)
+      /* Unknown source 1 */
+      !(rawAtriEvPtr->timeStamp>16.98e6 && rawAtriEvPtr->timeStamp<17.42e6 && rawAtriEvPtr->unixTime>1420.5128e6 && rawAtriEvPtr->unixTime<1420.5156e6)
+      /* Unknown source 2 */
+      //!(rawAtriEvPtr->timeStamp>48.5e6 && rawAtriEvPtr->timeStamp<48.65e6 && rawAtriEvPtr->unixTime>1420.51072e6 && rawAtriEvPtr->unixTime<1420.51132e6)
    ) {
      //cout<<"Skipping event not in deep pulser period....\n";
      continue;
