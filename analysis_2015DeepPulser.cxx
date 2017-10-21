@@ -572,8 +572,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 	  if(a/4==2){addDelay+=(0.0  + delays[a%4][3]);}
 	  if(a/4==3){addDelay+=(8.0  + delays[a%4][3]);}
 
-      stdDelay= geom->getStationInfo(stationId)->getCableDelay(a);
-      addDelay += stdDelay;
+      //stdDelay= geom->getStationInfo(stationId)->getCableDelay(a);
+      //addDelay += stdDelay;
 
 	  //*** We put the waveform into a graph. ***//
 	  gr_v_temp[a] = realAtriEvPtr->getGraphFromRFChan(a);
