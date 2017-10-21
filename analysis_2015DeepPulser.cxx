@@ -515,14 +515,14 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       //||
       //(rawAtriEvPtr->unixTime > 1420510620)
       /* IC22S */
-      //(rawAtriEvPtr->timeStamp < /*deepPulserString1StartTimeStamp_2017*//*5435e3*/5410e3)
-      //||
-      //(rawAtriEvPtr->timeStamp > /*deepPulserString1EndTimeStamp_2017*/5535e3)
+      (rawAtriEvPtr->timeStamp < /*deepPulserString1StartTimeStamp_2017*//*5435e3*/5410e3)
+      ||
+      (rawAtriEvPtr->timeStamp > /*deepPulserString1EndTimeStamp_2017*/5535e3)
       //(/*rawAtriEvPtr->timeStamp > *//*deepPulserString1EndTimeStamp_2017*//*5530e3 &&*/ rawAtriEvPtr->timeStamp < /*deepPulserString22StartTimeStamp_2017*/8160e3)
       //||
       //(rawAtriEvPtr->timeStamp > /*deepPulserString22EndTimeStamp_2017*/8940e3)
       /* Unknown source 1 */
-      !(rawAtriEvPtr->timeStamp>16.98e6 && rawAtriEvPtr->timeStamp<17.42e6 && rawAtriEvPtr->unixTime>1420.5128e6 && rawAtriEvPtr->unixTime<1420.5156e6)
+      //!(rawAtriEvPtr->timeStamp>16.98e6 && rawAtriEvPtr->timeStamp<17.42e6 && rawAtriEvPtr->unixTime>1420.5128e6 && rawAtriEvPtr->unixTime<1420.5156e6)
       /* Unknown source 2 */
       //!(rawAtriEvPtr->timeStamp>48.5e6 && rawAtriEvPtr->timeStamp<48.65e6 && rawAtriEvPtr->unixTime>1420.51072e6 && rawAtriEvPtr->unixTime<1420.51132e6)
    ) {
