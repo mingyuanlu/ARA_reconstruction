@@ -461,11 +461,11 @@ if( err<0 ){
    //float directPulseStart[8] = {145.f, 70.f, 180.f, 95.f, 115.f, 45.f, 155.f, 65.f};
    //float refractPulseStart[8]= {239.4, 238.7, 1e10, 255.4, 1e10, 319.9, 1e10, 335.2}; //This is now just the pulse separation time between the 1st and the 2nd pulse. Note that for channel 4, only very few events have a 2nd pulse. It is treated as always having none here.
    /* 2015 IC1S ARA03 run3811 */
-   float directPulseStart[8] = {215.f, 295.f, 270.f, 1e10, 190.f, 275.f, 250.f, 1e10};
-   float refractPulseStart[8]= {375.f-215.f, 1e10, 440.f-270.f, 1e10, 415.f-190.f, 1e10, 1e10, 1e10}; //This is now just the pulse separation time between the 1st and the 2nd pulse.
+   //float directPulseStart[8] = {215.f, 295.f, 270.f, 1e10, 190.f, 275.f, 250.f, 1e10};
+   //float refractPulseStart[8]= {375.f-215.f, 1e10, 440.f-270.f, 1e10, 415.f-190.f, 1e10, 1e10, 1e10}; //This is now just the pulse separation time between the 1st and the 2nd pulse.
    /* 2015 IC22S ARA03 run3811 */
-   //float directPulseStart[8] = {200.f, 280.f, 260.f, 1e10, 175.f, 255.f, 240.f, 1e10};
-   //float refractPulseStart[8]= {191.5, 1e10, 192.3, 1e10, 1e10, 1e10, 1e10, 1e10}; //This is now just the pulse separation time between the 1st and the 2nd pulse. Note that for channel 4, only very few events have a 2nd pulse. It is treated as always having none here.
+   float directPulseStart[8] = {200.f, 280.f, 260.f, 1e10, 175.f, 255.f, 240.f, 1e10};
+   float refractPulseStart[8]= {191.5, 1e10, 192.3, 1e10, 1e10, 1e10, 1e10, 1e10}; //This is now just the pulse separation time between the 1st and the 2nd pulse. Note that for channel 4, only very few events have a 2nd pulse. It is treated as always having none here.
    for(int i=0; i<8; i++){
 
      directPulseStart[i] -= 50.f; //Start the snippet 50ns before the pulse rising edge
