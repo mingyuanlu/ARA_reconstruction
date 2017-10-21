@@ -611,11 +611,11 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       //||
       //(rawAtriEvPtr->timeStamp > deepPulserString22EndTimeStamp_2017)
       /* 2015 A3 run3811 IC1S */
-      !(rawAtriEvPtr->timeStamp>48.5e6 && rawAtriEvPtr->timeStamp<48.65e6 && rawAtriEvPtr->unixTime>1420.51072e6 && rawAtriEvPtr->unixTime<1420.51132e6)
+      //!(rawAtriEvPtr->timeStamp>48.5e6 && rawAtriEvPtr->timeStamp<48.65e6 && rawAtriEvPtr->unixTime>1420.51072e6 && rawAtriEvPtr->unixTime<1420.51132e6)
       /* 2015 A3 run3811 IC22S */
-      //(rawAtriEvPtr->timeStamp < /*deepPulserString1StartTimeStamp_2017*//*5435e3*/5410e3)
-      //||
-      //(rawAtriEvPtr->timeStamp > /*deepPulserString1EndTimeStamp_2017*/5535e3)
+      (rawAtriEvPtr->timeStamp < /*deepPulserString1StartTimeStamp_2017*//*5435e3*/5410e3)
+      ||
+      (rawAtriEvPtr->timeStamp > /*deepPulserString1EndTimeStamp_2017*/5535e3)
    ) {
      //cout<<"Skipping event not in deep pulser period....\n";
      continue;
@@ -778,7 +778,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    unpaddedEvent.push_back(grInt[ch]);
 
   }
-  snprintf(c1name,sizeof(char)*200,"snippet_2015_A3_IC1S_%d.C",ev);
+  snprintf(c1name,sizeof(char)*200,"snippet_2015_A3_IC22S_%d.C",ev);
   c1->SaveAs(c1name);
 /*
   maxSamp = 1024;
