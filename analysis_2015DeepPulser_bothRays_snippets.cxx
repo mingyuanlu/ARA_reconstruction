@@ -763,7 +763,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
        grInt[ch]->GetPoint(s, t,v);
        if( t>= directPulseStart[ch] && t<=(directPulseStart[ch]+200.)){  gr1stPulse[ch]->SetPoint(pc1, t, v); pc1++;}
-       else if( t>=refractPulseStart[ch] && t<=(refractPulseStart[ch]+200.)){ gr2ndPulse[ch]->SetPoint(pc2, t, v); pc2++;}
+       if( t>=refractPulseStart[ch] && t<=(refractPulseStart[ch]+200.)){ gr2ndPulse[ch]->SetPoint(pc2, t, v); pc2++;}
 
      }
      c1->cd(ch+1);
