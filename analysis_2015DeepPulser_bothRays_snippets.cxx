@@ -766,6 +766,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
        if( t>=refractPulseStart[ch] && t<=(refractPulseStart[ch]+200.)){ gr2ndPulse[ch]->SetPoint(pc2, t, v); pc2++;}
 
      }
+     /*
      c1->cd(ch+1);
      if( gr1stPulse[ch]->GetN()!= 0){
      gr1stPulse[ch]->Draw("AL");
@@ -774,12 +775,13 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
      }
      gr2ndPulse[ch]->SetLineColor(kRed);
      if( gr2ndPulse[ch]->GetN()!=0 ) gr2ndPulse[ch]->Draw("Lsame");
+     */
    }//if ch<8
    unpaddedEvent.push_back(grInt[ch]);
 
   }
-  snprintf(c1name,sizeof(char)*200,"snippet_2015_A3_IC1S_%d.C",ev);
-  c1->SaveAs(c1name);
+  //snprintf(c1name,sizeof(char)*200,"snippet_2015_A3_IC1S_%d.C",ev);
+  //c1->SaveAs(c1name);
 /*
   maxSamp = 1024;
   beginTime = 1e10;
@@ -795,6 +797,13 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
     if(gr1stPulse[ch]->GetN() != 0)
     grWinPad1stPulse[ch] = evProcessTools::getWindowedAndPaddedEqualBeginGraph(gr1stPulse[ch], maxSamp, beginTime);
     else{ grWinPad1stPulse[ch]=new TGraph(); for(int s=0; s<maxSamp; s++) grWinPad1stPulse[ch]->SetPoint(s, beginTime+s*0.4, 0); }
+
+    c1->cd(ch+1);
+    if( grWinPad1stPulse[ch]->GetN()!= 0){
+    grWinPad1stPulse[ch]->Draw("AL");
+    //gr1stPulse[ch]->GetXaxis()->SetRangeUser(-100,500);
+    grWinPad1stPulse[ch]->GetXaxis()->SetLimits(-100,700);
+    }
 
     cleanEvent.push_back(grWinPad1stPulse[ch]);
     delete gr1stPulse[ch];
@@ -816,11 +825,22 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
     grWinPad2ndPulse[ch] = evProcessTools::getWindowedAndPaddedEqualBeginGraph(gr2ndPulse[ch], maxSamp, beginTime);
     else{ grWinPad2ndPulse[ch]=new TGraph(); for(int s=0; s<maxSamp; s++) grWinPad2ndPulse[ch]->SetPoint(s, beginTime+s*0.4, 0); }
 
+    c1->cd(ch+1);
+    if( grWinPad2ndPulse[ch]->GetN()!= 0){
+    grWinPad2ndPulse[ch]->SetLineColor(kRed);
+    grWinPad2ndPulse[ch]->Draw("Lsame");
+    //gr1stPulse[ch]->GetXaxis()->SetRangeUser(-100,500);
+    //gr1stPulse[ch]->GetXaxis()->SetLimits(-100,700);
+    }
+
     cleanEvent.push_back(grWinPad2ndPulse[ch]);
     delete gr2ndPulse[ch];
 
   }
 
+  if(ev != rawAtriEvPtr->eventNumber) cerr<<"Warning!! Inconsistent eventNumber and ev!!\n";
+  snprintf(c1name,sizeof(char)*200,"snippet_2015_A3_IC1S_grWinPad_%d.C",ev);
+  c1->SaveAs(c1name);
 
   for(int ch=0; ch<16; ch++){
    /* Use a modified Hann window for now */
