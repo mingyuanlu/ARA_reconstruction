@@ -556,6 +556,7 @@ if(settings->recordMapData == 1){
 }
 int index[16]={0};
 float snrArray[16], unmodSNRArray[16];
+float avgPwrArray[16];
 vector<TGraph *> unpaddedEvent;
 TH1F *snrDist = new TH1F("snrDist","snrDist",100,0,50);
 int goodChan[16];
@@ -882,6 +883,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
     getChannelUnmodifiedSNR(unpaddedEvent, unmodSNRArray);
     TMath::Sort(16,unmodSNRArray,index);
 
+    getChannelAvgPower(cleanEvent, avgPwrArray);
+
     //recoData *summary = new recoData();
 /*
     if(settings->dataType == 0){
@@ -895,7 +898,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
     summary->setRecoChan(goodChan);
     summary->setInWindowSNR(snrArray[index[2]]);
     summary->setUnmodSNR(unmodSNRArray[index[2]]);
-
+    summary->setChannelInWindowSNR(snrArray);
+    summary->setChannelUnmodSNR(unmodSNRArray);
+    summary->setChannelAvgPwr(avgPwrArray);
     recoEventCount++;
 /*
     dtFile = fopen("dtFile.txt","a+");

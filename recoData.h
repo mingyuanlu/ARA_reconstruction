@@ -38,7 +38,6 @@ public:
    float inWindowSNR;
    float unmodSNR;
 
-
    int flag; //whether this event is flagged or not, depending on the flagging condition specified in record3DDiffGetFlag()
 
    recoData();
@@ -59,6 +58,7 @@ public:
    , int *_maxPixIdxEachLayer, float *_maxPixCoherenceEachLayer
    , double _likelihood, double _pValue
    , float _inWindowSNR, float _unmodSNR
+   , float *_channelInWindowSNR, float *_channelUnmodSNR, float *_channelAvgPwr
    , int _flag);
    void setWeight(double w);
    void setTrueRadius(float r_true);
@@ -90,7 +90,15 @@ public:
    void setEventId(int _eventId);
    void setEventNumber(int _eventNumber);
 
-   ClassDef(recoData, 3);
+//ClassDef 4
+   float channelInWindowSNR[16];
+   float channelUnmodSNR[16];
+   float channelAvgPwr[16];
+   void setChannelUnmodSNR(float *_channelUnmodSNR);
+   void setChannelInWindowSNR(float *_channelInWindowSNR);
+   void setChannelAvgPwr(float *_channelAvgPwr);
+
+   ClassDef(recoData, 4);
 };
 
 

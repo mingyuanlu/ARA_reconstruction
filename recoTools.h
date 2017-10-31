@@ -405,6 +405,7 @@ void getNchnlMask(const vector<TGraph *>& cleanEvent, double threshold, int *nch
 void getNchnlMaskSat(const vector<TGraph *>& cleanEvent, double threshold, int *nchnlArray, const int *chanMask, int *goodChan, int& numSatChan);
 void getChannelSNR(const vector<TGraph *>& cleanEvent, float *snrArray);
 void getChannelUnmodifiedSNR(const vector<TGraph *>& cleanEvent, float *snrArray);
+void getChannelAvgPower(const vector<TGraph *>& cleanEvent, float *avgPwrArray);
 //int recordDiff(int nSideExp, int maxPixIdx, float maxPixValue, double weight, float zen_true, float azi_true, float r_true, int *usedChan, char *rootFilename);
 //int recordDiffGetFlag(int nSideExp, int maxPixIdx, float maxPixValue, double weight, float zen_true, float azi_true, float r_true, int *usedChan, char *rootFilename);
 //int recordDiff(int nSideExp, recoData *summary, char *rootFilename);

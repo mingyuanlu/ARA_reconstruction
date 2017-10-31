@@ -35,6 +35,10 @@ using namespace std;
    eventId = 0;
    eventNumber = 0;
 
+   std::fill(&channelUnmodSNR[0], &channelUnmodSNR[16], 0.f);
+   std::fill(&channelInWindowSNR[0], &channelInWindowSNR[16], 0.f);
+   std::fill(&channelAvgPwr[0], &channelAvgPwr[16], 0.f);
+
    }
 
 
@@ -53,6 +57,7 @@ using namespace std;
    , int *_maxPixIdxEachLayer, float *_maxPixCoherenceEachLayer
    , double _likelihood, double _pValue
    , float _inWindowSNR, float _unmodSNR
+   , float *_channelInWindowSNR, float *_channelUnmodSNR, float *_channelAvgPwr
    , int _flag)
    {
 
@@ -66,8 +71,14 @@ using namespace std;
    trueRadius = r_true;
    recoRadius = r_reco;
 
-   for(int i=0; i<16; i++) recoChan[i] = usedChan[i];
+   for(int i=0; i<16; i++){
 
+     recoChan[i] = usedChan[i];
+     channelUnmodSNR[i] = _channelUnmodSNR[i];
+     channelInWindowSNR[i] = _channelInWindowSNR[i];
+     channelAvgPwr[i] = _channelAvgPwr[i];
+
+   }
    maxPixIdx = idx;
    maxPixCoherence = xCorrValue;
 
@@ -223,6 +234,24 @@ using namespace std;
 
    }
 
+   void recoData::setChannelUnmodSNR(float *_channelUnmodSNR){
+
+     for(int ch=0; ch<16; ch++) channelUnmodSNR[ch] = _channelUnmodSNR[ch];
+
+   }
+
+   void recoData::setChannelInWindowSNR(float *_channelInWindowSNR){
+
+     for(int ch=0; ch<16; ch++) channelInWindowSNR[ch] = _channelInWindowSNR[ch];
+
+   }
+
+   void recoData::setChannelAvgPwr(float *_channelAvgPwr){
+
+     for(int ch=0; ch<16; ch++) channelAvgPwr[ch] = _channelAvgPwr[ch];
+
+   }
+
    void recoData::duplicate(recoSettings *settings, recoData *old){
 
    int *_topMaxPixIdx         = (int*)calloc(old->topN, sizeof(int));
@@ -254,6 +283,7 @@ using namespace std;
              , _maxPixIdxEachLayer, _maxPixCoherenceEachLayer
              , old->likelihood, old->pValue
              , old->inWindowSNR, old->unmodSNR
+             , old->channelInWindowSNR, old->channelUnmodSNR, old->channelAvgPwr
              , old->flag);
 
 /*
@@ -318,4 +348,8 @@ using namespace std;
    eventTrigType = 0;
    eventId = 0;
    eventNumber = 0;
+   std::fill(&channelUnmodSNR[0], &channelUnmodSNR[16], 0.f);
+   std::fill(&channelInWindowSNR[0], &channelInWindowSNR[16], 0.f);
+   std::fill(&channelAvgPwr[0], &channelAvgPwr[16], 0.f);
+
    }
