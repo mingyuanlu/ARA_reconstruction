@@ -12521,13 +12521,13 @@ void getChannelAvgPower(const vector<TGraph *>& cleanEvent, float *avgPwrArray){
 
   for(int ch=0; ch<cleanEvent.size(); ch++){
 
-    if(cleanEvent[ch]->GetN()=0) intPwrArray[ch] = 0.f;
+    if(cleanEvent[ch]->GetN()==0) avgPwrArray[ch] = 0.f;
     else{
 
-      intPwrArray[ch] = FFTtools::sumVoltageSquared(cleanEvent[ch],0,cleanEvent->GetN()-1) / static_cast<float>(cleanEvent[ch]->GetN());
+      avgPwrArray[ch] = FFTtools::sumVoltageSquared(cleanEvent[ch],0,cleanEvent[ch]->GetN()-1) / static_cast<float>(cleanEvent[ch]->GetN());
 
     }
-    cout<<"ch: "<<ch<<" intPwrArray: "<<intPwrArray[ch]<<endl;
+    cout<<"ch: "<<ch<<" avgPwrArray: "<<avgPwrArray[ch]<<endl;
   }
 }
 
