@@ -629,7 +629,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    else cout<<"Reconstructing this event: "<<ev<<endl;
 
    bool matchBadEvent=false;
-   for(int badev=0; badev<141; badev++){ if(rawAtriEvPtr->eventNumer == badEventNumber[badev]){ matchBadEvent = true; break; }}
+   for(int badev=0; badev<141; badev++){ if(rawAtriEvPtr->eventNumber == badEventNumber[badev]){ matchBadEvent = true; break; }}
    if(matchBadEvent==false) continue;
 
    summary->setEventId(rawAtriEvPtr->eventId);
