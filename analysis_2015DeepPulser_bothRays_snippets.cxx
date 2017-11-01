@@ -581,6 +581,11 @@ dataTree->Branch("summary", &summary);
 
 if(settings->dataType == 1){
 
+int badEventNumber[141] = {4123,4141,4213,4246,4255,4296,4355,4368,4417,4453,4525,4536,4569,4592,4607,4654,4761,4785,4818,4927,4965,5018,5047,5105,5136,5153,5183,5246,5273,5343,5386,5470,5497,5532,
+5564,5595,5648,5713,5743,5771,5796,5824,5852,5879,5941,5972,6045,6110,6166,6202,6240,6268,6279,6313,6320,6339,6346,6377,6386,6420,6451,6503,6537,6554,6579,6586,6626,6667,6673,6710,6723,6766,6812,
+6861,6868,6896,6929,6939,6986,6995,7047,7054,7085,7096,7155,7217,7278,7285,7337,7343,7409,7464,7471,7484,7545,7554,7638,7650,7659,7720,7732,7738,7818,7829,7839,7933,7939,7948,7966,8028,8036,8045,8054
+,8061,8175,8181,8185,8193,8360,8369,8379,8389,8395,8404,8413,8424,8436,8463,8935,8944,8951,8960,8972,8982,8991,9002,9010,9188,9197,9207,9216};
+
 trigEventCount = runEventCount;
 for (Long64_t ev=0; ev<runEventCount; ev++){
 
@@ -622,6 +627,10 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
      continue;
    }
    else cout<<"Reconstructing this event: "<<ev<<endl;
+
+   bool matchBadEvent=false;
+   for(int badev=0; badev<141; badev++){ if(rawAtriEvPtr->eventNumer == badEventNumber[badev]){ matchBadEvent = true; break; }}
+   if(matchBadEvent==false) continue;
 
    summary->setEventId(rawAtriEvPtr->eventId);
    summary->setEventNumber(rawAtriEvPtr->eventNumber);
@@ -822,7 +831,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 */
   for(int ch=0; ch<8; ch++){
 
-    if(gr2ndPulse[ch]->GetN() != 0)
+    if(gr2ndPulse[ch]->GetN() != 0 && ch!=4) //ch!=4 added for IC1S selection
     grWinPad2ndPulse[ch] = evProcessTools::getWindowedAndPaddedEqualBeginGraph(gr2ndPulse[ch], maxSamp, beginTime);
     else{ grWinPad2ndPulse[ch]=new TGraph(); for(int s=0; s<maxSamp; s++) grWinPad2ndPulse[ch]->SetPoint(s, beginTime+s*0.4, 0); }
 
@@ -840,7 +849,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
   }
 
   if(ev != rawAtriEvPtr->eventNumber) cerr<<"Warning!! Inconsistent eventNumber and ev!!\n";
-  snprintf(c1name,sizeof(char)*200,"snippet_2015_A3_IC1S_grWinPad_%d.C",ev);
+  snprintf(c1name,sizeof(char)*200,"snippet_2015_A3_IC1S_grWinPad_excludeCh12_%d.C",ev);
   c1->SaveAs(c1name);
 
   for(int ch=0; ch<16; ch++){
@@ -855,6 +864,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    }//end of ch
 
    numSatChan = 0;
+
    if(settings->nchnlFilter > 0){
 
    getNchnlMaskSat(unpaddedEvent, threshold, nchnlArray, chanMask, goodChan, numSatChan);
@@ -885,6 +895,18 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
     getChannelAvgPower(cleanEvent, avgPwrArray);
 
+    /* Added for 2015 A3 IC1S selection */
+    /*
+    if(avgPwrArray[12]<4000.f){
+
+      unpaddedEvent.clear();
+      cleanEvent.clear();
+      delete realAtriEvPtr;
+      for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; }
+      continue;
+
+    }
+    */
     //recoData *summary = new recoData();
 /*
     if(settings->dataType == 0){
