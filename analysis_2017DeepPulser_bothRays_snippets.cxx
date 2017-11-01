@@ -460,6 +460,12 @@ if( err<0 ){
    /* 2017 IC22S ARA02 run8573 */
    float directPulseStart[8] = {145.f, 70.f, 180.f, 95.f, 115.f, 45.f, 155.f, 65.f};
    float refractPulseStart[8]= {239.4, 238.7, 1e10, 255.4, 1e10, 319.9, 1e10, 335.2}; //This is now just the pulse separation time between the 1st and the 2nd pulse. Note that for channel 4, only very few events have a 2nd pulse. It is treated as always having none here.
+   /* 2015 IC1S ARA03 run3811 */
+   //float directPulseStart[8] = {215.f, 295.f, 270.f, 1e10, 190.f, 275.f, 250.f, 1e10};
+   //float refractPulseStart[8]= {375.f-215.f, 1e10, 440.f-270.f, 1e10, 415.f-190.f, 1e10, 1e10, 1e10}; //This is now just the pulse separation time between the 1st and the 2nd pulse.
+   /* 2015 IC22S ARA03 run3811 */
+   //float directPulseStart[8] = {200.f, 280.f, 260.f, 1e10, 175.f, 255.f, 240.f, 1e10};
+   //float refractPulseStart[8]= {191.5, 1e10, 192.3, 1e10, 1e10, 1e10, 1e10, 1e10}; //This is now just the pulse separation time between the 1st and the 2nd pulse. Note that for channel 4, only very few events have a 2nd pulse. It is treated as always having none here.
    for(int i=0; i<8; i++){
 
      directPulseStart[i] -= 50.f; //Start the snippet 50ns before the pulse rising edge
@@ -550,6 +556,7 @@ if(settings->recordMapData == 1){
 }
 int index[16]={0};
 float snrArray[16], unmodSNRArray[16];
+float avgPwrArray[16];
 vector<TGraph *> unpaddedEvent;
 TH1F *snrDist = new TH1F("snrDist","snrDist",100,0,50);
 int goodChan[16];
@@ -573,6 +580,8 @@ dataTree->Branch("summary", &summary);
 //FILE *dtFile_constantN = fopen("dtFile_constantN.txt","a+");
 
 if(settings->dataType == 1){
+
+int badEventNumber[2] = {12764, 13682};
 
 trigEventCount = runEventCount;
 for (Long64_t ev=0; ev<runEventCount; ev++){
@@ -609,6 +618,10 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
      continue;
    }
    else cout<<"Reconstructing this event: "<<ev<<endl;
+
+   bool matchBadEvent=false;
+   for(int badev=0; badev<2; badev++){ if(rawAtriEvPtr->eventNumber == badEventNumber[badev]){ matchBadEvent = true; break; }}
+   if(matchBadEvent==false) continue;
 
    summary->setEventId(rawAtriEvPtr->eventId);
    summary->setEventNumber(rawAtriEvPtr->eventNumber);
@@ -765,7 +778,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
   }
   snprintf(c1name,sizeof(char)*200,"snippet_2017_A2_IC22S_%d.C",ev);
-  c1->SaveAs(c1name);
+  //c1->SaveAs(c1name);
 /*
   maxSamp = 1024;
   beginTime = 1e10;
@@ -795,7 +808,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 */
   for(int ch=0; ch<8; ch++){
 
-    if(gr2ndPulse[ch]->GetN() != 0)
+    if(gr2ndPulse[ch]->GetN() != 0 && ch!=7) //ch!=7 added for IC1S as well as IC22S selection
     grWinPad2ndPulse[ch] = evProcessTools::getWindowedAndPaddedEqualBeginGraph(gr2ndPulse[ch], maxSamp, beginTime);
     else{ grWinPad2ndPulse[ch]=new TGraph(); for(int s=0; s<maxSamp; s++) grWinPad2ndPulse[ch]->SetPoint(s, beginTime+s*0.4, 0); }
 
@@ -845,6 +858,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
     getChannelUnmodifiedSNR(unpaddedEvent, unmodSNRArray);
     TMath::Sort(16,unmodSNRArray,index);
 
+    getChannelAvgPower(cleanEvent, avgPwrArray);
+
     //recoData *summary = new recoData();
 /*
     if(settings->dataType == 0){
@@ -858,7 +873,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
     summary->setRecoChan(goodChan);
     summary->setInWindowSNR(snrArray[index[2]]);
     summary->setUnmodSNR(unmodSNRArray[index[2]]);
-
+    summary->setChannelInWindowSNR(snrArray);
+    summary->setChannelUnmodSNR(unmodSNRArray);
+    summary->setChannelAvgPwr(avgPwrArray);
     recoEventCount++;
 /*
     dtFile = fopen("dtFile.txt","a+");
