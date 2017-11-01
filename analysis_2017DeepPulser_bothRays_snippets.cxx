@@ -619,11 +619,11 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
      continue;
    }
    else cout<<"Reconstructing this event: "<<ev<<endl;
-/*
+
    bool matchBadEvent=false;
-   for(int badev=0; badev<2; badev++){ if(rawAtriEvPtr->eventNumber == badEventNumber[badev]){ matchBadEvent = true; break; }}
+   for(int badev=0; badev<5; badev++){ if(rawAtriEvPtr->eventNumber == badEventNumber[badev]){ matchBadEvent = true; break; }}
    if(matchBadEvent==false) continue;
-*/
+
    summary->setEventId(rawAtriEvPtr->eventId);
    summary->setEventNumber(rawAtriEvPtr->eventNumber);
 
@@ -779,7 +779,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
   }
   snprintf(c1name,sizeof(char)*200,"snippet_2017_A2_IC1S_%d.C",ev);
-  c1->SaveAs(c1name);
+  //c1->SaveAs(c1name);
 /*
   maxSamp = 1024;
   beginTime = 1e10;
@@ -809,7 +809,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 */
   for(int ch=0; ch<8; ch++){
 
-    if(gr2ndPulse[ch]->GetN() != 0 /*&& ch!=7 && ch!=5*/) //ch!=7 added for IC1S as well as IC22S selection, ch!=5 added for IC22S selection
+    if(gr2ndPulse[ch]->GetN() != 0 && ch!=7 && ch!=5) //ch!=7 added for IC1S as well as IC22S selection, ch!=5 added for IC1S as well as IC22S selection
     grWinPad2ndPulse[ch] = evProcessTools::getWindowedAndPaddedEqualBeginGraph(gr2ndPulse[ch], maxSamp, beginTime);
     else{ grWinPad2ndPulse[ch]=new TGraph(); for(int s=0; s<maxSamp; s++) grWinPad2ndPulse[ch]->SetPoint(s, beginTime+s*0.4, 0); }
 
