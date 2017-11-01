@@ -582,7 +582,7 @@ dataTree->Branch("summary", &summary);
 if(settings->dataType == 1){
 
 //int badEventNumber[2] = {12764, 13682};
-int badEventNumber[5] = {421,2512,3022,3749,6445}
+int badEventNumber[5] = {421,2512,3022,3749,6445};
 
 trigEventCount = runEventCount;
 for (Long64_t ev=0; ev<runEventCount; ev++){
