@@ -455,11 +455,11 @@ if( err<0 ){
    TGraph *grWinPad1stPulse[8], *grWinPad2ndPulse[8];
 
    /* 2017 IC1S ARA02 run8573 */
-   //float directPulseStart[8] = {150.f, 70.f, 175.f, 80.f, 120.f, 25.f, 150.f, 50.f};  //Approximate time of 1st pulse rising edge
-   //float refractPulseStart[8] = {229.9, 230.5, 1e10, 248.1, 1e10, 308.3, 1e10, 321.4}; //This is now just the pulse separation time between the 1st and the 2nd pulse. Note that for channel 4, only very few events have a 2nd pulse. It is treated as always having none here.
+   float directPulseStart[8] = {150.f, 70.f, 175.f, 80.f, 120.f, 25.f, 150.f, 50.f};  //Approximate time of 1st pulse rising edge
+   float refractPulseStart[8] = {229.9, 230.5, 1e10, 248.1, 1e10, 308.3, 1e10, 321.4}; //This is now just the pulse separation time between the 1st and the 2nd pulse. Note that for channel 4, only very few events have a 2nd pulse. It is treated as always having none here.
    /* 2017 IC22S ARA02 run8573 */
-   float directPulseStart[8] = {145.f, 70.f, 180.f, 95.f, 115.f, 45.f, 155.f, 65.f};
-   float refractPulseStart[8]= {239.4, 238.7, 1e10, 255.4, 1e10, 319.9, 1e10, 335.2}; //This is now just the pulse separation time between the 1st and the 2nd pulse. Note that for channel 4, only very few events have a 2nd pulse. It is treated as always having none here.
+   //float directPulseStart[8] = {145.f, 70.f, 180.f, 95.f, 115.f, 45.f, 155.f, 65.f};
+   //float refractPulseStart[8]= {239.4, 238.7, 1e10, 255.4, 1e10, 319.9, 1e10, 335.2}; //This is now just the pulse separation time between the 1st and the 2nd pulse. Note that for channel 4, only very few events have a 2nd pulse. It is treated as always having none here.
    /* 2015 IC1S ARA03 run3811 */
    //float directPulseStart[8] = {215.f, 295.f, 270.f, 1e10, 190.f, 275.f, 250.f, 1e10};
    //float refractPulseStart[8]= {375.f-215.f, 1e10, 440.f-270.f, 1e10, 415.f-190.f, 1e10, 1e10, 1e10}; //This is now just the pulse separation time between the 1st and the 2nd pulse.
@@ -581,7 +581,8 @@ dataTree->Branch("summary", &summary);
 
 if(settings->dataType == 1){
 
-int badEventNumber[2] = {12764, 13682};
+//int badEventNumber[2] = {12764, 13682};
+int badEventNumber[5] = {421,2512,3022,3749,6445}
 
 trigEventCount = runEventCount;
 for (Long64_t ev=0; ev<runEventCount; ev++){
@@ -607,22 +608,22 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
      continue;
    }
 */
-   if(//(rawAtriEvPtr->timeStamp < deepPulserString1StartTimeStamp_2017)
-      //||
-      //(rawAtriEvPtr->timeStamp > deepPulserString1EndTimeStamp_2017)
-      (/*rawAtriEvPtr->timeStamp > deepPulserString1EndTimeStamp_2017 &&*/ rawAtriEvPtr->timeStamp < deepPulserString22StartTimeStamp_2017)
+   if((rawAtriEvPtr->timeStamp < deepPulserString1StartTimeStamp_2017)
       ||
-      (rawAtriEvPtr->timeStamp > deepPulserString22EndTimeStamp_2017)
+      (rawAtriEvPtr->timeStamp > deepPulserString1EndTimeStamp_2017)
+      //(/*rawAtriEvPtr->timeStamp > deepPulserString1EndTimeStamp_2017 &&*/ rawAtriEvPtr->timeStamp < deepPulserString22StartTimeStamp_2017)
+      //||
+      //(rawAtriEvPtr->timeStamp > deepPulserString22EndTimeStamp_2017)
    ) {
      //cout<<"Skipping event not in deep pulser period....\n";
      continue;
    }
    else cout<<"Reconstructing this event: "<<ev<<endl;
-
+/*
    bool matchBadEvent=false;
    for(int badev=0; badev<2; badev++){ if(rawAtriEvPtr->eventNumber == badEventNumber[badev]){ matchBadEvent = true; break; }}
    if(matchBadEvent==false) continue;
-
+*/
    summary->setEventId(rawAtriEvPtr->eventId);
    summary->setEventNumber(rawAtriEvPtr->eventNumber);
 
@@ -777,8 +778,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    unpaddedEvent.push_back(grInt[ch]);
 
   }
-  snprintf(c1name,sizeof(char)*200,"snippet_2017_A2_IC22S_%d.C",ev);
-  //c1->SaveAs(c1name);
+  snprintf(c1name,sizeof(char)*200,"snippet_2017_A2_IC1S_%d.C",ev);
+  c1->SaveAs(c1name);
 /*
   maxSamp = 1024;
   beginTime = 1e10;
@@ -808,7 +809,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 */
   for(int ch=0; ch<8; ch++){
 
-    if(gr2ndPulse[ch]->GetN() != 0 && ch!=7 && ch!=5) //ch!=7 added for IC1S as well as IC22S selection, ch!=5 added for IC22S selection
+    if(gr2ndPulse[ch]->GetN() != 0 /*&& ch!=7 && ch!=5*/) //ch!=7 added for IC1S as well as IC22S selection, ch!=5 added for IC22S selection
     grWinPad2ndPulse[ch] = evProcessTools::getWindowedAndPaddedEqualBeginGraph(gr2ndPulse[ch], maxSamp, beginTime);
     else{ grWinPad2ndPulse[ch]=new TGraph(); for(int s=0; s<maxSamp; s++) grWinPad2ndPulse[ch]->SetPoint(s, beginTime+s*0.4, 0); }
 
