@@ -35,6 +35,15 @@ using namespace std;
    eventId = 0;
    eventNumber = 0;
 
+   unixTime = 0;
+   unixTimeUs = 0;
+   timeStamp = 0;
+
+   std::fill(&recoRecAngle[0], &recoRecAngle[16], -1.);
+   std::fill(&recoLauAngle[0], &recoLauAngle[16], -1.);
+   std::fill(&trueRecAngle[0], &trueRecAngle[16], -1.);
+   std::fill(&trueLauAngle[0], &trueLauAngle[16], -1.);
+
    std::fill(&channelUnmodSNR[0], &channelUnmodSNR[16], 0.f);
    std::fill(&channelInWindowSNR[0], &channelInWindowSNR[16], 0.f);
    std::fill(&channelAvgPwr[0], &channelAvgPwr[16], 0.f);
@@ -45,9 +54,11 @@ using namespace std;
 
    void recoData::setAllData(
      int _eventId, int _eventNumber
+   , int _unixTime, int _unixTimeUs, int _timeStamp
    , double w
    , int _eventTrigType
    , float zen_true, float azi_true, float zen_reco, float azi_reco, float r_true, float r_reco
+   , float *_trueRecAngle, float *_trueLauAngle, float *_recoRecAngle, float *_recoLauAngle
    , int *usedChan
    , int idx, float xCorrValue
    //, Healpix_Onion *_onion
@@ -63,6 +74,9 @@ using namespace std;
 
    eventId = _eventId;
    eventNumber = _eventNumber;
+   unixTime = _unixTime;
+   unixTimeUs = _unixTimeUs;
+   timeStamp = _timeStamp;
    weight = w;
    trueZen = zen_true;
    trueAzi = azi_true;
@@ -74,6 +88,10 @@ using namespace std;
    for(int i=0; i<16; i++){
 
      recoChan[i] = usedChan[i];
+     trueRecAngle[i] = _trueRecAngle[i];
+     trueLauAngle[i] = _trueLauAngle[i];
+     recoRecAngle[i] = _recoRecAngle[i];
+     recoLauAngle[i] = _recoLauAngle[i];
      channelUnmodSNR[i] = _channelUnmodSNR[i];
      channelInWindowSNR[i] = _channelInWindowSNR[i];
      channelAvgPwr[i] = _channelAvgPwr[i];
@@ -147,6 +165,24 @@ using namespace std;
    void recoData::setRecoChan(int *usedChan){
 
    for(int i=0; i<16; i++) recoChan[i] = usedChan[i];
+
+   }
+
+   void recoData::setRecoAngles(float *recAngle, float *lauAngle){
+
+   for(int i=0; i<16; i++){
+     recoRecAngle[i] = recAngle[i];
+     recoLauAngle[i] = lauAngle[i];
+   }
+
+   }
+
+   void recoData::setTrueAngles(float *recAngle, float *lauAngle){
+
+   for(int i=0; i<16; i++){
+     trueRecAngle[i] = recAngle[i];
+     trueLauAngle[i] = lauAngle[i];
+   }
 
    }
 
@@ -234,6 +270,14 @@ using namespace std;
 
    }
 
+   void recoData::setEventTime(int _unixTime, int _unixTimeUs, int _timeStamp){
+
+    unixTime = _unixTime;
+    unixTimeUs = _unixTimeUs;
+    timeStamp = _timeStamp;
+
+   }
+
    void recoData::setChannelUnmodSNR(float *_channelUnmodSNR){
 
      for(int ch=0; ch<16; ch++) channelUnmodSNR[ch] = _channelUnmodSNR[ch];
@@ -269,11 +313,14 @@ using namespace std;
    }
 
    setAllData(old->eventId,     old->eventNumber
+             , old->unixTime, old->unixTimeUs, old->timeStamp
              , old->weight
              , old->eventTrigType
              , old->trueZen,    old->trueAzi
              , old->recoZen,    old->recoAzi
              , old->trueRadius, old->recoRadius
+             , old->trueRecAngle, old->trueLauAngle
+             , old->recoRecAngle, old->recoLauAngle
              , old->recoChan
              , old->maxPixIdx,  old->maxPixCoherence
              //, old->onion
@@ -331,6 +378,10 @@ using namespace std;
    weight = 0.;
    trueZen = trueAzi = recoZen = recoAzi = 0.f;
    trueRadius = recoRadius = 0.f;
+   std::fill(&recoRecAngle[0], &recoRecAngle[16], -1.);
+   std::fill(&recoLauAngle[0], &recoLauAngle[16], -1.);
+   std::fill(&trueRecAngle[0], &trueRecAngle[16], -1.);
+   std::fill(&trueLauAngle[0], &trueLauAngle[16], -1.);
    std::fill(&recoChan[0], &recoChan[16], 0);
    maxPixIdx = 0;
    maxPixCoherence = 0.f;
@@ -348,6 +399,9 @@ using namespace std;
    eventTrigType = 0;
    eventId = 0;
    eventNumber = 0;
+   unixTime = 0;
+   unixTimeUs = 0;
+   timeStamp = 0;
    std::fill(&channelUnmodSNR[0], &channelUnmodSNR[16], 0.f);
    std::fill(&channelInWindowSNR[0], &channelInWindowSNR[16], 0.f);
    std::fill(&channelAvgPwr[0], &channelAvgPwr[16], 0.f);
