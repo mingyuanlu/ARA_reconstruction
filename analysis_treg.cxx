@@ -1002,7 +1002,7 @@ delete settings;
 free(mapDataHist);
 free(mapData);
 
-treg->clearAll();
+//treg->clearAll();
 delete treg;
 
 //recordTime(tmr,5);
