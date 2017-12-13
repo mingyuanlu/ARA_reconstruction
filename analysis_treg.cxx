@@ -1003,7 +1003,7 @@ free(mapDataHist);
 free(mapData);
 
 //treg->clearAll();
-delete treg;
+//delete treg;
 
 //recordTime(tmr,5);
 time_t t_program_end = time(NULL);
