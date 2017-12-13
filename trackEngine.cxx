@@ -323,11 +323,11 @@ int trackEngine::buildEventOrthoTracks(Vector finalTrack){
 
 Vector trackEngine::computeDemoExtrapFinalTrack(){
 
-  if(demoFinalTrack.Mag()==0 || demoFinalTrack==NULL){ cerr<<"No demoFinalTrack\n"; return NULL;}
+  if(demoFinalTrack.Mag()==0 ){ cerr<<"No demoFinalTrack\n"; return zeroVector;}
   //demoExtrapFinalTrack = (demoFinalTrack * 2.)
   Vector deft = (demoFinalTrack * 2.);
 
-  if(eventOrthoTracks.size()==0){ cerr<<"No eventOrthoTracks\n"; return NULL;}
+  if(eventOrthoTracks.size()==0){ cerr<<"No eventOrthoTracks\n"; return zeroVector;}
 
   int nAnt = (int)baselineTracks.size();
 
@@ -349,7 +349,7 @@ Vector trackEngine::computeDemoExtrapFinalTrack(){
 
 Vector trackEngine::computeHierExtrapFinalTrack(){
 
-  if(eventOrthoTracks.size()==0){ cerr<<"No eventOrthoTracks\n"; return NULL;}
+  if(eventOrthoTracks.size()==0){ cerr<<"No eventOrthoTracks\n"; return zeroVector;}
   int nAnt = (int)baselineTracks.size();
   Vector tempVector;
   tempVector.SetXYZ(0.,0.,0.);
@@ -370,7 +370,7 @@ Vector trackEngine::computeHierExtrapFinalTrack(){
     }
   }//end of rank
 
-  if(tempVector.Mag() < 1e-9){ cerr<<"hierExtrapFinalTrack lenght is zero!\n"; return NULL;}
+  if(tempVector.Mag() < 1e-9){ cerr<<"hierExtrapFinalTrack lenght is zero!\n"; return zeroVector;}
   else /*hierExtrapFinalTrack*/tempVector = (tempVector / 2.); //account for double counting
 
   //return hierExtrapFinalTrack.Mag();
@@ -380,7 +380,7 @@ Vector trackEngine::computeHierExtrapFinalTrack(){
 
 int trackEngine::computeIterExtrapFinalTracks(Vector tempDemoExtrap, Vector tempHierExtrap){
 
-if(tempDemoExtrap.Mag()==0 || tempDemoExtrap==NULL || tempHierExtrap.Mag()==0 || tempHierExtrap==NULL){ cerr<"No input demo/hier final track\n"; return -1;}
+if(tempDemoExtrap.Mag()==0 || tempHierExtrap.Mag()==0 ){ cerr<"No input demo/hier final track\n"; return -1;}
   //Vector tempDemoExtrap = demoExtrapFinalTrack;
   //Vector tempHierExtrap = hierExtrapFinalTrack;
 
@@ -394,7 +394,7 @@ if(tempDemoExtrap.Mag()==0 || tempDemoExtrap==NULL || tempHierExtrap.Mag()==0 ||
 
     if( buildEventOrthoTracks(tempDemoExtrap)<0 ){ cerr<<"Re-building ortho tracks error\n"; return -1};
     iterDemoExtrapFinalTrack = computeDemoExtrapFinalTrack();
-    if( iterDemoExtrapFinalTrack != NULL ){
+    if( iterDemoExtrapFinalTrack.Mag() != 0 ){
       demoAngle = tempDemoExtrap.Angle(iterDemoExtrapFinalTrack) * TMath::RadToDeg();
       //hierAngle = tempHierExtrap.Angle(hierExtrapFinalTrack) * TMath::RadToDeg();
       tempDemoExtrap = iterDemoExtrapFinalTrack;
@@ -410,7 +410,7 @@ if(tempDemoExtrap.Mag()==0 || tempDemoExtrap==NULL || tempHierExtrap.Mag()==0 ||
 
     if( buildEventOrthoTracks(tempHierExtrap)<0 ){ cerr<<"Re-building ortho tracks error\n"; return -1};
     iterHierExtrapFinalTrack = computeHierExtrapFinalTrack();
-    if( iterHierExtrapFinalTrack != NULL ){
+    if( iterHierExtrapFinalTrack.Mag() != 0 ){
       //demoAngle = tempDemoExtrap.Angle(iterDemoExtrapFinalTrack) * TMath::RadToDeg();
       hierAngle = tempHierExtrap.Angle(iterHierExtrapFinalTrack) * TMath::RadToDeg();
       //tempDemoExtrap = iterDemoExtrapFinalTrack;
@@ -466,7 +466,7 @@ void trackEngine::clearForNextEvent(){
   free(cosine);
 
   demoFinalTrack = hierFinalTrack = demoExtrapFinalTrack = hierExtrapFinalTrack
-  = iterDemoExtrapFinalTrack = iterHierExtrapFinalTrack = NULL;
+  = iterDemoExtrapFinalTrack = iterHierExtrapFinalTrack = zeroVector;
 
   //angleThreshold = 0.;
   //maxIteration = 0;
@@ -485,7 +485,7 @@ void trackEngine::clearAll(){
   free(cosine);
 
   demoFinalTrack = hierFinalTrack = demoExtrapFinalTrack = hierExtrapFinalTrack
-  = iterDemoExtrapFinalTrack = iterHierExtrapFinalTrack = NULL;
+  = iterDemoExtrapFinalTrack = iterHierExtrapFinalTrack = zeroVector;
 
   angleThreshold = 0.;
   maxIteration = 0;
@@ -501,8 +501,8 @@ int trackEngine::computeAllTracks(/*const vector< vector<double> >& antLocation,
   if( computeFinalTracks(unpaddedEvent) < 0 ){ cerr<<"Compute final tracks error\n"; return -1;}
   demoExtrapFinalTrack = computeDemoExtrapFinalTrack();
   hierExtrapFinalTrack = computeHierExtrapFinalTrack();
-  if(demoExtrapFinalTrack.Mag() == 0 || demoExtrapFinalTrack==NULL){ cerr<<"No demoExtrapFinalTrack\n"; return -1;}
-  if(hierExtrapFinalTrack.Mag() == 0 || hierExtrapFinalTrack==NULL){ cerr<<"No hierExtrapFinalTrack\n"; return -1;}
+  if(demoExtrapFinalTrack.Mag() == 0 ){ cerr<<"No demoExtrapFinalTrack\n"; return -1;}
+  if(hierExtrapFinalTrack.Mag() == 0 ){ cerr<<"No hierExtrapFinalTrack\n"; return -1;}
   if( computeIterExtrapFinalTracks(demoExtrapFinalTrack, hierExtrapFinalTrack) < 0){ cerr<<"Compute iter extrap final tracks error\n"; return -1;}
 
   //clearForNextEvent();
