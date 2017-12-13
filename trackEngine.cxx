@@ -103,7 +103,7 @@ int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
            if(cosine[anti*nAnt+antf] > 1) cosine[anti*nAnt+antf] = 1.;
 
            //}
-           demoFinalTrack += (baselineTracks[anti][antf] * cosine[anti*nAnt+antf]);
+           demoFinalTrack += (cosine[anti*nAnt+antf] * baselineTracks[anti][antf]);
 
          } else {
 
@@ -128,9 +128,9 @@ int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
      int antf = trackRank[rank]%nAnt;
 
      if(cosine[anti*nAnt+antf] > -1e9){
-     if( (tempVector+baselineTracks[anti][antf]*cosine[anti*nAnt+antf]).Mag() > tempVector.Mag() ){
+     if( (tempVector+(cosine[anti*nAnt+antf]*baselineTracks[anti][antf])).Mag() > tempVector.Mag() ){
 
-       tempVector += baselineTracks[anti][antf]*cosine[anti*nAnt+antf];
+       tempVector += (cosine[anti*nAnt+antf]*baselineTracks[anti][antf]);
 
      }
      }
@@ -161,7 +161,7 @@ int trackEngine::getChannelPeakTime(vector<TGraph *> unpaddedEvent, double *peak
    return 0;
 }
 
-double checkBaselineTracks(){
+double trackEngine::checkBaselineTracks(){
 
   Vector tempVector;
   tempVector.SetXYZ(0.,0.,0.);
@@ -311,7 +311,7 @@ int trackEngine::buildEventOrthoTracks(Vector finalTrack){
       rotAngle = TMath::Pi()/2. - finalTrack.Angle(baselineTracks[anti][antf]);
       temp = finalTrack.Rotate(rotAngle, baselineTracks[anti][antf].Cross(finalTrack));
       temp = temp / temp.Mag();
-      temp = temp * sqrt(1-cosine[anti*nAnt+antf]*cosine[anti*nAnt+antf]);
+      temp = sqrt(1-cosine[anti*nAnt+antf]*cosine[anti*nAnt+antf]) * temp;
       tempVector.push_back(temp);
     } else { tempVector.push_back(zeroVector); }
     }
@@ -360,11 +360,11 @@ Vector trackEngine::computeHierExtrapFinalTrack(){
 
     if(cosine[anti*nAnt+antf] > -1e9){
     if( (tempVector
-        + baselineTracks[anti][antf]*cosine[anti*nAnt+antf]
+        + (cosine[anti*nAnt+antf]*baselineTracks[anti][antf])
         + eventOrthoTracks[anti][antf]
         ).Mag() > tempVector.Mag() ){
 
-      tempVector += (baselineTracks[anti][antf]*cosine[anti*nAnt+antf] + eventOrthoTracks[anti][antf]);
+      tempVector += (cosine[anti*nAnt+antf]*baselineTracks[anti][antf] + eventOrthoTracks[anti][antf]);
 
     }
     }
