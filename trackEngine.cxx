@@ -325,7 +325,7 @@ Vector trackEngine::computeDemoExtrapFinalTrack(){
 
   if(demoFinalTrack.Mag()==0 || demoFinalTrack==NULL){ cerr<<"No demoFinalTrack\n"; return NULL;}
   //demoExtrapFinalTrack = (demoFinalTrack * 2.)
-  Vector deft = (demoFinalTrack * 2.)
+  Vector deft = (demoFinalTrack * 2.);
 
   if(eventOrthoTracks.size()==0){ cerr<<"No eventOrthoTracks\n"; return NULL;}
 
@@ -355,8 +355,8 @@ Vector trackEngine::computeHierExtrapFinalTrack(){
   tempVector.SetXYZ(0.,0.,0.);
   for(int rank=0; rank<nAnt*nAnt; rank++){
 
-    anti = trackRank[rank]/nAnt;
-    antf = trackRank[rank]%nAnt
+    int anti = trackRank[rank]/nAnt;
+    int antf = trackRank[rank]%nAnt;
 
     if(cosine[anti*nAnt+antf] > -1e9){
     if( (tempVector
