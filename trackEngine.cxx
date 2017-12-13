@@ -1,7 +1,8 @@
 #include "trackEngine.h"
 #include "TObject.h"
 
-ClassImp(trackEngine)
+//ClassImp(trackEngine)
+//ClassImp(Vector)
 
 using namespace std;
 
@@ -9,7 +10,7 @@ trackEngine::trackEngine(){}
 
 trackEngine::~trackEngine(){
 
-  clear();
+  clearAll();
 
 }
 
@@ -291,7 +292,7 @@ int computeExtrapFinalTracksWithHier(){
 }
 */
 //int computeExtrapFinalTracks(Vector finalTrack){
-int buildEventOrthoTracks(Vector finalTrack){
+int trackEngine::buildEventOrthoTracks(Vector finalTrack){
 
   if(finalTrack.Mag() == 0){ cerr<<"No finalTrack!\n"; return -1;}
   vector<Vector> tempVector;
@@ -316,7 +317,7 @@ int buildEventOrthoTracks(Vector finalTrack){
   return 0;
 }
 
-Vector computeDemoExtrapFinalTrack(){
+Vector trackEngine::computeDemoExtrapFinalTrack(){
 
   if(demoFinalTrack.Mag()==0 || demoFinalTrack==NULL){ cerr<<"No demoFinalTrack\n"; return NULL;}
   //demoExtrapFinalTrack = (demoFinalTrack * 2.)
@@ -342,7 +343,7 @@ Vector computeDemoExtrapFinalTrack(){
   return deft;
 }
 
-Vector computeHierExtrapFinalTrack(){
+Vector trackEngine::computeHierExtrapFinalTrack(){
 
   if(eventOrthoTracks.size()==0){ cerr<<"No eventOrthoTracks\n"; return NULL;}
   int nAnt = (int)baselineTracks.size();
@@ -373,7 +374,7 @@ Vector computeHierExtrapFinalTrack(){
 }
 
 
-int computeIterExtrapFinalTracks(Vector tempDemoExtrap, Vector tempHierExtrap){
+int trackEngine::computeIterExtrapFinalTracks(Vector tempDemoExtrap, Vector tempHierExtrap){
 
 if(tempDemoExtrap.Mag()==0 || tempDemoExtrap==NULL || tempHierExtrap.Mag()==0 || tempHierExtrap==NULL){ cerr<"No input demo/hier final track\n"; return -1;}
   //Vector tempDemoExtrap = demoExtrapFinalTrack;
@@ -424,7 +425,7 @@ if(tempDemoExtrap.Mag()==0 || tempDemoExtrap==NULL || tempHierExtrap.Mag()==0 ||
 
 void trackEngine::initialize(){
 
-  this->clear();
+  this->clearAll();
   this->setAngleThreshold(1.);
   this->setMaxIteration(100);
 
@@ -442,7 +443,26 @@ void trackEngine::setMaxIteration(int max_iter){
 
 }
 
-void clear(){
+void trackEngine::clearForNextEvent(){
+
+  //baselinTracks.clear();
+  //baselineTrackTimes.clear();
+  eventOrthoTracks.clear();
+
+  goodTrackCount = badTrackCount = 0;
+  free(trackRank);
+  free(trackSNRArray);
+  free(cosine);
+
+  demoFinalTrack = hierFinalTrack = demoExtrapFinalTrack = hierExtrapFinalTrack
+  = iterDemoExtrapFinalTrack = iterHierExtrapFinalTrack = NULL;
+
+  //angleThreshold = 0.;
+  //maxIteration = 0;
+
+}
+
+void trackEngine::clearAll(){
 
   baselinTracks.clear();
   baselineTrackTimes.clear();
@@ -461,11 +481,11 @@ void clear(){
 
 }
 
-int computeAllTracks(const vector< vector<double> >& antLocation, vector<TGraph *> unpaddedEvent){
+int trackEngine::computeAllTracks(/*const vector< vector<double> >& antLocation,*/ vector<TGraph *> unpaddedEvent){
 
-  initialize();
-
-  if( buildBaselineTracks(antLocation) < 0 ){ cerr<<"Build baseline tracks error\n"; return -1;}
+  //initialize();
+  if(baselinTracks.size()==0){ cerr<<"No baseline tracks\n"; return -1;}
+  //if( buildBaselineTracks(antLocation) < 0 ){ cerr<<"Build baseline tracks error\n"; return -1;}
   if( computeFinalTracks(unpaddedEvent) < 0 ){ cerr<<"Compute final tracks error\n"; return -1;}
   demoExtrapFinalTrack = computeDemoExtrapFinalTrack();
   hierExtrapFinalTrack = computeHierExtrapFinalTrack();
@@ -473,7 +493,25 @@ int computeAllTracks(const vector< vector<double> >& antLocation, vector<TGraph 
   if(hierExtrapFinalTrack.Mag() == 0 || hierExtrapFinalTrack==NULL){ cerr<<"No hierExtrapFinalTrack\n"; return -1;}
   if( computeIterExtrapFinalTracks(demoExtrapFinalTrack, hierExtrapFinalTrack) < 0){ cerr<<"Compute iter extrap final tracks error\n"; return -1;}
 
-  clear();
+  //clearForNextEvent();
 
   return 0;
+}
+
+void trackEngine::print(){
+
+  cout<<"demoFinalTrack.Mag(): "<<demoFinalTrack.Mag()<<endl;
+  demoFinalTrack.Print();
+  cout<<"hierFinalTrack.Mag(): "<<hierFinalTrack.Mag()<<endl;
+  hierFinalTrack.Print();
+  cout<<"demoExtrapFinalTrack.Mag(): "<<demoExtrapFinalTrack.Mag()<<endl;
+  demoExtrapFinalTrack.Print();
+  cout<<"hierExtrapFinalTrack.Mag(): "<<hierExtrapFinalTrack.Mag()<<endl;
+  hierExtrapFinalTrack.Print();
+  cout<<"iterDemoExtrapFinalTrack.Mag(): "<<iterDemoExtrapFinalTrack.Mag()<<endl;
+  iterDemoExtrapFinalTrack.Print();
+  cout<<"iterHierExtrapFinalTrack.Mag(): "<<iterHierExtrapFinalTrack.Mag()<<endl;
+  iterHierExtrapFinalTrack.Print();
+
+
 }

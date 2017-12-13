@@ -76,9 +76,12 @@ public:
    void setMaxIteration(int max_iter);
 
    void initialize();
-   void clear();
+   void clearForNextEvent();
+   void clearAll();
 
-   int computeAllTracks(const vector< vector<double> >& antLocation, vector<TGraph *> unpaddedEvent);
+   int computeAllTracks(/*const vector< vector<double> >& antLocation,*/ vector<TGraph *> unpaddedEvent);
+
+   void print();
 
    ClassDef(trackEngine, 1);
 
