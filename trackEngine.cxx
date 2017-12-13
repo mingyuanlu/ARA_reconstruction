@@ -325,7 +325,7 @@ Vector trackEngine::computeDemoExtrapFinalTrack(){
 
   if(demoFinalTrack.Mag()==0 ){ cerr<<"No demoFinalTrack\n"; return zeroVector;}
   //demoExtrapFinalTrack = (demoFinalTrack * 2.)
-  Vector deft = (demoFinalTrack * 2.);
+  Vector deft = (2. * demoFinalTrack );
 
   if(eventOrthoTracks.size()==0){ cerr<<"No eventOrthoTracks\n"; return zeroVector;}
 
