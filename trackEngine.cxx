@@ -43,7 +43,8 @@ int trackEngine::buildBaselineTracks(const vector< vector<double> >& antLocation
        uVec.Print();
        dt = uVec.Mag() * nIce / speedOfLight;
        tempTime.push_back(dt);
-       tempVec.push_back(uVec.Unit());
+       if(uVec.Mag()==0) tempVec.push_back(zeroVector);
+       else              tempVec.push_back(uVec.Unit());
        cout<<"Unit norm: "<<tempVec[ant2].Mag()<<" tempTime: "<<tempTime[ant2]<<endl;
 
       }
@@ -97,8 +98,10 @@ int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
           //   cosine[anti*nAnt+antf] = -1.* (peakTArray[anti] - peakTArray[antf]) / baselineTrackTimes[anti][antf];
 
            //} else {
-
-           cosine[anti*nAnt+antf] = (peakTArray[antf] - peakTArray[anti]) / baselineTrackTimes[anti][antf];
+           if(anti != antf)
+            cosine[anti*nAnt+antf] = (peakTArray[antf] - peakTArray[anti]) / baselineTrackTimes[anti][antf];
+           else
+            cosine[anti*nAnt+antf] = 0.;
 
            if(cosine[anti*nAnt+antf] > 1) cosine[anti*nAnt+antf] = 1.;
 
@@ -307,7 +310,7 @@ int trackEngine::buildEventOrthoTracks(Vector finalTrack){
 
     tempVector.clear();
     for(int antf=0; antf<nAnt; antf++){
-      if(cosine[anti*nAnt+antf] > -1e9){
+      if(cosine[anti*nAnt+antf] > -1e9 && anti!=antf){
       rotAngle = TMath::Pi()/2. - finalTrack.Angle(baselineTracks[anti][antf]);
       temp = finalTrack.Rotate(rotAngle, baselineTracks[anti][antf].Cross(finalTrack));
       temp = temp / temp.Mag();
