@@ -392,7 +392,7 @@ if(tempDemoExtrap.Mag()==0 || tempHierExtrap.Mag()==0 ){ cerr<"No input demo/hie
   //Iterate demo extrap track
   do {
 
-    if( buildEventOrthoTracks(tempDemoExtrap)<0 ){ cerr<<"Re-building ortho tracks error\n"; return -1};
+    if( buildEventOrthoTracks(tempDemoExtrap)<0 ){ cerr<<"Re-building ortho tracks error\n"; return -1; }
     iterDemoExtrapFinalTrack = computeDemoExtrapFinalTrack();
     if( iterDemoExtrapFinalTrack.Mag() != 0 ){
       demoAngle = tempDemoExtrap.Angle(iterDemoExtrapFinalTrack) * TMath::RadToDeg();
@@ -400,7 +400,7 @@ if(tempDemoExtrap.Mag()==0 || tempHierExtrap.Mag()==0 ){ cerr<"No input demo/hie
       tempDemoExtrap = iterDemoExtrapFinalTrack;
       //tempHierExtrap = hierExtrapFinalTrack;
     } else {
-      cerr<<"compute demo extrapolated final track error\n", return -1;
+      cerr<<"compute demo extrapolated final track error\n"; return -1;
     }
     demoCount++;
   } while(demoAngle < angleThreshold || demoCount < maxIteration); //Stopping condition: when the space angle converges or when done max iterations
@@ -408,7 +408,7 @@ if(tempDemoExtrap.Mag()==0 || tempHierExtrap.Mag()==0 ){ cerr<"No input demo/hie
   //Iterate hier extrap track
   do {
 
-    if( buildEventOrthoTracks(tempHierExtrap)<0 ){ cerr<<"Re-building ortho tracks error\n"; return -1};
+    if( buildEventOrthoTracks(tempHierExtrap)<0 ){ cerr<<"Re-building ortho tracks error\n"; return -1; };
     iterHierExtrapFinalTrack = computeHierExtrapFinalTrack();
     if( iterHierExtrapFinalTrack.Mag() != 0 ){
       //demoAngle = tempDemoExtrap.Angle(iterDemoExtrapFinalTrack) * TMath::RadToDeg();
@@ -416,7 +416,7 @@ if(tempDemoExtrap.Mag()==0 || tempHierExtrap.Mag()==0 ){ cerr<"No input demo/hie
       //tempDemoExtrap = iterDemoExtrapFinalTrack;
       tempHierExtrap = iterHierExtrapFinalTrack;
     } else {
-      cerr<<"compute hier extrapolated final track error\n", return -1;
+      cerr<<"compute hier extrapolated final track error\n"; return -1;
     }
     hierCount++;
   } while(hierAngle < angleThreshold || hierCount < maxIteration); //Stopping condition: when the space angle converges or when done max iterations
