@@ -61,11 +61,11 @@ int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
    double peakTArray[16];
    float snrArray[16];
    int index[16];
-   recoTools::getChannelSNR(unpaddedEvent, snrArray);
+   getChannelSNR(unpaddedEvent, snrArray);
    TMath::Sort(16,snrArray,index);
    getChannelPeakTime(unpaddedEvent, peakTArray);
 
-   int nAnt = (int)unpaddedEvent,size();
+   int nAnt = (int)unpaddedEvent.size();
    //int nTracks = TMath::Binomial(nAnt, 2);
    //cout<<"nTracks: "<<nTracks<<endl;
    trackRank = (int*)calloc(nAnt*nAnt, sizeof(int));
@@ -79,7 +79,7 @@ int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
 
    TMath::Sort(nAnt*nAnt, trackSNRArray, trackRank);
 
-   double cosine;
+   //double cosine;
    goodTrackCount = 0;
    badTrackCount  = 0;
    cosine = (double*)malloc(sizeof(double)*nAnt*nAnt);
@@ -99,6 +99,8 @@ int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
            //} else {
 
            cosine[anti*nAnt+antf] = (peakTArray[antf] - peakTArray[anti]) / baselineTrackTimes[anti][antf];
+
+           if(cosine[anti*nAnt+antf] > 1) cosine[anti*nAnt+antf] = 1.;
 
            //}
            demoFinalTrack += (baselineTracks[anti][antf] * cosine[anti*nAnt+antf]);
@@ -122,8 +124,8 @@ int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
    tempVector.SetXYZ(0.,0.,0.);
    for(int rank=0; rank<nAnt*nAnt; rank++){
 
-     anti = trackRank[rank]/nAnt;
-     antf = trackRank[rank]%nAnt
+     int anti = trackRank[rank]/nAnt;
+     int antf = trackRank[rank]%nAnt;
 
      if(cosine[anti*nAnt+antf] > -1e9){
      if( (tempVector+baselineTracks[anti][antf]*cosine[anti*nAnt+antf]).Mag() > tempVector.Mag() ){
@@ -305,11 +307,13 @@ int trackEngine::buildEventOrthoTracks(Vector finalTrack){
 
     tempVector.clear();
     for(int antf=0; antf<nAnt; antf++){
+      if(cosine[anti*nAnt+antf] > -1e9){
       rotAngle = TMath::Pi()/2. - finalTrack.Angle(baselineTracks[anti][antf]);
       temp = finalTrack.Rotate(rotAngle, baselineTracks[anti][antf].Cross(finalTrack));
       temp = temp / temp.Mag();
       temp = temp * sqrt(1-cosine[anti*nAnt+antf]*cosine[anti*nAnt+antf]);
       tempVector.push_back(temp);
+    } else { tempVector.push_back(zeroVector); }
     }
     eventOrthoTracks.push_back(tempVector);
   }
@@ -426,8 +430,15 @@ if(tempDemoExtrap.Mag()==0 || tempDemoExtrap==NULL || tempHierExtrap.Mag()==0 ||
 void trackEngine::initialize(){
 
   this->clearAll();
+  this->setTolerance(5.);
   this->setAngleThreshold(1.);
   this->setMaxIteration(100);
+
+}
+
+void trackEngine::setTolerance(double tol){
+
+  tolerance = tol;
 
 }
 
@@ -445,7 +456,7 @@ void trackEngine::setMaxIteration(int max_iter){
 
 void trackEngine::clearForNextEvent(){
 
-  //baselinTracks.clear();
+  //baselineTracks.clear();
   //baselineTrackTimes.clear();
   eventOrthoTracks.clear();
 
@@ -464,7 +475,7 @@ void trackEngine::clearForNextEvent(){
 
 void trackEngine::clearAll(){
 
-  baselinTracks.clear();
+  baselineTracks.clear();
   baselineTrackTimes.clear();
   eventOrthoTracks.clear();
 
@@ -478,13 +489,14 @@ void trackEngine::clearAll(){
 
   angleThreshold = 0.;
   maxIteration = 0;
+  tolerance = 0.;
 
 }
 
 int trackEngine::computeAllTracks(/*const vector< vector<double> >& antLocation,*/ vector<TGraph *> unpaddedEvent){
 
   //initialize();
-  if(baselinTracks.size()==0){ cerr<<"No baseline tracks\n"; return -1;}
+  if(baselineTracks.size()==0){ cerr<<"No baseline tracks\n"; return -1;}
   //if( buildBaselineTracks(antLocation) < 0 ){ cerr<<"Build baseline tracks error\n"; return -1;}
   if( computeFinalTracks(unpaddedEvent) < 0 ){ cerr<<"Compute final tracks error\n"; return -1;}
   demoExtrapFinalTrack = computeDemoExtrapFinalTrack();

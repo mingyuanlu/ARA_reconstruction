@@ -33,10 +33,14 @@ public:
    trackEngine();
    ~trackEngine();
 
-   vector< vector<Vector> > baselinTracks;
+   const static zeroVector = Vector(0.,0.,0.);
+   vector< vector<Vector> > baselineTracks;
    vector< vector<double> > baselineTrackTimes;
-   vectot< vector<Vector> > eventOrthoTracks; //conjecture tracks, each orthogonal to its baseline track;
+   vector< vector<Vector> > eventOrthoTracks; //conjecture tracks, each orthogonal to its baseline track;
    //vector<union> rank;
+
+   double tolerance;
+   void setTolerance(double tol);
 /*
    int buildBaselineTracks(const Detector *detector);
    int buildBaselineTracks(const RawAraStationEvent *rawEvPtr);
@@ -85,6 +89,6 @@ public:
 
    ClassDef(trackEngine, 1);
 
-}
+};
 
 #endif

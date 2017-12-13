@@ -900,7 +900,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    /* Track engine object to compute all tracks */
    treg->computeAllTracks(unpaddedEvent);
    treg->print();
-     treg->clearForNextEvent();
+   treg->clearForNextEvent();
 
    //recoData *summary = new recoData();
    //if(settings->dataType == 0){
