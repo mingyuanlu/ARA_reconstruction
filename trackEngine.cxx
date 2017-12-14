@@ -198,8 +198,9 @@ int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
    if(badTrackCount+goodTrackCount!=nAnt*nAnt){ printf("track count check failed. bad: %d good: %d nAnt^2: %d\n", badTrackCount, goodTrackCount, nAnt*nAnt); return -1; }
 
    demoFinalTrack = demoFinalTrack / 2.; //acoount for double counting
-   //demoFinalTrack = demoFinalTrack / (double)trackCount; //account for numbe of used tracks
+   demoFinalTrack = demoFinalTrack / (double)goodTrackCount; //account for number of used tracks
 
+   goodTrackCount = 0;
    Vector tempVector;
    tempVector.SetXYZ(0.,0.,0.);
    for(int rank=0; rank<nAnt*nAnt; rank++){
@@ -211,13 +212,14 @@ int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
      if( (tempVector+(cosine[anti*nAnt+antf]*baselineTracks[anti][antf])).Mag() > tempVector.Mag() ){
 
        tempVector += (cosine[anti*nAnt+antf]*baselineTracks[anti][antf]);
+       goodTrackCount++;
 
      }
      }
    }//end of rank
 
    if(tempVector.Mag() < 1e-9){ cerr<<"hierFinalTrack lenght is zero!\n"; return -1;}
-   else hierFinalTrack = (tempVector / 2.); //account for double counting
+   else hierFinalTrack = (tempVector / (2.*(double)goodTrackCount)); //account for double counting
 
    return 0;
 }
@@ -410,6 +412,7 @@ Vector trackEngine::computeDemoExtrapFinalTrack(){
 
   if(eventOrthoTracks.size()==0){ cerr<<"No eventOrthoTracks\n"; return zeroVector;}
 
+  int goodTrackCount = 0;
   int nAnt = (int)baselineTracks.size();
 
   for(int anti=0; anti<nAnt; anti++){
@@ -417,12 +420,13 @@ Vector trackEngine::computeDemoExtrapFinalTrack(){
 
       if(cosine[anti*nAnt+antf]> -1e9){
         /*demoExtrapFinalTrack*/deft += eventOrthoTracks[anti][antf];
+        goodTrackCount++;
       }
     }
   }
 
   //demoExtrapFinalTrack = demoExtrapFinalTrack / 2.;
-  deft = deft / 2.;
+  deft = deft / (2.*(double)goodTrackCount);
 
   //return demoExtrapFinalTrack;
   return deft;
@@ -434,6 +438,9 @@ Vector trackEngine::computeHierExtrapFinalTrack(){
   int nAnt = (int)baselineTracks.size();
   Vector tempVector;
   tempVector.SetXYZ(0.,0.,0.);
+
+  int goodTrackCount = 0;
+
   for(int rank=0; rank<nAnt*nAnt; rank++){
 
     int anti = trackRank[rank]/nAnt;
@@ -446,13 +453,14 @@ Vector trackEngine::computeHierExtrapFinalTrack(){
         ).Mag() > tempVector.Mag() ){
 
       tempVector += (cosine[anti*nAnt+antf]*baselineTracks[anti][antf] + eventOrthoTracks[anti][antf]);
+      goodTrackCount++;
 
     }
     }
   }//end of rank
 
   if(tempVector.Mag() < 1e-9){ cerr<<"hierExtrapFinalTrack lenght is zero!\n"; return zeroVector;}
-  else /*hierExtrapFinalTrack*/tempVector = (tempVector / 2.); //account for double counting
+  else /*hierExtrapFinalTrack*/tempVector = (tempVector / (2.*(double)goodTrackCount)); //account for double counting
 
   //return hierExtrapFinalTrack.Mag();
   return tempVector;
