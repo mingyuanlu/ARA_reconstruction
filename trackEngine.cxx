@@ -91,6 +91,7 @@ int trackEngine::computeCosines(vector<TGraph*> unpaddedEvent){
   double peakTArray[16];
   getChannelPeakTime(unpaddedEvent, peakTArray);
 
+  int nAnt = (int)unpaddedEvent.size();
   cosine = (double*)malloc(sizeof(double)*nAnt*nAnt);
 
   //vector<bool> temp;
