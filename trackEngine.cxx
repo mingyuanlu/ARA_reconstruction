@@ -408,7 +408,7 @@ if(tempDemoExtrap.Mag()==0 || tempHierExtrap.Mag()==0 ){ cerr<"No input demo/hie
       cerr<<"compute demo extrapolated final track error\n"; return -1;
     }
     demoCount++;
-  } while(demoAngle < angleThreshold || demoCount < maxIteration); //Stopping condition: when the space angle converges or when done max iterations
+  } while(demoAngle > angleThreshold && demoCount < maxIteration); //Stopping condition: when the space angle converges or when done max iterations
 
   //Iterate hier extrap track
   do {
@@ -425,7 +425,7 @@ if(tempDemoExtrap.Mag()==0 || tempHierExtrap.Mag()==0 ){ cerr<"No input demo/hie
       cerr<<"compute hier extrapolated final track error\n"; return -1;
     }
     hierCount++;
-  } while(hierAngle < angleThreshold || hierCount < maxIteration); //Stopping condition: when the space angle converges or when done max iterations
+  } while(hierAngle > angleThreshold && hierCount < maxIteration); //Stopping condition: when the space angle converges or when done max iterations
 
   cout<<"Demo count: "<<demoCount<<" Demo angle: "<<demoAngle<<endl;
   cout<<"Hier count: "<<hierCount<<" Hier angle: "<<hierAngle<<endl;
