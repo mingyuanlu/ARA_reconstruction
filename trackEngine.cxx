@@ -56,15 +56,79 @@ int trackEngine::buildBaselineTracks(const vector< vector<double> >& antLocation
 
    return 0;
 }
+/*
+int trackEngine::determineUsableTracks(vector<TGraph*> unpaddedEvent){
+
+  if(baselineTrackTimes.size()==0){ cerr<<"No baselineTrackTimes\n"; return -1;}
+  double peakTArray[16];
+  getChannelPeakTime(unpaddedEvent, peakTArray);
+
+  vector<bool> temp;
+  int nAnt = (int)unpaddedEvent.size();
+  for(int anti=0; anti<nAnt; anti++){
+
+    temp.clear();
+    for(int antf=0; antf<nAnt; antf++){
+
+      if(peakTArray[anti]>-1e9 && peakTArray[antf]>-1e-9){
+        if(fabs(peakTArray[anti]-peakTArray[antf]) < baselineTrackTimes[anti][antf] + tolerance){
+          temp.push_back(true);
+        }
+        else temp.push_back(false);
+      }
+      else temp.push_back(false);
+
+    }
+    trackUsable.push_back(temp);
+  }
+
+  return 0;
+}
+*/
+int trackEngine::computeCosines(vector<TGraph*> unpaddedEvent){
+
+  if(baselineTrackTimes.size()==0){ cerr<<"No baselineTrackTimes\n"; return -1;}
+  double peakTArray[16];
+  getChannelPeakTime(unpaddedEvent, peakTArray);
+
+  cosine = (double*)malloc(sizeof(double)*nAnt*nAnt);
+
+  //vector<bool> temp;
+  int nAnt = (int)unpaddedEvent.size();
+  for(int anti=0; anti<nAnt; anti++){
+
+    //temp.clear();
+    for(int antf=0; antf<nAnt; antf++){
+
+      if(peakTArray[anti]>-1e9 && peakTArray[antf]>-1e-9){
+        if(fabs(peakTArray[anti]-peakTArray[antf]) < baselineTrackTimes[anti][antf] + tolerance){
+
+          if(anti != antf)
+           cosine[anti*nAnt+antf] = (peakTArray[antf] - peakTArray[anti]) / baselineTrackTimes[anti][antf];
+          else
+           cosine[anti*nAnt+antf] = -1e9; //case of same antenna
+
+          if(cosine[anti*nAnt+antf] > 1) cosine[anti*nAnt+antf] = 1.;
+        }
+        else  cosine[anti*nAnt+antf] = -1e9; //case of acausality
+      }
+      else  cosine[anti*nAnt+antf] = -1e9; //case of non-existing peak time
+
+    }
+    //trackUsable.push_back(temp);
+  }
+
+  return 0;
+}
 
 int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
 
-   double peakTArray[16];
+   //double peakTArray[16];
    float snrArray[16];
    int index[16];
    getChannelSNR(unpaddedEvent, snrArray);
-   TMath::Sort(16,snrArray,index);
-   getChannelPeakTime(unpaddedEvent, peakTArray);
+   //TMath::Sort(16,snrArray,index);
+   //getChannelPeakTime(unpaddedEvent, peakTArray);
 
    int nAnt = (int)unpaddedEvent.size();
    //int nTracks = TMath::Binomial(nAnt, 2);
@@ -83,13 +147,17 @@ int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
    //double cosine;
    goodTrackCount = 0;
    badTrackCount  = 0;
-   cosine = (double*)malloc(sizeof(double)*nAnt*nAnt);
+   //cosine = (double*)malloc(sizeof(double)*nAnt*nAnt);
+   //int trackCount = 0;
+   //if(trackUsable.size()==0){ cerr<<"No trackUsable\n"; return -1;}
+   if(cosine == NULL){ cerr<<"No cosines\n"; return -1;}
 
    for(int anti=0; anti<nAnt; anti++){
      for(int antf=0; antf<nAnt; antf++){
 
-       if(peakTArray[anti]>-1e9 && peakTArray[antf]>-1e-9){
-         if(fabs(peakTArray[anti]-peakTArray[antf]) < baselineTrackTimes[anti][antf] + tolerance){
+       //if(peakTArray[anti]>-1e9 && peakTArray[antf]>-1e-9){
+         //if(fabs(peakTArray[anti]-peakTArray[antf]) < baselineTrackTimes[anti][antf] + tolerance){
+       if(cosine[anti*nAnt+antf] > -1e9){
 
            goodTrackCount++;
 
@@ -98,31 +166,39 @@ int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
           //   cosine[anti*nAnt+antf] = -1.* (peakTArray[anti] - peakTArray[antf]) / baselineTrackTimes[anti][antf];
 
            //} else {
+           /*
            if(anti != antf)
             cosine[anti*nAnt+antf] = (peakTArray[antf] - peakTArray[anti]) / baselineTrackTimes[anti][antf];
            else
             cosine[anti*nAnt+antf] = 0.;
 
            if(cosine[anti*nAnt+antf] > 1) cosine[anti*nAnt+antf] = 1.;
-
+           */
            //}
-           demoFinalTrack += (cosine[anti*nAnt+antf] * baselineTracks[anti][antf]);
+           //if(anti!=antf){
+             demoFinalTrack += (cosine[anti*nAnt+antf] * baselineTracks[anti][antf]);
+             //trackCount++;
+           //}
 
          } else {
 
            badTrackCount++;
-           cosine[anti*nAnt+antf] = -1e9;
+           //cosine[anti*nAnt+antf] = -1e9;
 
          }//end of else
-       }//end of if t > -1e9
-       else {
-         badTrackCount++;
-         cosine[anti*nAnt+antf] = -1e9;
-       }
+       //}//end of if t > -1e9
+       //else {
+       // badTrackCount++;
+       // cosine[anti*nAnt+antf] = -1e9;
+       //}
      }//end of antf
    }//end of anti
 
+   if(badTrackCount+goodTrackCount!=nAnt*nAnt){ printf("track count check failed. bad: %d good: %d nAnt^2: %d\n", badTrackCount, goodTrackCount, nAnt*nAnt); return -1; }
+
    demoFinalTrack = demoFinalTrack / 2.; //acoount for double counting
+   //demoFinalTrack = demoFinalTrack / (double)trackCount; //account for numbe of used tracks
+
    Vector tempVector;
    tempVector.SetXYZ(0.,0.,0.);
    for(int rank=0; rank<nAnt*nAnt; rank++){
@@ -311,7 +387,7 @@ int trackEngine::buildEventOrthoTracks(Vector finalTrack){
 
     tempVector.clear();
     for(int antf=0; antf<nAnt; antf++){
-      if(cosine[anti*nAnt+antf] > -1e9 && anti!=antf){
+      if(cosine[anti*nAnt+antf] > -1e9 /*&& anti!=antf*/){
       rotAngle = TMath::Pi()/2. - finalTrack.Angle(baselineTracks[anti][antf]);
       temp = finalTrack.Rotate(rotAngle, baselineTracks[anti][antf].Cross(finalTrack));
       temp = temp / temp.Mag();
@@ -504,6 +580,7 @@ int trackEngine::computeAllTracks(/*const vector< vector<double> >& antLocation,
   //initialize();
   if(baselineTracks.size()==0){ cerr<<"No baseline tracks\n"; return -1;}
   //if( buildBaselineTracks(antLocation) < 0 ){ cerr<<"Build baseline tracks error\n"; return -1;}
+  if( computeCosines(unpaddedEvent) < 0 ){ cerr<<"Compute cosines error\n"; return -1;}
   if( computeFinalTracks(unpaddedEvent) < 0 ){ cerr<<"Compute final tracks error\n"; return -1;}
   if( buildEventOrthoTracks(demoFinalTrack) < 0){ cerr<<"buildEventOrthoTracks with demo error\n"; return -1;}
   demoExtrapFinalTrack = computeDemoExtrapFinalTrack();

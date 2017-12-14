@@ -49,6 +49,7 @@ public:
 
    int buildBaselineTracks(const vector< vector<double> >& antLocation);
    double checkBaselineTracks();
+   int computeCosines(vector<TGraph*> unpaddedEvent);
    int buildEventOrthoTracks(Vector finalTrack);
 
    int goodTrackCount, badTrackCount;
