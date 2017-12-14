@@ -95,7 +95,7 @@ int trackEngine::computeCosines(vector<TGraph*> unpaddedEvent){
   cosine = (double*)malloc(sizeof(double)*nAnt*nAnt);
 
   //vector<bool> temp;
-  int nAnt = (int)unpaddedEvent.size();
+
   for(int anti=0; anti<nAnt; anti++){
 
     //temp.clear();
