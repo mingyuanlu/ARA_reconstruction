@@ -392,7 +392,7 @@ if(tempDemoExtrap.Mag()==0 || tempHierExtrap.Mag()==0 ){ cerr<"No input demo/hie
   int hierCount = 0;
   int count = 0;
   double demoAngle, hierAngle;
-
+  cout<<"angleThreshold: "<<angleThreshold<<" maxIteration: "<<maxIteration<<endl;
   //Iterate demo extrap track
   do {
 
@@ -400,6 +400,7 @@ if(tempDemoExtrap.Mag()==0 || tempHierExtrap.Mag()==0 ){ cerr<"No input demo/hie
     iterDemoExtrapFinalTrack = computeDemoExtrapFinalTrack();
     if( iterDemoExtrapFinalTrack.Mag() != 0 ){
       demoAngle = tempDemoExtrap.Angle(iterDemoExtrapFinalTrack) * TMath::RadToDeg();
+      cout<<"demoAngle: "<<demoAngle<<endl;
       //hierAngle = tempHierExtrap.Angle(hierExtrapFinalTrack) * TMath::RadToDeg();
       tempDemoExtrap = iterDemoExtrapFinalTrack;
       //tempHierExtrap = hierExtrapFinalTrack;
@@ -417,6 +418,7 @@ if(tempDemoExtrap.Mag()==0 || tempHierExtrap.Mag()==0 ){ cerr<"No input demo/hie
     if( iterHierExtrapFinalTrack.Mag() != 0 ){
       //demoAngle = tempDemoExtrap.Angle(iterDemoExtrapFinalTrack) * TMath::RadToDeg();
       hierAngle = tempHierExtrap.Angle(iterHierExtrapFinalTrack) * TMath::RadToDeg();
+      cout<<"hierAngle: "<<hierAngle<<endl;
       //tempDemoExtrap = iterDemoExtrapFinalTrack;
       tempHierExtrap = iterHierExtrapFinalTrack;
     } else {
