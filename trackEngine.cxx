@@ -408,28 +408,31 @@ Vector trackEngine::computeDemoExtrapFinalTrack(){
 
   if(demoFinalTrack.Mag()==0 ){ cerr<<"No demoFinalTrack\n"; return zeroVector;}
   //demoExtrapFinalTrack = (demoFinalTrack * 2.)
-  Vector deft = (2. * demoFinalTrack );
+  //Vector deft = (2. * demoFinalTrack );
 
   if(eventOrthoTracks.size()==0){ cerr<<"No eventOrthoTracks\n"; return zeroVector;}
 
   int goodTrackCount = 0;
   int nAnt = (int)baselineTracks.size();
 
+  Vector temp = zeroVector;
   for(int anti=0; anti<nAnt; anti++){
     for(int antf=0; antf<nAnt; antf++){
 
       if(cosine[anti*nAnt+antf]> -1e9){
-        /*demoExtrapFinalTrack*/deft += eventOrthoTracks[anti][antf];
+        /*demoExtrapFinalTrack*//*deft*/temp += eventOrthoTracks[anti][antf];
         goodTrackCount++;
       }
     }
   }
 
   //demoExtrapFinalTrack = demoExtrapFinalTrack / 2.;
-  deft = deft / (2.*(double)goodTrackCount);
+  //deft = deft / (2.*(double)goodTrackCount);
+  //deft = deft + temp /
 
   //return demoExtrapFinalTrack;
-  return deft;
+  //return deft;
+  return demoFinalTrack + (temp / (2.*(double)goodTrackCount));
 }
 
 Vector trackEngine::computeHierExtrapFinalTrack(){
