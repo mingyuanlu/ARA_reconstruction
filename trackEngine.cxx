@@ -299,6 +299,7 @@ int computeExtrapFinalTracksWithHier(){
 //int computeExtrapFinalTracks(Vector finalTrack){
 int trackEngine::buildEventOrthoTracks(Vector finalTrack){
 
+  eventOrthoTracks.clear();
   if(finalTrack.Mag() == 0){ cerr<<"No finalTrack!\n"; return -1;}
   vector<Vector> tempVector;
   Vector temp;
@@ -502,7 +503,9 @@ int trackEngine::computeAllTracks(/*const vector< vector<double> >& antLocation,
   if(baselineTracks.size()==0){ cerr<<"No baseline tracks\n"; return -1;}
   //if( buildBaselineTracks(antLocation) < 0 ){ cerr<<"Build baseline tracks error\n"; return -1;}
   if( computeFinalTracks(unpaddedEvent) < 0 ){ cerr<<"Compute final tracks error\n"; return -1;}
+  if( buildEventOrthoTracks(demoFinalTrack) < 0){ cerr<<"buildEventOrthoTracks with demo error\n"; return -1;}
   demoExtrapFinalTrack = computeDemoExtrapFinalTrack();
+  if( buildEventOrthoTracks(hierFinalTrack) < 0){ cerr<<"buildEventOrthoTracks with hier error\n"; return -1;}
   hierExtrapFinalTrack = computeHierExtrapFinalTrack();
   if(demoExtrapFinalTrack.Mag() == 0 ){ cerr<<"No demoExtrapFinalTrack\n"; return -1;}
   if(hierExtrapFinalTrack.Mag() == 0 ){ cerr<<"No hierExtrapFinalTrack\n"; return -1;}
