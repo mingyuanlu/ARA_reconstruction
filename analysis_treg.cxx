@@ -930,7 +930,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    /* Track engine object to compute all tracks */
    treg->computeAllTracks(unpaddedEvent);
-   treg->print();
+   //treg->print();
    demoLen = treg->demoFinalTrack.Mag();
    hierLen = treg->hierFinalTrack.Mag();
    demoExtrapLen = treg->demoExtrapFinalTrack.Mag();
