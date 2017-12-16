@@ -88,6 +88,8 @@ public:
 
    void print();
 
+   int demoIterCount, hierIterCount;
+
    //ClassDef(trackEngine, 1);
 
 };

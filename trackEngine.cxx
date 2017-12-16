@@ -518,6 +518,9 @@ if(tempDemoExtrap.Mag()==0 || tempHierExtrap.Mag()==0 ){ cerr<"No input demo/hie
   cout<<"Demo count: "<<demoCount<<" Demo angle: "<<demoAngle<<endl;
   cout<<"Hier count: "<<hierCount<<" Hier angle: "<<hierAngle<<endl;
 
+  demoIterCount = demoCount;
+  hierIterCount = hierCount;
+
   return 0;
 }
 
@@ -527,6 +530,7 @@ void trackEngine::initialize(){
   this->setTolerance(5.);
   this->setAngleThreshold(1.);
   this->setMaxIteration(100);
+  demoIterCount = hierIterCount = 0;
 
 }
 
@@ -562,6 +566,8 @@ void trackEngine::clearForNextEvent(){
   demoFinalTrack = hierFinalTrack = demoExtrapFinalTrack = hierExtrapFinalTrack
   = iterDemoExtrapFinalTrack = iterHierExtrapFinalTrack = zeroVector;
 
+  demoIterCount = 0;
+  hierIterCount = 0;
   //angleThreshold = 0.;
   //maxIteration = 0;
 
@@ -584,7 +590,9 @@ void trackEngine::clearAll(){
   angleThreshold = 0.;
   maxIteration = 0;
   tolerance = 0.;
-
+  demoIterCount = 0;
+  hierIterCount = 0;
+  
 }
 
 int trackEngine::computeAllTracks(/*const vector< vector<double> >& antLocation,*/ vector<TGraph *> unpaddedEvent){

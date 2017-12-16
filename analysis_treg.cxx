@@ -142,6 +142,34 @@ TTree *recoSettingsTree = new TTree("recoSettingsTree", "recoSettingsTree");
 //TTree *onionTree = new TTree("onionTree", "onionTree");
 TTree *dataTree  = new TTree("dataTree",  "dataTree");
 TTree *runInfoTree = new TTree("runInfoTree", "runInfoTree");
+TTree *tregTree = new ("tregTree", "tregTree");
+
+double demoLen, hierLen, demoExtrapLen, hierExtrapLen, iterDemoLen, iterHierLen;
+double demoZen, demoAzi, hierZen, hierAzi, demoExtrapZen, demoExtrapAzi, hierExtapZen, hierExtrapAzi, iterDemoZen, iterDemoAzi, iterHierZen, iterHierAzi;
+double spaceAngle, spaceAngleExtrap, spaceAngleIter;
+double tregWeight;
+tregTree->Branch("demoLen", &demoLen);
+tregTree->Branch("hierLen", &hierLen);
+tregTree->Branch("demoExtrapLen", &demoExtrapLen);
+tregTree->Branch("hierExtrapLen", &hierExrapLen);
+tregTree->Branch("iterDemoLen", &iterDemoLen);
+tregTree->Branch("iterHierLen", &iterHierLen);
+tregTree->Branch("demoZen", &demoZen);
+tregTree->Branch("demoAzi", &demoAzi);
+tregTree->Branch("hierZen", &hierZen);
+tregTree->Branch("hierAzi", &hierAzi);
+tregTree->Branch("demoExtrapZen", &demoExtrapZen);
+tregTree->Branch("demoExtrapAzi", &demoExtrapAzi);
+tregTree->Branch("hierExtrapZen", &hierExtrapZen);
+tregTree->Branch("hierExtrapAzi", &hierExtrapAzi);
+tregTree->Branch("iterDemoZen", &iterDemoZen);
+tregTree->Branch("iterDemoAzi", &iterDemoAzi);
+tregTree->Branch("iterHierZen", &iterHierZen);
+tregTree->Branch("iterHierAzi", &iterHierAzi);
+tregTree->Branch("spaceAngle", &spaceAngle);
+tregTree->Branch("spaceAngleExtrap", &spaceAngleExtrap);
+tregTree->Branch("spaceAngleIter", &spaceAngleIter);
+treg->Branch("tregWeight", &tregWeight);
 
 recoSettingsTree->Branch("settings", &settings);
 recoSettingsTree->Fill();
@@ -900,6 +928,29 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    /* Track engine object to compute all tracks */
    treg->computeAllTracks(unpaddedEvent);
    treg->print();
+   demoLen = treg->demoFinalTrack.Mag();
+   hierLen = treg->hierFinalTrack.Mag();
+   demoExtrapLen = treg->demoExtrapFinalTrack.Mag();
+   hierExtrapLen = treg->hierExtrapFinalTrack.Mag();
+   iterDemoLen = treg->iterDemoExtrapFinalTrack.Mag();
+   iterHierLen = treg->iterHierExtrapFinalTrack.Mag();
+   demoZen = treg->demoFinalTrack.Theta()*TMath::RadToDeg();
+   demoAzi = treg->demoFinalTrack.Phi()*TMath::RadToDeg();
+   hierZen = treg->hierFinalTrack.Theta()*TMath::RadToDeg();
+   hierAzi = treg->hierFinalTrack.Phi()*TMath::RadToDeg();
+   demoExtrapZen = treg->demoExtrapFinalTrack.Theta()*TMath::RadToDeg();
+   demoExtrapAzi = treg->demoExtrapFinalTrack.Phi()*TMath::RadToDeg();
+   hierExtrapZen = treg->hierExtrapFinalTrack.Theta()*TMath::RadToDeg();
+   hierExtrapAzi = treg->hierExtrapFinalTrack.Phi()*TMath::RadToDeg();
+   iterDemoZen = treg->iterDemoExtrapFinalTrack.Theta()*TMath::RadToDeg();
+   iterDemoAzi = treg->iterDemoExtrapFinalTrack.Phi()*TMath::RadToDeg();
+   iterHierZen = treg->iterHierExtrapFinalTrack.Theta()*TMath::RadToDeg();
+   iterHierAzi = treg->iterHierExtrapFinalTrack.Phi()*TMath::RadToDeg();
+   spaceAngle = treg->demoFinalTrack.Angle(treg->hierFinalTrack) * TMath::RadToDeg();
+   spaceAngleExtrap = treg->demoExtrapFinalTrack.Angle(treg->hierExtrapFinalTrack) * TMath::RadToDeg();
+   spaceAngleIter = treg->iterDemoExtrapFinalTrack.Angle(treg->iterHierExtrapFinalTrack) * TMath::RadToDeg();
+   tregWeight = event->Nu_Interaction[0].weight;
+   tregTree->Fill();
    treg->clearForNextEvent();
 
    //recoData *summary = new recoData();
@@ -918,7 +969,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    recoSuccess = false;
 
-   while( !recoSuccess ){
+   //while( !recoSuccess ){
    if(settings->beamformMethod == 1){
    if(settings->getSkymapMode == 0){
        err = reconstructCSW(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, fitsFile/*argv[5]*/);
@@ -937,7 +988,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       sprintf(fitsFile, fitsFileStr.c_str());
 
       if(settings->skymapSearchMode == 0){ //no zoom mode
-      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
+      //maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
       if(settings->recordMapData == 1){
       for(int pix=0; pix<nDir*nLayer; pix++) mapDataHist[pix]->Fill(mapData[pix]);
       }
@@ -953,7 +1004,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    if( err<0 || maxPixIdx<0){ cerr<<"Error reconstructing\n"; return -1; }
    if(summary->maxPixCoherence != 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
    else { cout<<"maxPixCoherence returns 0!! Re-running reco...\n"; }
-   }//end of while
+   //}//end of while
 
    //int recoFlag = record3DDiffGetFlag(summary, outputFile);
    //if( recoFlag ) recoFlagCnt++;
