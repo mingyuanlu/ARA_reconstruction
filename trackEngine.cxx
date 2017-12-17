@@ -219,7 +219,7 @@ int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
    }//end of rank
 
    if(tempVector.Mag() < 1e-9){ cerr<<"hierFinalTrack lenght is zero!\n"; return -1;}
-   else hierFinalTrack = (tempVector / (2./**(double)goodTrackCount)*/); //account for double counting
+   else hierFinalTrack = (tempVector / (2./**(double)goodTrackCount)*/)); //account for double counting
 
    return 0;
 }
@@ -432,7 +432,7 @@ Vector trackEngine::computeDemoExtrapFinalTrack(){
 
   //return demoExtrapFinalTrack;
   //return deft;
-  return demoFinalTrack + (temp / (2./**(double)goodTrackCount)*/);
+  return demoFinalTrack + (temp / (2./**(double)goodTrackCount)*/));
 }
 
 Vector trackEngine::computeHierExtrapFinalTrack(){
@@ -463,7 +463,7 @@ Vector trackEngine::computeHierExtrapFinalTrack(){
   }//end of rank
 
   if(tempVector.Mag() < 1e-9){ cerr<<"hierExtrapFinalTrack lenght is zero!\n"; return zeroVector;}
-  else /*hierExtrapFinalTrack*/tempVector = (tempVector / (2./**(double)goodTrackCount)*/); //account for double counting
+  else /*hierExtrapFinalTrack*/tempVector = (tempVector / (2./**(double)goodTrackCount)*/)); //account for double counting
 
   //return hierExtrapFinalTrack.Mag();
   return tempVector;
