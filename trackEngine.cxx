@@ -233,8 +233,9 @@ int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
      }
    }//end of rank
 
-   if(tempVector.Mag() < 1e-9){ cerr<<"hierFinalTrack lenght is zero!\n"; return -1;}
-   else hierFinalTrack = (tempVector / (2./**(double)goodTrackCount)*/)); //account for double counting
+   //if(tempVector.Mag() < 1e-9){ cerr<<"hierFinalTrack lenght is zero!\n"; return -1;}
+   //else
+   hierFinalTrack = (tempVector / (2./**(double)goodTrackCount)*/)); //account for double counting
 
    return 0;
 }
@@ -479,8 +480,9 @@ Vector trackEngine::computeHierExtrapFinalTrack(){
     }
   }//end of rank
 
-  if(tempVector.Mag() < 1e-9){ cerr<<"hierExtrapFinalTrack lenght is zero!\n"; return zeroVector;}
-  else /*hierExtrapFinalTrack*/tempVector = (tempVector / (2./**(double)goodTrackCount)*/)); //account for double counting
+  //if(tempVector.Mag() < 1e-9){ cerr<<"hierExtrapFinalTrack lenght is zero!\n"; return zeroVector;}
+  //else /*hierExtrapFinalTrack*/
+  tempVector = (tempVector / (2./**(double)goodTrackCount)*/)); //account for double counting
 
   //return hierExtrapFinalTrack.Mag();
   return tempVector;
@@ -504,6 +506,7 @@ if(tempDemoExtrap.Mag()==0 || tempHierExtrap.Mag()==0 ){ cerr<"No input demo/hie
     if( buildEventOrthoTracks(tempDemoExtrap)<0 ){ cerr<<"Re-building ortho tracks error\n"; return -1; }
     iterDemoExtrapFinalTrack = computeDemoExtrapFinalTrack();
     if( iterDemoExtrapFinalTrack.Mag() != 0 ){
+      cout<<"tempDemoExtrap.Mag(): "<<tempDemoExtrap.Mag()<<" iterDemoExtrapFinalTrack.Mag(): "<<iterDemoExtrapFinalTrack.Mag()<<endl;
       demoAngle = tempDemoExtrap.Angle(iterDemoExtrapFinalTrack) * TMath::RadToDeg();
       //cout<<"demoAngle: "<<demoAngle<<endl;
       //hierAngle = tempHierExtrap.Angle(hierExtrapFinalTrack) * TMath::RadToDeg();
@@ -522,6 +525,7 @@ if(tempDemoExtrap.Mag()==0 || tempHierExtrap.Mag()==0 ){ cerr<"No input demo/hie
     iterHierExtrapFinalTrack = computeHierExtrapFinalTrack();
     if( iterHierExtrapFinalTrack.Mag() != 0 ){
       //demoAngle = tempDemoExtrap.Angle(iterDemoExtrapFinalTrack) * TMath::RadToDeg();
+      cout<<"tempHierExtrap.Mag(): "<<tempHierExtrap.Mag()<<" iterHierExtrapFinalTrack.Mag(): "<<iterHierExtrapFinalTrack.Mag()<<endl;
       hierAngle = tempHierExtrap.Angle(iterHierExtrapFinalTrack) * TMath::RadToDeg();
       //cout<<"hierAngle: "<<hierAngle<<endl;
       //tempDemoExtrap = iterDemoExtrapFinalTrack;
