@@ -246,6 +246,8 @@ int trackEngine::getChannelPeakTime(vector<TGraph *> unpaddedEvent, double *peak
   peakT = -1e10;
 
    for(int ch=0; ch<unpaddedEvent.size(); ch++){
+
+      peakV = 0.;
       for(int i=0; i<unpaddedEvent[ch]->GetN(); i++){
 
          unpaddedEvent[ch]->GetPoint(i, t, v);
