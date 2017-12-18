@@ -90,7 +90,7 @@ int trackEngine::computeCosines(vector<TGraph*> unpaddedEvent){
   if(baselineTrackTimes.size()==0){ cerr<<"No baselineTrackTimes\n"; return -1;}
   double peakTArray[16];
   getChannelPeakTime(unpaddedEvent, peakTArray);
-
+/*
   TCanvas cvs("cvs","cvs",800,800);
   cvs.Divide(4,4);
   TLine *line[16];
@@ -105,7 +105,7 @@ int trackEngine::computeCosines(vector<TGraph*> unpaddedEvent){
 
   cvs.SaveAs("eventWf.C");
   delete line;
-
+*/
   int nAnt = (int)unpaddedEvent.size();
   cosine = (double*)malloc(sizeof(double)*nAnt*nAnt);
 
