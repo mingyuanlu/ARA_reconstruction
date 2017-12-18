@@ -96,6 +96,7 @@ int trackEngine::computeCosines(vector<TGraph*> unpaddedEvent){
   TLine *line[16];
   for(int ch=0; ch<16; ch++){
     cvs.cd(ch+1);
+    cout<<"peakT: "<<peakTArray[ch]<<endl;
     unpaddedEvent[ch]->Draw("AL");
     line[ch] = new TLine(peakTArray[ch],-500,peakTArray[ch],500);
     line[ch]->SetLineColor(kRed);
