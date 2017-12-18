@@ -91,6 +91,20 @@ int trackEngine::computeCosines(vector<TGraph*> unpaddedEvent){
   double peakTArray[16];
   getChannelPeakTime(unpaddedEvent, peakTArray);
 
+  TCanvas cvs("cvs","cvs",800,800);
+  cvs.Divide(4,4);
+  TLine *line[16];
+  for(int ch=0; ch<16; ch++){
+    cvs.cd(ch+1);
+    unpaddedEvent[ch]->Draw("AL");
+    line[ch] = new TLine(peakTArray[ch],-500,peakTArray[ch],500);
+    line[ch]->SetLineColor(kRed);
+    line[ch]->Draw("same");
+  }
+
+  cvs.SaveAs("eventWf.C");
+  delete line;
+
   int nAnt = (int)unpaddedEvent.size();
   cosine = (double*)malloc(sizeof(double)*nAnt*nAnt);
 
