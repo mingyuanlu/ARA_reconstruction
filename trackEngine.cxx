@@ -419,8 +419,9 @@ int trackEngine::buildEventOrthoTracks(Vector finalTrack){
       temp = finalTrack.Rotate(rotAngle, baselineTracks[anti][antf].Cross(finalTrack));
       cout<<"temp.Mag(): "<<temp.Mag()<<endl;
       temp = temp / temp.Mag();
-      cout<<"anti: "<<anti<<" antf: "<<antf<<" temp: "; temp.Print();
+      //cout<<"anti: "<<anti<<" antf: "<<antf<<" temp: "; temp.Print();
       temp = sqrt(1-cosine[anti*nAnt+antf]*cosine[anti*nAnt+antf]) * temp;
+      cout<<"anti: "<<anti<<" antf: "<<antf<<" temp: "; temp.Print();
       tempVector.push_back(temp);
     } else { tempVector.push_back(zeroVector); }
     }
