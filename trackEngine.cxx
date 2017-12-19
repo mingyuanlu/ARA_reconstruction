@@ -419,7 +419,7 @@ int trackEngine::buildEventOrthoTracks(Vector finalTrack){
       temp = finalTrack.Rotate(rotAngle, baselineTracks[anti][antf].Cross(finalTrack));
       cout<<"temp.Mag(): "<<temp.Mag()<<endl;
       temp = temp / temp.Mag();
-      cout<<"anti: "<<anti<<" antf: "<<antf<<" temp.Mag() "<<temp.Mag()<<endl;
+      cout<<"anti: "<<anti<<" antf: "<<antf<<" temp: "; temp.Print();
       temp = sqrt(1-cosine[anti*nAnt+antf]*cosine[anti*nAnt+antf]) * temp;
       tempVector.push_back(temp);
     } else { tempVector.push_back(zeroVector); }
@@ -446,7 +446,7 @@ Vector trackEngine::computeDemoExtrapFinalTrack(){
     for(int antf=0; antf<nAnt; antf++){
 
       if(cosine[anti*nAnt+antf]> -1e9){
-        cout<<"ortho: "; eventOrthoTracks[anti][antf].Print();
+        cout<<"anti: "<<anti<<" antf: "<<antf<<" ortho: "; eventOrthoTracks[anti][antf].Print();
         /*demoExtrapFinalTrack*//*deft*/temp += eventOrthoTracks[anti][antf];
         cout<<"temp: "; temp.Print();
         goodTrackCount++;
