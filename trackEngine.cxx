@@ -414,7 +414,9 @@ int trackEngine::buildEventOrthoTracks(Vector finalTrack){
     for(int antf=0; antf<nAnt; antf++){
       if(cosine[anti*nAnt+antf] > -1e9 /*&& anti!=antf*/){
       rotAngle = TMath::Pi()/2. - finalTrack.Angle(baselineTracks[anti][antf]);
+      cout<<"rotAngle: "<<rotAngle<<endl;
       temp = finalTrack.Rotate(rotAngle, baselineTracks[anti][antf].Cross(finalTrack));
+      cout<<"temp.Mag(): "<<temp.Mag()<<endl;
       temp = temp / temp.Mag();
       cout<<"anti: "<<anti<<" antf: "<<antf<<" temp.Mag() "<<temp.Mag()<<endl;
       temp = sqrt(1-cosine[anti*nAnt+antf]*cosine[anti*nAnt+antf]) * temp;
