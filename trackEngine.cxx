@@ -401,7 +401,7 @@ int computeExtrapFinalTracksWithHier(){
 int trackEngine::buildEventOrthoTracks(Vector finalTrack){
 
   eventOrthoTracks.clear();
-  if(finalTrack.Mag() == 0){ cerr<<"No finalTrack!\n"; return -1;}
+  if(finalTrack.Mag() < 1e-9){ cerr<<"No finalTrack!\n"; return -1;}
   vector<Vector> tempVector;
   Vector temp;
   double rotAngle;
@@ -635,8 +635,8 @@ int trackEngine::computeAllTracks(/*const vector< vector<double> >& antLocation,
   demoExtrapFinalTrack = computeDemoExtrapFinalTrack();
   if( buildEventOrthoTracks(hierFinalTrack) < 0){ cerr<<"buildEventOrthoTracks with hier error\n"; return -1;}
   hierExtrapFinalTrack = computeHierExtrapFinalTrack();
-  if(demoExtrapFinalTrack.Mag() == 0 ){ cerr<<"No demoExtrapFinalTrack\n"; return -1;}
-  if(hierExtrapFinalTrack.Mag() == 0 ){ cerr<<"No hierExtrapFinalTrack\n"; return -1;}
+  if(demoExtrapFinalTrack.Mag() < 1e-9 ){ cerr<<"No demoExtrapFinalTrack\n"; return -1;}
+  if(hierExtrapFinalTrack.Mag() < 1e-9 ){ cerr<<"No hierExtrapFinalTrack\n"; return -1;}
   if( computeIterExtrapFinalTracks(demoExtrapFinalTrack, hierExtrapFinalTrack) < 0){ cerr<<"Compute iter extrap final tracks error\n"; return -1;}
 
   //clearForNextEvent();
