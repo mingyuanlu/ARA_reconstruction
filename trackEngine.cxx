@@ -420,6 +420,7 @@ int trackEngine::buildEventOrthoTracks(Vector finalTrack){
       cout<<"temp.Mag(): "<<temp.Mag()<<endl;
       temp = temp / temp.Mag();
       //cout<<"anti: "<<anti<<" antf: "<<antf<<" temp: "; temp.Print();
+      cout<<"cosine: "<<cosine[anti*nAnt+antf]<<" 1-cos^2: "<<1-cosine[anti*nAnt+antf]*cosine[anti*nAnt+antf]<<endl;
       temp = sqrt(1-cosine[anti*nAnt+antf]*cosine[anti*nAnt+antf]) * temp;
       cout<<"anti: "<<anti<<" antf: "<<antf<<" temp: "; temp.Print();
       tempVector.push_back(temp);
