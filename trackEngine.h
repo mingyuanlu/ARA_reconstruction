@@ -53,7 +53,7 @@ public:
    int buildEventOrthoTracks(Vector finalTrack);
 
    int goodTrackCount, badTrackCount;
-   int demoGTC, hierGTC, hierExtrapGTC, iterHierGTC,
+   int demoGTC, hierGTC, hierExtrapGTC, iterHierGTC;
    int *trackRank;
    float *trackSNRArray;
    double *cosine;
