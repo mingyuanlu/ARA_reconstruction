@@ -119,14 +119,15 @@ int trackEngine::computeCosines(vector<TGraph*> unpaddedEvent){
       if(peakTArray[anti]>-1e9 && peakTArray[antf]>-1e-9){
         if(fabs(peakTArray[anti]-peakTArray[antf]) < baselineTrackTimes[anti][antf] + tolerance){
 
-          if(anti != antf)
+          if(anti != antf){
            cosine[anti*nAnt+antf] = (peakTArray[antf] - peakTArray[anti]) / baselineTrackTimes[anti][antf];
+           if(cosine[anti*nAnt+antf] > 1)       cosine[anti*nAnt+antf] = 1.;
+           else if(cosine[anti*nAnt+antf] < -1) cosine[anti*nAnt+antf] = -1.;
+          }
           else
            cosine[anti*nAnt+antf] = -1e9; //case of same antenna
 
-          if(cosine[anti*nAnt+antf] > 1)       cosine[anti*nAnt+antf] = 1.;
-          else if(cosine[anti*nAnt+antf] < -1) cosine[anti*nAnt+antf] = -1.;
-        }
+          }
         else  cosine[anti*nAnt+antf] = -1e9; //case of acausality
       }
       else  cosine[anti*nAnt+antf] = -1e9; //case of non-existing peak time
