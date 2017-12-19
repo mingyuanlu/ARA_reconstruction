@@ -446,6 +446,7 @@ Vector trackEngine::computeDemoExtrapFinalTrack(){
     for(int antf=0; antf<nAnt; antf++){
 
       if(cosine[anti*nAnt+antf]> -1e9){
+        cout<<"ortho: "; eventOrthoTracks[anti][antf].Print();
         /*demoExtrapFinalTrack*//*deft*/temp += eventOrthoTracks[anti][antf];
         cout<<"temp: "; temp.Print();
         goodTrackCount++;
