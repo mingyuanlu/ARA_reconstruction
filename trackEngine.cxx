@@ -125,7 +125,7 @@ int trackEngine::computeCosines(vector<TGraph*> unpaddedEvent){
            cosine[anti*nAnt+antf] = -1e9; //case of same antenna
 
           if(cosine[anti*nAnt+antf] > 1)       cosine[anti*nAnt+antf] = 1.;
-          else if(cosine[anti*nAnt+antf] < -1) cosine[anti*nAnt+antf] = -1.;
+          //else if(cosine[anti*nAnt+antf] < -1) cosine[anti*nAnt+antf] = -1.;
         }
         else  cosine[anti*nAnt+antf] = -1e9; //case of acausality
       }
@@ -415,7 +415,7 @@ int trackEngine::buildEventOrthoTracks(Vector finalTrack){
     for(int antf=0; antf<nAnt; antf++){
       if(cosine[anti*nAnt+antf] > -1e9 /*&& anti!=antf*/){
       rotAngle = TMath::Pi()/2. - finalTrack.Angle(baselineTracks[anti][antf]);
-      cout<<"finalTrack.Mag(): "<<finalTrack.Mag()<<" baselineTracks.Mag(): "<<baselineTracks[anti][antf].Mag()<<" angle: "<<finalTrack.Angle(baselineTracks[anti][antf])<<endl;
+      cout<<"anti: "<<anti<<" antf: "<<antf<<" finalTrack.Mag(): "<<finalTrack.Mag()<<" baselineTracks.Mag(): "<<baselineTracks[anti][antf].Mag()<<" angle: "<<finalTrack.Angle(baselineTracks[anti][antf])<<endl;
       cout<<"rotAngle: "<<rotAngle<<endl;
       temp = finalTrack.Rotate(rotAngle, baselineTracks[anti][antf].Cross(finalTrack));
       cout<<"temp.Mag(): "<<temp.Mag()<<endl;
