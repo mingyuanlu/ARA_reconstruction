@@ -176,7 +176,7 @@ tregTree->Branch("hierIterCount", &hierIterCount);
 tregTree->Branch("tregWeight", &tregWeight);
 tregTree->Branch("demoGTC", &demoGTC);
 tregTree->Branch("hierGTC", &hierGTC);
-tregTree->Branch("hierExtrapGTC", hierExtrapGTC);
+tregTree->Branch("hierExtrapGTC", &hierExtrapGTC);
 tregTree->Branch("iterHierGTC", &iterHierGTC);
 
 recoSettingsTree->Branch("settings", &settings);
