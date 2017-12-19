@@ -407,7 +407,7 @@ int trackEngine::buildEventOrthoTracks(Vector finalTrack){
   double rotAngle;
   int nAnt = (int)baselineTracks.size();
   if(nAnt == 0){ cerr<<"No baselineTracks!\n"; return -1;}
-
+  cout<<"410"; finalTrack.Print();
   for(int anti=0; anti<nAnt; anti++){
 
     tempVector.clear();
@@ -499,7 +499,7 @@ Vector trackEngine::computeHierExtrapFinalTrack(){
 
 int trackEngine::computeIterExtrapFinalTracks(Vector tempDemoExtrap, Vector tempHierExtrap){
 
-if(tempDemoExtrap.Mag()==0 || tempHierExtrap.Mag()==0 ){ cerr<"No input demo/hier final track\n"; return -1;}
+if(tempDemoExtrap.Mag() <1e-9 || tempHierExtrap.Mag() <1e-9 ){ cerr<"No input demo/hier final track\n"; return -1;}
   //Vector tempDemoExtrap = demoExtrapFinalTrack;
   //Vector tempHierExtrap = hierExtrapFinalTrack;
 
@@ -510,7 +510,7 @@ if(tempDemoExtrap.Mag()==0 || tempHierExtrap.Mag()==0 ){ cerr<"No input demo/hie
   cout<<"angleThreshold: "<<angleThreshold<<" maxIteration: "<<maxIteration<<endl;
   //Iterate demo extrap track
   do {
-
+    cout<<"513"; tempDemoExtrap.Print();
     if( buildEventOrthoTracks(tempDemoExtrap)<0 ){ cerr<<"Re-building ortho tracks error\n"; return -1; }
     iterDemoExtrapFinalTrack = computeDemoExtrapFinalTrack();
     if( iterDemoExtrapFinalTrack.Mag() != 0 ){
