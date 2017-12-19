@@ -218,7 +218,7 @@ int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
    if(badTrackCount+goodTrackCount!=nAnt*nAnt){ printf("track count check failed. bad: %d good: %d nAnt^2: %d\n", badTrackCount, goodTrackCount, nAnt*nAnt); return -1; }
 
    demoFinalTrack = demoFinalTrack / 2.; //acoount for double counting
-   //demoFinalTrack = demoFinalTrack / (double)goodTrackCount; //account for number of used tracks
+   demoFinalTrack = demoFinalTrack / (double)goodTrackCount; //account for number of used tracks
    //cout<<"final demoFinalTrack.Mag(): "<<demoFinalTrack.Mag()<<endl;
    demoGTC = goodTrackCount;
 
@@ -242,7 +242,7 @@ int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
 
    //if(tempVector.Mag() < 1e-9){ cerr<<"hierFinalTrack lenght is zero!\n"; return -1;}
    //else
-   hierFinalTrack = (tempVector / (2./**(double)goodTrackCount)*/)); //account for double counting
+   hierFinalTrack = (tempVector / (2.*(double)goodTrackCount)); //account for double counting
    hierGTC = goodTrackCount;
 
    return 0;
@@ -471,7 +471,7 @@ Vector trackEngine::computeDemoExtrapFinalTrack(){
   //cout<<"v: "; v.Print();
   //v = v + demoFinalTrack;
   //cout<<"v: "; v.Print();
-  return demoFinalTrack + (temp / (2./**(double)goodTrackCount)*/));
+  return demoFinalTrack + (temp / (2.*(double)goodTrackCount));
 }
 
 Vector trackEngine::computeHierExtrapFinalTrack(){
@@ -503,7 +503,7 @@ Vector trackEngine::computeHierExtrapFinalTrack(){
 
   //if(tempVector.Mag() < 1e-9){ cerr<<"hierExtrapFinalTrack lenght is zero!\n"; return zeroVector;}
   //else /*hierExtrapFinalTrack*/
-  tempVector = (tempVector / (2./**(double)goodTrackCount)*/)); //account for double counting
+  tempVector = (tempVector / (2.*(double)goodTrackCount)); //account for double counting
   //hierExtrapGTC = goodTrackCount;
 
   //return hierExtrapFinalTrack.Mag();
