@@ -125,7 +125,7 @@ int trackEngine::computeCosines(vector<TGraph*> unpaddedEvent){
            cosine[anti*nAnt+antf] = -1e9; //case of same antenna
 
           if(cosine[anti*nAnt+antf] > 1)       cosine[anti*nAnt+antf] = 1.;
-          //else if(cosine[anti*nAnt+antf] < -1) cosine[anti*nAnt+antf] = -1.;
+          else if(cosine[anti*nAnt+antf] < -1) cosine[anti*nAnt+antf] = -1.;
         }
         else  cosine[anti*nAnt+antf] = -1e9; //case of acausality
       }
