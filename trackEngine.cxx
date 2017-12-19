@@ -220,6 +220,7 @@ int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
    demoFinalTrack = demoFinalTrack / 2.; //acoount for double counting
    //demoFinalTrack = demoFinalTrack / (double)goodTrackCount; //account for number of used tracks
    //cout<<"final demoFinalTrack.Mag(): "<<demoFinalTrack.Mag()<<endl;
+   demoGTC = goodTrackCount;
 
    goodTrackCount = 0;
    Vector tempVector;
@@ -242,6 +243,7 @@ int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
    //if(tempVector.Mag() < 1e-9){ cerr<<"hierFinalTrack lenght is zero!\n"; return -1;}
    //else
    hierFinalTrack = (tempVector / (2./**(double)goodTrackCount)*/)); //account for double counting
+   hierGTC = goodTrackCount;
 
    return 0;
 }
@@ -442,7 +444,7 @@ Vector trackEngine::computeDemoExtrapFinalTrack(){
   //cout<<"demoFinalTrack: "; demoFinalTrack.Print();
   if(eventOrthoTracks.size()==0){ cerr<<"No eventOrthoTracks\n"; return zeroVector;}
 
-  int goodTrackCount = 0;
+  goodTrackCount = 0;
   int nAnt = (int)baselineTracks.size();
 
   Vector temp = zeroVector;
@@ -479,7 +481,7 @@ Vector trackEngine::computeHierExtrapFinalTrack(){
   Vector tempVector;
   tempVector.SetXYZ(0.,0.,0.);
 
-  int goodTrackCount = 0;
+  goodTrackCount = 0;
 
   for(int rank=0; rank<nAnt*nAnt; rank++){
 
@@ -502,6 +504,7 @@ Vector trackEngine::computeHierExtrapFinalTrack(){
   //if(tempVector.Mag() < 1e-9){ cerr<<"hierExtrapFinalTrack lenght is zero!\n"; return zeroVector;}
   //else /*hierExtrapFinalTrack*/
   tempVector = (tempVector / (2./**(double)goodTrackCount)*/)); //account for double counting
+  //hierExtrapGTC = goodTrackCount;
 
   //return hierExtrapFinalTrack.Mag();
   return tempVector;
@@ -611,6 +614,8 @@ void trackEngine::clearForNextEvent(){
   //angleThreshold = 0.;
   //maxIteration = 0;
 
+  demoGTC = hierGTC = hierExtrapGTC = iterHierGTC = 0;
+
 }
 
 void trackEngine::clearAll(){
@@ -633,6 +638,8 @@ void trackEngine::clearAll(){
   demoIterCount = 0;
   hierIterCount = 0;
 
+  demoGTC = hierGTC = hierExtrapGTC = iterHierGTC = 0;
+
 }
 
 int trackEngine::computeAllTracks(/*const vector< vector<double> >& antLocation,*/ vector<TGraph *> unpaddedEvent){
@@ -644,12 +651,14 @@ int trackEngine::computeAllTracks(/*const vector< vector<double> >& antLocation,
   if( computeFinalTracks(unpaddedEvent) < 0 ){ cerr<<"Compute final tracks error\n"; return -1;}
   if( buildEventOrthoTracks(demoFinalTrack) < 0){ cerr<<"buildEventOrthoTracks with demo error\n"; return -1;}
   demoExtrapFinalTrack = computeDemoExtrapFinalTrack();
-  cout<<"636"; demoExtrapFinalTrack.Print();
+  //cout<<"636"; demoExtrapFinalTrack.Print();
   if( buildEventOrthoTracks(hierFinalTrack) < 0){ cerr<<"buildEventOrthoTracks with hier error\n"; return -1;}
   hierExtrapFinalTrack = computeHierExtrapFinalTrack();
+  hierExtrapGTC = goodTrackCount;
   if(demoExtrapFinalTrack.Mag() < 1e-9 ){ cerr<<"No demoExtrapFinalTrack\n"; return -1;}
   if(hierExtrapFinalTrack.Mag() < 1e-9 ){ cerr<<"No hierExtrapFinalTrack\n"; return -1;}
   if( computeIterExtrapFinalTracks(demoExtrapFinalTrack, hierExtrapFinalTrack) < 0){ cerr<<"Compute iter extrap final tracks error\n"; return -1;}
+  else iterHierGTC = goodTrackCount;
 
   //clearForNextEvent();
 

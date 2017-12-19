@@ -149,6 +149,7 @@ double demoZen, demoAzi, hierZen, hierAzi, demoExtrapZen, demoExtrapAzi, hierExt
 double spaceAngle, spaceAngleExtrap, spaceAngleIter;
 int demoIterCount, hierIterCount;
 double tregWeight;
+int demoGTC, hierGTC, hierExtrapGTC, iterHierGTC;
 tregTree->Branch("demoLen", &demoLen);
 tregTree->Branch("hierLen", &hierLen);
 tregTree->Branch("demoExtrapLen", &demoExtrapLen);
@@ -173,6 +174,10 @@ tregTree->Branch("spaceAngleIter", &spaceAngleIter);
 tregTree->Branch("demoIterCount", &demoIterCount);
 tregTree->Branch("hierIterCount", &hierIterCount);
 tregTree->Branch("tregWeight", &tregWeight);
+tregTree->Branch("demoGTC", &demoGTC);
+tregTree->Branch("hierGTC", &hierGTC);
+tregTree->Branch("hierExtrapGTC", hierExtrapGTC);
+tregTree->Branch("iterHierGTC", &iterHierGTC);
 
 recoSettingsTree->Branch("settings", &settings);
 recoSettingsTree->Fill();
@@ -955,6 +960,10 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    demoIterCount = treg->demoIterCount;
    hierIterCount = treg->hierIterCount;
    tregWeight = event->Nu_Interaction[0].weight;
+   demoGTC = treg->demoGTC;
+   hierGTC = treg->hierGTC;
+   hierExtrapGTC = treg->hierExtrapGTC;
+   iterHierGTC = treg->iterHierGTC;
    tregTree->Fill();
    treg->clearForNextEvent();
 
