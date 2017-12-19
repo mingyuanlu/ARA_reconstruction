@@ -431,11 +431,11 @@ int trackEngine::buildEventOrthoTracks(Vector finalTrack){
 }
 
 Vector trackEngine::computeDemoExtrapFinalTrack(){
-
+  cout<<"In computeDemoExtrapFinalTrack\n";
   if(demoFinalTrack.Mag()==0 ){ cerr<<"No demoFinalTrack\n"; return zeroVector;}
   //demoExtrapFinalTrack = (demoFinalTrack * 2.)
   //Vector deft = (2. * demoFinalTrack );
-
+  cout<<"demoFinalTrack: "; demoFinalTrack.Print();
   if(eventOrthoTracks.size()==0){ cerr<<"No eventOrthoTracks\n"; return zeroVector;}
 
   int goodTrackCount = 0;
@@ -458,6 +458,8 @@ Vector trackEngine::computeDemoExtrapFinalTrack(){
 
   //return demoExtrapFinalTrack;
   //return deft;
+  Vector v = demoFinalTrack + (temp / (2./**(double)goodTrackCount)*/));
+  cout<<"v: "; v.Print();
   return demoFinalTrack + (temp / (2./**(double)goodTrackCount)*/));
 }
 
@@ -633,6 +635,7 @@ int trackEngine::computeAllTracks(/*const vector< vector<double> >& antLocation,
   if( computeFinalTracks(unpaddedEvent) < 0 ){ cerr<<"Compute final tracks error\n"; return -1;}
   if( buildEventOrthoTracks(demoFinalTrack) < 0){ cerr<<"buildEventOrthoTracks with demo error\n"; return -1;}
   demoExtrapFinalTrack = computeDemoExtrapFinalTrack();
+  cout<<"636"; demoExtrapFinalTrack.Print();
   if( buildEventOrthoTracks(hierFinalTrack) < 0){ cerr<<"buildEventOrthoTracks with hier error\n"; return -1;}
   hierExtrapFinalTrack = computeHierExtrapFinalTrack();
   if(demoExtrapFinalTrack.Mag() < 1e-9 ){ cerr<<"No demoExtrapFinalTrack\n"; return -1;}
