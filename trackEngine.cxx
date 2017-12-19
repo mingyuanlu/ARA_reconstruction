@@ -447,6 +447,7 @@ Vector trackEngine::computeDemoExtrapFinalTrack(){
 
       if(cosine[anti*nAnt+antf]> -1e9){
         /*demoExtrapFinalTrack*//*deft*/temp += eventOrthoTracks[anti][antf];
+        cout<<"temp: "; temp.Print();
         goodTrackCount++;
       }
     }
@@ -458,7 +459,10 @@ Vector trackEngine::computeDemoExtrapFinalTrack(){
 
   //return demoExtrapFinalTrack;
   //return deft;
-  Vector v = demoFinalTrack + (temp / (2./**(double)goodTrackCount)*/));
+  
+  Vector v = temp / (2./**(double)goodTrackCount)*/));
+  cout<<"v: "; v.Print();
+  v = v + demoFinalTrack;
   cout<<"v: "; v.Print();
   return demoFinalTrack + (temp / (2./**(double)goodTrackCount)*/));
 }
