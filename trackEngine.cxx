@@ -168,6 +168,8 @@ int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
    //if(trackUsable.size()==0){ cerr<<"No trackUsable\n"; return -1;}
    if(cosine == NULL){ cerr<<"No cosines\n"; return -1;}
 
+   cout<<"Before loop demoFinalTrack.Mag(): "<<demoFinalTrack.Mag()<<endl;
+
    for(int anti=0; anti<nAnt; anti++){
      for(int antf=0; antf<nAnt; antf++){
 
@@ -193,6 +195,7 @@ int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
            //}
            //if(anti!=antf){
              demoFinalTrack += (cosine[anti*nAnt+antf] * baselineTracks[anti][antf]);
+             cout<<"demoFinalTrack.Mag(): "<<demoFinalTrack.Mag()<<endl;
              //trackCount++;
            //}
 
@@ -214,6 +217,7 @@ int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
 
    demoFinalTrack = demoFinalTrack / 2.; //acoount for double counting
    //demoFinalTrack = demoFinalTrack / (double)goodTrackCount; //account for number of used tracks
+   cout<<"final demoFinalTrack.Mag(): "<<demoFinalTrack.Mag()<<endl;
 
    goodTrackCount = 0;
    Vector tempVector;
@@ -412,6 +416,7 @@ int trackEngine::buildEventOrthoTracks(Vector finalTrack){
       rotAngle = TMath::Pi()/2. - finalTrack.Angle(baselineTracks[anti][antf]);
       temp = finalTrack.Rotate(rotAngle, baselineTracks[anti][antf].Cross(finalTrack));
       temp = temp / temp.Mag();
+      cout<<"anti: "<<anti<<" antf: "<<antf<<" temp.Mag() "<<temp.Mag()<endl;
       temp = sqrt(1-cosine[anti*nAnt+antf]*cosine[anti*nAnt+antf]) * temp;
       tempVector.push_back(temp);
     } else { tempVector.push_back(zeroVector); }
