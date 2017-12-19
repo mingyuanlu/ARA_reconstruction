@@ -170,7 +170,7 @@ int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
    //if(trackUsable.size()==0){ cerr<<"No trackUsable\n"; return -1;}
    if(cosine == NULL){ cerr<<"No cosines\n"; return -1;}
 
-   cout<<"Before loop demoFinalTrack.Mag(): "<<demoFinalTrack.Mag()<<endl;
+   //cout<<"Before loop demoFinalTrack.Mag(): "<<demoFinalTrack.Mag()<<endl;
 
    for(int anti=0; anti<nAnt; anti++){
      for(int antf=0; antf<nAnt; antf++){
@@ -197,7 +197,7 @@ int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
            //}
            //if(anti!=antf){
              demoFinalTrack += (cosine[anti*nAnt+antf] * baselineTracks[anti][antf]);
-             cout<<"demoFinalTrack.Mag(): "<<demoFinalTrack.Mag()<<endl;
+             //cout<<"demoFinalTrack.Mag(): "<<demoFinalTrack.Mag()<<endl;
              //trackCount++;
            //}
 
@@ -219,7 +219,7 @@ int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
 
    demoFinalTrack = demoFinalTrack / 2.; //acoount for double counting
    //demoFinalTrack = demoFinalTrack / (double)goodTrackCount; //account for number of used tracks
-   cout<<"final demoFinalTrack.Mag(): "<<demoFinalTrack.Mag()<<endl;
+   //cout<<"final demoFinalTrack.Mag(): "<<demoFinalTrack.Mag()<<endl;
 
    goodTrackCount = 0;
    Vector tempVector;
@@ -416,15 +416,15 @@ int trackEngine::buildEventOrthoTracks(Vector finalTrack){
     for(int antf=0; antf<nAnt; antf++){
       if(cosine[anti*nAnt+antf] > -1e9 /*&& anti!=antf*/){
       rotAngle = TMath::Pi()/2. - finalTrack.Angle(baselineTracks[anti][antf]);
-      cout<<"anti: "<<anti<<" antf: "<<antf<<" finalTrack.Mag(): "<<finalTrack.Mag()<<" baselineTracks.Mag(): "<<baselineTracks[anti][antf].Mag()<<" angle: "<<finalTrack.Angle(baselineTracks[anti][antf])<<endl;
-      cout<<"rotAngle: "<<rotAngle<<endl;
+      //cout<<"anti: "<<anti<<" antf: "<<antf<<" finalTrack.Mag(): "<<finalTrack.Mag()<<" baselineTracks.Mag(): "<<baselineTracks[anti][antf].Mag()<<" angle: "<<finalTrack.Angle(baselineTracks[anti][antf])<<endl;
+      //cout<<"rotAngle: "<<rotAngle<<endl;
       temp = finalTrack.Rotate(rotAngle, baselineTracks[anti][antf].Cross(finalTrack));
-      cout<<"temp.Mag(): "<<temp.Mag()<<endl;
+      //cout<<"temp.Mag(): "<<temp.Mag()<<endl;
       temp = temp / temp.Mag();
       //cout<<"anti: "<<anti<<" antf: "<<antf<<" temp: "; temp.Print();
-      cout<<"cosine: "<<cosine[anti*nAnt+antf]<<" 1-cos^2: "<<1-cosine[anti*nAnt+antf]*cosine[anti*nAnt+antf]<<endl;
+      //cout<<"cosine: "<<cosine[anti*nAnt+antf]<<" 1-cos^2: "<<1-cosine[anti*nAnt+antf]*cosine[anti*nAnt+antf]<<endl;
       temp = sqrt(1-cosine[anti*nAnt+antf]*cosine[anti*nAnt+antf]) * temp;
-      cout<<"anti: "<<anti<<" antf: "<<antf<<" temp: "; temp.Print();
+      //cout<<"anti: "<<anti<<" antf: "<<antf<<" temp: "; temp.Print();
       tempVector.push_back(temp);
     } else { tempVector.push_back(zeroVector); }
     }
@@ -435,11 +435,11 @@ int trackEngine::buildEventOrthoTracks(Vector finalTrack){
 }
 
 Vector trackEngine::computeDemoExtrapFinalTrack(){
-  cout<<"In computeDemoExtrapFinalTrack\n";
+  //cout<<"In computeDemoExtrapFinalTrack\n";
   if(demoFinalTrack.Mag()==0 ){ cerr<<"No demoFinalTrack\n"; return zeroVector;}
   //demoExtrapFinalTrack = (demoFinalTrack * 2.)
   //Vector deft = (2. * demoFinalTrack );
-  cout<<"demoFinalTrack: "; demoFinalTrack.Print();
+  //cout<<"demoFinalTrack: "; demoFinalTrack.Print();
   if(eventOrthoTracks.size()==0){ cerr<<"No eventOrthoTracks\n"; return zeroVector;}
 
   int goodTrackCount = 0;
@@ -450,9 +450,9 @@ Vector trackEngine::computeDemoExtrapFinalTrack(){
     for(int antf=0; antf<nAnt; antf++){
 
       if(cosine[anti*nAnt+antf]> -1e9){
-        cout<<"anti: "<<anti<<" antf: "<<antf<<" ortho: "; eventOrthoTracks[anti][antf].Print();
+        //cout<<"anti: "<<anti<<" antf: "<<antf<<" ortho: "; eventOrthoTracks[anti][antf].Print();
         /*demoExtrapFinalTrack*//*deft*/temp += eventOrthoTracks[anti][antf];
-        cout<<"temp: "; temp.Print();
+        //cout<<"temp: "; temp.Print();
         goodTrackCount++;
       }
     }
@@ -465,10 +465,10 @@ Vector trackEngine::computeDemoExtrapFinalTrack(){
   //return demoExtrapFinalTrack;
   //return deft;
 
-  Vector v = temp / (2./**(double)goodTrackCount)*/);
-  cout<<"v: "; v.Print();
-  v = v + demoFinalTrack;
-  cout<<"v: "; v.Print();
+  //Vector v = temp / (2./**(double)goodTrackCount)*/);
+  //cout<<"v: "; v.Print();
+  //v = v + demoFinalTrack;
+  //cout<<"v: "; v.Print();
   return demoFinalTrack + (temp / (2./**(double)goodTrackCount)*/));
 }
 
@@ -521,11 +521,11 @@ if(tempDemoExtrap.Mag() <1e-9 || tempHierExtrap.Mag() <1e-9 ){ cerr<"No input de
   cout<<"angleThreshold: "<<angleThreshold<<" maxIteration: "<<maxIteration<<endl;
   //Iterate demo extrap track
   do {
-    cout<<"513"; tempDemoExtrap.Print();
+    //cout<<"513"; tempDemoExtrap.Print();
     if( buildEventOrthoTracks(tempDemoExtrap)<0 ){ cerr<<"Re-building ortho tracks error\n"; return -1; }
     iterDemoExtrapFinalTrack = computeDemoExtrapFinalTrack();
     if( iterDemoExtrapFinalTrack.Mag() != 0 ){
-      cout<<"tempDemoExtrap.Mag(): "<<tempDemoExtrap.Mag()<<" iterDemoExtrapFinalTrack.Mag(): "<<iterDemoExtrapFinalTrack.Mag()<<endl;
+      //cout<<"tempDemoExtrap.Mag(): "<<tempDemoExtrap.Mag()<<" iterDemoExtrapFinalTrack.Mag(): "<<iterDemoExtrapFinalTrack.Mag()<<endl;
       demoAngle = tempDemoExtrap.Angle(iterDemoExtrapFinalTrack) * TMath::RadToDeg();
       //cout<<"demoAngle: "<<demoAngle<<endl;
       //hierAngle = tempHierExtrap.Angle(hierExtrapFinalTrack) * TMath::RadToDeg();
@@ -544,7 +544,7 @@ if(tempDemoExtrap.Mag() <1e-9 || tempHierExtrap.Mag() <1e-9 ){ cerr<"No input de
     iterHierExtrapFinalTrack = computeHierExtrapFinalTrack();
     if( iterHierExtrapFinalTrack.Mag() != 0 ){
       //demoAngle = tempDemoExtrap.Angle(iterDemoExtrapFinalTrack) * TMath::RadToDeg();
-      cout<<"tempHierExtrap.Mag(): "<<tempHierExtrap.Mag()<<" iterHierExtrapFinalTrack.Mag(): "<<iterHierExtrapFinalTrack.Mag()<<endl;
+      //cout<<"tempHierExtrap.Mag(): "<<tempHierExtrap.Mag()<<" iterHierExtrapFinalTrack.Mag(): "<<iterHierExtrapFinalTrack.Mag()<<endl;
       hierAngle = tempHierExtrap.Angle(iterHierExtrapFinalTrack) * TMath::RadToDeg();
       //cout<<"hierAngle: "<<hierAngle<<endl;
       //tempDemoExtrap = iterDemoExtrapFinalTrack;
