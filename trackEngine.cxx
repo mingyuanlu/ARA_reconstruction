@@ -225,13 +225,20 @@ int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
    goodTrackCount = 0;
    Vector tempVector;
    tempVector.SetXYZ(0.,0.,0.);
+
    for(int rank=0; rank<nAnt*nAnt; rank++){
 
-     int anti = trackRank[rank]/nAnt;
-     int antf = trackRank[rank]%nAnt;
+     anti = trackRank[rank]/nAnt;
+     antf = trackRank[rank]%nAnt;
 
      if(cosine[anti*nAnt+antf] > -1e9){
-     if( (tempVector+(cosine[anti*nAnt+antf]*baselineTracks[anti][antf])).Mag() > tempVector.Mag() ){
+     //if( (tempVector+(cosine[anti*nAnt+antf]*baselineTracks[anti][antf])).Mag() > tempVector.Mag() ){
+     if( tempVector.Mag() < 1e-9 ){
+
+        tempVector = (cosine[anti*nAnt+antf]*baselineTracks[anti][antf]);
+        goodTrackCount++;
+
+     } else if( tempVector.Angle(cosine[anti*nAnt+antf]*baselineTracks[anti][antf]) < (TMath::Pi()/2.) ){
 
        tempVector += (cosine[anti*nAnt+antf]*baselineTracks[anti][antf]);
        goodTrackCount++;
@@ -489,6 +496,19 @@ Vector trackEngine::computeHierExtrapFinalTrack(){
     int antf = trackRank[rank]%nAnt;
 
     if(cosine[anti*nAnt+antf] > -1e9){
+
+    if( tempVector.Mag() < 1e-9 ){
+
+      tempVector = (cosine[anti*nAnt+antf]*baselineTracks[anti][antf] + eventOrthoTracks[anti][antf]);
+      goodTrackCount++;
+
+   } else if( tempVector.Angle((cosine[anti*nAnt+antf]*baselineTracks[anti][antf]) + eventOrthoTracks[anti][antf]) < (TMath::Pi()/2.) ){
+
+      tempVector += ((cosine[anti*nAnt+antf]*baselineTracks[anti][antf]) + eventOrthoTracks[anti][antf]);
+      goodTrackCount++;
+
+      }
+/*
     if( (tempVector
         + (cosine[anti*nAnt+antf]*baselineTracks[anti][antf])
         + eventOrthoTracks[anti][antf]
@@ -498,6 +518,7 @@ Vector trackEngine::computeHierExtrapFinalTrack(){
       goodTrackCount++;
 
     }
+*/
     }
   }//end of rank
 
