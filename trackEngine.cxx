@@ -228,8 +228,8 @@ int trackEngine::computeFinalTracks(vector<TGraph* > unpaddedEvent){
 
    for(int rank=0; rank<nAnt*nAnt; rank++){
 
-     anti = trackRank[rank]/nAnt;
-     antf = trackRank[rank]%nAnt;
+     int anti = trackRank[rank]/nAnt;
+     int antf = trackRank[rank]%nAnt;
 
      if(cosine[anti*nAnt+antf] > -1e9){
      //if( (tempVector+(cosine[anti*nAnt+antf]*baselineTracks[anti][antf])).Mag() > tempVector.Mag() ){
