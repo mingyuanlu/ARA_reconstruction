@@ -18,7 +18,7 @@
 #include "UsefulAtriStationEvent.h"
 #include "AraGeomTool.h"
 */
-//#include "recoTools.h"
+#include "recoTools.h"
 
 using namespace std;
 
