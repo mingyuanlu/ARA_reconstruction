@@ -9,6 +9,7 @@
 #include <vector>
 #include "TObject.h"
 #include "recoSettings.h"
+#include "trackEngine.h"
 
 using namespace std;
 
@@ -61,7 +62,8 @@ public:
    , int *_maxPixIdxEachLayer, float *_maxPixCoherenceEachLayer
    , double _likelihood, double _pValue
    , float _inWindowSNR, float _unmodSNR
-   , int _flag);
+   , int _flag
+   , trackEngine *_treg);
    void setWeight(double w);
    void setTrueRadius(float r_true);
    void setTrueDir(float zen_true, float azi_true);
@@ -106,8 +108,12 @@ public:
    void setRecoAngles(float *recAngle, float *lauAngle);
    void setTrueAngles(float *recAngle, float *lauAngle);
 
+//ClassDef 6
+   trackEngine *treg;
+   void setTreg(trackEngine *_treg);
 
-   ClassDef(recoData, 5);
+
+   ClassDef(recoData, 6);
 };
 
 

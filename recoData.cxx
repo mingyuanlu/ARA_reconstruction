@@ -44,6 +44,8 @@ using namespace std;
    std::fill(&trueRecAngle[0], &trueRecAngle[16], -1.);
    std::fill(&trueLauAngle[0], &trueLauAngle[16], -1.);
 
+   treg = NULL;
+
    }
 
 
@@ -64,7 +66,8 @@ using namespace std;
    , int *_maxPixIdxEachLayer, float *_maxPixCoherenceEachLayer
    , double _likelihood, double _pValue
    , float _inWindowSNR, float _unmodSNR
-   , int _flag)
+   , int _flag
+   , trackEngine *_treg)
    {
 
    eventId = _eventId;
@@ -118,6 +121,8 @@ using namespace std;
    flag = _flag;
 
    eventTrigType = _eventTrigType;
+
+   treg = _treg;
 
    }
 
@@ -268,6 +273,12 @@ using namespace std;
 
    }
 
+   void recoData::setTreg(trackEngine *_treg){
+
+      treg = _treg;
+
+   }
+
    void recoData::duplicate(recoSettings *settings, recoData *old){
 
    int *_topMaxPixIdx         = (int*)calloc(old->topN, sizeof(int));
@@ -302,7 +313,8 @@ using namespace std;
              , _maxPixIdxEachLayer, _maxPixCoherenceEachLayer
              , old->likelihood, old->pValue
              , old->inWindowSNR, old->unmodSNR
-             , old->flag);
+             , old->flag
+             , old->treg);
 
 /*
    weight = old->weight;
@@ -373,5 +385,6 @@ using namespace std;
    unixTime = 0;
    unixTimeUs = 0;
    timeStamp = 0;
+   treg = NULL;
 
    }

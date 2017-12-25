@@ -965,7 +965,8 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    hierExtrapGTC = treg->hierExtrapGTC;
    iterHierGTC = treg->iterHierGTC;
    tregTree->Fill();
-   treg->clearForNextEvent();
+   summray->setTreg(treg);
+   //treg->clearForNextEvent();
 
    //recoData *summary = new recoData();
    //if(settings->dataType == 0){
@@ -1037,6 +1038,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    unpaddedEvent.clear();
    cleanEvent.clear();
    //delete summary;
+   treg->clearForNextEvent();
    for(int ch=0; ch<16; ch++){ delete gr_v[ch]; delete grWinPad[ch]; }
    }//end of ev loop
 
