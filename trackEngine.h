@@ -17,7 +17,7 @@
 #include "UsefulAtriStationEvent.h"
 #include "AraGeomTool.h"
 */
-#include "recoTools.h"
+//#include "recoTools.h"
 
 using namespace std;
 
@@ -46,6 +46,7 @@ public:
    int buildBaselineTracks(const RawAraStationEvent *rawEvPtr);
 */
    int getChannelPeakTime(vector<TGraph *> unpaddedEvent, double *peakTArray);
+   void getChannelSignalToNoiseRatio(const vector<TGraph *>& cleanEvent, float *snrArray);
 
    int buildBaselineTracks(const vector< vector<double> >& antLocation);
    double checkBaselineTracks();
