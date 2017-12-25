@@ -8,6 +8,7 @@
 #include <cmath>
 #include <vector>
 #include "TObject.h"
+#include "TGraph.h"
 #include "Vector.h"
 /*
 #include "RawIcrrStationEvent.h"
