@@ -27,6 +27,7 @@
 #include "recoTools.h"
 #include "recoSettings.h"
 #include "recoData.h"
+#include "trackEngine.h"
 
 #include "Detector.h"
 #include "Trigger.h"
@@ -307,6 +308,13 @@ if(settings->dataType == 1){
    if( err<0 ){ cerr<<"Error loading AraSim geometry\n"; return -1; }
 
 }
+
+/* Initiate a track engine instance, build baseline vectors */
+trackEngine *treg = new trackEngine();
+treg->initialize();
+treg->buildBaselineTracks(antLocation);
+
+
 /*
  * Start computing reco delays using RadioSpline
  */
@@ -676,6 +684,11 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    getChannelUnmodifiedSNR(unpaddedEvent, unmodSNRArray);
    TMath::Sort(16,unmodSNRArray,index);
 
+   /* Track engine object to compute all tracks */
+   treg->computeAllTracks(unpaddedEvent);
+   summary->setTreg(treg);
+
+
     //recoData *summary = new recoData();
 /*
     if(settings->dataType == 0){
@@ -749,6 +762,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    cleanEvent.clear();
    delete realAtriEvPtr;
    //delete summary;
+   treg->clearForNextEvent();
    for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; }
    }//end of ev loop
 
@@ -883,6 +897,10 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    getChannelUnmodifiedSNR(unpaddedEvent, unmodSNRArray);
    TMath::Sort(16,unmodSNRArray,index);
 
+   /* Track engine object to compute all tracks */
+   treg->computeAllTracks(unpaddedEvent);
+   summary->setTreg(treg);
+
    //recoData *summary = new recoData();
    //if(settings->dataType == 0){
    summary->setWeight(event->Nu_Interaction[0].weight);
@@ -953,6 +971,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    unpaddedEvent.clear();
    cleanEvent.clear();
    //delete summary;
+   treg->clearForNextEvent();
    for(int ch=0; ch<16; ch++){ delete gr_v[ch]; delete grWinPad[ch]; }
    }//end of ev loop
 
@@ -972,6 +991,7 @@ outputFile->Close();
 
 clfftTeardown();
 err = tearDown(&clEnv);
+delete treg;
 delete summary;
 if(settings->skymapSearchMode == 0){
 delete onion;
