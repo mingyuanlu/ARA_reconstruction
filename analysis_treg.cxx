@@ -965,7 +965,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    hierExtrapGTC = treg->hierExtrapGTC;
    iterHierGTC = treg->iterHierGTC;
    tregTree->Fill();
-   summray->setTreg(treg);
+   summary->setTreg(treg);
    //treg->clearForNextEvent();
 
    //recoData *summary = new recoData();
