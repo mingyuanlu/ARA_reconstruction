@@ -646,9 +646,9 @@ void trackEngine::clearAll(){
   eventOrthoTracks.clear();
 
   goodTrackCount = badTrackCount = 0;
-  free(trackRank);
-  free(trackSNRArray);
-  free(cosine);
+  //free(trackRank);
+  //free(trackSNRArray);
+  //free(cosine);
 
   demoFinalTrack = hierFinalTrack = demoExtrapFinalTrack = hierExtrapFinalTrack
   = iterDemoExtrapFinalTrack = iterHierExtrapFinalTrack = zeroVector;
