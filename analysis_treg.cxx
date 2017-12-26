@@ -722,9 +722,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    /* Track engine object to compute all tracks */
    treg->computeAllTracks(unpaddedEvent);
-   treg->print();
-   treg->clearForNextEvent();
-
+   //treg->print();
+   //treg->clearForNextEvent();
+   summary->setTreg(treg);
 
     //recoData *summary = new recoData();
 /*
@@ -799,6 +799,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    cleanEvent.clear();
    delete realAtriEvPtr;
    //delete summary;
+   treg->clearForNextEvent();
    for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; }
    }//end of ev loop
 
