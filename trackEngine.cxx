@@ -704,7 +704,7 @@ void trackEngine::print(){
 
 }
 
-void getChannelSignalToNoiseRatio(const vector<TGraph *>& cleanEvent, float *snrArray){
+void trackEngine::getChannelSignalToNoiseRatio(const vector<TGraph *>& cleanEvent, float *snrArray){
 
    double sigma;
    double mean;
@@ -797,10 +797,10 @@ nchnlArray[2] = totalPassedHpol;
 */
 }
 
-void setChannelMeanAndSigmaInNoMax(TGraph *gr, double *stats){
+void trackEngine::setChannelMeanAndSigmaInNoMax(TGraph *gr, double *stats){
 
    int bin = gr->GetN();
-   int MaxBin = getMaxBin( gr );
+   int MaxBin = getChannelMaxBin( gr );
    //cout<<"MaxBin: "<<MaxBin<<endl;
    int binCounter=0;
 
@@ -853,4 +853,22 @@ void setChannelMeanAndSigmaInNoMax(TGraph *gr, double *stats){
    stats[0] = mean;
    stats[1] = sigma;
 
+}
+
+int trackEngine::getChannelMaxBin(TGraph *gr){
+
+   double t, v, max;
+   max = 0.;
+   int maxBin = 0;
+   //cout<<"gr->GetN(): "<<gr->GetN()<<endl;
+
+   for(int s=0; s<gr->GetN(); s++){
+
+   gr->GetPoint(s, t, v);
+   if( fabs(v) > max ){
+      max = fabs(v);
+      maxBin = s;
+   }
+   }
+   return maxBin;
 }
