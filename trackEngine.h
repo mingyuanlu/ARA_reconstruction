@@ -10,6 +10,7 @@
 #include "TObject.h"
 #include "TGraph.h"
 #include "Vector.h"
+#include "TMath.h"
 /*
 #include "RawIcrrStationEvent.h"
 #include "RawAtriStationEvent.h"
@@ -18,7 +19,11 @@
 #include "UsefulAtriStationEvent.h"
 #include "AraGeomTool.h"
 */
-#include "recoTools.h"
+//#include "recoTools.h"
+
+#define C_INV 3.34
+#define speedOfLight 0.3 // m/ns
+#define nIce 1.76 // ~-180m
 
 using namespace std;
 

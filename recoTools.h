@@ -56,9 +56,11 @@
 #include "Healpix_Onion.h"
 #define NPIX_NESTED 4 //number of pixels for nSideExp = n+1 within a single pixel of nSideExp = n
 
+#ifndef TRACKENGINE_H
 #define C_INV 3.34
 #define speedOfLight 0.3 // m/ns
 #define nIce 1.76 // ~-180m
+#endif
 
 //#define REFERENCE_MAP_FIT_FILE "testFitFuntFile.root"
 //#define REFERENCE_MAP_FIT_FILE "testFitFuncFile_2013_A3_pulserSweep_run410-430.root"
