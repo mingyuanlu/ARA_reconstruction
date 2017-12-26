@@ -10,7 +10,7 @@ trackEngine::trackEngine(){}
 
 trackEngine::~trackEngine(){
 
-  clearAll();
+  //clearAll();
 
 }
 
