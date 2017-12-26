@@ -737,7 +737,7 @@ void getChannelSignalToNoiseRatio(const vector<TGraph *>& cleanEvent, float *snr
          //volts = gr->GetY();
          bin   = cleanEvent[ch]->GetN();
          //setMeanAndSigmaInNoMax(gr,statsArray);
-         setMeanAndSigmaInNoMax(cleanEvent[ch], statsArray);
+         setChannelMeanAndSigmaInNoMax(cleanEvent[ch], statsArray);
 
          mean  = statsArray[0];
          sigma = statsArray[1];
@@ -795,4 +795,62 @@ nchnlArray[0] = totalPassedChnl;
 nchnlArray[1] = totalPassedVpol;
 nchnlArray[2] = totalPassedHpol;
 */
+}
+
+void setChannelMeanAndSigmaInNoMax(TGraph *gr, double *stats){
+
+   int bin = gr->GetN();
+   int MaxBin = getMaxBin( gr );
+   //cout<<"MaxBin: "<<MaxBin<<endl;
+   int binCounter=0;
+
+   double mean =0;
+   double sigma=0;
+   double t, v;
+
+   if( MaxBin <= bin/4 ){
+
+      for (int i=MaxBin+bin/4; i<bin; i++){
+      gr->GetPoint(i, t, v);
+      mean  += v;
+      sigma += v * v;
+      binCounter++;
+      }
+   }
+
+   else if( MaxBin >= 3*bin/4 ){
+
+      for (int i=0; i<MaxBin-bin/4; i++){
+      gr->GetPoint(i, t, v);
+      mean  += v;
+      sigma += v * v;
+      binCounter++;
+      }
+   }
+
+   else{
+
+      for (int i=0; i<MaxBin-bin/4; i++){
+      gr->GetPoint(i, t, v);
+      mean  += v;
+      sigma += v * v;
+      binCounter++;
+      }
+
+      for (int i=MaxBin+bin/4; i<bin; i++){
+      gr->GetPoint(i, t, v);
+      mean  += v;
+      sigma += v * v;
+      binCounter++;
+      }
+   }
+
+   mean  = mean / (double)binCounter;
+   sigma = TMath::Sqrt( ( sigma - ((double)binCounter * mean * mean )) / (double)(binCounter - 1) );
+   //cout<<"mean="<<mean<<"\tsigma="<<sigma<<endl;
+   //delete gr;
+
+   stats[0] = mean;
+   stats[1] = sigma;
+
 }

@@ -53,6 +53,7 @@ public:
 */
    int getChannelPeakTime(vector<TGraph *> unpaddedEvent, double *peakTArray);
    void getChannelSignalToNoiseRatio(const vector<TGraph *>& cleanEvent, float *snrArray);
+   void setChannelMeanAndSigmaInNoMax(TGraph *gr, double *stats);
 
    int buildBaselineTracks(const vector< vector<double> >& antLocation);
    double checkBaselineTracks();
