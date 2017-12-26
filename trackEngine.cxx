@@ -542,7 +542,7 @@ if(tempDemoExtrap.Mag() <1e-9 || tempHierExtrap.Mag() <1e-9 ){ cerr<"No input de
   int hierCount = 0;
   int count = 0;
   double demoAngle, hierAngle;
-  cout<<"angleThreshold: "<<angleThreshold<<" maxIteration: "<<maxIteration<<endl;
+  //cout<<"angleThreshold: "<<angleThreshold<<" maxIteration: "<<maxIteration<<endl;
   //Iterate demo extrap track
   do {
     //cout<<"513"; tempDemoExtrap.Print();
@@ -579,8 +579,8 @@ if(tempDemoExtrap.Mag() <1e-9 || tempHierExtrap.Mag() <1e-9 ){ cerr<"No input de
     hierCount++;
   } while(hierAngle > angleThreshold && hierCount < maxIteration); //Stopping condition: when the space angle converges or when done max iterations
 
-  cout<<"Demo count: "<<demoCount<<" Demo angle: "<<demoAngle<<endl;
-  cout<<"Hier count: "<<hierCount<<" Hier angle: "<<hierAngle<<endl;
+  //cout<<"Demo count: "<<demoCount<<" Demo angle: "<<demoAngle<<endl;
+  //cout<<"Hier count: "<<hierCount<<" Hier angle: "<<hierAngle<<endl;
 
   demoIterCount = demoCount;
   hierIterCount = hierCount;
