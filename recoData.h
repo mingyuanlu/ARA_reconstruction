@@ -63,7 +63,9 @@ public:
    , double _likelihood, double _pValue
    , float _inWindowSNR, float _unmodSNR
    , int _flag
-   , trackEngine *_treg);
+   , trackEngine *_treg
+   , int _constantNMaxPixIdx, float _constantNMaxPixCoherence
+   , float _constantNZen, float _constantNAzi);
    void setWeight(double w);
    void setTrueRadius(float r_true);
    void setTrueDir(float zen_true, float azi_true);
@@ -112,8 +114,15 @@ public:
    trackEngine *treg;
    void setTreg(trackEngine *_treg);
 
+//ClassDef 7
+   int constantNMaxPixIdx;
+   float constantNMaxPixCoherence;
+   float constantNZen, constantNAzi;
+   void setConstantNMaxPixInfo(int _constantNMaxPixIdx, float _constantNMaxPixCoherence);
+   void setConstantNDir(float _constantNZen, float _constantNAzi);
 
-   ClassDef(recoData, 6);
+
+   ClassDef(recoData, 7);
 };
 
 

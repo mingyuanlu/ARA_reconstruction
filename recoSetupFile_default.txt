@@ -39,4 +39,7 @@ openCLMaxNumberOfCores=0
 
 maxNumberOfReco=-1
 
+constantNFilter=0
+surfaceCutAngle=0
+
 remark=This is the default recoSetupFile. All parameters are set to be identical to the recoSettings class initialization.

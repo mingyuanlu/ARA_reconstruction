@@ -46,6 +46,10 @@ using namespace std;
 
    treg = NULL;
 
+   constantNMaxPixIdx = 0;
+   constantNMaxPixCoherence = 0.f;
+   constantNZen = constantNAzi = 0.f;
+
    }
 
 
@@ -67,7 +71,9 @@ using namespace std;
    , double _likelihood, double _pValue
    , float _inWindowSNR, float _unmodSNR
    , int _flag
-   , trackEngine *_treg)
+   , trackEngine *_treg
+   , int _constantNMaxPixIdx, float _constantNMaxPixCoherence
+   , float _constantNZen, float _constantNAzi)
    {
 
    eventId = _eventId;
@@ -123,6 +129,11 @@ using namespace std;
    eventTrigType = _eventTrigType;
 
    treg = _treg;
+
+   constantNMaxPixIdx = _constantNMaxPixIdx;
+   constantNMaxPixCoherence = _constantNMaxPixCoherence;
+   constantNZen = _constantNZen;
+   constantNAzi = _constantNAzi;
 
    }
 
@@ -279,6 +290,20 @@ using namespace std;
 
    }
 
+   void recoData::setConstantNMaxPixInfo(int _constantNMaxPixIdx, float _constantNMaxPixCoherence){
+
+      constantNMaxPixIdx = _constantNMaxPixIdx;
+      constantNMaxPixCoherence = _constantNMaxPixCoherence;
+
+   }
+
+   void recoData::setConstantNDir(float _constantNZen, float _constantNAzi){
+
+      constantNZen = _constantNZen;
+      constantNAzi = _constantNAzi;
+
+   }
+
    void recoData::duplicate(recoSettings *settings, recoData *old){
 
    int *_topMaxPixIdx         = (int*)calloc(old->topN, sizeof(int));
@@ -314,7 +339,9 @@ using namespace std;
              , old->likelihood, old->pValue
              , old->inWindowSNR, old->unmodSNR
              , old->flag
-             , old->treg);
+             , old->treg
+             , old->constantNMaxPixIdx, old->constantNMaxPixCoherence
+             , old->constantNZen, old->constantNAzi);
 
 /*
    weight = old->weight;
@@ -386,5 +413,8 @@ using namespace std;
    unixTimeUs = 0;
    timeStamp = 0;
    treg = NULL;
+   constantNMaxPixIdx = 0;
+   constantNMaxPixCoherence = 0.f;
+   constantNZen = constantNAzi = 0.f;
 
    }

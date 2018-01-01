@@ -57,6 +57,9 @@ void recoSettings::initialize(){
 
   maxNumberOfReco = -1;
 
+  constantNFilter = 0;
+  surfaceCutAngle = 0.f;
+
   //remark = "Default.";
   snprintf(remark, sizeof(remark), "Default.");
 
@@ -113,6 +116,8 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
             else if(label == "openCLDeviceType")    snprintf(openCLDeviceType, sizeof(openCLDeviceType), line.substr(line.find_first_of("=")+1).c_str());
             else if(label == "openCLMaxNumberOfCores") openCLMaxNumberOfCores = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "maxNumberOfReco") maxNumberOfReco = atoi( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "constantNFilter") constantNFilter = atoi( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "surfaceCutAngle") surfaceCutAngle = atof( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label != "") cerr<<"Undefined parameter detected. Label: "<<label<<endl;
          }
       }
@@ -161,8 +166,10 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
          if( referenceMapFitFunc == "" ){         cerr<<"referenceMapFitFunc: "<<referenceMapFitFunc<<endl; errCnt++; }
       }
       if( string(openCLDeviceType) != "cpu" && string(openCLDeviceType) != "gpu"){ cerr<<"Undefined openCLDeviceType. Must be \"cpu\" or \"gpu\"."<<endl; errCnt++; }
-      if( openCLMaxNumberOfCores < 0 ){            cerr<<"openCLMaxNumberOfCores"<<openCLMaxNumberOfCores<<endl; errCnt++; }
+      if( openCLMaxNumberOfCores < 0 ){           cerr<<"openCLMaxNumberOfCores"<<openCLMaxNumberOfCores<<endl; errCnt++; }
       if( maxNumberOfReco < -1 ){                 cerr<<"maxNumberOfReco: "<<maxNumberOfReco<<endl; errCnt++; }
+      if( (unsigned)(constantNFilter-0) > 1){     cerr<<"constantNFilter: "<<constantNFilter<<endl; errCnt++; }
+      if( surfaceCutAngle < 0.f && surfaceCutAngle > 180.f){ cerr<<"surfaceCutAngle: "<<surfaceCutAngle<<endl; errCnt++; }
       if(errCnt > 0) return false;
 
    } else { cerr<<"Unable to open "<<sf<<endl; return false; }

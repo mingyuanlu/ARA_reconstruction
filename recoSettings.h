@@ -66,6 +66,10 @@ public:
    nchnlThreshold_A3:
       Default 0. The nchnlThreshold value for A3 to reduce the noise rate to 1%, assuming nchnlFilter == 1 && nchnlCut == 3. This should be a value determined
       by examining RF data of A3.
+   constantNFilter:
+      Default 0. 0: no constant-N single-layer no-bound (at 5km) reconstruction applied. This is used to detect specifically plane-waves from above the ice surface. 1: the above reconstruction is applied and one can cut on its zen value as a surface cut. Cut value set in surfaceCutAngle parameter.
+   surfaceCutAngle:
+      Default 0. Surface angle cut below which an event will be considered surface event and filtered out.
    iceModel:
       Default 0. 0: depth-dependent IoR. Radiospline will be used to compute delays. 1: Bulk ice with a single IoR value of 1.76. Direct ray paths will be used
       to compute delays.
@@ -138,7 +142,11 @@ public:
    //ClassDef 4
    int maxNumberOfReco;
 
-   ClassDef(recoSettings, 4); //2: convert all string parameters to char
+   //ClassDef 5
+   int constantNFilter;
+   float surfaceCutAngle;
+
+   ClassDef(recoSettings, 5); //2: convert all string parameters to char
                               //3: add openCLDeviceType and openCLMaxNumberOfDevices parameters
 };
 

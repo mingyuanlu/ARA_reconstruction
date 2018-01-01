@@ -332,6 +332,8 @@ int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(unsigned int dataType, vector<
 int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                     float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask,
                     recoData *summary, char *filename, float *mapData);
+int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_constantNFilter(recoSettings *settings, vector<TGraph *>& cleanEvent,
+                                                                  recoEnvData *clEnv, float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask, recoData *summary/*, char *filename, float *mapData*/);
 int reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                     const float stationCenterDepth, const vector<vector<double> >& antLocation,
                     float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask,
@@ -400,6 +402,7 @@ void getChannelUnmodifiedSNR(const vector<TGraph *>& cleanEvent, float *snrArray
 int recordDiffGetFlag(int nSideExp, recoData *summary, char *rootFilename);
 //int record3DDiffGetFlag(recoData *summary, char *rootFilename);
 int record3DDiffGetFlag(recoSettings *settings, recoData *summary, TH1F *dZenDist, TH1F *dAziDist, TH2F *recoTrueZenDist, TH2F *recoTrueAziDist);
+int recordConstantNDir(recoSettings *settings, recoData *summary);
 int record3DZoomedDiffGetFlag(recoSettings *settings, recoData *summary, TH1F *dZenDist, TH1F *dAziDist, TH2F *recoTrueZenDist, TH2F *recoTrueAziDist);
 float getSpaceAngle(float theta1, float phi1, float theta2, float phi2);
 void stackXCorrAroundPeak(const TGraph *gr, TH1F *hist, float plusMinusTime);
