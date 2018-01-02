@@ -384,6 +384,23 @@ if( settings->skymapSearchMode == 0){ //No zoom search
    }
 */
 }
+
+float *constantNDelays, *constantNDelays_V, *constantNDelays_H;
+Healpix_Onion *onion_temp;
+
+if( settings->constantNFilter > 0){
+
+   constantNDelays   = (float*)malloc(1*nDir*nAnt*sizeof(float));
+   constantNDelays_V = (float*)malloc(1*nDir*(nAnt/2)*sizeof(float));
+   constantNDelays_H = (float*)malloc(1*nDir*(nAnt/2)*sizeof(float));
+   onion_temp = new Healpix_Onion(nSideExp, 1, 5000, 5000);
+
+   err = computeRecoDelaysWithNoBoundConstantN(nAnt, -1.f*stationCenterDepth, antLocation,
+                                               onion_temp, constantNDelays, constantNDelays_V, constantNDelays_H);
+
+}
+
+
 //recordTime(tmr,2);
 time_t t_after_recoDelays = time(NULL);
 clock_t c_after_recoDelays = clock();
@@ -454,6 +471,7 @@ if(settings->skymapSearchMode == 0) maxPix = (int*)calloc(nDir*nLayer, sizeof(in
 else                                maxPix = (int*)calloc(12*pow(2,settings->nSideExpEnd)*pow(2,settings->nSideExpEnd)*settings->nLayer, sizeof(int));
 
 int maxPixIdx = 0;
+int constantNMaxPixIdx = 0;
 float *mapData = (float*)calloc(nDir*nLayer, sizeof(float));
 char histName[200];
 TH1F **mapDataHist = (TH1F**)malloc(nDir*nLayer*sizeof(TH1F*));
@@ -654,6 +672,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    delete gr_v[ch];
    }//end of ch
 
+   //****************************************************
+   // FILTER SECTION
+   //****************************************************
 
    numSatChan = 0;
    if(settings->nchnlFilter > 0){
@@ -678,16 +699,40 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    for(int i=0; i<16; i++) goodChan[i] = chanMask[i];
    }
 
-   getChannelSNR(unpaddedEvent, snrArray);
-   TMath::Sort(16,snrArray,index);
+   /* Constant N reco for surface filter */
 
-   getChannelUnmodifiedSNR(unpaddedEvent, unmodSNRArray);
-   TMath::Sort(16,unmodSNRArray,index);
+   recoSuccess = false;
+
+   if(settings->constantNFilter > 0){
+      while( !recoSuccess ){
+
+         constantNMaxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_constantNFilter(settings, cleanEvent, &clEnv, constantNDelays, constantNDelays_V, constantNDelays_H, goodChan, summary//, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/
+         );
+
+         if( constantNMaxPixIdx < 0){ cerr<<"Error reconstructing - contant N\n"; return -1; }
+         if(summary->constantNMaxPixCoherence != 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
+         else { cout<<"constantNMaxPixCoherence returns 0!! Re-running reco...\n"; }
+
+      }
+
+      if(recordConstantNDir(settings, summary) < 0){ cerr<<"Error recording constant N dir\n"; return -1;}
+
+   }
 
    /* Track engine object to compute all tracks */
    treg->computeAllTracks(unpaddedEvent);
    summary->setTreg(treg);
 
+   //****************************************************
+   // END OF FILTER SECTION
+   //****************************************************
+
+
+   getChannelSNR(unpaddedEvent, snrArray);
+   TMath::Sort(16,snrArray,index);
+
+   getChannelUnmodifiedSNR(unpaddedEvent, unmodSNRArray);
+   TMath::Sort(16,unmodSNRArray,index);
 
     //recoData *summary = new recoData();
 /*
@@ -704,6 +749,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    summary->setUnmodSNR(unmodSNRArray[index[2]]);
 
    recoEventCount++;
+
+   /* Reco with radiospline */
 
    recoSuccess = false;
 
@@ -855,6 +902,10 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    }//end of ch
 
+   //****************************************************
+   // FILTER SECTION
+   //****************************************************
+
    numSatChan = 0;
    if(settings->nchnlFilter > 0){
 
@@ -878,6 +929,35 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    for(int i=0; i<16; i++) goodChan[i] = chanMask[i];
    }
 
+   /* Constant N reco for surface filter */
+
+   recoSuccess = false;
+
+   if(settings->constantNFilter > 0){
+      while( !recoSuccess ){
+
+         constantNMaxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_constantNFilter(settings, cleanEvent, &clEnv, constantNDelays, constantNDelays_V, constantNDelays_H, goodChan, summary//, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/
+         );
+
+         if( constantNMaxPixIdx < 0){ cerr<<"Error reconstructing - contant N\n"; return -1; }
+         if(summary->constantNMaxPixCoherence != 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
+         else { cout<<"constantNMaxPixCoherence returns 0!! Re-running reco...\n"; }
+
+      }
+
+      if(recordConstantNDir(settings, summary) < 0){ cerr<<"Error recording constant N dir\n"; return -1;}
+
+   }
+
+   /* Track engine object to compute all tracks */
+   treg->computeAllTracks(unpaddedEvent);
+   summary->setTreg(treg);
+
+   //****************************************************
+   // END OF FILTER SECTION
+   //****************************************************
+
+
    for(int a=0;a<16;a++)
    {
       string_i  = detector->getStringfromArbAntID(0, a);
@@ -897,10 +977,6 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    getChannelUnmodifiedSNR(unpaddedEvent, unmodSNRArray);
    TMath::Sort(16,unmodSNRArray,index);
 
-   /* Track engine object to compute all tracks */
-   treg->computeAllTracks(unpaddedEvent);
-   summary->setTreg(treg);
-
    //recoData *summary = new recoData();
    //if(settings->dataType == 0){
    summary->setWeight(event->Nu_Interaction[0].weight);
@@ -914,6 +990,8 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    summary->setUnmodSNR(unmodSNRArray[index[2]]);
 
    recoEventCount++;
+
+   /* Reco with radiospline */
 
    recoSuccess = false;
 
@@ -994,10 +1072,16 @@ err = tearDown(&clEnv);
 delete treg;
 delete summary;
 if(settings->skymapSearchMode == 0){
-delete onion;
-free(recoDelays);
-free(recoDelays_V);
-free(recoDelays_H);
+   delete onion;
+   free(recoDelays);
+   free(recoDelays_V);
+   free(recoDelays_H);
+}
+if(settings->constantNFilter > 0){
+   delete onion_temp;
+   free(constantNDelays);
+   free(constantNDelays_V);
+   free(constantNDelays_H);
 }
 delete settings;
 free(mapDataHist);
