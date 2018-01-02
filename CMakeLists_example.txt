@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 2.6)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
-#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "/home/local/ara/repositories/root_5.34/etc/cmake") 
+#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "/home/local/ara/repositories/root_5.34/etc/cmake")
 #message( STATUS "CMAKE_SOURCE_DIR:")
 #message( STATUS ${CMAKE_SOURCE_DIR})
 #include(FindROOT)
@@ -45,12 +45,15 @@ include_directories(${CURRENT_WORK_DIR})
 #set(HEALPIX_DICT_INCLUDE_DIR ${HEALPIX_DICT_INCLUDE_DIR} ${CURRENT_WORK_DIR} ${HEALPIX_INCLUDE_DIR})
 #ROOT_GENERATE_DICTIONARY_OLD(recoSettings_Dict.cxx recoSettings.h ${CURRENT_WORK_DIR} Linkdef.h)
 ROOT_GENERATE_DICTIONARY(recoSettings.h linkdef_recoSettings.h recoSettings_Dict.cxx ${CURRENT_WORK_DIR})
+ROOT_GENERATE_DICTIONARY(trackEngine.h linkdef_trackEngine.h trackEngine_Dict.cxx ${CURRENT_WORK_DIR})
 #ROOT_GENERATE_DICTIONARY(Healpix_Onion.h linkdef.h Healpix_Onion_Dict.cxx "${HEALPIX_DICT_INCLUDE_DIR}")
 ROOT_GENERATE_DICTIONARY(recoData.h linkdef_recoData.h recoData_Dict.cxx ${CURRENT_WORK_DIR})
 add_library(recoSettings SHARED recoSettings.cxx recoSettings_Dict.cxx)
+add_library(trackEngine SHARED trackEngine.cxx trackEngine_Dict.cxx)
 #add_library(Healpix_Onion SHARED Healpix_Onion.cxx Healpix_Onion_Dict.cxx)
 add_library(recoData SHARED recoData.cxx recoData_Dict.cxx)
 target_link_libraries(recoSettings ${ROOT_LIBRARIES})
+target_link_libraries(trackEngine ${ROOT_LIBRARIES})
 #target_link_libraries(Healpix_Onion ${ROOT_LIBRARIES})
 target_link_libraries(recoData ${ROOT_LIBRARIES})
 
@@ -77,7 +80,7 @@ add_library(recoTools recoTools.cxx)
 add_library(clFFT SHARED IMPORTED)
 #add_library(recoSettings recoSettings.cxx)
 add_library(Healpix_Onion Healpix_Onion.cxx)
-set_property( TARGET clFFT PROPERTY IMPORTED_LOCATION /data/user/mlu27/softwares/clFFT-2.2/src/library/libclFFT.so ) 
+set_property( TARGET clFFT PROPERTY IMPORTED_LOCATION /data/user/mlu27/softwares/clFFT-2.2/src/library/libclFFT.so )
 add_library(radiospline SHARED IMPORTED)
 set_property( TARGET radiospline PROPERTY IMPORTED_LOCATION
 /data/user/mlu27/softwares/radiospline/build/radiospline-prefix/src/radiospline-build/libradiospline.so )
@@ -88,8 +91,7 @@ set_property(TARGET libRootFftWrapper PROPERTY IMPORTED_LOCATION /home/local/ara
 add_library(cfitsio STATIC IMPORTED)
 set_property(TARGET cfitsio PROPERTY IMPORTED_LOCATION /cvmfs/icecube.opensciencegrid.org/py2-v2/RHEL_6_x86_64/lib/libcfitsio.so.2)
 
-set(ExtraLibs ${ExtraLibs} calibrationToolsVs3 evProcessTools calibrationTools
-recoTools OpenCL clFFT radiospline recoSettings Healpix_Onion libAraSim recoData libRootFftWrapper cfitsio)
+set(ExtraLibs ${ExtraLibs} calibrationToolsVs3 evProcessTools calibrationTools trackEngine recoTools OpenCL clFFT radiospline recoSettings Healpix_Onion libAraSim recoData libRootFftWrapper cfitsio)
 
 add_library(healpix_cxx STATIC IMPORTED)
 set_property( TARGET healpix_cxx PROPERTY IMPORTED_LOCATION ${HEALPIX_LIB_DIR}/libhealpix_cxx.a )
@@ -104,7 +106,7 @@ set_property( TARGET sharp PROPERTY IMPORTED_LOCATION ${HEALPIX_LIB_DIR}/libshar
 
 # Using I3_PORT installed CFITSIO libs, presumably in LD_LIBRARY_PATH
 #add_library(cfitsio STATIC IMPORTED)
-#set_property( TARGET cfitsio PROPERTY IMPORTED_LOCATION /data/user/mlu27/tools/RHEL_6.0_amd64/lib/libcfitsio.a ) 
+#set_property( TARGET cfitsio PROPERTY IMPORTED_LOCATION /data/user/mlu27/tools/RHEL_6.0_amd64/lib/libcfitsio.a )
 
 set(HealpixLibs ${HealpixLibs} healpix_cxx cxxsupport fftpack c_utils sharp )#cfitsio)
 
@@ -114,7 +116,7 @@ set(HealpixLibs ${HealpixLibs} healpix_cxx cxxsupport fftpack c_utils sharp )#cf
 
 Set(INCLUDE_DIRECTORIES  ${ARAEVENT_INCLUDE_DIRS} ${LIBROOTFFTWWRAPPER_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
  ${CURRENT_WORK_DIR} ${CLFFT_INCLUDE_DIR} ${RADIOSPLINE_INCLUDE_DIR}
-${PHOTOSPLINE_INCLUDE_DIR} ${CFITSIO_INCLUDE_DIR} 
+${PHOTOSPLINE_INCLUDE_DIR} ${CFITSIO_INCLUDE_DIR}
 ${HEALPIX_INCLUDE_DIR} ${ARASIM_INCLUDE_DIR})
 
 include_directories( ${INCLUDE_DIRECTORIES} )
@@ -293,5 +295,3 @@ target_link_libraries(clFFT_test3 ${ARAEVENT_LIBRARIES} ${ROOT_LIBRARIES} ${ZLIB
 
 #add_executable(exampleLoop exampleLoop.cxx)
 #target_link_libraries(exampleLoop ${ARAEVENT_LIBRARIES} ${ROOT_LIBRARIES} ${ZLIB_LIBRARIES})
-
-
