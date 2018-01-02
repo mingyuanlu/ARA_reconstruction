@@ -715,7 +715,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
       }
 
-      if(recordConsatntNDir(settings, summary) < 0){ cerr<<"Error recording constant N dir\n"; return -1;}
+      if(recordConstantNDir(settings, summary) < 0){ cerr<<"Error recording constant N dir\n"; return -1;}
 
    }
 
@@ -945,7 +945,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
       }
 
-      if(recordConsatntNDir(settings, summary) < 0){ cerr<<"Error recording constant N dir\n"; return -1;}
+      if(recordConstantNDir(settings, summary) < 0){ cerr<<"Error recording constant N dir\n"; return -1;}
 
    }
 
@@ -1077,7 +1077,7 @@ if(settings->skymapSearchMode == 0){
    free(recoDelays_V);
    free(recoDelays_H);
 }
-if(settings->constantNDelays > 0){
+if(settings->constantNFilter > 0){
    delete onion_temp;
    free(constantNDelays);
    free(constantNDelays_V);
