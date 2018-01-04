@@ -61,7 +61,8 @@ public:
    , int *_topMaxPixIdx, float *_topMaxPixCoherence
    , int *_maxPixIdxEachLayer, float *_maxPixCoherenceEachLayer
    , double _likelihood, double _pValue
-   , float _inWindowSNR, float _unmodSNR
+   , float _inWindowSNR, float _inWindowSNR_V, float _inWindowSNR_H, float _unmodSNR
+   , bool passAnotherPolNchnl
    , int _flag
    , trackEngine *_treg
    , int _constantNMaxPixIdx, float _constantNMaxPixCoherence
@@ -78,7 +79,7 @@ public:
    void setTopMaxPixInfo(int *idx, float *xCorrValue);
    void setMaxPixInfoEachLayer(recoSettings *settings, int *idx, float *xCorrValue);
    void setLikelihoodAndPValue(double _likelihood, double _pValue);
-   void setInWindowSNR(float _inWindowSNR);
+   //void setInWindowSNR(float _inWindowSNR); //See ClassDef 8
    void setUnmodSNR(float _unmodSNR);
    void setFlag(int _flag);
    void duplicate(recoSettings *settings, recoData *old);
@@ -121,8 +122,14 @@ public:
    void setConstantNMaxPixInfo(int _constantNMaxPixIdx, float _constantNMaxPixCoherence);
    void setConstantNDir(float _constantNZen, float _constantNAzi);
 
+//ClassDef 8
+   float inWindowSNR_V;
+   float inWindowSNR_H;
+   bool passAnotherPolNchnl;
+   void setInWindowSNR(float _inWindowSNR, float _inWindowSNR_V, float _inWindowSNR_H);
+   void setPassAnotherPolNchnl(bool _passAnotherPolNchnl);
 
-   ClassDef(recoData, 7);
+   ClassDef(recoData, 8);
 };
 
 

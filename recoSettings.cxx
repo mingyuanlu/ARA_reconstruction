@@ -60,6 +60,8 @@ void recoSettings::initialize(){
   constantNFilter = 0;
   surfaceCutAngle = 0.f;
 
+  nchnlThreshold_anotherPol = 0.;
+
   //remark = "Default.";
   snprintf(remark, sizeof(remark), "Default.");
 
@@ -118,6 +120,7 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
             else if(label == "maxNumberOfReco") maxNumberOfReco = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "constantNFilter") constantNFilter = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "surfaceCutAngle") surfaceCutAngle = atof( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "nchnlThreshold_anotherPol") nchnlThreshold_anotherPol = atof( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label != "") cerr<<"Undefined parameter detected. Label: "<<label<<endl;
          }
       }
@@ -170,6 +173,8 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
       if( maxNumberOfReco < -1 ){                 cerr<<"maxNumberOfReco: "<<maxNumberOfReco<<endl; errCnt++; }
       if( (unsigned)(constantNFilter-0) > 1){     cerr<<"constantNFilter: "<<constantNFilter<<endl; errCnt++; }
       if( surfaceCutAngle < 0.f && surfaceCutAngle > 180.f){ cerr<<"surfaceCutAngle: "<<surfaceCutAngle<<endl; errCnt++; }
+      if( nchnlThreshold_anotherPol < 0){ cerr<<"nchnlThreshold_anotherPol: "<<nchnlThreshold_anotherPol<<endl; errCnt++; }
+
       if(errCnt > 0) return false;
 
    } else { cerr<<"Unable to open "<<sf<<endl; return false; }

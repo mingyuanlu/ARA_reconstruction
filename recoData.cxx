@@ -50,6 +50,9 @@ using namespace std;
    constantNMaxPixCoherence = 0.f;
    constantNZen = constantNAzi = 0.f;
 
+   inWindowSNR_V = inWindowSNR_H = 0.;
+   passAnotherPolNchnl = false;
+
    }
 
 
@@ -69,7 +72,8 @@ using namespace std;
    , int *_topMaxPixIdx, float *_topMaxPixCoherence
    , int *_maxPixIdxEachLayer, float *_maxPixCoherenceEachLayer
    , double _likelihood, double _pValue
-   , float _inWindowSNR, float _unmodSNR
+   , float _inWindowSNR, float _inWindowSNR_V, float _inWindowSNR_H, float _unmodSNR
+   , bool _passAnotherPolNchnl
    , int _flag
    , trackEngine *_treg
    , int _constantNMaxPixIdx, float _constantNMaxPixCoherence
@@ -134,6 +138,10 @@ using namespace std;
    constantNMaxPixCoherence = _constantNMaxPixCoherence;
    constantNZen = _constantNZen;
    constantNAzi = _constantNAzi;
+
+   inWindowSNR_V = _inWindowSNR_V;
+   inWindowSNR_H = _inWindowSNR_H;
+   passAnotherPolNchnl = _passAnotherPolNchnl;
 
    }
 
@@ -240,9 +248,11 @@ using namespace std;
 
    }
 
-   void recoData::setInWindowSNR(float _inWindowSNR){
+   void recoData::setInWindowSNR(float _inWindowSNR, float _inWindowSNR_V, float _inWindowSNR_H){
 
    inWindowSNR = _inWindowSNR;
+   inWindowSNR_V = _inWindowSNR_V;
+   inWindowSNR_H = _inWindowSNR_H;
 
    }
 
@@ -304,6 +314,12 @@ using namespace std;
 
    }
 
+   void  recoData::setPassAnotherPolNchnl(bool _passAnotherPolNchnl){
+
+      passAnotherPolNchnl = _passAnotherPolNchnl;
+
+   }
+
    void recoData::duplicate(recoSettings *settings, recoData *old){
 
    int *_topMaxPixIdx         = (int*)calloc(old->topN, sizeof(int));
@@ -337,7 +353,8 @@ using namespace std;
              , _topMaxPixIdx, _topMaxPixCoherence
              , _maxPixIdxEachLayer, _maxPixCoherenceEachLayer
              , old->likelihood, old->pValue
-             , old->inWindowSNR, old->unmodSNR
+             , old->inWindowSNR, old->inWindowSNR_V, old->inWindowSNR_H, old->unmodSNR
+             , old->passAnotherPolNchnl
              , old->flag
              , old->treg
              , old->constantNMaxPixIdx, old->constantNMaxPixCoherence
@@ -416,5 +433,7 @@ using namespace std;
    constantNMaxPixIdx = 0;
    constantNMaxPixCoherence = 0.f;
    constantNZen = constantNAzi = 0.f;
+   inWindowSNR_V = inWindowSNR_H = 0.f;
+   passAnotherPolNchnl = false;
 
    }
