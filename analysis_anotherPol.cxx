@@ -761,7 +761,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    summary->setInWindowSNRBothPol(snrArray_V[index_V[2]], snrArray_H[index_H[2]]);
    summary->setUnmodSNR(unmodSNRArray[index[2]]);
    if(settings->nchnlFilter>0){
-      if(settings->nchnlFiler==1){
+      if(settings->nchnlFilter==1){
          if(snrArray_H[index_H[2]]>=settings->nchnlThreshold_anotherPol) summary->setPassAnotherPolNchnl(true);
       }
       else if(settings->nchnlFilter==2){
@@ -1022,7 +1022,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    summary->setInWindowSNRBothPol(snrArray_V[index_V[2]], snrArray_H[index_H[2]]);
    summary->setUnmodSNR(unmodSNRArray[index[2]]);
    if(settings->nchnlFilter>0){
-      if(settings->nchnlFiler==1){
+      if(settings->nchnlFilter==1){
          if(snrArray_H[index_H[2]]>=settings->nchnlThreshold_anotherPol) summary->setPassAnotherPolNchnl(true);
       }
       else if(settings->nchnlFilter==2){
