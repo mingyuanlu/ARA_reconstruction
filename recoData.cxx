@@ -248,11 +248,9 @@ using namespace std;
 
    }
 
-   void recoData::setInWindowSNR(float _inWindowSNR, float _inWindowSNR_V, float _inWindowSNR_H){
+   void recoData::setInWindowSNR(float _inWindowSNR){
 
    inWindowSNR = _inWindowSNR;
-   inWindowSNR_V = _inWindowSNR_V;
-   inWindowSNR_H = _inWindowSNR_H;
 
    }
 
@@ -312,6 +310,13 @@ using namespace std;
       constantNZen = _constantNZen;
       constantNAzi = _constantNAzi;
 
+   }
+
+   void recoData::setInWindowSNRBothPol(float _inWindowSNR_V, float _inWindowSNR_H){
+
+      inWindowSNR_V = _inWindowSNR_V;
+      inWindowSNR_H = _inWindowSNR_H;
+      
    }
 
    void  recoData::setPassAnotherPolNchnl(bool _passAnotherPolNchnl){

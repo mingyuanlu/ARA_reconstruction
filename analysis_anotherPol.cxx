@@ -757,7 +757,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
     //summary->setOnion(onion);
    summary->setTopN(topN);
    summary->setRecoChan(goodChan);
-   summary->setInWindowSNR(snrArray[index[2]], snrArray_V[index_V[2]], snrArray_H[index_H[2]]);
+   summary->setInWindowSNR(snrArray[index[2]])
+   summary->setInWindowSNRBothPol(snrArray_V[index_V[2]], snrArray_H[index_H[2]]);
    summary->setUnmodSNR(unmodSNRArray[index[2]]);
    if(settings->nchnlFilter>0){
       if(settings->nchnlFiler==1){
@@ -1017,7 +1018,8 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    //summary->setOnion(onion);
    summary->setTopN(topN);
    summary->setRecoChan(goodChan);
-   summary->setInWindowSNR(snrArray[index[2]], snrArray_V[index_V[2]], snrArray_H[index_H[2]]);
+   summary->setInWindowSNR(snrArray[index[2]]);
+   summary->setInWindowSNRBothPol(snrArray_V[index_V[2]], snrArray_H[index_H[2]]);
    summary->setUnmodSNR(unmodSNRArray[index[2]]);
    if(settings->nchnlFilter>0){
       if(settings->nchnlFiler==1){

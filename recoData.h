@@ -79,7 +79,7 @@ public:
    void setTopMaxPixInfo(int *idx, float *xCorrValue);
    void setMaxPixInfoEachLayer(recoSettings *settings, int *idx, float *xCorrValue);
    void setLikelihoodAndPValue(double _likelihood, double _pValue);
-   //void setInWindowSNR(float _inWindowSNR); //See ClassDef 8
+   void setInWindowSNR(float _inWindowSNR);
    void setUnmodSNR(float _unmodSNR);
    void setFlag(int _flag);
    void duplicate(recoSettings *settings, recoData *old);
@@ -126,7 +126,7 @@ public:
    float inWindowSNR_V;
    float inWindowSNR_H;
    bool passAnotherPolNchnl;
-   void setInWindowSNR(float _inWindowSNR, float _inWindowSNR_V, float _inWindowSNR_H);
+   void setInWindowSNRBothPol(float _inWindowSNR_V, float _inWindowSNR_H);
    void setPassAnotherPolNchnl(bool _passAnotherPolNchnl);
 
    ClassDef(recoData, 8);
