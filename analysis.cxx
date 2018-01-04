@@ -484,7 +484,9 @@ if(settings->recordMapData == 1){
    }
 }
 int index[16]={0};
-float snrArray[16], unmodSNRArray[16];
+int index_V[8]={0};
+int index_H[8]={0};
+float snrArray[16], unmodSNRArray[16], snrArray_V[8], snrArray_H[8];
 vector<TGraph *> unpaddedEvent;
 TH1F *snrDist = new TH1F("snrDist","snrDist",100,0,50);
 int goodChan[16];
@@ -731,6 +733,16 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    getChannelSNR(unpaddedEvent, snrArray);
    TMath::Sort(16,snrArray,index);
 
+   for(int i=0; i<8; i++){
+      snrArray_V[i] = snrArray[i];
+   }
+   TMath::Sort(8,snrArray_V,index_V);
+
+   for(int i=0; i<8; i++){
+      snrArray_H[i] = snrArray[i+8];
+   }
+   TMath::Sort(8,snrArray_H,index_H);
+
    getChannelUnmodifiedSNR(unpaddedEvent, unmodSNRArray);
    TMath::Sort(16,unmodSNRArray,index);
 
@@ -746,7 +758,16 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    summary->setTopN(topN);
    summary->setRecoChan(goodChan);
    summary->setInWindowSNR(snrArray[index[2]]);
+   summary->setInWindowSNRBothPol(snrArray_V[index_V[2]], snrArray_H[index_H[2]]);
    summary->setUnmodSNR(unmodSNRArray[index[2]]);
+   if(settings->nchnlFilter>0){
+      if(settings->nchnlFilter==1){
+         if(snrArray_H[index_H[2]]>=settings->nchnlThreshold_anotherPol) summary->setPassAnotherPolNchnl(true);
+      }
+      else if(settings->nchnlFilter==2){
+         if(snrArray_V[index_V[2]]>=settings->nchnlThreshold_anotherPol) summary->setPassAnotherPolNchnl(true);
+      }
+   }
 
    recoEventCount++;
 
@@ -974,6 +995,17 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    getChannelSNR(unpaddedEvent, snrArray);
    TMath::Sort(16,snrArray,index);
 
+   for(int i=0; i<8; i++){
+      snrArray_V[i] = snrArray[i];
+   }
+   TMath::Sort(8,snrArray_V,index_V);
+
+   for(int i=0; i<8; i++){
+      snrArray_H[i] = snrArray[i+8];
+   }
+   TMath::Sort(8,snrArray_H,index_H);
+
+
    getChannelUnmodifiedSNR(unpaddedEvent, unmodSNRArray);
    TMath::Sort(16,unmodSNRArray,index);
 
@@ -987,7 +1019,16 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    summary->setTopN(topN);
    summary->setRecoChan(goodChan);
    summary->setInWindowSNR(snrArray[index[2]]);
+   summary->setInWindowSNRBothPol(snrArray_V[index_V[2]], snrArray_H[index_H[2]]);
    summary->setUnmodSNR(unmodSNRArray[index[2]]);
+   if(settings->nchnlFilter>0){
+      if(settings->nchnlFilter==1){
+         if(snrArray_H[index_H[2]]>=settings->nchnlThreshold_anotherPol) summary->setPassAnotherPolNchnl(true);
+      }
+      else if(settings->nchnlFilter==2){
+         if(snrArray_V[index_V[2]]>=settings->nchnlThreshold_anotherPol) summary->setPassAnotherPolNchnl(true);
+      }
+   }
 
    recoEventCount++;
 
