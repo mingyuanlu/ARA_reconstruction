@@ -792,7 +792,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
       //evStr = std::to_string(ev);
       stringstream ss;
-      ss << ev;
+      ss << /*ev*/rawAtriEvPtr->eventNumber;
       evStr = ss.str();
       fitsFileStr = fitsFile_tmp + /*".ev" + evStr +*/ ".fits";
       sprintf(fitsFile, fitsFileStr.c_str());
