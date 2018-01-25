@@ -754,6 +754,10 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
     summary->setTrueDir(zen_true*180./M_PI, azi_true*180./M_PI);
     }
 */
+
+   /* Real data, set weight as 1 */
+   summary->setWeight(1);
+
     //summary->setOnion(onion);
    summary->setTopN(topN);
    summary->setRecoChan(goodChan);
