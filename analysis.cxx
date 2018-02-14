@@ -878,14 +878,14 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    for(int a=0;a<16;a++)
    {
-      string_i  = detector->getStringfromArbAntID(0, a);
-      antenna_i = detector->getAntennafromArbAntID(0, a);
-      AraRootChannel = detector->GetChannelfromStringAntenna (0, string_i, antenna_i, AraSim_settings);
+      string_i  = detector->getStringfromArbAntID(AraSim_settings->DETECTOR_STATION, a);
+      antenna_i = detector->getAntennafromArbAntID(AraSim_settings->DETECTOR_STATION, a);
+      AraRootChannel = detector->GetChannelfromStringAntenna (AraSim_settings->DETECTOR_STATION, string_i, antenna_i, AraSim_settings);
       gr_v[AraRootChannel-1] = new TGraph();
       int nSamp = (int)report->stations[0].strings[string_i].antennas[antenna_i].time_mimic.size();
 
-      for(int s=0; s<nSamp; s++){
-         gr_v[AraRootChannel-1]->SetPoint(s
+      for(int s=64; s<nSamp; s++){
+         gr_v[AraRootChannel-1]->SetPoint(s-64
                                         , report->stations[0].strings[string_i].antennas[antenna_i].time_mimic[s]
                                         , report->stations[0].strings[string_i].antennas[antenna_i].V_mimic[s]
                                          );
@@ -917,8 +917,8 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    for(int ch=0; ch<16; ch++){
 
-   if(ch<8){wInt=0.5; /*maxSamp=2048;*/ maxSamp = gr_v[0]->GetN()*4; }
-   else{    wInt=0.5; /*maxSamp=2048;*/ maxSamp = gr_v[8]->GetN()*4; }
+   if(ch<8){wInt=0.4; maxSamp=2048;/* maxSamp = gr_v[0]->GetN()*4;*/ }
+   else{    wInt=0.625; maxSamp=2048;/* maxSamp = gr_v[8]->GetN()*4;*/ }
    unpaddedEvent.push_back(gr_v[ch]);
    /* Use a modified Hann window for now */
    grWinPad[ch]     = evProcessTools::getWindowedAndPaddedEqualBeginGraph(gr_v[ch], maxSamp, beginTime);
@@ -985,9 +985,9 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    for(int a=0;a<16;a++)
    {
-      string_i  = detector->getStringfromArbAntID(0, a);
-      antenna_i = detector->getAntennafromArbAntID(0, a);
-      AraRootChannel = detector->GetChannelfromStringAntenna (0, string_i, antenna_i, AraSim_settings);
+      string_i  = detector->getStringfromArbAntID(AraSim_settings->DETECTOR_STATION, a);
+      antenna_i = detector->getAntennafromArbAntID(AraSim_settings->DETECTOR_STATION, a);
+      //AraRootChannel = detector->GetChannelfromStringAntenna (AraSim_settings->DETECTOR_STATION, string_i, antenna_i, AraSim_settings);
 
       trueRecAngles[a] = report->stations[0].strings[string_i].antennas[antenna_i].rec_ang[0];
       trueLauAngles[a] = report->stations[0].strings[string_i].antennas[antenna_i].launch_ang[0];
