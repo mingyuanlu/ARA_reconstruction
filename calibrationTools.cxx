@@ -233,9 +233,9 @@ int string_i, antenna_i, AraRootChannel;
 for(int AraRootChan=0; AraRootChan<16; AraRootChan++){
    for(int AraSimChan=0; AraSimChan<16; AraSimChan++){
 
-   string_i = detector->getStringfromArbAntID(settings->DETECTOR_STATION, AraSimChan);
-   antenna_i= detector->getAntennafromArbAntID(settings->DETECTOR_STATION,AraSimChan);
-   AraRootChannel = detector->GetChannelfromStringAntenna(settings->DETECTOR_STATION, string_i, antenna_i, settings) - 1;
+   string_i = detector->getStringfromArbAntID(0, AraSimChan);
+   antenna_i= detector->getAntennafromArbAntID(0,AraSimChan);
+   AraRootChannel = detector->GetChannelfromStringAntenna(0, string_i, antenna_i, settings) - 1;
 
    cout<<"AraSimChan: "<<AraSimChan<<" string_i: "<<string_i<<" antenna_i: "<<antenna_i<<" AraRootChannel: "<<AraRootChannel<<endl;
 
