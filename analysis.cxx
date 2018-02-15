@@ -884,13 +884,28 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       gr_v[AraRootChannel-1] = new TGraph();
       int nSamp = (int)report->stations[0].strings[string_i].antennas[antenna_i].time_mimic.size();
 
-      for(int s=64; s<nSamp; s++){
-         gr_v[AraRootChannel-1]->SetPoint(s-64
-                                        , report->stations[0].strings[string_i].antennas[antenna_i].time_mimic[s]
-                                        , report->stations[0].strings[string_i].antennas[antenna_i].V_mimic[s]
-                                         );
-        average[AraRootChannel-1] += report->stations[0].strings[string_i].antennas[antenna_i].V_mimic[s];
+      if(detector->DETECTOR_STATION==2 && AraRootChannel-1==15 && settings->dropARA02D4BH==1)//ARA02: always drop D4BH
+      {
+         for(int s=64; s<nSamp; s++){
+            gr_v[AraRootChannel-1]->SetPoint(s-64, report->stations[0].strings[string_i].antennas[antenna_i].time_mimic[s], 0.);
+         }
+      }
+      else if(detector->DETECTOR_STATION==3 && AraRootChannel%4==0 && settings->dropARA03D4==1)
+      {
+         for(int s=64; s<nSamp; s++){
+            gr_v[AraRootChannel-1]->SetPoint(s-64, report->stations[0].strings[string_i].antennas[antenna_i].time_mimic[s], 0.);
+         }
+      }
+      else
+      {
+         for(int s=64; s<nSamp; s++){
+            gr_v[AraRootChannel-1]->SetPoint(s-64
+                                          , report->stations[0].strings[string_i].antennas[antenna_i].time_mimic[s]
+                                          , report->stations[0].strings[string_i].antennas[antenna_i].V_mimic[s]
+                                             );
+            average[AraRootChannel-1] += report->stations[0].strings[string_i].antennas[antenna_i].V_mimic[s];
         }
+      }
 
       int pc = 0;
       /*** Zero-mean the waveforms on a channel-by-channel basis ***/

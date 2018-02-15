@@ -151,7 +151,11 @@ public:
    //ClassDef 6
    double nchnlThreshold_anotherPol;
 
-   ClassDef(recoSettings, 6); //2: convert all string parameters to char
+   //ClassDef 7
+   int dropARA02D4BH;
+   int dropARA03D4;
+
+   ClassDef(recoSettings, 7); //2: convert all string parameters to char
                               //3: add openCLDeviceType and openCLMaxNumberOfDevices parameters
 };
 
