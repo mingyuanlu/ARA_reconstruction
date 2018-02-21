@@ -10762,8 +10762,8 @@ cout<<"ch: "<<ch<<" sigma: "<<sigma<<endl;
                //break;
             }
 
-            /* check if saturated at +/- 1000mV */
-            if( fabs( fabs(v) - 1000. ) < 0.5 ){
+            /* check if saturated at +/- 1500mV */
+            if( fabs( fabs(v) - 1500. ) < 0.5 ){
 
                saturated[ch] = 1;
             }
@@ -10867,7 +10867,11 @@ void getChannelSNR(const vector<TGraph *>& cleanEvent, float *snrArray){
          }//end of binCounter
 
       //delete gr;
+      if(sigma>0)
       snrArray[ch] = static_cast<float>(absPeak / sigma);
+      else
+      snrArray[ch] = 0.f;
+
       cout<<"ch: "<<ch<<" sigma: "<<sigma<<" snr: "<<snrArray[ch]<<endl;
 
    }//end of ch
@@ -10966,7 +10970,10 @@ void getChannelUnmodifiedSNR(const vector<TGraph *>& cleanEvent, float *snrArray
          }//end of binCounter
 
       //delete gr;
+      if(sigma>0)
       snrArray[ch] = static_cast<float>(absPeak / sigma);
+      else
+      snrArray[ch] = 0.f;
 
    }//end of ch
    /*
