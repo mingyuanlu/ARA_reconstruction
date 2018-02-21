@@ -772,7 +772,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          if(snrArray_V[index_V[2]]>=settings->nchnlThreshold_anotherPol) summary->setPassAnotherPolNchnl(true);
       }
    }
-
+cout<<"*********************************** inWindowSNR_V: "<<summary->inWindowSNR_V<<"*************************************"<<endl;
    recoEventCount++;
 
    /* Reco with radiospline */
