@@ -10742,7 +10742,7 @@ void getNchnlMaskSat(const vector<TGraph *>& cleanEvent, double threshold, int *
 
          mean  = statsArray[0];
          sigma = statsArray[1];
-cout<<"ch: "<<ch<<" sigma: "<<sigma<<endl;
+         //cout<<"ch: "<<ch<<" sigma: "<<sigma<<endl;
          for (int binCounter=0; binCounter<bin; binCounter++){
 
             cleanEvent[ch]->GetPoint(binCounter, t, v);
@@ -10872,7 +10872,7 @@ void getChannelSNR(const vector<TGraph *>& cleanEvent, float *snrArray){
       else
       snrArray[ch] = 0.f;
 
-      cout<<"ch: "<<ch<<" sigma: "<<sigma<<" snr: "<<snrArray[ch]<<endl;
+      ///cout<<"ch: "<<ch<<" sigma: "<<sigma<<" snr: "<<snrArray[ch]<<endl;
 
    }//end of ch
    /*
