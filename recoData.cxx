@@ -173,7 +173,8 @@ using namespace std;
 */
    }
 
-   void recoData::setAllData2(int idx2, float xCorrValue2
+   void recoData::setAllData2(recoSettings *_settings
+   , int idx2, float xCorrValue2
    , int *_topMaxPixIdx2, float *_topMaxPixCoherence2
    , int *_maxPixIdxEachLayer2, float *_maxPixCoherenceEachLayer2){
 
