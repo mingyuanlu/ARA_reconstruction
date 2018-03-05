@@ -67,9 +67,9 @@ public:
    , trackEngine *_treg
    , int _constantNMaxPixIdx, float _constantNMaxPixCoherence
    , float _constantNZen, float _constantNAzi
-   , int idx2, float xCorrValue2
+   /*, int idx2, float xCorrValue2
    , int *_topMaxPixIdx2, float *_topMaxPixCoherence2
-   , int *_maxPixIdxEachLayer2, float *_maxPixCoherenceEachLayer2);
+   , int *_maxPixIdxEachLayer2, float *_maxPixCoherenceEachLayer2*/);
    void setWeight(double w);
    void setTrueRadius(float r_true);
    void setTrueDir(float zen_true, float azi_true);

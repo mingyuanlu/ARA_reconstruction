@@ -85,9 +85,9 @@ using namespace std;
    , trackEngine *_treg
    , int _constantNMaxPixIdx, float _constantNMaxPixCoherence
    , float _constantNZen, float _constantNAzi
-   , int idx2, float xCorrValue2
+   /*, int idx2, float xCorrValue2
    , int *_topMaxPixIdx2, float *_topMaxPixCoherence2
-   , int *_maxPixIdxEachLayer2, float *_maxPixCoherenceEachLayer2
+   , int *_maxPixIdxEachLayer2, float *_maxPixCoherenceEachLayer2*/
    )
    {
 
@@ -436,9 +436,9 @@ using namespace std;
              , old->treg
              , old->constantNMaxPixIdx, old->constantNMaxPixCoherence
              , old->constantNZen, old->constantNAzi
-             , old->maxPixIdx2,  old->maxPixCoherence2
+             /*, old->maxPixIdx2,  old->maxPixCoherence2
              , _topMaxPixIdx2, _topMaxPixCoherence2
-             , _maxPixIdxEachLayer2, _maxPixCoherenceEachLayer2
+             , _maxPixIdxEachLayer2, _maxPixCoherenceEachLayer2*/
           );
 
 /*
