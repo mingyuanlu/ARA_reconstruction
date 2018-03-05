@@ -485,6 +485,7 @@ if(settings->skymapSearchMode == 0) maxPix = (int*)calloc(nDir*nLayer, sizeof(in
 else                                maxPix = (int*)calloc(12*pow(2,settings->nSideExpEnd)*pow(2,settings->nSideExpEnd)*settings->nLayer, sizeof(int));
 
 int maxPixIdx = 0;
+int maxPixIdx2 = 0;
 int constantNMaxPixIdx = 0;
 float *mapData = (float*)calloc(nDir*nLayer, sizeof(float));
 char histName[200];
@@ -782,7 +783,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       if(settings->nchnlFilter==1){
          if(snrArray_H[index_H[2]]>=settings->nchnlThreshold_anotherPol) summary->setPassAnotherPolNchnl(true);
       }
-      else if(sett   ings->nchnlFilter==2){
+      else if(settings->nchnlFilter==2){
          if(snrArray_V[index_V[2]]>=settings->nchnlThreshold_anotherPol) summary->setPassAnotherPolNchnl(true);
       }
    }
