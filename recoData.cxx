@@ -464,7 +464,8 @@ using namespace std;
              , _topMaxPixIdx2, _topMaxPixCoherence2
              , _maxPixIdxEachLayer2, _maxPixCoherenceEachLayer2*/
           );
-   setAllData2(old->maxPixIdx2,  old->maxPixCoherence2
+   setAllData2(settings
+   , old->maxPixIdx2,  old->maxPixCoherence2
    , _topMaxPixIdx2, _topMaxPixCoherence2
    , _maxPixIdxEachLayer2, _maxPixCoherenceEachLayer2);
 
