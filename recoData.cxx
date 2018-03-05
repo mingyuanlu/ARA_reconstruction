@@ -153,7 +153,7 @@ using namespace std;
    inWindowSNR_V = _inWindowSNR_V;
    inWindowSNR_H = _inWindowSNR_H;
    passAnotherPolNchnl = _passAnotherPolNchnl;
-
+/*
    maxPixIdx2 = idx2;
    maxPixCoherence2 = xCorrValue2;
 
@@ -170,7 +170,7 @@ using namespace std;
       maxPixIdxEachLayer2.push_back( _maxPixIdxEachLayer2[i] );
       maxPixCoherenceEachLayer2.push_back( _maxPixCoherenceEachLayer2[i] );
    }
-
+*/
    }
 
    void recoData::setWeight(double w){
