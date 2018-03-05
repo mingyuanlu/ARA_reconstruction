@@ -66,7 +66,10 @@ public:
    , int _flag
    , trackEngine *_treg
    , int _constantNMaxPixIdx, float _constantNMaxPixCoherence
-   , float _constantNZen, float _constantNAzi);
+   , float _constantNZen, float _constantNAzi
+   , int idx2, float xCorrValue2
+   , int *_topMaxPixIdx2, float *_topMaxPixCoherence2
+   , int *_maxPixIdxEachLayer2, float *_maxPixCoherenceEachLayer2);
    void setWeight(double w);
    void setTrueRadius(float r_true);
    void setTrueDir(float zen_true, float azi_true);
@@ -129,7 +132,19 @@ public:
    void setInWindowSNRBothPol(float _inWindowSNR_V, float _inWindowSNR_H);
    void setPassAnotherPolNchnl(bool _passAnotherPolNchnl);
 
-   ClassDef(recoData, 8);
+//ClassDef 9
+   //Data members defined here are specific to reconstruction with the 2nd ray table.
+   int maxPixIdx2;
+   float maxPixCoherence2; //max pix coherence value
+   vector<int> topMaxPixIdx2;               //top N max pix index of whole onion
+   vector<float> topMaxPixCoherence2;       //top N max pix coherence of whole onion
+   vector<int> maxPixIdxEachLayer2;         //max pix index of each layer
+   vector<float> maxPixCoherenceEachLayer2; //max pix coherence of each layer
+   void setTopMaxPix2Info(int *idx, float *xCorrValue);
+   void setMaxPix2InfoEachLayer(recoSettings *settings, int *idx, float *xCorrValue);
+   void setMaxPix2Info(int idx, float xCorrValue);
+
+   ClassDef(recoData, 9);
 };
 
 

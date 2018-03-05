@@ -53,6 +53,13 @@ using namespace std;
    inWindowSNR_V = inWindowSNR_H = 0.;
    passAnotherPolNchnl = false;
 
+   maxPixIdx2 = 0;
+   maxPixCoherence2 = 0.f;
+   topMaxPixIdx2.clear();
+   topMaxPixCoherence2.clear();
+   maxPixIdxEachLayer2.clear();
+   maxPixCoherenceEachLayer2.clear();
+
    }
 
 
@@ -77,7 +84,11 @@ using namespace std;
    , int _flag
    , trackEngine *_treg
    , int _constantNMaxPixIdx, float _constantNMaxPixCoherence
-   , float _constantNZen, float _constantNAzi)
+   , float _constantNZen, float _constantNAzi
+   , int idx2, float xCorrValue2
+   , int *_topMaxPixIdx2, float *_topMaxPixCoherence2
+   , int *_maxPixIdxEachLayer2, float *_maxPixCoherenceEachLayer2
+   )
    {
 
    eventId = _eventId;
@@ -143,6 +154,23 @@ using namespace std;
    inWindowSNR_H = _inWindowSNR_H;
    passAnotherPolNchnl = _passAnotherPolNchnl;
 
+   maxPixIdx2 = idx2;
+   maxPixCoherence2 = xCorrValue2;
+
+   topMaxPixIdx2.clear();
+   topMaxPixCoherence2.clear();
+   for(int i=0; i<topN; i++){
+      topMaxPixIdx2.push_back( _topMaxPixIdx2[i] );
+      topMaxPixCoherence2.push_back( _topMaxPixCoherence2[i] );
+   }
+
+   maxPixIdxEachLayer2.clear();
+   maxPixCoherenceEachLayer2.clear();
+   for(int i=0; i<_settings->nLayer; i++){
+      maxPixIdxEachLayer2.push_back( _maxPixIdxEachLayer2[i] );
+      maxPixCoherenceEachLayer2.push_back( _maxPixCoherenceEachLayer2[i] );
+   }
+
    }
 
    void recoData::setWeight(double w){
@@ -206,6 +234,14 @@ using namespace std;
    maxPixCoherence = xCorrValue;
 
    }
+
+   void recoData::setMaxPix2Info(int idx, float xCorrValue){
+
+   maxPixIdx2 = idx;
+   maxPixCoherence2 = xCorrValue;
+
+   }
+
    /*
    void recoData::setOnionInfo(Healpix_Onion *_onion){
 
@@ -230,6 +266,17 @@ using namespace std;
    }
    }
 
+   void recoData::setTopMaxPix2Info(int *idx, float *xCorrValue){ //pass a sorted array of topN max pix indices
+
+   //if( topN != (int)idx_size ) cerr<<"Warning!! topMaxPixIdx size not correct\n";
+   topMaxPixIdx2.clear();
+   topMaxPixCoherence2.clear();
+   for(int i=0; i<topN; i++){
+      topMaxPixIdx2.push_back(idx[i]);
+      topMaxPixCoherence2.push_back(xCorrValue[i]);
+   }
+   }
+
    void recoData::setMaxPixInfoEachLayer(recoSettings *settings, int *idx, float *xCorrValue){
 
    //if( onion->nLayer != (int)idx_size) cerr<<"Warning!! maxPixIdxEachLayer size not correct\n";
@@ -238,6 +285,17 @@ using namespace std;
    for(int i=0; i<settings->nLayer; i++){
       maxPixIdxEachLayer.push_back(idx[i]);
       maxPixCoherenceEachLayer.push_back(xCorrValue[i]);
+   }
+   }
+
+   void recoData::setMaxPix2InfoEachLayer(recoSettings *settings, int *idx, float *xCorrValue){
+
+   //if( onion->nLayer != (int)idx_size) cerr<<"Warning!! maxPixIdxEachLayer size not correct\n";
+   maxPixIdxEachLayer2.clear();
+   maxPixCoherenceEachLayer2.clear();
+   for(int i=0; i<settings->nLayer; i++){
+      maxPixIdxEachLayer2.push_back(idx[i]);
+      maxPixCoherenceEachLayer2.push_back(xCorrValue[i]);
    }
    }
 
@@ -316,7 +374,7 @@ using namespace std;
 
       inWindowSNR_V = _inWindowSNR_V;
       inWindowSNR_H = _inWindowSNR_H;
-      
+
    }
 
    void  recoData::setPassAnotherPolNchnl(bool _passAnotherPolNchnl){
@@ -341,6 +399,20 @@ using namespace std;
       _maxPixCoherenceEachLayer[i] = old->maxPixCoherenceEachLayer[i];
    }
 
+   int *_topMaxPixIdx2         = (int*)calloc(old->topN, sizeof(int));
+   float *_topMaxPixCoherence2 = (float*)calloc(old->topN, sizeof(float));
+   for(int i=0; i<old->topN; i++){
+      _topMaxPixIdx2[i]       = old->topMaxPixIdx2[i];
+      _topMaxPixCoherence2[i] = old->topMaxPixCoherence2[i];
+   }
+
+   int *_maxPixIdxEachLayer2       = (int*)calloc(/*old->onion*/settings->nLayer, sizeof(int));
+   float *_maxPixCoherenceEachLayer2 = (float*)calloc(/*old->onion*/settings->nLayer, sizeof(float));
+   for(int i=0; i</*old->onion*/settings->nLayer; i++){
+      _maxPixIdxEachLayer2[i]       = old->maxPixIdxEachLayer2[i];
+      _maxPixCoherenceEachLayer2[i] = old->maxPixCoherenceEachLayer2[i];
+   }
+
    setAllData(old->eventId,     old->eventNumber
              , old->unixTime, old->unixTimeUs, old->timeStamp
              , old->weight
@@ -363,7 +435,11 @@ using namespace std;
              , old->flag
              , old->treg
              , old->constantNMaxPixIdx, old->constantNMaxPixCoherence
-             , old->constantNZen, old->constantNAzi);
+             , old->constantNZen, old->constantNAzi
+             , old->maxPixIdx2,  old->maxPixCoherence2
+             , _topMaxPixIdx2, _topMaxPixCoherence2
+             , _maxPixIdxEachLayer2, _maxPixCoherenceEachLayer2
+          );
 
 /*
    weight = old->weight;
@@ -402,7 +478,10 @@ using namespace std;
    free(_topMaxPixCoherence);
    free(_maxPixIdxEachLayer);
    free(_maxPixCoherenceEachLayer);
-
+   free(_topMaxPixIdx2);
+   free(_topMaxPixCoherence2);
+   free(_maxPixIdxEachLayer2);
+   free(_maxPixCoherenceEachLayer2);
    }
 
    void recoData::clear(){
@@ -440,5 +519,11 @@ using namespace std;
    constantNZen = constantNAzi = 0.f;
    inWindowSNR_V = inWindowSNR_H = 0.f;
    passAnotherPolNchnl = false;
+   maxPixIdx2 = 0;
+   maxPixCoherence2 = 0.f;
+   topMaxPixIdx2.clear();
+   topMaxPixCoherence2.clear();
+   maxPixIdxEachLayer2.clear();
+   maxPixCoherenceEachLayer2.clear();
 
    }

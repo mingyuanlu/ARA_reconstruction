@@ -370,7 +370,11 @@ int compute3DRecoDelaysWithRadioSpline(const int nAnt, const float zCenter, cons
                                       //const float radius, const int nSideExp,
                                       Healpix_Onion *onion,
                                       float *recoDelays, float *recoDelays_V, float *recoDelays_H);
-
+int compute3DRecoBothDelaysWithRadioSpline(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
+                                     //const float radius, const int nSideExp,
+                                     Healpix_Onion *onion,
+                                     float *recoDelays, float *recoDelays_V, float *recoDelays_H,
+                                     float *recoRefracDelays, float *recoRefracDelays_V, float *recoRefracDelays_H);
 int compute3DRecoDelaysWithRadioSplineForSinglePixel(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
                                       //const float radius, const int nSideExp,
                                       Healpix_Onion *onion,
@@ -402,6 +406,7 @@ void getChannelUnmodifiedSNR(const vector<TGraph *>& cleanEvent, float *snrArray
 int recordDiffGetFlag(int nSideExp, recoData *summary, char *rootFilename);
 //int record3DDiffGetFlag(recoData *summary, char *rootFilename);
 int record3DDiffGetFlag(recoSettings *settings, recoData *summary, TH1F *dZenDist, TH1F *dAziDist, TH2F *recoTrueZenDist, TH2F *recoTrueAziDist);
+int record3DDiffGetFlag_2ndRayReco(recoSettings *settings, recoData *summary, TH1F *dZenDist, TH1F *dAziDist, TH2F *recoTrueZenDist, TH2F *recoTrueAziDist);
 int recordConstantNDir(recoSettings *settings, recoData *summary);
 int record3DZoomedDiffGetFlag(recoSettings *settings, recoData *summary, TH1F *dZenDist, TH1F *dAziDist, TH2F *recoTrueZenDist, TH2F *recoTrueAziDist);
 float getSpaceAngle(float theta1, float phi1, float theta2, float phi2);

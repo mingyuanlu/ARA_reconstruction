@@ -337,6 +337,7 @@ int topN = settings->topN;
 int nSideExp;
 int nLayer, nDir;
 float *recoDelays, *recoDelays_V, *recoDelays_H;
+float *recoRefracDelays, *recoRefracDelays_V, *recoRefracDelays_H;
 Healpix_Onion *onion;
 
 //recordTime(tmr,1);
@@ -362,13 +363,26 @@ if( settings->skymapSearchMode == 0){ //No zoom search
    recoDelays_V= (float*)malloc(nLayer*nDir*(nAnt/2)*sizeof(float));
    recoDelays_H= (float*)malloc(nLayer*nDir*(nAnt/2)*sizeof(float));
 
+   if(settings->use2ndRayReco == 1){
+      recoRefracDelays  = (float*)malloc(nLayer*nDir*nAnt*sizeof(float));
+      recoRefracDelays_V= (float*)malloc(nLayer*nDir*(nAnt/2)*sizeof(float));
+      recoRefracDelays_H= (float*)malloc(nLayer*nDir*(nAnt/2)*sizeof(float));
+   }
+
    if(settings->iceModel == 1){
    err = computeRecoDelaysWithConstantN(nAnt, -1.f*stationCenterDepth, antLocation,
                                         //radius, nSideExp,
                                         onion, recoDelays, recoDelays_V, recoDelays_H);
+   if(settings->use2ndRayReco == 1){ cerr<<"Constant N ice model incompatible with use2ndRayReco == 1\n"; return -1; }
    } else if(settings->iceModel == 0){
+   if(settings->use2ndRayReco == 0)
    err = compute3DRecoDelaysWithRadioSpline(nAnt, -1.f*stationCenterDepth, antLocation,
                                             onion, recoDelays, recoDelays_V, recoDelays_H);
+   else
+   err = compute3DRecoBothDelaysWithRadioSpline(nAnt, -1.f*stationCenterDepth, antLocation,
+                                               onion, recoDelays, recoDelays_V, recoDelays_H,
+                                               recoRefracDelays, recoRefracDelays_V, recoRefracDelays_H);
+
    } else { cerr<<"Undefined iceModel parameter\n"; return -1; }
    if( err<0 ){ cerr<<"Error computing reco delays\n"; return -1; }
 
@@ -768,7 +782,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       if(settings->nchnlFilter==1){
          if(snrArray_H[index_H[2]]>=settings->nchnlThreshold_anotherPol) summary->setPassAnotherPolNchnl(true);
       }
-      else if(settings->nchnlFilter==2){
+      else if(sett   ings->nchnlFilter==2){
          if(snrArray_V[index_V[2]]>=settings->nchnlThreshold_anotherPol) summary->setPassAnotherPolNchnl(true);
       }
    }
@@ -799,6 +813,13 @@ cout<<"*********************************** inWindowSNR_V: "<<summary->inWindowSN
 
       if(settings->skymapSearchMode == 0){ //no zoom mode
       maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
+
+      if(settings->use2ndRayReco){
+      fitsFileStr = fitsFile_tmp + /*".ev" + evStr +*/ ".2ndRay.fits";
+      sprintf(fitsFile, fitsFileStr.c_str());
+      maxPixIdx2 = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_2ndRayReco(settings, cleanEvent, &clEnv, recoRefracDelays, recoRefracDelays_V, recoRefracDelays_H, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
+      }
+
       if(settings->recordMapData == 1){
       for(int pix=0; pix<nDir*nLayer; pix++) mapDataHist[pix]->Fill(mapData[pix]);
       }
@@ -811,21 +832,35 @@ cout<<"*********************************** inWindowSNR_V: "<<summary->inWindowSN
    }
 
    }
-   if( err<0 || maxPixIdx<0){ cerr<<"Error reconstructing\n"; return -1; }
+   if( err<0 || maxPixIdx<0 || maxPixIdx2<0 ){ cerr<<"Error reconstructing\n"; return -1; }
    if(summary->maxPixCoherence != 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
-   else { cout<<"maxPixCoherence returns 0!! Re-running reco...\n"; }
+   if(settings->use2ndRayReco==1){ if(summary->maxPixCoherence2 == 0.f) recoSuccess=false;}
+   if(recoSuccess!=true) { cout<<"maxPixCoherence/2 returns 0!! Re-running reco...\n"; }
    }//end of while
 
    //int recoFlag = record3DDiffGetFlag(summary, outputFile);
    //if( recoFlag ) recoFlagCnt++;
+   if(settings->use2ndRayReco==0){
    summary->setFlag( (settings->skymapSearchMode)
                     ? record3DZoomedDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist)
                     : record3DDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist) );
+   } else {
+   if(settings->skymapSearchMode){ cerr<<"skymapSearchMode==1 & use2ndRayReco==1 incompatible!\n"; return -1;}
+   else summary->setFlag(record3DDiffGetFlag_2ndRayReco(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist));
+   }
    if(summary->flag > 0) recoFlagCnt++;
    maxPix[maxPixIdx]++;
 
+   if(settings->use2ndRayReco==0)
    compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
-
+   else{
+      if(summary->maxPixCoherence >= summary->maxPixCoherence2)
+      compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
+      else {
+      cerr<<"2nd ray angles table not yet build! Angles will be default (-1)\n"; //return -1;
+      //compute3DRecoAnglesWithRadioSplineForSinglePixel_2ndRayReco(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx2);
+      }
+   }
    summary->setRecoAngles(recoRecAngles, recoLauAngles);
 
    dataTree->Fill();
@@ -1075,6 +1110,13 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
       if(settings->skymapSearchMode == 0){ //no zoom mode
       maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
+
+      if(settings->use2ndRayReco){
+      fitsFileStr = fitsFile_tmp + /*".ev" + evStr +*/ ".2ndRay.fits";
+      sprintf(fitsFile, fitsFileStr.c_str());
+      maxPixIdx2 = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_2ndRayReco(settings, cleanEvent, &clEnv, recoRefracDelays, recoRefracDelays_V, recoRefracDelays_H, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
+      }
+
       if(settings->recordMapData == 1){
       for(int pix=0; pix<nDir*nLayer; pix++) mapDataHist[pix]->Fill(mapData[pix]);
       }
@@ -1087,21 +1129,37 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    }
    }
 
-   if( err<0 || maxPixIdx<0){ cerr<<"Error reconstructing\n"; return -1; }
+   if( err<0 || maxPixIdx<0 || maxPixIdx2<0 ){ cerr<<"Error reconstructing\n"; return -1; }
    if(summary->maxPixCoherence != 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
-   else { cout<<"maxPixCoherence returns 0!! Re-running reco...\n"; }
+   if(settings->use2ndRayReco==1){ if(summary->maxPixCoherence2 == 0.f) recoSuccess=false;}
+   if(recoSuccess!=true) { cout<<"maxPixCoherence/2 returns 0!! Re-running reco...\n"; }
+   //else { cout<<"maxPixCoherence returns 0!! Re-running reco...\n"; }
    }//end of while
 
    //int recoFlag = record3DDiffGetFlag(summary, outputFile);
    //if( recoFlag ) recoFlagCnt++;
+   if(settings->use2ndRayReco==0){
    summary->setFlag( (settings->skymapSearchMode)
                     ? record3DZoomedDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist)
                     : record3DDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist) );
-
+   } else {
+   if(settings->skymapSearchMode){ cerr<<"skymapSearchMode==1 & use2ndRayReco==1 incompatible!\n"; return -1;}
+   else summary->setFlag(record3DDiffGetFlag_2ndRayReco(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist));
+   }
    if(summary->flag > 0) recoFlagCnt++;
    maxPix[maxPixIdx]++;
 
+   if(settings->use2ndRayReco==0)
    compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
+   else{
+      if(summary->maxPixCoherence >= summary->maxPixCoherence2)
+      compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
+      else {
+      cerr<<"2nd ray angles table not yet build! Angles will be default (-1)\n"; //return -1;
+      //compute3DRecoAnglesWithRadioSplineForSinglePixel_2ndRayReco(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx2);
+      }
+   }
+   //compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
 
    summary->setRecoAngles(recoRecAngles, recoLauAngles);
 
@@ -1136,6 +1194,11 @@ if(settings->skymapSearchMode == 0){
    free(recoDelays);
    free(recoDelays_V);
    free(recoDelays_H);
+   if(settings->use2ndRayReco==1){
+   free(recoRefracDelays);
+   free(recoRefracDelays_V);
+   free(recoRefracDelays_H);
+   }
 }
 if(settings->constantNFilter > 0){
    delete onion_temp;

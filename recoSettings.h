@@ -155,7 +155,10 @@ public:
    int dropARA02D4BH;
    int dropARA03D4;
 
-   ClassDef(recoSettings, 7); //2: convert all string parameters to char
+   //ClassDef 8
+   int use2ndRayReco;
+
+   ClassDef(recoSettings, 8); //2: convert all string parameters to char
                               //3: add openCLDeviceType and openCLMaxNumberOfDevices parameters
 };
 
