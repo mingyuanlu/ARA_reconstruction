@@ -70,6 +70,9 @@ public:
    /*, int idx2, float xCorrValue2
    , int *_topMaxPixIdx2, float *_topMaxPixCoherence2
    , int *_maxPixIdxEachLayer2, float *_maxPixCoherenceEachLayer2*/);
+   void setAllData2(int idx2, float xCorrValue2
+   , int *_topMaxPixIdx2, float *_topMaxPixCoherence2
+   , int *_maxPixIdxEachLayer2, float *_maxPixCoherenceEachLayer2);
    void setWeight(double w);
    void setTrueRadius(float r_true);
    void setTrueDir(float zen_true, float azi_true);

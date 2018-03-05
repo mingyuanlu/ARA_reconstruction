@@ -173,6 +173,29 @@ using namespace std;
 */
    }
 
+   void recoData::setAllData2(int idx2, float xCorrValue2
+   , int *_topMaxPixIdx2, float *_topMaxPixCoherence2
+   , int *_maxPixIdxEachLayer2, float *_maxPixCoherenceEachLayer2){
+
+   maxPixIdx2 = idx2;
+   maxPixCoherence2 = xCorrValue2;
+
+   topMaxPixIdx2.clear();
+   topMaxPixCoherence2.clear();
+   for(int i=0; i<topN; i++){
+      topMaxPixIdx2.push_back( _topMaxPixIdx2[i] );
+      topMaxPixCoherence2.push_back( _topMaxPixCoherence2[i] );
+   }
+
+   maxPixIdxEachLayer2.clear();
+   maxPixCoherenceEachLayer2.clear();
+   for(int i=0; i<_settings->nLayer; i++){
+      maxPixIdxEachLayer2.push_back( _maxPixIdxEachLayer2[i] );
+      maxPixCoherenceEachLayer2.push_back( _maxPixCoherenceEachLayer2[i] );
+   }
+
+   }
+
    void recoData::setWeight(double w){
 
    weight = w;
@@ -440,6 +463,9 @@ using namespace std;
              , _topMaxPixIdx2, _topMaxPixCoherence2
              , _maxPixIdxEachLayer2, _maxPixCoherenceEachLayer2*/
           );
+   setAllData2(old->maxPixIdx2,  old->maxPixCoherence2
+   , _topMaxPixIdx2, _topMaxPixCoherence2
+   , _maxPixIdxEachLayer2, _maxPixCoherenceEachLayer2);
 
 /*
    weight = old->weight;
