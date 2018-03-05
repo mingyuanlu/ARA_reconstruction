@@ -7165,7 +7165,7 @@ cout<<"Memories deallocated\n";
 return maxPixIdx;
 }
 
-int reconstruct3reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_2ndRayReco(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
+int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_2ndRayReco(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                 float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                 const int *chanMask, recoData *summary, char *filename, float *mapData)
 {
