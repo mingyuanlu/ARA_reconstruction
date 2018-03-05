@@ -100,7 +100,7 @@ public:
 
    int demoIterCount, hierIterCount;
 
-   //ClassDef(trackEngine, 1);
+   ClassDef(trackEngine, 1);
 
 };
 
