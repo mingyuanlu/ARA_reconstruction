@@ -890,6 +890,8 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    //cout<<"Cleared previous summary\n";
    if(ev%1000 == 0) cout<<"*******************************Event got********************************: "<<ev<<endl;
 
+   summary->setEventNumber(ev);
+
    int string_i, antenna_i, AraRootChannel;
 
    chain2.GetEntry(ev);
