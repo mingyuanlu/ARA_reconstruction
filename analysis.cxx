@@ -1020,7 +1020,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       while( !recoSuccess ){
 
          stringstream ss;
-         ss << /*ev*/rawAtriEvPtr->eventNumber;
+         ss << ev/*rawAtriEvPtr->eventNumber*/;
          evStr = ss.str();
          fitsFileStr = fitsFile_tmp + ".ev" + evStr + ".constantN.fits";
          sprintf(fitsFile, fitsFileStr.c_str());
