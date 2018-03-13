@@ -8011,7 +8011,7 @@ return maxPixIdx;
 
 int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_constantNFilter(recoSettings *settings, vector<TGraph *>& cleanEvent,
                                                                   recoEnvData *clEnv, float *recoDelays, float *recoDelays_V,
-                                                                  float *recoDelays_H, const int *chanMask, recoData *summary/*, char *filename, float *mapData*/)
+                                                                  float *recoDelays_H, const int *chanMask, recoData *summary, char *filename/*, float *mapData*/)
 {
 
 cout<<"Entered reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_constantNFilter method\n";
@@ -8738,7 +8738,7 @@ cvs.SaveAs("testPValueDist.C");
 /*
  * Write FITS file
  */
-/*
+
 cout<<"Creating Healpix map and writing to FITS....\n";
 //arr<float> MArr = arr<float>(&M[0], (size_t)nDir);
 //cout<<"maxPixIdx: "<<rank[0]<<" nDir: "<<nDir<<endl;
@@ -8757,7 +8757,7 @@ fitsOut.create(filename);
 
 write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
 cout<<"Healpix map written\n";
-*/
+
 //int nSideExp = 7;
 //Healpix_Base hpBase = Healpix_Base(pow(2,nSideExp), NEST/*RING*/, SET_NSIDE);
 /*
