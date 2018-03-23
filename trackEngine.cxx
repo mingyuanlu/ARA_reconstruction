@@ -534,7 +534,7 @@ Vector trackEngine::computeHierExtrapFinalTrack(){
 
 int trackEngine::computeIterExtrapFinalTracks(Vector tempDemoExtrap, Vector tempHierExtrap){
 
-if(tempDemoExtrap.Mag() <1e-9 || tempHierExtrap.Mag() <1e-9 ){ cerr<"No input demo/hier final track\n"; return -1;}
+if(tempDemoExtrap.Mag() <1e-9 || tempHierExtrap.Mag() <1e-9 ){ cerr<<"No input demo/hier final track\n"; return -1;}
   //Vector tempDemoExtrap = demoExtrapFinalTrack;
   //Vector tempHierExtrap = hierExtrapFinalTrack;
 

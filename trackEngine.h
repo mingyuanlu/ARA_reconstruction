@@ -39,7 +39,7 @@ public:
    trackEngine();
    ~trackEngine();
 
-   const Vector zeroVector /*= Vector(0.,0.,0.)*/;
+   /*const*/ Vector zeroVector /*= Vector(0.,0.,0.)*/;
    vector< vector<Vector> > baselineTracks;
    vector< vector<double> > baselineTrackTimes;
    vector< vector<Vector> > eventOrthoTracks; //conjecture tracks, each orthogonal to its baseline track;
