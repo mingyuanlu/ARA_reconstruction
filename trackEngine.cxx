@@ -6,7 +6,7 @@
 
 using namespace std;
 
-trackEngine::trackEngine(){}
+trackEngine::trackEngine(){ zeroVector = Vector(0.,0.,0.)}
 
 trackEngine::~trackEngine(){
 
