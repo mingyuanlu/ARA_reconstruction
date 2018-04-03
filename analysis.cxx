@@ -690,6 +690,13 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    }//end of ch
 
    //****************************************************
+   // NORMALIZE THE AMPLITUDES OF CLEANEVENT BY ITS CHAN-BY-CHAN RMS
+   //****************************************************
+
+   err = normalizeCleanEvent(unpaddedEvent, cleanEvent);
+   if(err<0){ cerr<<"normalizeCleanEvent error!\n"; break;}
+
+   //****************************************************
    // FILTER SECTION
    //****************************************************
 
@@ -984,6 +991,13 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    cleanEvent.push_back(grWinPad[ch]);
 
    }//end of ch
+
+   //****************************************************
+   // NORMALIZE THE AMPLITUDES OF CLEANEVENT BY ITS CHAN-BY-CHAN RMS
+   //****************************************************
+
+   err = normalizeCleanEvent(unpaddedEvent, cleanEvent);
+   if(err<0){ cerr<<"normalizeCleanEvent error!\n"; break;}
 
    //****************************************************
    // FILTER SECTION

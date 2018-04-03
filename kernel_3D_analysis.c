@@ -196,7 +196,7 @@ __kernel void computeXCorrCoef( __global float *Cij, __global float *xCorrTime,
    /* The default circular  FFT of cross-correlation outputs in wrap-around order */
    /* The correlation at -i is in r_N-i */
    if( shiftBin < 0 ) shiftBin += nSamp;
-   Cij[gid0*nDir*nBaseline + gid1*nBaseline + gid2] = xCorrTime[gid2*nSamp + shiftBin] / (sqrtWfPwr[ant1] * sqrtWfPwr[ant2]);
+   Cij[gid0*nDir*nBaseline + gid1*nBaseline + gid2] = xCorrTime[gid2*nSamp + shiftBin] /*/ (sqrtWfPwr[ant1] * sqrtWfPwr[ant2])*/;
    } else {
    //printf("Not both delays exists!\n");
    //if(delays[gid0*nAnt + ant1] != delays[gid0*nAnt + ant2] )

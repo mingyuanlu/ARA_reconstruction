@@ -12028,6 +12028,37 @@ nchnlArray[2] = totalPassedHpol;
 */
 }
 
+int normalizeCleanEvent(const vector<TGraph *>& unpaddedEvent, vector<TGraph *>& cleanEvent){
+
+   double sigma;
+   double mean;
+   double statsArray[2]={0};
+   double t, v;
+   int bin;
+
+   if(cleanEvent.size()!=unpaddedEvent.size()){cerr<<"unpaddedEvent and cleanEvent size mismatch!"<<endl; return -1;}
+
+   for(int ch=0; ch<(int)cleanEvent.size(); ch++){
+
+      bin   = cleanEvent[ch]->GetN();
+      setMeanAndSigmaInNoMax(unpaddedEvent[ch], statsArray);
+      mean  = statsArray[0];
+      sigma = statsArray[1];
+
+      if(sigma>0){
+      for (int binCounter=0; binCounter<bin; binCounter++){
+
+      cleanEvent[ch]->GetPoint(binCounter, t, v);
+      cleanEvent[ch]->SetPoint(binCounter, t, v / sigma);
+
+      }
+      }
+   }
+
+
+return 0;
+}
+
 
 //int recordDiff(int nSideExp, int maxPixIdx, float maxPixValue, double weight, float zen_true, float azi_true, float r_true, int *usedChan, char *rootFilename){
 /*
