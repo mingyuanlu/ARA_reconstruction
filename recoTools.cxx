@@ -12839,6 +12839,24 @@ double getPeakSqValRange(TGraph *gr, int *index, int firstBin, int lastBin)
 
 }
 
+int plotWaveforms(int ev, const vector<TGraph *>& cleanEvent)
+{
+   if((int)cleanEvent.size()!=16){cerr<<"cleanEvent size error! size: "<<cleanEvent.size()<<endl; return -1;}
+   TCanvas *cvs=new TCanvas("cvs","cvs",800,800);
+   cvs->Divide(4,4);
+   for(int ch=1; ch<=16; ch++){
+      cvs->cd(ch);
+      cleanEvent[ch-1]->Draw("l");
+   }
+
+   char filename[200];
+   snprintf(filename,sizeof(filename),"wf_%d.C", ev);
+   cvs->SaveAs(filename);
+   delete cvs;
+
+return 0;
+}
+
 //int recordTime(timer *t, const int count){
 
 //if(count != t->clockVec.size() /*|| count != t->chronoVec.size()*/ || count != t->timeVec.size()){
