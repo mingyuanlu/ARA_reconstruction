@@ -727,7 +727,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    /* Constant N reco for surface filter */
 
-   recoSuccess = true; //skip actual reco because we just want the waveforms
+   recoSuccess = false/*true*/; //skip actual reco because we just want the waveforms
 
    if(settings->constantNFilter > 0){
       while( !recoSuccess ){
@@ -806,7 +806,7 @@ cout<<"*********************************** inWindowSNR_V: "<<summary->inWindowSN
 
    /* Reco with radiospline */
 
-   recoSuccess = true; //skip actual reco because we just want the waveforms
+   recoSuccess = false/*true*/; //skip actual reco because we just want the waveforms
 
    while( !recoSuccess ){
    if(settings->beamformMethod == 1){
@@ -1032,7 +1032,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    /* Constant N reco for surface filter */
 
-   recoSuccess = true; //skip  actual reco because we just want the waveforms
+   recoSuccess = false/*true*/; //skip  actual reco because we just want the waveforms
 
    if(settings->constantNFilter > 0){
       while( !recoSuccess ){
@@ -1119,7 +1119,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    /* Reco with radiospline */
 
-   recoSuccess = true; //skip actual reco because we just want the waveforms
+   recoSuccess = false/*true*/; //skip actual reco because we just want the waveforms
 
    while( !recoSuccess ){
    if(settings->beamformMethod == 1){
