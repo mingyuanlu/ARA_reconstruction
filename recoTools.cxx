@@ -12846,7 +12846,7 @@ int plotWaveforms(int ev, const vector<TGraph *>& cleanEvent)
    cvs->Divide(4,4);
    for(int ch=1; ch<=16; ch++){
       cvs->cd(ch);
-      cleanEvent[ch-1]->Draw("l");
+      cleanEvent[ch-1]->Draw("la");
    }
 
    char filename[200];
