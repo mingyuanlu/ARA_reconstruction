@@ -735,7 +735,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          stringstream ss;
          ss << /*ev*/rawAtriEvPtr->eventNumber;
          evStr = ss.str();
-         fitsFileStr = fitsFile_tmp + /*".ev" + evStr +*/ ".constantN.fits";
+         fitsFileStr = fitsFile_tmp + ".ev" + evStr + ".constantN.fits";
          sprintf(fitsFile, fitsFileStr.c_str());
          constantNMaxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_constantNFilter(settings, cleanEvent, &clEnv, constantNDelays, constantNDelays_V, constantNDelays_H, goodChan, summary, fitsFile///*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/
          );
@@ -823,7 +823,7 @@ cout<<"*********************************** inWindowSNR_V: "<<summary->inWindowSN
       stringstream ss;
       ss << /*ev*/rawAtriEvPtr->eventNumber;
       evStr = ss.str();
-      fitsFileStr = fitsFile_tmp + /*".ev" + evStr +*/ ".fits";
+      fitsFileStr = fitsFile_tmp + ".ev" + evStr + ".fits";
       sprintf(fitsFile, fitsFileStr.c_str());
 
       if(settings->skymapSearchMode == 0){ //no zoom mode
@@ -1040,7 +1040,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
          stringstream ss;
          ss << ev/*rawAtriEvPtr->eventNumber*/;
          evStr = ss.str();
-         fitsFileStr = fitsFile_tmp + /*".ev" + evStr +*/ ".constantN.fits";
+         fitsFileStr = fitsFile_tmp + ".ev" + evStr + ".constantN.fits";
          sprintf(fitsFile, fitsFileStr.c_str());
          constantNMaxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_constantNFilter(settings, cleanEvent, &clEnv, constantNDelays, constantNDelays_V, constantNDelays_H, goodChan, summary, fitsFile///*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/
          );
@@ -1136,7 +1136,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       stringstream ss;
       ss << ev;
       evStr = ss.str();
-      fitsFileStr = fitsFile_tmp + /*".ev" + evStr +*/ ".fits";
+      fitsFileStr = fitsFile_tmp + ".ev" + evStr + ".fits";
       sprintf(fitsFile, fitsFileStr.c_str());
 
       if(settings->skymapSearchMode == 0){ //no zoom mode
