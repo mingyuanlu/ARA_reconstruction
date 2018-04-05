@@ -998,8 +998,8 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    // NORMALIZE THE AMPLITUDES OF CLEANEVENT BY ITS CHAN-BY-CHAN RMS
    //****************************************************
 
-   err = normalizeCleanEvent(unpaddedEvent, cleanEvent);
-   if(err<0){ cerr<<"normalizeCleanEvent error!\n"; break;}
+   //err = normalizeCleanEvent(unpaddedEvent, cleanEvent);
+   //if(err<0){ cerr<<"normalizeCleanEvent error!\n"; break;}
 
    err = plotWaveforms(ev, cleanEvent);
 
