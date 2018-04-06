@@ -6337,14 +6337,14 @@ for(int ch=0; ch<(int)cleanEvent.size(); ch++) unmaskedNChan+=chanMask[ch];
 cout<<"unmaskedNChan: "<<unmaskedNChan<<" nAnt: "<<nAnt<<endl;
 float wInt;
 int dataType = settings->dataType;
-//if( dataType == 0 ) wInt = 0.5f; //AraSim event
-//else if( dataType == 1 ){ //real event
+if( dataType == 0 ) wInt = 0.5f; //AraSim event
+else if( dataType == 1 ){ //real event
 if( pol == "vpol" ) wInt = 0.4f;
 else if ( pol == "hpol" ) wInt = 0.625f;
 else if ( pol == "both" ) wInt = 0.5f;
 else { cerr<<"recoPolType undefined\n"; return -1; }
-//} else {
-//cerr<<"dataType undefined\n"; return -1; }
+} else {
+cerr<<"dataType undefined\n"; return -1; }
 
 int nGoodChan = 0;
 if(pol == "vpol")      for(int ch=0; ch<8; ch++)  nGoodChan += chanMask[ch];
