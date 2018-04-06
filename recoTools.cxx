@@ -6617,7 +6617,7 @@ cout<<"Done inverse FFT\n";
  * Get Hilbert transform of XCorr function
  */
 
-TCanvas cvs("cvs","cvs",800,600);
+TCanvas cvs("cvs","cvs",800,800);
 //cvs.Divide(1,2);
 char envelopename[200];
 
@@ -6757,8 +6757,8 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    //xCorrGraph->Draw("AL");
    //envelope->Draw("Lsame");
    //cvs.SaveAs(envelopename);
-/*
-   if((ant1==1 && ant2==4) || (ant1==1 && ant2==5) || (ant1==4 && ant2==5)){
+
+   if((ant1==0 && ant2==3) || (ant1==1 && ant2==3) || (ant1==2 && ant2==3)){
 
    snprintf(envelopename,sizeof(char)*200,"xCorrEnvelope_chan%d_%d.C",ant1,ant2);
    cvs.cd();
@@ -6768,7 +6768,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    cvs.SaveAs(envelopename);
 
    }
-*/
+
 /*
    if( ant1 == 0 && ant2 == 3){
    cvs.cd(1);
