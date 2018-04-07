@@ -984,9 +984,10 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    if(ch<8){wInt=0.4; maxSamp=2048;/* maxSamp = gr_v[0]->GetN()*4;*/ }
    else{    wInt=0.625; maxSamp=2048;/* maxSamp = gr_v[8]->GetN()*4;*/ }
-   unpaddedEvent.push_back(gr_v[ch]);
+   grInt[ch]       = FFTtools::getInterpolatedGraph(gr_v[ch], wInt);
+   unpaddedEvent.push_back(/*gr_v[ch]*/grInt[ch]);
    /* Use a modified Hann window for now */
-   grWinPad[ch]     = evProcessTools::getWindowedAndPaddedEqualBeginGraph(gr_v[ch], maxSamp, beginTime);
+   grWinPad[ch]     = evProcessTools::getWindowedAndPaddedEqualBeginGraph(/*gr_v[ch]*/grInt[ch], maxSamp, beginTime);
    /* The task of normalizing wf should be the responsibility of each reco method */
    cleanEvent.push_back(grWinPad[ch]);
 
@@ -1017,7 +1018,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       //cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl;
       unpaddedEvent.clear();
       cleanEvent.clear();
-      for(int ch=0; ch<16; ch++){ delete gr_v[ch]; delete grWinPad[ch]; }
+      for(int ch=0; ch<16; ch++){ delete gr_v[ch]; delete grInt[ch]; delete grWinPad[ch]; }
       continue;
 
    }
@@ -1195,7 +1196,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    cleanEvent.clear();
    //delete summary;
    treg->clearForNextEvent();
-   for(int ch=0; ch<16; ch++){ delete gr_v[ch]; delete grWinPad[ch]; }
+   for(int ch=0; ch<16; ch++){ delete gr_v[ch]; delete grInt[ch]; delete grWinPad[ch]; }
    }//end of ev loop
 
 }//end of dataType == 0
