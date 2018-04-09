@@ -40,7 +40,7 @@ public:
    skymapSearchMode:
       Default 0. 0: one pixelation throughout the entire search. 1: multi-step grid search with increasing pixelation - aka zoom approach.
    beamformMethod:
-      Default 0. 0: cross-correlation coherence method. 1: coherently-summed waveforms (CSW) method.
+      Default 0. 0: cross-correlation coherence method. 1: coherently-summed waveforms (CSW) method (Deprecated! Use at your own risk).
    recoVertexingMode:
       Default 0. 0: reco vertex = pixel with max beam value.
    getSkymapMode:
@@ -93,6 +93,14 @@ public:
       Default "cpu". Specifies which OpenCL devices to looks for in the platform. Currently only a single CPU is supported. In the future, should implement CPU, GPU, and a combination of both.
    openCLMaxNumberOfCores:
       Default 0. The upper limit of CPU cores to use in the OpenCL device. This uses the "Device fission extensions" of OpenCL and as I understand applies only to CPU devices. At default (0), no fission will be made and the program will in principle try to use up all given cores.
+   wInt_V:
+      Default 0.4. The sample step size in nanoseconds for interpolating Vpol waveforms
+   wInt_H:
+      Default 0.625. The sample step size in nanoseconds for interpolating Hpol waveforms
+   wInt_both:
+      Default 0.5. The sample step size in nanoseconds for interpolating both pol waveforms, if for some reason one decides to do interferometry with both Vpol and Hpol waveforms
+   maxPaddedSample:
+      Default 2048. The number of samples in a padded waveform right before it enters the interferometor.
    remark:
       Default "". Any remark one wishes to add to the reco setup file. The remarks will then be carried along in the analysis output ROOT file. Note that number of characters should not exceed CSTRING_MAX defined in recoSettings.h
 */
@@ -158,7 +166,13 @@ public:
    //ClassDef 8
    int use2ndRayReco;
 
-   ClassDef(recoSettings, 8); //2: convert all string parameters to char
+   //ClassDef 9
+   double wInt_V;
+   double wInt_H;
+   double wInt_both;
+   int maxPaddedSample;
+
+   ClassDef(recoSettings, 9); //2: convert all string parameters to char
                               //3: add openCLDeviceType and openCLMaxNumberOfDevices parameters
 };
 

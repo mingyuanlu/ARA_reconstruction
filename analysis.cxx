@@ -674,8 +674,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    for(int ch=0; ch<16; ch++){
 
 
-   if(ch<8){wInt=0.4; maxSamp=2048;}
-   else{wInt=0.625; maxSamp=2048;}
+   if(ch<8){wInt=/*0.4*/settings->wInt_V; maxSamp=/*2048*/settings->maxPaddedSample;}
+   else{wInt=/*0.625*/settings->wInt_H; maxSamp=/*2048*/settings->maxPaddedSample;}
 
    /* Interpolate + apply windowing + zero-pad + equalize wf beginning  to maxSamp */
    //cout<<"N: "<<gr_v[ch]->GetN()<<endl;
@@ -975,8 +975,8 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    for(int ch=0; ch<16; ch++){
 
-   if(ch<8){wInt=0.4; maxSamp=2048;/* maxSamp = gr_v[0]->GetN()*4;*/ }
-   else{    wInt=0.625; maxSamp=2048;/* maxSamp = gr_v[8]->GetN()*4;*/ }
+   if(ch<8){wInt=/*0.4*/settings->wInt_V; maxSamp=/*2048*/settings->maxPaddedSample;/* maxSamp = gr_v[0]->GetN()*4;*/ }
+   else{    wInt=/*0.625*/settings->wInt_H; maxSamp=/*2048*/settings->maxPaddedSample;/* maxSamp = gr_v[8]->GetN()*4;*/ }
    unpaddedEvent.push_back(gr_v[ch]);
    /* Use a modified Hann window for now */
    grWinPad[ch]     = evProcessTools::getWindowedAndPaddedEqualBeginGraph(gr_v[ch], maxSamp, beginTime);

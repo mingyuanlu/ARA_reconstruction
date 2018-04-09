@@ -805,13 +805,14 @@ for(int ch=0; ch<2*nAnt; ch++) unmaskedNChan+=chanMask[ch];
 cout<<"unmaskedNChan: "<<unmaskedNChan<<" nAnt: "<<nAnt<<endl;
 float wInt;
 int dataType = settings->dataType;
-if( dataType == 0 ) wInt = 0.5f; //AraSim event
-else if( dataType == 1 ){ //real event
-if( pol == "vpol" ) wInt = 0.4f;
-else if ( pol == "hpol" ) wInt = 0.625f;
+//if( dataType == 0 ) wInt = 0.5f; //AraSim event
+//else if( dataType == 1 ){ //real event
+if( pol == "vpol" ) wInt = /*0.4f*/settings->wInt_V;
+else if ( pol == "hpol" ) wInt = /*0.625f*/settings->wInt_H;
+else if ( pol == "both" ) wInt = settings->wInt_both;
 else { cerr<<"recoPolType undefined\n"; return -1; }
-} else {
-cerr<<"dataType undefined\n"; return -1; }
+//} else {
+//cerr<<"dataType undefined\n"; return -1; }
 /*
  * Normalize wf
  */
@@ -1837,13 +1838,14 @@ for(int ch=0; ch<2*nAnt; ch++) unmaskedNChan+=chanMask[ch];
 cout<<"unmaskedNChan: "<<unmaskedNChan<<" nAnt: "<<nAnt<<endl;
 float wInt;
 int dataType = settings->dataType;
-if( dataType == 0 ) wInt = 0.5f; //AraSim event
-else if( dataType == 1 ){ //real event
-if( pol == "vpol" ) wInt = 0.4f;
-else if ( pol == "hpol" ) wInt = 0.625f;
+//if( dataType == 0 ) wInt = 0.5f; //AraSim event
+//else if( dataType == 1 ){ //real event
+if( pol == "vpol" ) wInt = /*0.4f*/settings->wInt_V;
+else if ( pol == "hpol" ) wInt = /*0.625f*/settings->wInt_H;
+else if ( pol == "both" ) wInt = settings->wInt_both;
 else { cerr<<"recoPolType undefined\n"; return -1; }
-} else {
-cerr<<"dataType undefined\n"; return -1; }
+//} else {
+//cerr<<"dataType undefined\n"; return -1; }
 
 /*
  * Loading voltsFlat array
@@ -3784,13 +3786,14 @@ for(int ch=0; ch<2*nAnt; ch++) unmaskedNChan+=chanMask[ch];
 cout<<"unmaskedNChan: "<<unmaskedNChan<<" nAnt: "<<nAnt<<endl;
 float wInt;
 int dataType = settings->dataType;
-if( dataType == 0 ) wInt = 0.5f; //AraSim event
-else if( dataType == 1 ){ //real event
-if( pol == "vpol" ) wInt = 0.4f;
-else if ( pol == "hpol" ) wInt = 0.625f;
+//if( dataType == 0 ) wInt = 0.5f; //AraSim event
+//else if( dataType == 1 ){ //real event
+if( pol == "vpol" ) wInt = /*0.4f*/settings->wInt_V;
+else if ( pol == "hpol" ) wInt = /*0.625f*/settings->wInt_H;
+else if ( pol == "both" ) wInt = settings->wInt_both;
 else { cerr<<"recoPolType undefined\n"; return -1; }
-} else {
-cerr<<"dataType undefined\n"; return -1; }
+//} else {
+//cerr<<"dataType undefined\n"; return -1; }
 
 /*
  * Loading voltsFlat array
@@ -6339,9 +6342,9 @@ float wInt;
 int dataType = settings->dataType;
 //if( dataType == 0 ) wInt = 0.5f; //AraSim event
 //else if( dataType == 1 ){ //real event
-if( pol == "vpol" ) wInt = 0.4f;
-else if ( pol == "hpol" ) wInt = 0.625f;
-else if ( pol == "both" ) wInt = 0.5f;
+if( pol == "vpol" ) wInt = /*0.4f*/settings->wInt_V;
+else if ( pol == "hpol" ) wInt = /*0.625f*/settings->wInt_H;
+else if ( pol == "both" ) wInt = /*0.5f*/settings->wInt_both;
 else { cerr<<"recoPolType undefined\n"; return -1; }
 //} else {
 //cerr<<"dataType undefined\n"; return -1; }
@@ -7183,9 +7186,9 @@ float wInt;
 int dataType = settings->dataType;
 //if( dataType == 0 ) wInt = 0.5f; //AraSim event
 //else if( dataType == 1 ){ //real event
-if( pol == "vpol" ) wInt = 0.4f;
-else if ( pol == "hpol" ) wInt = 0.625f;
-else if ( pol == "both" ) wInt = 0.5f;
+if( pol == "vpol" ) wInt = /*0.4f*/settings->wInt_V;
+else if ( pol == "hpol" ) wInt = /*0.625f*/settings->wInt_H;
+else if ( pol == "both" ) wInt = /*0.5f*/settings->wInt_both;
 else { cerr<<"recoPolType undefined\n"; return -1; }
 //} else {
 //cerr<<"dataType undefined\n"; return -1; }
@@ -8027,9 +8030,9 @@ float wInt;
 int dataType = settings->dataType;
 //if( dataType == 0 ) wInt = 0.5f; //AraSim event
 //else if( dataType == 1 ){ //real event
-if( pol == "vpol" ) wInt = 0.4f;
-else if ( pol == "hpol" ) wInt = 0.625f;
-else if ( pol == "both" ) wInt = 0.5f;
+if( pol == "vpol" ) wInt = /*0.4f*/settings->wInt_V;
+else if ( pol == "hpol" ) wInt = /*0.625f*/settings->wInt_H;
+else if ( pol == "both" ) wInt = /*0.5f*/settings->wInt_both;
 else { cerr<<"recoPolType undefined\n"; return -1; }
 //} else {
 //cerr<<"dataType undefined\n"; return -1; }
@@ -8873,9 +8876,9 @@ float wInt;
 int dataType = settings->dataType;
 //if( dataType == 0 ) wInt = 0.5f; //AraSim event
 //else if( dataType == 1 ){ //real event
-if( pol == "vpol" ) wInt = 0.4f;
-else if ( pol == "hpol" ) wInt = 0.625f;
-else if ( pol == "both" ) wInt = 0.5f;
+if( pol == "vpol" ) wInt = /*0.4f*/settings->wInt_V;
+else if ( pol == "hpol" ) wInt = /*0.625f*/settings->wInt_H;
+else if ( pol == "both" ) wInt = /*0.5f*/settings->wInt_both;
 else { cerr<<"recoPolType undefined\n"; return -1; }
 //} else {
 //cerr<<"dataType undefined\n"; return -1; }

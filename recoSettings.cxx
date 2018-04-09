@@ -67,6 +67,12 @@ void recoSettings::initialize(){
 
   use2ndRayReco = 0;
 
+  wInt_V = 0.4;
+  wInt_H = 0.625;
+  wInt_both = 0.5;
+
+  maxPaddedSample = 2048;
+
   //remark = "Default.";
   snprintf(remark, sizeof(remark), "Default.");
 
@@ -129,6 +135,10 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
             else if(label == "dropARA02D4BH") dropARA02D4BH = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "dropARA03D4") dropARA03D4 = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "use2ndRayReco") use2ndRayReco = atoi( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "wInt_V") wInt_V = atof( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "wInt_H") wInt_H = atof( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "wInt_both") wInt_both = atof( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "maxPaddedSample") maxPaddedSample = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label != "") cerr<<"Undefined parameter detected. Label: "<<label<<endl;
          }
       }
@@ -185,6 +195,11 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
       if( (unsigned)(dropARA02D4BH-0) > 1){     cerr<<"dropARA02D4BH: "<<dropARA02D4BH<<endl; errCnt++; }
       if( (unsigned)(dropARA03D4-0) > 1){     cerr<<"dropARA03D4: "<<dropARA03D4<<endl; errCnt++; }
       if( (unsigned)(use2ndRayReco-0) > 1){     cerr<<"use2ndRayReco: "<<use2ndRayReco<<endl; errCnt++; }
+      if( wInt_V < 0 ){                 cerr<<"wInt_V: "<<wInt_V<<endl; errCnt++; }
+      if( wInt_H < 0 ){                 cerr<<"wInt_H: "<<wInt_H<<endl; errCnt++; }
+      if( wInt_both < 0 ){              cerr<<"wInt_both: "<<wInt_both<<endl; errCnt++; }
+      if( maxPaddedSample <= 0 || (maxPaddedSample & (maxPaddedSample-1)) ){
+         cerr<<"maxPaddedSample (should be power of 2): "<<maxPaddedSample<<endl; errCnt++; }
       if(errCnt > 0) return false;
 
    } else { cerr<<"Unable to open "<<sf<<endl; return false; }
