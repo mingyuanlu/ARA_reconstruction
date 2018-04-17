@@ -111,7 +111,7 @@ TFile *outputFile;
 string outputDir;
 struct stat sb;
 if( stat(argv[1], &sb) == 0 && S_ISDIR(sb.st_mode) ){
-   outputDir = string( argv[1] );   
+   outputDir = string( argv[1] ) + "/";   
 } else { cerr<<"outputDir "<<argv[1]<<" directory does not exist! Aborting...\n"; return -1; }
 
 string recoSetupFile = string( basename(argv[2]) );
