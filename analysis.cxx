@@ -4,6 +4,7 @@
 #include <cmath>
 #include <fstream>
 #include <string>
+#include <sys/stat.h>
 
 #include "RawIcrrStationEvent.h"
 #include "RawAtriStationEvent.h"
@@ -64,7 +65,7 @@ recordTime(tmr,0);
 time_t t_program_start = time(NULL);
 clock_t c_program_start = clock();
 
-if(argc < 3){ cerr<<"Insufficient arguments. Usage: 1.recoSetupFile 2. Run Number 3. Data ROOT file 4. AraSim: more Data ROOT file. Real: Pedestal File\n"; return -1; }
+if(argc < 4){ cerr<<"Insufficient arguments. Usage: 1. Output directory 2.recoSetupFile 3. Run Number 4. Data ROOT file 5. AraSim: more Data ROOT file. Real: Pedestal File\n"; return -1; }
 
 int err;
 //gROOT->ProcessLine("#include <vector>");
@@ -106,8 +107,15 @@ cout<<"recoPolType: "<<settings->recoPolType<<endl;
 cout<<"nchnlFilter: "<<settings->nchnlFilter<<endl;
 
 TFile *outputFile;
-string recoSetupFile = string( argv[1] );
-string runNum = string( argv[2] );
+
+string outputDir;
+struct stat sb;
+if( stat(argv[1], &sb) == 0 && S_ISDIR(sb.st_mode) ){
+   outputDir = string( argv[1] );   
+} else { cerr<<"outputDir "<<argv[1]<<" directory does not exist! Aborting...\n"; return -1; }
+
+string recoSetupFile = string( basename(argv[2]) );
+string runNum = string( argv[3] );
 string fitsFile_tmp;
 string fitsFileStr;
 string evStr;
@@ -123,8 +131,8 @@ if( !settings->readRecoSetupFile( recoSetupFile )){
 
 } else {
    cout<<"Obtained new reoSetupFile\n";
-   outputFile = new TFile(("recoOut."+recoSetupFile+".run"+runNum+".root").c_str(),"RECREATE","recoOut");
-   fitsFile_tmp = "recoSkymap." + recoSetupFile + ".run" + runNum/* + ".fits"*/;
+   outputFile = new TFile((outputDir+"recoOut."+recoSetupFile+".run"+runNum+".root").c_str(),"RECREATE","recoOut");
+   fitsFile_tmp = outputDir + "recoSkymap." + recoSetupFile + ".run" + runNum/* + ".fits"*/;
 }
 char fitsFile[200];
 //sprintf(fitsFile, fitsFile_tmp.c_str());
@@ -218,7 +226,7 @@ runInfoTree->Branch("cutWaveAndNonIncreasingEventCount", &cutWaveAndNonIncreasin
 if(settings->dataType == 1)//real events
 {
 
-   fp = TFile::Open( argv[3] );
+   fp = TFile::Open( argv[4] );
    if ( !fp ) { cerr<<"can't open file"<<endl; return -1; }
 
    eventTree = (TTree*) fp->Get("eventTree");
@@ -254,7 +262,7 @@ if(settings->dataType == 1)//real events
    /*
     * START LOADING GOOD PED
     */
-   sprintf(dir_char,argv[4]);
+   sprintf(dir_char,argv[5]);
    printf("ped file is %s\n",dir_char);
    calib = AraEventCalibrator::Instance();
    calib->setAtriPedFile(dir_char,rawEvPtr->stationId);
@@ -263,7 +271,7 @@ if(settings->dataType == 1)//real events
 else if (settings->dataType == 0)//AraSim events
 {
 
-   for(int i=3; i<argc; i++){
+   for(int i=4; i<argc; i++){
       chain.Add( argv[i] );
       chain2.Add( argv[i] );
    }
