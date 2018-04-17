@@ -111,16 +111,17 @@ TFile *outputFile;
 string outputDir;
 struct stat sb;
 if( stat(argv[1], &sb) == 0 && S_ISDIR(sb.st_mode) ){
-   outputDir = string( argv[1] ) + "/";   
+   outputDir = string( argv[1] ) + "/";
 } else { cerr<<"outputDir "<<argv[1]<<" directory does not exist! Aborting...\n"; return -1; }
 
+string recoSetupFile_fullPath = string( argv[2] );
 string recoSetupFile = string( basename(argv[2]) );
 string runNum = string( argv[3] );
 string fitsFile_tmp;
 string fitsFileStr;
 string evStr;
 cout<<"recoStupFile: "<<recoSetupFile<<endl;
-if( !settings->readRecoSetupFile( recoSetupFile )){
+if( !settings->readRecoSetupFile( recoSetupFile_fullPath )){
 
    cerr<<"Error reading the recoSetupFile or invalid parameters !! Aborting now...\n";
    return -1;
