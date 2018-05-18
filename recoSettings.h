@@ -101,6 +101,8 @@ public:
       Default 0.5. The sample step size in nanoseconds for interpolating both pol waveforms, if for some reason one decides to do interferometry with both Vpol and Hpol waveforms
    maxPaddedSample:
       Default 2048. The number of samples in a padded waveform right before it enters the interferometor.
+   recoEventIndex:
+      Default -1. The event index to reconstruct. Use eventNumber to specify. Only the event with this index will be reconstructed.
    remark:
       Default "". Any remark one wishes to add to the reco setup file. The remarks will then be carried along in the analysis output ROOT file. Note that number of characters should not exceed CSTRING_MAX defined in recoSettings.h
 */
@@ -172,7 +174,10 @@ public:
    double wInt_both;
    int maxPaddedSample;
 
-   ClassDef(recoSettings, 9); //2: convert all string parameters to char
+   //ClassDef 10
+   int recoEventIndex;
+
+   ClassDef(recoSettings, 10); //2: convert all string parameters to char
                               //3: add openCLDeviceType and openCLMaxNumberOfDevices parameters
 };
 

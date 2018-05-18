@@ -73,6 +73,8 @@ void recoSettings::initialize(){
 
   maxPaddedSample = 2048;
 
+  recoEventIndex = -1;
+
   //remark = "Default.";
   snprintf(remark, sizeof(remark), "Default.");
 
@@ -139,6 +141,7 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
             else if(label == "wInt_H") wInt_H = atof( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "wInt_both") wInt_both = atof( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "maxPaddedSample") maxPaddedSample = atoi( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "recoEventIndex") recoEventIndex = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label != "") cerr<<"Undefined parameter detected. Label: "<<label<<endl;
          }
       }
@@ -192,14 +195,15 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
       if( (unsigned)(constantNFilter-0) > 1){     cerr<<"constantNFilter: "<<constantNFilter<<endl; errCnt++; }
       if( surfaceCutAngle < 0.f && surfaceCutAngle > 180.f){ cerr<<"surfaceCutAngle: "<<surfaceCutAngle<<endl; errCnt++; }
       if( nchnlThreshold_anotherPol < 0){ cerr<<"nchnlThreshold_anotherPol: "<<nchnlThreshold_anotherPol<<endl; errCnt++; }
-      if( (unsigned)(dropARA02D4BH-0) > 1){     cerr<<"dropARA02D4BH: "<<dropARA02D4BH<<endl; errCnt++; }
-      if( (unsigned)(dropARA03D4-0) > 1){     cerr<<"dropARA03D4: "<<dropARA03D4<<endl; errCnt++; }
-      if( (unsigned)(use2ndRayReco-0) > 1){     cerr<<"use2ndRayReco: "<<use2ndRayReco<<endl; errCnt++; }
-      if( wInt_V < 0 ){                 cerr<<"wInt_V: "<<wInt_V<<endl; errCnt++; }
-      if( wInt_H < 0 ){                 cerr<<"wInt_H: "<<wInt_H<<endl; errCnt++; }
-      if( wInt_both < 0 ){              cerr<<"wInt_both: "<<wInt_both<<endl; errCnt++; }
+      if( (unsigned)(dropARA02D4BH-0) > 1){       cerr<<"dropARA02D4BH: "<<dropARA02D4BH<<endl; errCnt++; }
+      if( (unsigned)(dropARA03D4-0) > 1){         cerr<<"dropARA03D4: "<<dropARA03D4<<endl; errCnt++; }
+      if( (unsigned)(use2ndRayReco-0) > 1){       cerr<<"use2ndRayReco: "<<use2ndRayReco<<endl; errCnt++; }
+      if( wInt_V < 0 ){                           cerr<<"wInt_V: "<<wInt_V<<endl; errCnt++; }
+      if( wInt_H < 0 ){                           cerr<<"wInt_H: "<<wInt_H<<endl; errCnt++; }
+      if( wInt_both < 0 ){                        cerr<<"wInt_both: "<<wInt_both<<endl; errCnt++; }
       if( maxPaddedSample <= 0 || (maxPaddedSample & (maxPaddedSample-1)) ){
          cerr<<"maxPaddedSample (should be power of 2): "<<maxPaddedSample<<endl; errCnt++; }
+      if( recoEventIndex < -1){                   cerr<<"recoEventIndex: "<<recoEventIndex<<endl; errCnt++; }
       if(errCnt > 0) return false;
 
    } else { cerr<<"Unable to open "<<sf<<endl; return false; }

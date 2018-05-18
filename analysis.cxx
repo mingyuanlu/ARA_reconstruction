@@ -105,6 +105,7 @@ cout<<"recoVertexingMode: "<<settings->recoVertexingMode<<endl;
 cout<<"skymapSearchMode: "<<settings->skymapSearchMode<<endl;
 cout<<"recoPolType: "<<settings->recoPolType<<endl;
 cout<<"nchnlFilter: "<<settings->nchnlFilter<<endl;
+cout<<"recoEventIndex: "<<settings->recoEventIndex<<endl;
 
 TFile *outputFile;
 
@@ -146,6 +147,7 @@ cout<<"recoVertexingMode: "<<settings->recoVertexingMode<<endl;
 cout<<"skymapSearchMode: "<<settings->skymapSearchMode<<endl;
 cout<<"recoPolType: "<<settings->recoPolType<<endl;
 cout<<"nchnlFilter: "<<settings->nchnlFilter<<endl;
+cout<<"recoEventIndex: "<<settings->recoEventIndex<<endl;
 
 TTree *recoSettingsTree = new TTree("recoSettingsTree", "recoSettingsTree");
 //TTree *onionTree = new TTree("onionTree", "onionTree");
@@ -547,10 +549,14 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    eventTree->GetEntry(ev);
 
+   if(settings->recoEventIndex > -1){ //check if only want to reconstruct a specified event
+   if(rawAtriEvPtr->eventNumber != settings->recoEventIndex) continue;
+   }
    //cout<<"Code loop ev: "<<ev<<" eventId: "<<rawAtriEvPtr->eventId<<" eventNumber: "<<rawAtriEvPtr->eventNumber<<endl;
    summary->setEventId(rawAtriEvPtr->eventId);
    summary->setEventNumber(rawAtriEvPtr->eventNumber);
    summary->setEventTime(rawAtriEvPtr->unixTime, rawAtriEvPtr->unixTimeUs, rawAtriEvPtr->timeStamp);
+
 
    if(rawAtriEvPtr->isRFTrigger()){
       if(rawAtriEvPtr->isCalpulserEvent()){
@@ -903,6 +909,10 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    summary->clear();
    //cout<<"Cleared previous summary\n";
    if(ev%1000 == 0) cout<<"*******************************Event got********************************: "<<ev<<endl;
+
+   if(settings->recoEventIndex > -1){ //check if only want to reconstruct a specified event
+   if(ev != settings->recoEventIndex) continue;
+   }
 
    summary->setEventNumber(ev);
 
