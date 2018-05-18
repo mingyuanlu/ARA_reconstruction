@@ -38,6 +38,7 @@ openCLDeviceType=cpu
 openCLMaxNumberOfCores=0
 
 maxNumberOfReco=-1
+recoEventIndex=-1
 
 constantNFilter=0
 surfaceCutAngle=0
