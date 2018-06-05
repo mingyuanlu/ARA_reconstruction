@@ -49,13 +49,13 @@ To make use of the software tools:
 The "analysis" executable is generated in #5 above.
 To reconstruct AraSim events, do:
 
-		./build/analysis recoSetupFile_default.txt 0 ${PATH_TO_SIMULATION}/AraOut.root
+		./build/analysis ${OUTPUT_DIR} recoSetupFile_default.txt 0 ${PATH_TO_SIMULATION}/AraOut.root
 
 To reconstruct real data, do:
 
-		./build/analysis recoSetupFile_default.txt 0 ${PATH_TO_REAL_DATA}/eventXXXX.root ${PATH_TO_PEDESTAL_FILE}/pedestalValues.run00XXXX.dat
+		./build/analysis ${OUTPUT_DIR} recoSetupFile_default.txt 0 ${PATH_TO_REAL_DATA}/eventXXXX.root ${PATH_TO_PEDESTAL_FILE}/pedestalValues.run00XXXX.dat
 
-In the above examples, '0' is the run number given to the analysis runs. The analysis output will be a ROOT file named recoOut.${recoSetupFile}.run${RunNumber}.root
+In the above examples, '0' is the run number given to the analysis runs. The analysis outputs will be a ROOT file named recoOut.${recoSetupFile}.run${RunNumber}.root, plus interferometric skymaps (in FITS format) named recoSkymap.${recoSetupFile}.run${RunNumber}(.constantN/2ndRay).fits. These output files will be located in ${OUTPUT_DIR}.
 
 # Configuring the reconstruction
 ----------
