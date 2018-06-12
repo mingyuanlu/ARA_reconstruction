@@ -50,6 +50,7 @@ public:
      int _eventId, int _eventNumber
    , int _unixTime, int _unixTimeUs, int _timeStamp
    , double w
+   , double _interactionProbability, double _probability
    , int _eventTrigType
    , float zen_true, float azi_true, float zen_reco, float azi_reco, float r_true, float r_reco
    , float *_trueRecAngle, float *_trueLauAngle, float *_recoRecAngle, float *_recoLauAngle
@@ -148,7 +149,12 @@ public:
    void setMaxPix2InfoEachLayer(recoSettings *settings, int *idx, float *xCorrValue);
    void setMaxPix2Info(int idx, float xCorrValue);
 
-   ClassDef(recoData, 9);
+//ClassDef 10
+   double interactionProbability;
+   double probability; // survival probability (weight) * interaction probability
+   void setProbabilities(double p_int, double p);
+
+   ClassDef(recoData, 10);
 };
 
 

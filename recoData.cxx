@@ -60,6 +60,9 @@ using namespace std;
    maxPixIdxEachLayer2.clear();
    maxPixCoherenceEachLayer2.clear();
 
+   interactionProbability = 0.;
+   probability = 0.;
+
    }
 
 
@@ -68,6 +71,7 @@ using namespace std;
      int _eventId, int _eventNumber
    , int _unixTime, int _unixTimeUs, int _timeStamp
    , double w
+   , double _interactionProbability, double _probability
    , int _eventTrigType
    , float zen_true, float azi_true, float zen_reco, float azi_reco, float r_true, float r_reco
    , float *_trueRecAngle, float *_trueLauAngle, float *_recoRecAngle, float *_recoLauAngle
@@ -171,6 +175,10 @@ using namespace std;
       maxPixCoherenceEachLayer2.push_back( _maxPixCoherenceEachLayer2[i] );
    }
 */
+
+   interactionProbability = _interactionProbability;
+   probability = _probability;
+
    }
 
    void recoData::setAllData2(recoSettings *_settings
@@ -407,6 +415,13 @@ using namespace std;
 
    }
 
+   void recoData::setProbabilities(double p_int, double p){
+
+      interactionProbability = p_int;
+      probability = p;
+
+   }
+
    void recoData::duplicate(recoSettings *settings, recoData *old){
 
    int *_topMaxPixIdx         = (int*)calloc(old->topN, sizeof(int));
@@ -440,6 +455,7 @@ using namespace std;
    setAllData(old->eventId,     old->eventNumber
              , old->unixTime, old->unixTimeUs, old->timeStamp
              , old->weight
+             , old->interactionProbability, old->probability
              , old->eventTrigType
              , old->trueZen,    old->trueAzi
              , old->recoZen,    old->recoAzi
@@ -553,5 +569,7 @@ using namespace std;
    topMaxPixCoherence2.clear();
    maxPixIdxEachLayer2.clear();
    maxPixCoherenceEachLayer2.clear();
+   interactionProbability = 0.;
+   probability = 0.;
 
    }

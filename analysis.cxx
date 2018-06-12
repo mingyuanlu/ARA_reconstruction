@@ -35,6 +35,8 @@
 #include "Settings.h"
 #include "Report.h"
 #include "Event.h"
+#include "Position.h"
+#include "signal.hh"
 
 ClassImp(recoSettings);
 ClassImp(recoData);
@@ -792,6 +794,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    /* Real data, set weight as 1 */
    summary->setWeight(1);
+   summary->setProbabilities(1,1);
 
     //summary->setOnion(onion);
    summary->setTopN(topN);
@@ -1100,6 +1103,9 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    //recoData *summary = new recoData();
    //if(settings->dataType == 0){
    summary->setWeight(event->Nu_Interaction[0].weight);
+   double L_ice = event->Nu_Interaction[0].len_int_kgm2_total/Signal::RHOICE;
+   double p_int = 1.-exp(-1.*(event->Nu_Interaction[0].r_enterice.Distance(event->Nu_Interaction[0].nuexitice)/L_ice)); // probability it interacts in ice along its path
+   summary->setProbabilities(p_int, p_int*event->Nu_Interaction[0].weight);
    summary->setTrueRadius(r_true);
    summary->setTrueDir(zen_true*180./M_PI, azi_true*180./M_PI);
    //}
