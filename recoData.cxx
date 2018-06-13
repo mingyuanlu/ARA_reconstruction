@@ -71,7 +71,7 @@ using namespace std;
      int _eventId, int _eventNumber
    , int _unixTime, int _unixTimeUs, int _timeStamp
    , double w
-   , double _interactionProbability, double _probability
+   //, double _interactionProbability, double _probability
    , int _eventTrigType
    , float zen_true, float azi_true, float zen_reco, float azi_reco, float r_true, float r_reco
    , float *_trueRecAngle, float *_trueLauAngle, float *_recoRecAngle, float *_recoLauAngle
@@ -176,8 +176,8 @@ using namespace std;
    }
 */
 
-   interactionProbability = _interactionProbability;
-   probability = _probability;
+   //interactionProbability = _interactionProbability;
+   //probability = _probability;
 
    }
 
@@ -455,7 +455,7 @@ using namespace std;
    setAllData(old->eventId,     old->eventNumber
              , old->unixTime, old->unixTimeUs, old->timeStamp
              , old->weight
-             , old->interactionProbability, old->probability
+             //, old->interactionProbability, old->probability
              , old->eventTrigType
              , old->trueZen,    old->trueAzi
              , old->recoZen,    old->recoAzi
@@ -484,6 +484,8 @@ using namespace std;
    , old->maxPixIdx2,  old->maxPixCoherence2
    , _topMaxPixIdx2, _topMaxPixCoherence2
    , _maxPixIdxEachLayer2, _maxPixCoherenceEachLayer2);
+
+   setProbabilities(old->interactionProbability, old->probability);
 
 /*
    weight = old->weight;

@@ -50,7 +50,7 @@ public:
      int _eventId, int _eventNumber
    , int _unixTime, int _unixTimeUs, int _timeStamp
    , double w
-   , double _interactionProbability, double _probability
+   //, double _interactionProbability, double _probability
    , int _eventTrigType
    , float zen_true, float azi_true, float zen_reco, float azi_reco, float r_true, float r_reco
    , float *_trueRecAngle, float *_trueLauAngle, float *_recoRecAngle, float *_recoLauAngle
