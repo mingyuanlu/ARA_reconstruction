@@ -227,17 +227,19 @@ TGraph *evProcessTools::getWindowedAndPaddedEqualBeginGraph(TGraph *gr, const in
       }
 
       else if( i<(time1_bin + numSamps)) {
-	 gr->GetPoint(i-time1_bin,xVals,yVals);
-	 newX[i]=xVals;
+	      gr->GetPoint(i-time1_bin,xVals,yVals);
+	      newX[i]=xVals;
          /* if want to use Bartlett window */
-	 //newY[i]=yVals*FFTtools::bartlettWindow(i-time1_bin,numSamps);
+	      //newY[i]=yVals*FFTtools::bartlettWindow(i-time1_bin,numSamps);
          /* if want to use modified Hann window */
-         int modFrac = 4;
-         newY[i]=yVals*evProcessTools::modifiedHannWindow(i-time1_bin, numSamps, modFrac);
+         //int modFrac = 4;
+         //newY[i]=yVals*evProcessTools::modifiedHannWindow(i-time1_bin, numSamps, modFrac);
+         /* if want to use uniform window */
+         newY[i]=yVals*evProcessTools::uniformWindow();
       }
       else {
-	 newX[i]=newX[i-1]+intSample;
-	 newY[i]=0;
+	      newX[i]=newX[i-1]+intSample;
+	      newY[i]=0;
       }
   }
    TGraph *grNew = new TGraph(maxSamps,newX,newY);
@@ -1519,6 +1521,14 @@ double evProcessTools::modifiedHannWindow(int idx, int numSample, int modFrac){
    else                                            return 1.;
 
 }
+
+/*
+ * Windowing function. Uniform window = no window
+ */
+double evProcessTools::uniformWindow(){
+   return 1.;
+}
+
 /*
 double evProcessTools::getPeakSqValRange(TGraph *gr, int *index, int firstBin, int lastBin)
 {

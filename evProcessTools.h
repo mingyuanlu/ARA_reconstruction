@@ -82,6 +82,7 @@ static int peakFinder(TGraph *gr, int numberOfPeaks, int range, double *peakPos,
 static double getMeanBaseLine(TGraph *gr);
 static int spikingString(std::vector<TGraph*> gr, int stationId);
 static double modifiedHannWindow(int idx, int numSample, int modFrac);
+static double uniformWindow();
 //static double getPeakSqValRange(TGraph *gr, int *index, int firstBin, int lastBin);
 
 };
