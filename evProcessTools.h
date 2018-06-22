@@ -74,7 +74,7 @@ static double getCorehentlySummedWaveAmp(std::vector<TGraph *> gr, vector<vector
 static std::vector<double> getCrudeReconstruction(vector<vector< double > > delayMap, std::vector<std::vector<double> > ant_loc);
 static TGraph *cwCleaner(TGraph *grWaveIn, Double_t minFreq, Double_t maxFreq, double reduction);
 static TGraph *getBartlettAndPaddedGraph(TGraph *gr, const int maxSample);
-static TGraph *getWindowedAndPaddedEqualBeginGraph(TGraph *gr, const int maxSample, const double beginTime);
+static TGraph *getWindowedAndPaddedEqualBeginGraph(recoSettings *settings, TGraph *gr, const int maxSample, const double beginTime);
 static TGraph *getNormalizedGraph(TGraph *gr);
 static TGraph *universalCleaner(TGraph *grWaveIn, std::vector< double> cwSingleVec );
 static double getSimpleFFT(std::vector<TGraph*> gr, vector<vector< double > > * FFTpower, vector<vector<double> > * FFTfreq);

@@ -75,6 +75,8 @@ void recoSettings::initialize(){
 
   recoEventIndex = -1;
 
+  windowingType = 0;
+
   //remark = "Default.";
   snprintf(remark, sizeof(remark), "Default.");
 
@@ -142,6 +144,7 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
             else if(label == "wInt_both") wInt_both = atof( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "maxPaddedSample") maxPaddedSample = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "recoEventIndex") recoEventIndex = atoi( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "windowingType") windowingType = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label != "") cerr<<"Undefined parameter detected. Label: "<<label<<endl;
          }
       }
@@ -204,6 +207,7 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
       if( maxPaddedSample <= 0 || (maxPaddedSample & (maxPaddedSample-1)) ){
          cerr<<"maxPaddedSample (should be power of 2): "<<maxPaddedSample<<endl; errCnt++; }
       if( recoEventIndex < -1){                   cerr<<"recoEventIndex: "<<recoEventIndex<<endl; errCnt++; }
+      if( (unsigned)(windowingType-0) > 2){       cerr<<"windowingType: "<<windowingType<<endl; errCnt++; }
       if(errCnt > 0) return false;
 
    } else { cerr<<"Unable to open "<<sf<<endl; return false; }
