@@ -194,6 +194,57 @@ TGraph *evProcessTools::getBartlettAndPaddedGraph(TGraph *gr, const int maxSampl
    return grNew;
 }
 
+/* Make sure the wfs all start with t=beginTime. Zero-pad wf from t=beginTime to the 1st bin of the original wf */
+TGraph *evProcessTools::getWindowedAndPaddedEqualBeginGraph(TGraph *gr, const int maxSample, const double beginTime)
+{
+
+   //   static AraGeomTool *fGeomTool = AraGeomTool::Instance();
+   if(!gr) return NULL;
+   Double_t newX[maxSample],newY[maxSample];
+   Int_t maxSamps=maxSample;
+
+   Double_t time1=0;
+   Double_t time2=0;
+   Double_t xVals;
+   Double_t yVals;
+
+   gr->GetPoint(0,time1,yVals);
+   gr->GetPoint(1,time2,yVals);
+
+   Double_t intSample = time2 - time1;
+   //cerr << "The interpolation: " << intSample << endl;
+   Int_t numSamps  = gr->GetN();
+   //cerr << "The number of points: " << numSamps << endl;
+
+   Int_t time1_bin = (time1-beginTime)/intSample; //Number of bins from t=beginTime to t=time1
+
+   for(int i=0;i<maxSamps;i++) {
+
+      if(i < time1_bin ){
+         newX[i] = time1 - (time1_bin-i)*intSample;
+         newY[i] = 0;
+      }
+
+      else if( i<(time1_bin + numSamps)) {
+	      gr->GetPoint(i-time1_bin,xVals,yVals);
+	      newX[i]=xVals;
+         /* if want to use Bartlett window */
+	      //newY[i]=yVals*FFTtools::bartlettWindow(i-time1_bin,numSamps);
+         /* if want to use modified Hann window */
+         int modFrac = 4;
+         newY[i]=yVals*evProcessTools::modifiedHannWindow(i-time1_bin, numSamps, modFrac);
+         /* if want to use uniform window */
+         //newY[i]=yVals*evProcessTools::uniformWindow();
+      }
+      else {
+	      newX[i]=newX[i-1]+intSample;
+	      newY[i]=0;
+      }
+   }
+
+   TGraph *grNew = new TGraph(maxSamps,newX,newY);
+   return grNew;
+}
 
 /* Make sure the wfs all start with t=beginTime. Zero-pad wf from t=beginTime to the 1st bin of the original wf */
 TGraph *evProcessTools::getWindowedAndPaddedEqualBeginGraph(int windowingType, TGraph *gr, const int maxSample, const double beginTime)
