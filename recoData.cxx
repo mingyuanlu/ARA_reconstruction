@@ -583,7 +583,7 @@ using namespace std;
    maxPixIdxEachLayer2.clear();
    maxPixCoherenceEachLayer2.clear();
    interactionProbability = 0.;
-   probability = 0
+   probability = 0;
    numSatChan = 0;
    std::fill(&satChan[0], &satChan[16], 0);
 
