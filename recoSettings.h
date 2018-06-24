@@ -105,6 +105,12 @@ public:
       Default -1. The event index to reconstruct. Use eventNumber to specify. Only the event with this index will be reconstructed.
    windowingType:
       Default 0. 0: uniform window (no window). 1: Hann window (1/4). 2: Bartlett window
+   maskSubThresholdChannels:
+      Default 0. 0: do not mask sub-threshold channels. 1: mask sub-threshold channels.
+   maskSaturatedChannels:
+      Default 1. 0: do not mask saturated channels. 1: mask saturated channels.
+   saturationVoltage_mV:
+      Default 1500. The saturation voltage value, in mV.
    remark:
       Default "". Any remark one wishes to add to the reco setup file. The remarks will then be carried along in the analysis output ROOT file. Note that number of characters should not exceed CSTRING_MAX defined in recoSettings.h
 */
@@ -182,7 +188,12 @@ public:
    //ClassDef 11
    int windowingType;
 
-   ClassDef(recoSettings, 11); //2: convert all string parameters to char
+   //ClassDef 12
+   int maskSubThresholdChannels;
+   int maskSaturatedChannels;
+   double saturationVoltage_mV;
+
+   ClassDef(recoSettings, 12); //2: convert all string parameters to char
                               //3: add openCLDeviceType and openCLMaxNumberOfDevices parameters
 };
 

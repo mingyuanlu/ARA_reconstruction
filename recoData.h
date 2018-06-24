@@ -154,7 +154,11 @@ public:
    double probability; // survival probability (weight) * interaction probability
    void setProbabilities(double p_int, double p);
 
-   ClassDef(recoData, 10);
+//ClassDef 11
+   int numSatChan;
+   int satChan[16];
+
+   ClassDef(recoData, 11);
 };
 
 

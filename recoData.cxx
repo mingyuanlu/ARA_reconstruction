@@ -63,6 +63,9 @@ using namespace std;
    interactionProbability = 0.;
    probability = 0.;
 
+   numSatChan = 0;
+   std::fill(&satChan[0], &satChan[16], 0);
+
    }
 
 
@@ -422,6 +425,13 @@ using namespace std;
 
    }
 
+   void recoData::setSaturatedChannels(int _numSatChan, int *_satChan){
+
+      numSatChan = _numSatChan;
+      for(int i=0; i<16; i++) satChan[i] = _satChan[i];
+
+   }
+
    void recoData::duplicate(recoSettings *settings, recoData *old){
 
    int *_topMaxPixIdx         = (int*)calloc(old->topN, sizeof(int));
@@ -486,6 +496,7 @@ using namespace std;
    , _maxPixIdxEachLayer2, _maxPixCoherenceEachLayer2);
 
    setProbabilities(old->interactionProbability, old->probability);
+   setSaturatedChannels(old->numSatChan, old->satChan);
 
 /*
    weight = old->weight;
@@ -572,6 +583,8 @@ using namespace std;
    maxPixIdxEachLayer2.clear();
    maxPixCoherenceEachLayer2.clear();
    interactionProbability = 0.;
-   probability = 0.;
+   probability = 0
+   numSatChan = 0;
+   std::fill(&satChan[0], &satChan[16], 0);
 
    }

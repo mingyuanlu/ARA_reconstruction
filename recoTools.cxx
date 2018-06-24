@@ -11830,6 +11830,214 @@ nchnlArray[2] = totalPassedHpol;
 }
 
 /*
+ * Version of getNchnl with the option of calculating the nchnl, but does not mask out sub-threshold channels
+ */
+void getNchnl(recoSettings * settings, const vector<TGraph *>& cleanEvent, double threshold, int *nchnlArray, int *goodChan){
+
+   double sigma;
+   double mean;
+   double statsArray[2]={0};
+   //TGraph *gr;
+   //Double_t *volts;
+   double t, v;
+   int bin;
+   int passThreshold[cleanEvent.size()];  //IF THE CHANNEL PASSED THRESHOLD*SIGMA, THIS NUMBER IS SET TO ONE
+   //int saturated[cleanEvent.size()];
+   int totalPassedChnl, totalPassedVpol, totalPassedHpol;
+   int totalSatChnl,   totalSatVpol, totalSatHpol;
+   totalPassedChnl = totalPassedVpol = totalPassedHpol = 0;
+   totalSatChnl = totalSatVpol = totalSatHpol = 0;
+   //AraGeomTool *tempGeom = AraGeomTool::Instance();
+   //Int_t stationId = theEvent->stationId;
+
+   for ( int ch=0; ch<(int)cleanEvent.size(); ch++){
+
+         passThreshold[ch] = 0;
+         //saturated[ch]= 0;
+         //AraAntPol::AraAntPol_t polType = tempGeom->getStationInfo(stationId)->getAntennaInfo(ch)->polType;
+
+         //if ( polType == AraAntPol::kVertical ){
+         //          //cout<<"mean="<<mean<<"\tsigma="<<sigma<<endl;
+         //gr = theEvent->getGraphFromRFChan(ch);
+         //gr = cleanEvent[ch];
+         //volts = gr->GetY();
+         bin   = cleanEvent[ch]->GetN();
+         //setMeanAndSigmaInNoMax(gr,statsArray);
+         setMeanAndSigmaInNoMax(cleanEvent[ch], statsArray);
+
+         mean  = statsArray[0];
+         sigma = statsArray[1];
+         //cout<<"ch: "<<ch<<" sigma: "<<sigma<<endl;
+         for (int binCounter=0; binCounter<bin; binCounter++){
+
+            cleanEvent[ch]->GetPoint(binCounter, t, v);
+
+            /* check if SNR > threshold*sigma */
+            if ( fabs(v - mean) > threshold * sigma ){
+
+               //totalPassedChnl += 1;
+               passThreshold[ch] = 1;
+
+               //if( ch<8 ) totalPassedVpol += 1;
+               //else       totalPassedHpol += 1;
+               //if ( polType == AraAntPol::kVertical){ totalPassedVpol += 1;
+               //} else if ( polType == AraAntPol::kHorizontal){ totalPassedHpol += 1;
+               //} else { cerr<<"********************* polType not vpol or hpol !!! ***********************"<<endl;
+               //}
+               break;
+            }
+
+            /* check if saturated at +/- 1500mV */ // 180624: this functionality is now transfered to getSaturation()
+            //if( fabs( fabs(v) - 1500. ) < 0.5 ){
+            /*
+            if( fabs( fabs(v) - settings->saturationVoltage_mV ) < 0.5 ){
+
+               saturated[ch] = 1;
+            }
+            */
+
+         }
+
+      //delete gr;
+
+
+   }//end of ch
+
+   for(int ch=0; ch<16; ch++){
+
+   int tempChan = (goodChan[ch] && passThreshold[ch]);
+
+   if(settings->maskSubThresholdChannels) goodChan[ch] = tempChan;
+   //else                                   goodChan[ch] = chanMask[ch];
+   //if(settings->maskSaturatedChannels) if( saturated[ch] ) goodChan[ch] = 0;
+
+   //totalPassedChnl += goodChan[ch];
+   totalPassedChnl += tempChan/*(goodChan[ch] && passThreshold[ch])*/;
+   //totalSatChnl    += saturated[ch];
+   if(ch<8){ totalPassedVpol += /*goodChan[ch]*/tempChan/*(goodChan[ch] && passThreshold[ch])*/; /*totalSatVpol += saturated[ch];*/ }
+   else    { totalPassedHpol += /*goodChan[ch]*/tempChan/*(goodChan[ch] && passThreshold[ch])*/; /*totalSatHpol += saturated[ch];*/ }
+
+   }
+
+/* only look at Vpols now */
+//if(string(settings->recoPolType)=="both")       numSatChan = totalSatChnl;
+//else if (string(settings->recoPolType)=="vpol") numSatChan = totalSatVpol;
+//else                                            numSatChan = totalSatHpol;
+
+nchnlArray[0] = totalPassedChnl;
+nchnlArray[1] = totalPassedVpol;
+nchnlArray[2] = totalPassedHpol;
+
+}
+
+/*
+ * Returns number of saturated channels (dep on recoPolType), and modifies satChan
+ */
+int getSaturation(recoSettings *settings, const vector<TGraph *>& cleanEvent, int *satChan){
+
+   //double sigma;
+   //double mean;
+   //double statsArray[2]={0};
+   //TGraph *gr;
+   //Double_t *volts;
+   double t, v;
+   int bin;
+   //int passThreshold[cleanEvent.size()];  //IF THE CHANNEL PASSED THRESHOLD*SIGMA, THIS NUMBER IS SET TO ONE
+   //int saturated[cleanEvent.size()];
+   //int totalPassedChnl, totalPassedVpol, totalPassedHpol;
+   int totalSatChnl,   totalSatVpol, totalSatHpol;
+   //totalPassedChnl = totalPassedVpol = totalPassedHpol = 0;
+   totalSatChnl = totalSatVpol = totalSatHpol = 0;
+   //AraGeomTool *tempGeom = AraGeomTool::Instance();
+   //Int_t stationId = theEvent->stationId;
+
+   for ( int ch=0; ch<(int)cleanEvent.size(); ch++){
+
+         //passThreshold[ch] = 0;
+         //saturated[ch]= 0;
+         //AraAntPol::AraAntPol_t polType = tempGeom->getStationInfo(stationId)->getAntennaInfo(ch)->polType;
+
+         //if ( polType == AraAntPol::kVertical ){
+         //          //cout<<"mean="<<mean<<"\tsigma="<<sigma<<endl;
+         //gr = theEvent->getGraphFromRFChan(ch);
+         //gr = cleanEvent[ch];
+         //volts = gr->GetY();
+         bin   = cleanEvent[ch]->GetN();
+         //setMeanAndSigmaInNoMax(gr,statsArray);
+         //setMeanAndSigmaInNoMax(cleanEvent[ch], statsArray);
+
+         //mean  = statsArray[0];
+         //sigma = statsArray[1];
+         //cout<<"ch: "<<ch<<" sigma: "<<sigma<<endl;
+         satChan[ch] = 0;
+
+         for (int binCounter=0; binCounter<bin; binCounter++){
+
+            cleanEvent[ch]->GetPoint(binCounter, t, v);
+
+            /* check if SNR > threshold*sigma */
+            //if ( fabs(v - mean) > threshold * sigma ){
+
+               //totalPassedChnl += 1;
+               //passThreshold[ch] = 1;
+
+               //if( ch<8 ) totalPassedVpol += 1;
+               //else       totalPassedHpol += 1;
+               //if ( polType == AraAntPol::kVertical){ totalPassedVpol += 1;
+               //} else if ( polType == AraAntPol::kHorizontal){ totalPassedHpol += 1;
+               //} else { cerr<<"********************* polType not vpol or hpol !!! ***********************"<<endl;
+               //}
+               //break;
+            //}
+
+            /* check if saturated at +/- 1500mV */
+            //if( fabs( fabs(v) - 1500. ) < 0.5 ){
+
+            if( fabs( fabs(v) - settings->saturationVoltage_mV ) < 0.5 ){
+
+               //saturated[ch] = 1;
+               satChan[ch] = 1;
+               break;
+            }
+
+
+         }
+
+      //delete gr;
+
+
+   }//end of ch
+
+   for(int ch=0; ch<16; ch++){
+
+   //int tempChan = (goodChan[ch] && passThreshold[ch]);
+
+   //if(settings->maskSubThresholdChannels) goodChan[ch] = tempChan;
+   //else                                   goodChan[ch] = chanMask[ch];
+   //if(settings->maskSaturatedChannels) if( saturated[ch] ) goodChan[ch] = 0;
+
+   //totalPassedChnl += goodChan[ch];
+   //totalPassedChnl += tempChan/*(goodChan[ch] && passThreshold[ch])*/;
+   totalSatChnl    += satChan[ch];
+   if(ch<8){ //totalPassedVpol += /*goodChan[ch]*/tempChan/*(goodChan[ch] && passThreshold[ch])*/;
+   totalSatVpol += satChan[ch]; }
+   else    { //totalPassedHpol += /*goodChan[ch]*/tempChan/*(goodChan[ch] && passThreshold[ch])*/;
+   totalSatHpol += satChan[ch]; }
+
+   }
+
+/* only look at Vpols now */
+if(string(settings->recoPolType)=="both")       return totalSatChnl; //numSatChan = totalSatChnl;
+else if (string(settings->recoPolType)=="vpol") return totalSatVpol; //numSatChan = totalSatVpol;
+else                                            return totalSatHpol; //numSatChan = totalSatHpol;
+
+//nchnlArray[0] = totalPassedChnl;
+//nchnlArray[1] = totalPassedVpol;
+//nchnlArray[2] = totalPassedHpol;
+
+}
+
+/*
  * Returns the SNR as the number of sigmas between the waveform peak and mean for all channels. SNR is defined to be always positive (absolute value)
  */
 void getChannelSNR(const vector<TGraph *>& cleanEvent, float *snrArray){

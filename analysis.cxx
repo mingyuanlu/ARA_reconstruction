@@ -76,23 +76,23 @@ int err;
  * 1: use, 0: don't use
  */
 
-int chanMask[16] = {  1 //chan 0  D1TV
-                     ,1 //chan 1  D2TV
-                     ,1 //chan 2  D3TV
-                     ,1 //chan 3  D4TV
-                     ,1 //chan 4  D1BV
-                     ,1 //chan 5  D2BV
-                     ,1 //chan 6  D3BV
-                     ,1 //chan 7  D4BV
-                     ,1 //chan 8  D1TH
-                     ,1 //chan 9  D2TH
-                     ,1 //chan 10 D3TH
-                     ,1 //chan 11 D4TH
-                     ,1 //chan 12 D1BH
-                     ,1 //chan 13 D2BH
-                     ,1 //chan 14 D3BH
-                     ,1 //chan 15 D4BH
-                   };
+const int chanMask[16] = {  1 //chan 0  D1TV
+                           ,1 //chan 1  D2TV
+                           ,1 //chan 2  D3TV
+                           ,1 //chan 3  D4TV
+                           ,1 //chan 4  D1BV
+                           ,1 //chan 5  D2BV
+                           ,1 //chan 6  D3BV
+                           ,1 //chan 7  D4BV
+                           ,1 //chan 8  D1TH
+                           ,1 //chan 9  D2TH
+                           ,1 //chan 10 D3TH
+                           ,1 //chan 11 D4TH
+                           ,1 //chan 12 D1BH
+                           ,1 //chan 13 D2BH
+                           ,1 //chan 14 D3BH
+                           ,1 //chan 15 D4BH
+                         };
 
 
 
@@ -518,6 +518,7 @@ float snrArray[16], unmodSNRArray[16], snrArray_V[8], snrArray_H[8];
 vector<TGraph *> unpaddedEvent;
 TH1F *snrDist = new TH1F("snrDist","snrDist",100,0,50);
 int goodChan[16];
+int satChan[16];
 int numSatChan;
 if(settings->nchnlFilter > 0){
    threshold = settings->nchnlThreshold;
@@ -690,6 +691,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    for(int ch=0; ch<16; ch++){
 
+   goodChan[ch] = chanMask[ch];
 
    if(ch<8){wInt=/*0.4*/settings->wInt_V; maxSamp=/*2048*/settings->maxPaddedSample;}
    else{wInt=/*0.625*/settings->wInt_H; maxSamp=/*2048*/settings->maxPaddedSample;}
@@ -706,14 +708,19 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    delete gr_v[ch];
    }//end of ch
 
+   numSatChan = getSaturation(settings, unpaddedEvent, satChan);
+   summary->setSaturatedChannels(numSatChan, satChan);
+   if(settings->maskSaturatedChannels) for(int ch=0; ch<16; ch++) goodChan[ch] = goodChan[ch] && (!satChan[ch]);
+
    //****************************************************
    // FILTER SECTION
    //****************************************************
 
-   numSatChan = 0;
+   //numSatChan = 0;
    if(settings->nchnlFilter > 0){
 
-   getNchnlMaskSat(unpaddedEvent, threshold, nchnlArray, chanMask, goodChan, numSatChan);
+   //getNchnlMaskSat(unpaddedEvent, threshold, nchnlArray, chanMask, goodChan, numSatChan);
+   getNchnl(settings, unpaddedEvent, threshold, nchnlArray, goodChan);
 
    if      (settings->nchnlFilter==1/*recoPolType == "vpol"*/) nchnl_tmp = nchnlArray[1];
    else if (settings->nchnlFilter==2/*recoPolType == "hpol"*/) nchnl_tmp = nchnlArray[2];
@@ -729,9 +736,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       continue;
    }
    }
-   else {
-   for(int i=0; i<16; i++) goodChan[i] = chanMask[i];
-   }
+   //else {
+   //for(int i=0; i<16; i++) goodChan[i] = chanMask[i];
+   //}
 
    /* Constant N reco for surface filter */
 
@@ -997,26 +1004,33 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    for(int ch=0; ch<16; ch++){
 
+   goodChan[ch] = chanMask[ch];
+
    if(ch<8){wInt=/*0.4*/settings->wInt_V; maxSamp=/*2048*/settings->maxPaddedSample;/* maxSamp = gr_v[0]->GetN()*4;*/ }
    else{    wInt=/*0.625*/settings->wInt_H; maxSamp=/*2048*/settings->maxPaddedSample;/* maxSamp = gr_v[8]->GetN()*4;*/ }
    grInt[ch]       = FFTtools::getInterpolatedGraph(gr_v[ch], wInt);
    unpaddedEvent.push_back(/*gr_v[ch]*/grInt[ch]);
    /* Use a modified Hann window for now */
-   grWinPad[ch]     = evProcessTools::getWindowedAndPaddedEqualBeginGraph(settings->windowingType, /*gr_v[ch]*/grInt[ch], maxSamp, beginTime);
+   grWinPad[ch]     = evProcessTools::getWindowedAndPaddedEqualBeginGraph(settings->windowingTypet push, /*gr_v[ch]*/grInt[ch], maxSamp, beginTime);
    /* The task of normalizing wf should be the responsibility of each reco method */
    cleanEvent.push_back(grWinPad[ch]);
 
    delete gr_v[ch];
    }//end of ch
 
+   numSatChan = getSaturation(settings, unpaddedEvent, satChan);
+   summary->setSaturatedChannels(numSatChan, satChan);
+   if(settings->maskSaturatedChannels) for(int ch=0; ch<16; ch++) goodChan[ch] = goodChan[ch] && (!satChan[ch]);
+
    //****************************************************
    // FILTER SECTION
    //****************************************************
 
-   numSatChan = 0;
+   //numSatChan = 0;
    if(settings->nchnlFilter > 0){
 
-   getNchnlMaskSat(unpaddedEvent, threshold, nchnlArray, chanMask, goodChan, numSatChan);
+   //getNchnlMaskSat(unpaddedEvent, threshold, nchnlArray, chanMask, goodChan, numSatChan);
+   getNchnl(settings, unpaddedEvent, threshold, nchnlArray, goodChan);
 
    if      (settings->nchnlFilter==1/*recoPolType == "vpol"*/) nchnl_tmp = nchnlArray[1];
    else if (settings->nchnlFilter==2/*recoPolType == "hpol"*/) nchnl_tmp = nchnlArray[2];
@@ -1032,9 +1046,9 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    }
    }
-   else {
-   for(int i=0; i<16; i++) goodChan[i] = chanMask[i];
-   }
+   //else {
+   //for(int i=0; i<16; i++) goodChan[i] = chanMask[i];
+   //}
 
    /* Constant N reco for surface filter */
 

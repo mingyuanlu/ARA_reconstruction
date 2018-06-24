@@ -77,6 +77,10 @@ void recoSettings::initialize(){
 
   windowingType = 0;
 
+  maskSubThresholdChannels = 0;
+  maskSaturatedChannels = 1;
+  saturationVoltage_mV = 1500.;
+
   //remark = "Default.";
   snprintf(remark, sizeof(remark), "Default.");
 
@@ -145,6 +149,9 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
             else if(label == "maxPaddedSample") maxPaddedSample = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "recoEventIndex") recoEventIndex = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "windowingType") windowingType = atoi( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "maskSubThresholdChannels") maskSubThresholdChannels = atoi( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "maskSaturatedChannels") maskSaturatedChannels = atoi( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "saturationVoltage_mV") saturationVoltage_mV = atof( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label != "") cerr<<"Undefined parameter detected. Label: "<<label<<endl;
          }
       }
@@ -208,6 +215,10 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
          cerr<<"maxPaddedSample (should be power of 2): "<<maxPaddedSample<<endl; errCnt++; }
       if( recoEventIndex < -1){                   cerr<<"recoEventIndex: "<<recoEventIndex<<endl; errCnt++; }
       if( (unsigned)(windowingType-0) > 2){       cerr<<"windowingType: "<<windowingType<<endl; errCnt++; }
+      if( (unsigned)(maskSubThresholdChannels-0) > 1){ cerr<<"maskSubThresholdChannels: "<<maskSubThresholdChannels<<endl; errCnt++; }
+      if( (unsigned)(maskSaturatedChannels-0) > 1){    cerr<<"maskSaturatedChannels: "<<maskSaturatedChannels<<endl; errCnt++; }
+      if( saturationVoltage_mV < 0 ){             cerr<<"saturationVoltage_mV: "<<saturationVoltage_mV<<endl; errCnt++; }
+      if(nchnlFilter < 1 && maskSubThresholdChannels){ cerr<<"nchnlFilter: "<<nchnlFilter<<" incompatible with maskSubThresholdChannels: "<<maskSubThresholdChannels<<endl; errCnt++;}
       if(errCnt > 0) return false;
 
    } else { cerr<<"Unable to open "<<sf<<endl; return false; }
