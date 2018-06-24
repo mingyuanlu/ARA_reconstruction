@@ -110,7 +110,7 @@ public:
    maskSaturatedChannels:
       Default 1. 0: do not mask saturated channels. 1: mask saturated channels.
    saturationVoltage_mV:
-      Default 1500. The saturation voltage value, in mV.
+      Default 1500. The saturation voltage value, in mV. Saturation is checked in both +/- voltages.
    remark:
       Default "". Any remark one wishes to add to the reco setup file. The remarks will then be carried along in the analysis output ROOT file. Note that number of characters should not exceed CSTRING_MAX defined in recoSettings.h
 */
