@@ -157,6 +157,7 @@ public:
 //ClassDef 11
    int numSatChan;
    int satChan[16];
+   void setSaturatedChannels(int _numSatChan, int *_satChan);
 
    ClassDef(recoData, 11);
 };
