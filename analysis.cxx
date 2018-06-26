@@ -700,7 +700,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    //cout<<"N: "<<gr_v[ch]->GetN()<<endl;
    grInt[ch]       = FFTtools::getInterpolatedGraph(gr_v[ch], wInt);
    unpaddedEvent.push_back(grInt[ch]);
-   /* Use a modified Hann window for now */
+   /* Window type is passed in settings now */
    grWinPad[ch]     = evProcessTools::getWindowedAndPaddedEqualBeginGraph(settings->windowingType, grInt[ch], maxSamp, beginTime);
    /* The task of normalizing wf should be the responsibility of each reco method */
    cleanEvent.push_back(grWinPad[ch]);
@@ -808,6 +808,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    summary->setRecoChan(goodChan);
    summary->setInWindowSNR(snrArray[index[2]]);
    summary->setInWindowSNRBothPol(snrArray_V[index_V[2]], snrArray_H[index_H[2]]);
+   summary->setChannelInWindowSNR(snrArray);
    summary->setUnmodSNR(unmodSNRArray[index[2]]);
    if(settings->nchnlFilter>0){
       if(settings->nchnlFilter==1){
@@ -1010,7 +1011,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    else{    wInt=/*0.625*/settings->wInt_H; maxSamp=/*2048*/settings->maxPaddedSample;/* maxSamp = gr_v[8]->GetN()*4;*/ }
    grInt[ch]       = FFTtools::getInterpolatedGraph(gr_v[ch], wInt);
    unpaddedEvent.push_back(/*gr_v[ch]*/grInt[ch]);
-   /* Use a modified Hann window for now */
+   /* Window type is passed in settings now */
    grWinPad[ch]     = evProcessTools::getWindowedAndPaddedEqualBeginGraph(settings->windowingType, /*gr_v[ch]*/grInt[ch], maxSamp, beginTime);
    /* The task of normalizing wf should be the responsibility of each reco method */
    cleanEvent.push_back(grWinPad[ch]);
@@ -1128,6 +1129,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    summary->setRecoChan(goodChan);
    summary->setInWindowSNR(snrArray[index[2]]);
    summary->setInWindowSNRBothPol(snrArray_V[index_V[2]], snrArray_H[index_H[2]]);
+   summary->setChannelInWindowSNR(snrArray);
    summary->setUnmodSNR(unmodSNRArray[index[2]]);
    if(settings->nchnlFilter>0){
       if(settings->nchnlFilter==1){

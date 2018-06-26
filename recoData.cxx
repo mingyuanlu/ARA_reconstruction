@@ -66,6 +66,7 @@ using namespace std;
    numSatChan = 0;
    std::fill(&satChan[0], &satChan[16], 0);
 
+   std::fill(&channelInWindowSNR[0], &channelInWindowSNR[16], 0.f);
    }
 
 
@@ -432,6 +433,12 @@ using namespace std;
 
    }
 
+   void recoData::setChannelInWindowSNR(float *_channelInWindowSNR){
+
+      for(int i=0; i<16; i++) channelInWindowSNR[i] = _channelInWindowSNR[i];
+
+   }
+
    void recoData::duplicate(recoSettings *settings, recoData *old){
 
    int *_topMaxPixIdx         = (int*)calloc(old->topN, sizeof(int));
@@ -497,7 +504,7 @@ using namespace std;
 
    setProbabilities(old->interactionProbability, old->probability);
    setSaturatedChannels(old->numSatChan, old->satChan);
-
+   setChannelInWindowSNR(old->channelInWindowSNR);
 /*
    weight = old->weight;
 
@@ -586,5 +593,6 @@ using namespace std;
    probability = 0;
    numSatChan = 0;
    std::fill(&satChan[0], &satChan[16], 0);
+   std::fill(&channelInWindowSNR[0], &channelInWindowSNR[16], 0.f);
 
    }

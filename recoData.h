@@ -158,6 +158,8 @@ public:
    int numSatChan;
    int satChan[16];
    void setSaturatedChannels(int _numSatChan, int *_satChan);
+   float channelInWindowSNR[16];
+   void setChannelInWindowSNR(float *_channelInWindowSNR);
 
    ClassDef(recoData, 11);
 };
