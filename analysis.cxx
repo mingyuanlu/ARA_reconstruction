@@ -805,7 +805,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    /* Real data, set as 1 */
    summary->setWeight(1);
-   summary->setProbabilities(1);
+   summary->setProbabilities(1,1);
    summary->setSurvivalProbability(1);
 
     //summary->setOnion(onion);
@@ -1411,7 +1411,7 @@ double computeWeight(Settings *settings, Detector *detector, Event *event, IceMo
    double dt = t[index[2]] - t[index[3]];
    if(dt<0){ cerr<<"Error! dt < 0! \n"; return -1; }
 
-   double L0x, L0y, L0z
+   double L0x, L0y, L0z;
    L0x = nnux * dt;
    L0y = nnuy * dt;
    L0z = nnuz * dt;
