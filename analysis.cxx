@@ -1419,8 +1419,7 @@ double computeWeight(Settings *settings, Detector *detector, Event *event, IceMo
 
    double weight = event->Nu_Interaction[0].weight * L_0 / L_int;
 
-   printf("zCenter: %f ox: %f oy: %f oz: %f\nposx: %f posy: %f posz: %f\nnnux: %f nnuy: %f nnuz: %f\nbedrock_z: %f PR: %f\n
-   t0: %f t1: %f t2: %f t3: %f dt: %f\nL0x: %f L0y: %f L0z: %f L_0: %f\nweight: %f\n",
+   printf("zCenter: %f ox: %f oy: %f oz: %f\nposx: %f posy: %f posz: %f\nnnux: %f nnuy: %f nnuz: %f\nbedrock_z: %f PR: %f\nt0: %f t1: %f t2: %f t3: %f dt: %f\nL0x: %f L0y: %f L0z: %f L_0: %f\nweight: %f\n",
    zCenter, ox, oy, oz,
    posx, posy, posz,
    nnux, nnuy, nnuz,
