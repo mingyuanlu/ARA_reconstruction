@@ -1403,7 +1403,7 @@ double computeWeight(Settings *settings, Detector *detector, Event *event, IceMo
    z[1] = bedrock_z;
 
    double a = nnux*nnux + nnuy*nnuy;
-   double b = posx*nnux + posy*nnuy;
+   double b = 2*(posx*nnux + posy*nnuy);
    double c = posx*posx + posy*posy - PR*PR;
    t[2] = (-b + sqrt(b*b-4.*a*c)) / (2.*a);
    z[2] = posz + nnuz * t[2];
