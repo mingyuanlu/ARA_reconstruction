@@ -37,6 +37,7 @@
 #include "Event.h"
 #include "Position.h"
 #include "signal.hh"
+#include "IceModel.h"
 
 ClassImp(recoSettings);
 ClassImp(recoData);
@@ -180,6 +181,7 @@ Detector *detector = 0;
 Event    *event    = 0;
 Report   *report   = 0;
 Trigger  *trigger  = 0;
+IceModel *icemodel = 0;
 
 /*
  * Variables used in dataType == 1 case
@@ -284,6 +286,7 @@ else if (settings->dataType == 0)//AraSim events
    chain.SetBranchAddress("settings",&AraSim_settings);
    chain.SetBranchAddress("detector",&detector);
    chain.SetBranchAddress("trigger" ,&trigger);
+   chain.SetBranchAddress("icemodel", &icemodel);
    chain2.SetBranchAddress("report" ,&report);
    chain2.SetBranchAddress("event"  ,&event);
 
@@ -799,9 +802,10 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
     }
 */
 
-   /* Real data, set weight as 1 */
+   /* Real data, set as 1 */
    summary->setWeight(1);
-   summary->setProbabilities(1,1);
+   summary->setProbabilities(1);
+   summary->setSurvivalProbability(1);
 
     //summary->setOnion(onion);
    summary->setTopN(topN);
@@ -1117,10 +1121,14 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    //recoData *summary = new recoData();
    //if(settings->dataType == 0){
-   summary->setWeight(event->Nu_Interaction[0].weight);
+   //summary->setWeight(event->Nu_Interaction[0].weight);
+   summary->setSurvivalProbability(event->Nu_Interaction[0].weight);
    double L_ice = event->Nu_Interaction[0].len_int_kgm2_total/Signal::RHOICE;
    double p_int = 1.-exp(-1.*(event->Nu_Interaction[0].r_enterice.Distance(event->Nu_Interaction[0].nuexitice)/L_ice)); // probability it interacts in ice along its path
    summary->setProbabilities(p_int, p_int*event->Nu_Interaction[0].weight);
+   double weight = computeWeight(AraSim_settings, detector, event, icemodel, -1.*stationCenterDepth, L_ice);
+   if(weight<0){ cerr<<"Weight compuation error!\n"; return -1; }
+   summary->setWeight(weight);
    summary->setTrueRadius(r_true);
    summary->setTrueDir(zen_true*180./M_PI, azi_true*180./M_PI);
    //}

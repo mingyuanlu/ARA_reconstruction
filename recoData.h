@@ -161,7 +161,14 @@ public:
    float channelInWindowSNR[16];
    void setChannelInWindowSNR(float *_channelInWindowSNR);
 
-   ClassDef(recoData, 11);
+//ClassDef 12
+   double survivalProbability; //AraSim Interaction::weight, represents the survival probability up to the vertex
+   void setSurvivalProbability(double _survivalProbability);
+
+   double computeWeight(Settings *settings, Detector *detector, Event *event, IceModel *antarctica, double zCenter, double L_int);//Computes the forc-interaction-corrected weight, which is simply Interaction::weight * L_0 / L_int, where L_0 is the generation volume thickness as seen by the neutrino. In other words, distance from generation volume entry to exit
+
+   ClassDef(recoData, 12);
+
 };
 
 

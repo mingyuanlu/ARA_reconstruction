@@ -67,6 +67,9 @@ using namespace std;
    std::fill(&satChan[0], &satChan[16], 0);
 
    std::fill(&channelInWindowSNR[0], &channelInWindowSNR[16], 0.f);
+
+   survivalProbability = 0.;
+
    }
 
 
@@ -439,6 +442,12 @@ using namespace std;
 
    }
 
+   void recoData::setSurvivalProbability(double _survivalProbability){
+
+      survivalProbability = _survivalProbability;
+
+   }
+
    void recoData::duplicate(recoSettings *settings, recoData *old){
 
    int *_topMaxPixIdx         = (int*)calloc(old->topN, sizeof(int));
@@ -505,6 +514,7 @@ using namespace std;
    setProbabilities(old->interactionProbability, old->probability);
    setSaturatedChannels(old->numSatChan, old->satChan);
    setChannelInWindowSNR(old->channelInWindowSNR);
+   setSurvivalProbability(old->survivalProbability);
 /*
    weight = old->weight;
 
@@ -594,5 +604,71 @@ using namespace std;
    numSatChan = 0;
    std::fill(&satChan[0], &satChan[16], 0);
    std::fill(&channelInWindowSNR[0], &channelInWindowSNR[16], 0.f);
+   survivalProbability = 0.;
 
+   }
+
+   double computeWeight(Settings *settings, Detector *detector, Event *event, IceModel *antarctica, double zCenter, double L_int){
+
+      /* The correct weight is W = Wprop * Wint = Interaction::weight * L_0 / L_int.
+         The only quatity we need to compute here is L_0.
+      */
+
+      if(zCenter > 0){ cerr<<"zCenter should be <0 ! zCenter="<<zCenter<<endl; return -1; }
+      //double zCenter = -180.;
+      double ox, oy, oz; // coor. of the origin
+      ox = detector->stations[0].GetX();
+      oy = detector->stations[0].GetY();
+      oz = detector->stations[0].GetZ() + zCenter;
+
+      double posx, posy, posz; //vertex position
+      double nnux, nnuy, nnuz; //neutrino direction
+      //double t;                //r = r_0 + t * nnu
+      double t[4]; //0: surface, 1: bedrock, 2: side solution 1, 3: side solution 2
+      int index[4] = {0};
+
+      posx = event->Nu_Interaction[0].posnu.GetX() - ox;
+      posy = event->Nu_Interaction[0].posnu.GetY() - oy;
+      posz = event->Nu_Interaction[0].posnu.GetZ() - oz;
+      nnux = event->Nu_Interaction[0].nnu.GetX();
+      nnuy = event->Nu_Interaction[0].nnu.GetY();
+      nnuz = event->Nu_Interaction[0].nnu.GetZ();
+
+      double bedrock_z = antarctica->Surface(event->Nu_Interaction[0].posnu) - antarctica->IceThickness(event->Nu_Interaction[0].posnu) - oz;
+
+      double PR = settings->POSNU_RADIUS;
+
+      t[0] = (-zCenter - posz) / nnuz;
+      t[1] = (bedrock_z - posz)/ nnuz;
+
+      double a = nnux*nnux + nnuy*nnuy;
+      double b = posx*nnux + posy*nnuy;
+      double c = posx*posx + posy*posy - PR*PR;
+      t[2] = (-b + sqrt(b*b-4.*a*c)) / (2.*a);
+      t[3] = (-b - sqrt(b*b-4.*a*c)) / (2.*a);
+
+      for(int i=0; i<4; i++) t[i] = fabs(t[i]); //only care about the absolute distance
+      TMath::Sort(4, t, index); //in descending order
+      double dt = t[index[2]] - t[index[3]];
+      if(dt<0){ cerr<<"Error! dt < 0! \n"; return -1; }
+
+      double L0x, L0y, L0z
+      L0x = nnux * dt;
+      L0y = nnuy * dt;
+      L0z = nnuz * dt;
+      double L_0 = sqrt(L0x*L0x + L0y*L0y + L0z*L0z);
+
+      double weight = event->Nu_Interaction[0].weight * L_0 / L_int;
+
+      printf("zCenter: %f ox: %f oy: %f oz: %f\nposx: %f posy: %f posz: %f\nnnux: %f nnuy: %f nnuz: %f\nbedrock_z: %f PR: %f\n
+      t0: %f t1: %f t2: %f t3: %f dt: %f\nL0x: %f L0y: %f L0z: %f L_0: %f\nweight: %f\n",
+      zCenter, ox, oy, oz,
+      posx, posy, posz,
+      nnux, nnuy, nnuz,
+      bedrock_z, PR,
+      t[0], t[1], t[2], t[3], dt,
+      L0x, L0y, L0z, L_0,
+      weight);
+
+      return weight;
    }
