@@ -1383,7 +1383,7 @@ double computeWeight(Settings *settings, Detector *detector, Event *event, IceMo
    double posx, posy, posz; //vertex position
    double nnux, nnuy, nnuz; //neutrino direction
    //double t;                //r = r_0 + t * nnu
-   double t[4]; //0: surface, 1: bedrock, 2: side solution 1, 3: side solution 2
+   double t[4], z[4]; //0: surface, 1: bedrock, 2: side solution 1, 3: side solution 2
    int index[4] = {0};
 
    posx = event->Nu_Interaction[0].posnu.GetX() - ox;
@@ -1398,17 +1398,21 @@ double computeWeight(Settings *settings, Detector *detector, Event *event, IceMo
    double PR = settings->POSNU_RADIUS;
 
    t[0] = (-zCenter - posz) / nnuz;
+   z[0] = -zCenter;
    t[1] = (bedrock_z - posz)/ nnuz;
+   z[1] = bedrock_z;
 
    double a = nnux*nnux + nnuy*nnuy;
    double b = posx*nnux + posy*nnuy;
    double c = posx*posx + posy*posy - PR*PR;
    t[2] = (-b + sqrt(b*b-4.*a*c)) / (2.*a);
+   z[2] = posz + nnuz * t[2];
    t[3] = (-b - sqrt(b*b-4.*a*c)) / (2.*a);
+   z[3] = posz + nnuz * t[3];
 
-   for(int i=0; i<4; i++) t[i] = fabs(t[i]); //only care about the absolute distance
-   TMath::Sort(4, t, index); //in descending order
-   double dt = t[index[2]] - t[index[3]];
+   //for(int i=0; i<4; i++) t[i] = fabs(t[i]); //only care about the absolute distance
+   TMath::Sort(4, z, index); //in descending order. index[1] and index[2] represents generation volume entry and exit, order unimportant
+   double dt = fabs(t[index[2]] - t[index[1]]);
    if(dt<0){ cerr<<"Error! dt < 0! \n"; return -1; }
 
    double L0x, L0y, L0z;
@@ -1419,11 +1423,12 @@ double computeWeight(Settings *settings, Detector *detector, Event *event, IceMo
 
    double weight = event->Nu_Interaction[0].weight * L_0 / L_int;
 
-   printf("zCenter: %f ox: %f oy: %f oz: %f\nposx: %f posy: %f posz: %f\nnnux: %f nnuy: %f nnuz: %f\nbedrock_z: %f PR: %f\nt0: %f t1: %f t2: %f t3: %f dt: %f\nL0x: %f L0y: %f L0z: %f L_0: %f\nweight: %f\n",
+   printf("zCenter: %f ox: %f oy: %f oz: %f\nposx: %f posy: %f posz: %f\nnnux: %f nnuy: %f nnuz: %f\nbedrock_z: %f PR: %f\nz0: %f z1: %f z2: %f z3: %f\nt0: %f t1: %f t2: %f t3: %f dt: %f\nL0x: %f L0y: %f L0z: %f L_0: %f\nweight: %f\n",
    zCenter, ox, oy, oz,
    posx, posy, posz,
    nnux, nnuy, nnuz,
    bedrock_z, PR,
+   z[0], z[1], z[2], z[3],
    t[0], t[1], t[2], t[3], dt,
    L0x, L0y, L0z, L_0,
    weight);
