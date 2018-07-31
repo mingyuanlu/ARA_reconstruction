@@ -100,7 +100,7 @@ public:
    wInt_both:
       Default 0.5. The sample step size in nanoseconds for interpolating both pol waveforms, if for some reason one decides to do interferometry with both Vpol and Hpol waveforms
    maxPaddedSample:
-      Default 2048. The number of samples in a padded waveform right before it enters the interferometor.
+      Default 2048. The number of samples in a padded waveform right before it enters the interferometor. Should be a combination of powers of 2, 3, 5, 7.
    recoEventIndex:
       Default -1. The event index to reconstruct. Use eventNumber to specify. Only the event with this index will be reconstructed.
    windowingType:
