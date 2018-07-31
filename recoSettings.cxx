@@ -211,8 +211,8 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
       if( wInt_V < 0 ){                           cerr<<"wInt_V: "<<wInt_V<<endl; errCnt++; }
       if( wInt_H < 0 ){                           cerr<<"wInt_H: "<<wInt_H<<endl; errCnt++; }
       if( wInt_both < 0 ){                        cerr<<"wInt_both: "<<wInt_both<<endl; errCnt++; }
-      if( maxPaddedSample <= 0 || (maxPaddedSample & (maxPaddedSample-1)) ){
-         cerr<<"maxPaddedSample (should be power of 2): "<<maxPaddedSample<<endl; errCnt++; }
+      if( maxPaddedSample <= 0 /*|| (maxPaddedSample & (maxPaddedSample-1))*/ ){
+         cerr<<"maxPaddedSample (should be a combination of powers of 2, 3, 5, 7): "<<maxPaddedSample<<endl; errCnt++; }
       if( recoEventIndex < -1){                   cerr<<"recoEventIndex: "<<recoEventIndex<<endl; errCnt++; }
       if( (unsigned)(windowingType-0) > 2){       cerr<<"windowingType: "<<windowingType<<endl; errCnt++; }
       if( (unsigned)(maskSubThresholdChannels-0) > 1){ cerr<<"maskSubThresholdChannels: "<<maskSubThresholdChannels<<endl; errCnt++; }
