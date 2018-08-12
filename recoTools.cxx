@@ -7114,7 +7114,7 @@ float *MSegment = (float*)calloc(nLayer*nDir, sizeof(float));
 //int maxPixIdx;
 int *segRank = (int*)calloc(nLayer*nDir, sizeof(int));
 int *iterMaxPixIdx = (int*)calloc(numIter, sizeof(int));
-int *iterMaxPixCoherence = (float*)calloc(numIter, sizeof(float));
+float *iterMaxPixCoherence = (float*)calloc(numIter, sizeof(float));
 
 for(int iter=0; iter<numIter; iter++){
 
