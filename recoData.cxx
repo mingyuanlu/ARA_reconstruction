@@ -70,6 +70,9 @@ using namespace std;
 
    survivalProbability = 0.;
 
+   iterMaxPixIdx.clear();
+   iterMaxPixCoherence.clear();
+
    }
 
 
@@ -448,6 +451,20 @@ using namespace std;
 
    }
 
+   void recoData::setIterMaxPixInfo(recoSettings *settings, int *_iterMaxPixIdx, float *_iterMaxPixCoherence){
+
+      iterMaxPixIdx.clear();
+      iterMaxPixCoherence.clear();
+
+      int nAnt = (string(settings->recoPolType)=="both" ? 16 : 8);
+      int numIter = nAnt - settings->nchnlCut + 1;
+      for(int iter=0; iter<numIter; iter++){
+         iterMaxPixIdx.push_back(_iterMaxPixIdx[iter]);
+         iterMaxPixCoherence.push_back(_iterMaxPixCoherence[iter]);
+      }
+
+   }
+
    void recoData::duplicate(recoSettings *settings, recoData *old){
 
    int *_topMaxPixIdx         = (int*)calloc(old->topN, sizeof(int));
@@ -476,6 +493,15 @@ using namespace std;
    for(int i=0; i</*old->onion*/settings->nLayer; i++){
       _maxPixIdxEachLayer2[i]       = old->maxPixIdxEachLayer2[i];
       _maxPixCoherenceEachLayer2[i] = old->maxPixCoherenceEachLayer2[i];
+   }
+
+   int nAnt = (string(settings->recoPolType)=="both" ? 16 : 8);
+   int numIter = nAnt - settings->nchnlCut + 1;
+   int *_iterMaxPixIdx         = (int*)calloc(numIter, sizeof(int));
+   float *_iterMaxPixCoherence = (float*)calloc(numIter, sizeof(float));
+   for(int iter=0; iter<numIter; iter++){
+      _iterMaxPixIdx[iter]       = old->iterMaxPixIdx[iter];
+      _iterMaxPixCoherence[iter] = old->iterMaxPixCoherence[iter];
    }
 
    setAllData(old->eventId,     old->eventNumber
@@ -515,6 +541,7 @@ using namespace std;
    setSaturatedChannels(old->numSatChan, old->satChan);
    setChannelInWindowSNR(old->channelInWindowSNR);
    setSurvivalProbability(old->survivalProbability);
+   setIterMaxPixInfo(settings, _iterMaxPixIdx, _iterMaxPixCoherence);
 /*
    weight = old->weight;
 
@@ -556,6 +583,8 @@ using namespace std;
    free(_topMaxPixCoherence2);
    free(_maxPixIdxEachLayer2);
    free(_maxPixCoherenceEachLayer2);
+   free(_iterMaxPixIdx);
+   free(_iterMaxPixCoherence);
    }
 
    void recoData::clear(){
@@ -605,5 +634,7 @@ using namespace std;
    std::fill(&satChan[0], &satChan[16], 0);
    std::fill(&channelInWindowSNR[0], &channelInWindowSNR[16], 0.f);
    survivalProbability = 0.;
+   iterMaxPixIdx.clear();
+   iterMaxPixCoherence.clear();
 
    }

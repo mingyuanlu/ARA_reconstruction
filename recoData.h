@@ -165,7 +165,12 @@ public:
    double survivalProbability; //AraSim Interaction::weight, represents the survival probability up to the vertex
    void setSurvivalProbability(double _survivalProbability);
 
-   ClassDef(recoData, 12);
+//ClassDef 13
+   vector<int> iterMaxPixIdx;
+   vector<float> iterMaxPixCoherence;
+   void setIterMaxPixInfo(recoSettings *settings, int *_iterMaxPixIdx, float *_iterMaxPixCoherence);
+
+   ClassDef(recoData, 13);
 
 };
 

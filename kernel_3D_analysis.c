@@ -249,6 +249,38 @@ __kernel void computeNormalizedCoherence( __global float *M, __global float *Cij
                                                       //This makes the comparison among events with different numbers of reco channel
                                                       //more natural. 16.15.16
 }
+
+__kernel void computeIterativeNormalizedCoherence( __global float *MIter, __global float *Cij, __global int *index,
+                                          int nAnt, int nGoodChan){
+
+   int gid2 = get_global_id(0); //which iteration
+   int gid0 = get_global_id(1); //which layer
+   int gid1 = get_global_id(2); //which direction
+   int numIter = get_global_size(0);
+   int nLayer  = get_global_size(1);
+   int nDir    = get_global_size(2);
+   //int nAnt = (int)sqrt((float)nBaseline);
+   int nBaseline = nAnt*nAnt;
+   //printf("nAnt in computeCoherence: %d\n", nAnt);
+
+   int nchnlCut = nAnt - numIter + 1;
+   int numChanUsed = nchnlCut + gid2;
+   if(numChanUsed > nAnt) printf("*******Warning! numChanUsed: %d nAnt: %d\n", numChanUsed, nAnt);
+
+   MIter[gid2*nLayer*nDir+gid0*nDir + gid1] = 0.f;
+   int chanCount = 0;
+   for(int i=0; i<numChanUsed; i++){
+     for(int j=i+1; j<numChanUsed; j++){
+      MIter[gid2*nLayer*nDir+gid0*nDir + gid1] += Cij[gid0*nDir*nBaseline + gid1*nBaseline + index[i]*nAnt + index[j]]; //index[i]: chan num of order i
+      chanCount++;
+      }
+   }
+   //M[gid0] = sqrt(M[gid0]*M[gid0]);
+   //M[gid0*nDir + gid1] /= (float)((nAnt*(nAnt-1))/2); //Normalize M by the number of baselines summed.
+   //MIter[gid0*nDir + gid1] /= (float)((nGoodChan*(nGoodChan-1))/2); //Normalize M by the number of baselines summed.
+                                                      //This makes the comparison among events with different numbers of reco channel
+                                                      //more natural. 16.15.16
+}
 /*
 __kernel void bandStopFilter( __global float *full_intensity_r, __global float *full_intensity_c,
                               __global float *intensity_r, __global float *intensity_c,

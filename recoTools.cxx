@@ -174,6 +174,7 @@ int setupCLRecoEnv(recoSettings *settings, recoEnvData *clEnv, const char *progr
    else if (kernel_name=="getMaxPixInfoEachLayer") clEnv->getMaxPixInfoEachLayer =clEnv->kernels[i];
    //else if (kernel_name=="getRecoDelays") getRecoDelays=kernels[i];
    else if (kernel_name=="computeNormalizedCoherence") clEnv->computeNormalizedCoherence =clEnv->kernels[i];
+   else if (kernel_name=="computeIterativeNormalizedCoherence") clEnv->computeIterativeNormalizedCoherence =clEnv->kernels[i];
    else { cerr<<"Invalid kernel name!\n"; return -1; }
 
    }
@@ -6326,7 +6327,7 @@ return maxPixIdx;
 
 int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                 float *recoDelays, float *recoDelays_V, float *recoDelays_H,
-                const int *chanMask, recoData *summary, char *filename, float *mapData)
+                const int *chanMask/*, const float *snrArray*/, const int *index, recoData *summary, char *filename, float *mapData)
 {
 
 cout<<"Entered reconstruct3DXCorrEnvelopeGetMaxPixAndMapData method\n";
@@ -7072,6 +7073,63 @@ fitsOut.create(filename);
 write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
 cout<<"Healpix map written\n";
 
+/*
+ * Iterate over increasing numbers of baselines for coherence computation. Start with channels with highest SNRs and work our way down.
+ * Sum Cij's of selected baselines in each reco direction to obtain coherence M(r-hat)
+ */
+
+int numIter = nAnt - (settings->nchnlCut - 1); //For vpol/hpol and nchnlCut = 3, we use 3-8 channels, so a total of 8-(3-1) = 6 iterations
+float *MIter = (float*)calloc(numIter*nLayer*nDir, sizeof(float));
+cl_mem MIterBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(float)*numIter*nLayer*nDir,
+                  MIter, &err);
+cl_mem indexBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(int)*nAnt, index, &err);
+/*
+clSetKernelArg(clEnv->computeCoherence, 0, sizeof(cl_mem), &MBuffer);
+clSetKernelArg(clEnv->computeCoherence, 1, sizeof(cl_mem), &CijBuffer);
+clSetKernelArg(clEnv->computeCoherence, 2, sizeof(int),    &nBaseline);
+*/
+clSetKernelArg(clEnv->computeIterativeNormalizedCoherence, 0, sizeof(cl_mem), &MIterBuffer);
+clSetKernelArg(clEnv->computeIterativeNormalizedCoherence, 1, sizeof(cl_mem), &CijBuffer);
+clSetKernelArg(clEnv->computeIterativeNormalizedCoherence, 2, sizeof(cl_mem), &indexBuffer);
+clSetKernelArg(clEnv->computeIterativeNormalizedCoherence, 3, sizeof(int),    &nAnt);
+//clSetKernelArg(clEnv->computeIterativeNormalizedCoherence, 4, sizeof(int),    &numIter);
+clSetKernelArg(clEnv->computeIterativeNormalizedCoherence, 4, sizeof(int),    &nGoodChan);
+
+workDim = 3;
+size_t MIterGlobalWorkSize[3] = {(size_t)numIter, (size_t)nLayer, (size_t)nDir};
+
+//clEnqueueNDRangeKernel(clEnv->queue, clEnv->computeCoherence, workDim, NULL, MGlobalWorkSize, NULL, 0, NULL, NULL);
+clEnqueueNDRangeKernel(clEnv->queue, clEnv->computeIterativeNormalizedCoherence, workDim, NULL, MIterGlobalWorkSize, NULL, 0, NULL, NULL);
+clFinish(clEnv->queue);
+clEnqueueReadBuffer(clEnv->queue, MIterBuffer, CL_TRUE, 0, sizeof(float)*numIter*nLayer*nDir, MIter, 0, NULL, NULL);
+err = clFinish(clEnv->queue);
+cout<<"Done computeIterativeNormalizedCoherence\n";
+
+/*
+ * Loop over M to find the max coherence and its pix index
+ */
+
+float MSegment = (float*)calloc(nLayer*nDir, sizeof(float));
+//float max=0.f;
+//int maxPixIdx;
+int *segRank = (int*)calloc(nLayer*nDir, sizeof(int));
+int iterMaxPixIdx = (int*)calloc(numIter, sizeof(int));
+int iterMaxPixCoherence = (float*)calloc(numIter, sizeof(float));
+
+for(int iter=0; iter<numIter; iter++){
+
+   for(int layer=0; layer<nLayer; layer++){
+      for(int dir=0; dir<nDir; dir++){
+         MSegment[layer*nDir+dir] = MIter[iter*nLayer*nDir+layer*nDir+dir];
+      }
+   }
+   TMath::Sort(nLayer*nDir, MSegment, segRank);
+   iterMaxPixIdx[iter] = segRank[0];
+   iterMaxPixCoherence[iter] = MSegment[segRank[0]];
+}
+
+summary->setIterMaxPixInfo(iterMaxPixIdx, iterMaxPixCoherence);
+
 //int nSideExp = 7;
 //Healpix_Base hpBase = Healpix_Base(pow(2,nSideExp), NEST/*RING*/, SET_NSIDE);
 /*
@@ -7147,6 +7205,8 @@ clReleaseMemObject(CijBuffer);
 clReleaseMemObject(MBuffer);
 clReleaseMemObject(maxPixIdxEachLayerBuffer);
 clReleaseMemObject(maxPixCoherenceEachLayerBuffer);
+clReleaseMemObject(MIterBuffer);
+clReleaseMemObject(indexBuffer);
 free(voltsFlat);
 //free(volts);
 //free(recoDelays);
@@ -7163,6 +7223,11 @@ free(topMaxPixIdx);
 free(topMaxPixCoherence);
 free(maxPixIdxEachLayer);
 free(maxPixCoherenceEachLayer);
+free(MIter);
+free(MSegment);
+free(segRank);
+free(iterMaxPixIdx);
+free(iterMaxPixCoherence);
 cout<<"Memories deallocated\n";
 
 return maxPixIdx;
