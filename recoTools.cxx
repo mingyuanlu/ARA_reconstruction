@@ -7109,12 +7109,12 @@ cout<<"Done computeIterativeNormalizedCoherence\n";
  * Loop over M to find the max coherence and its pix index
  */
 
-float MSegment = (float*)calloc(nLayer*nDir, sizeof(float));
+float *MSegment = (float*)calloc(nLayer*nDir, sizeof(float));
 //float max=0.f;
 //int maxPixIdx;
 int *segRank = (int*)calloc(nLayer*nDir, sizeof(int));
-int iterMaxPixIdx = (int*)calloc(numIter, sizeof(int));
-int iterMaxPixCoherence = (float*)calloc(numIter, sizeof(float));
+int *iterMaxPixIdx = (int*)calloc(numIter, sizeof(int));
+int *iterMaxPixCoherence = (float*)calloc(numIter, sizeof(float));
 
 for(int iter=0; iter<numIter; iter++){
 
