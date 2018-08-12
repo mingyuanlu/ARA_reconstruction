@@ -7128,7 +7128,7 @@ for(int iter=0; iter<numIter; iter++){
    iterMaxPixCoherence[iter] = MSegment[segRank[0]];
 }
 
-summary->setIterMaxPixInfo(iterMaxPixIdx, iterMaxPixCoherence);
+summary->setIterMaxPixInfo(settings, iterMaxPixIdx, iterMaxPixCoherence);
 
 //int nSideExp = 7;
 //Healpix_Base hpBase = Healpix_Base(pow(2,nSideExp), NEST/*RING*/, SET_NSIDE);
