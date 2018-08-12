@@ -795,7 +795,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    getChannelUnmodifiedSNR(unpaddedEvent, unmodSNRArray);
    TMath::Sort(16,unmodSNRArray,index);
 
-   snrRank = (string(settings->recoPolType)=="both" ? index : (string(settings->recoPolType)=="vpol" ? index_V : index_H))
+   snrRank = (string(settings->recoPolType)=="both" ? index : (string(settings->recoPolType)=="vpol" ? index_V : index_H));
 
     //recoData *summary = new recoData();
 /*
@@ -1119,7 +1119,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    }
    TMath::Sort(8,snrArray_H,index_H);
 
-   snrRank = (string(settings->recoPolType)=="both" ? index : (string(settings->recoPolType)=="vpol" ? index_V : index_H))
+   snrRank = (string(settings->recoPolType)=="both" ? index : (string(settings->recoPolType)=="vpol" ? index_V : index_H));
 
    getChannelUnmodifiedSNR(unpaddedEvent, unmodSNRArray);
    TMath::Sort(16,unmodSNRArray,index);
