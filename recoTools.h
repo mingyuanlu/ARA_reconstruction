@@ -107,6 +107,7 @@ struct recoEnvData{
    cl_kernel         computeXCorrCoef;
    cl_kernel         computeCoherence;
    cl_kernel         computeNormalizedCoherence;
+   cl_kernel         computeIterativeNormalizedCoherence;
 
    /* Bandpass kernel */
    cl_kernel         bandPassFilter;
@@ -330,7 +331,7 @@ int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(unsigned int dataType, vector<
                     TH1F *xCorrAroundPeakHist[], TGraph *sillygr[]);
 */
 int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
-                    float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask,
+                    float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask, int *index,
                     recoData *summary, char *filename, float *mapData);
 int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_2ndRayReco(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                     float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask,

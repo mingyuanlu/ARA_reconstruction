@@ -6327,7 +6327,7 @@ return maxPixIdx;
 
 int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                 float *recoDelays, float *recoDelays_V, float *recoDelays_H,
-                const int *chanMask/*, const float *snrArray*/, const int *index, recoData *summary, char *filename, float *mapData)
+                const int *chanMask/*, const float *snrArray*/, int *index, recoData *summary, char *filename, float *mapData)
 {
 
 cout<<"Entered reconstruct3DXCorrEnvelopeGetMaxPixAndMapData method\n";

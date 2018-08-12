@@ -171,6 +171,7 @@ float dx, dy, dz;
 float r_true, zen_true, azi_true;
 float recoRecAngles[16], recoLauAngles[16], trueRecAngles[16], trueLauAngles[16];
 bool recoSuccess;
+int *snrRank;
 
 /*
  * Variables used in dataType == 0 case
@@ -794,6 +795,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    getChannelUnmodifiedSNR(unpaddedEvent, unmodSNRArray);
    TMath::Sort(16,unmodSNRArray,index);
 
+   snrRank = (string(settings->recoPolType)=="both" ? index : (string(settings->recoPolType)=="vpol" ? index_V : index_H))
+
     //recoData *summary = new recoData();
 /*
     if(settings->dataType == 0){
@@ -849,7 +852,7 @@ cout<<"*********************************** inWindowSNR_V: "<<summary->inWindowSN
       sprintf(fitsFile, fitsFileStr.c_str());
 
       if(settings->skymapSearchMode == 0){ //no zoom mode
-      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
+      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, snrRank, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
 
       if(settings->use2ndRayReco){
       fitsFileStr = fitsFile_tmp /*+ ".ev" + evStr*/ + ".2ndRay.fits";
@@ -1116,6 +1119,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    }
    TMath::Sort(8,snrArray_H,index_H);
 
+   snrRank = (string(settings->recoPolType)=="both" ? index : (string(settings->recoPolType)=="vpol" ? index_V : index_H))
 
    getChannelUnmodifiedSNR(unpaddedEvent, unmodSNRArray);
    TMath::Sort(16,unmodSNRArray,index);
@@ -1174,7 +1178,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       sprintf(fitsFile, fitsFileStr.c_str());
 
       if(settings->skymapSearchMode == 0){ //no zoom mode
-      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
+      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, snrRank, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
 
       if(settings->use2ndRayReco){
       fitsFileStr = fitsFile_tmp + /*".ev" + evStr +*/ ".2ndRay.fits";
