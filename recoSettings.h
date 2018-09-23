@@ -111,6 +111,8 @@ public:
       Default 1. 0: do not mask saturated channels. 1: mask saturated channels.
    saturationVoltage_mV:
       Default 1500. The saturation voltage value, in mV. Saturation is checked in both +/- voltages.
+   runIterativeReconstruction:
+      Default 0. 0: do not run iterative reconstruction. 1: run iterative reconstruction.
    remark:
       Default "". Any remark one wishes to add to the reco setup file. The remarks will then be carried along in the analysis output ROOT file. Note that number of characters should not exceed CSTRING_MAX defined in recoSettings.h
 */
@@ -193,7 +195,10 @@ public:
    int maskSaturatedChannels;
    double saturationVoltage_mV;
 
-   ClassDef(recoSettings, 12); //2: convert all string parameters to char
+   //ClassDef 13
+   int runIterativeReconstruction;
+
+   ClassDef(recoSettings, 13); //2: convert all string parameters to char
                               //3: add openCLDeviceType and openCLMaxNumberOfDevices parameters
 };
 

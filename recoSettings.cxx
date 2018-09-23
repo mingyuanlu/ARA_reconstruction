@@ -81,6 +81,8 @@ void recoSettings::initialize(){
   maskSaturatedChannels = 1;
   saturationVoltage_mV = 1500.;
 
+  runIterativeReconstruction = 0;
+
   //remark = "Default.";
   snprintf(remark, sizeof(remark), "Default.");
 
@@ -152,6 +154,7 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
             else if(label == "maskSubThresholdChannels") maskSubThresholdChannels = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "maskSaturatedChannels") maskSaturatedChannels = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "saturationVoltage_mV") saturationVoltage_mV = atof( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "runIterativeReconstruction") runIterativeReconstruction = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label != "") cerr<<"Undefined parameter detected. Label: "<<label<<endl;
          }
       }
@@ -218,6 +221,7 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
       if( (unsigned)(maskSubThresholdChannels-0) > 1){ cerr<<"maskSubThresholdChannels: "<<maskSubThresholdChannels<<endl; errCnt++; }
       if( (unsigned)(maskSaturatedChannels-0) > 1){    cerr<<"maskSaturatedChannels: "<<maskSaturatedChannels<<endl; errCnt++; }
       if( saturationVoltage_mV < 0 ){             cerr<<"saturationVoltage_mV: "<<saturationVoltage_mV<<endl; errCnt++; }
+      if( (unsigned)(runIterativeReconstruction-0) > 1){    cerr<<"runIterativeReconstruction: "<<runIterativeReconstruction<<endl; errCnt++; }
       if(nchnlFilter < 1 && maskSubThresholdChannels){ cerr<<"nchnlFilter: "<<nchnlFilter<<" incompatible with maskSubThresholdChannels: "<<maskSubThresholdChannels<<endl; errCnt++;}
       if(errCnt > 0) return false;
 
