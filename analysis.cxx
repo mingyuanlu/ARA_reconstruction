@@ -1174,7 +1174,6 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
          offsetBlockEventCount += 1;
          unpaddedEvent.clear();
          cleanEvent.clear();
-         delete realAtriEvPtr;
          for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; }
          continue;
       }
@@ -1254,7 +1253,6 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
          cwFilteredEventCount+=1;
          unpaddedEvent.clear();
          cleanEvent.clear();
-         delete realAtriEvPtr;
          for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grFFT[ch]; }
          continue;
 
