@@ -113,6 +113,16 @@ public:
       Default 1500. The saturation voltage value, in mV. Saturation is checked in both +/- voltages.
    runIterativeReconstruction:
       Default 0. 0: do not run iterative reconstruction. 1: run iterative reconstruction.
+   offsetBlock_threshold_V:
+      Default -20. The negative threshold in mV for a Vpol channel's rolling mean to go below to count as a offset-block channel.
+   offsetBlock_threshold_H:
+      Default -12. The negative threshold in mV for an Hpol channel's rolling mean to go below to count as a offset-block channel.
+   offsetBlock_timeRangeCut:
+      Default 40. The max time range, in ns, for an event's offset-block channels' peak times to be in to count as an offset-block event. Time range is defined as max(peak times) - min(peak times).
+   cwFilter:
+      Default 0. 0: do not apply CW filter. 1: apply CW filter.
+   minCWCoincidence:
+      Default 3. The minimum number of coincident (in terms of frequency peak) channels for the event to count as a CW event.
    remark:
       Default "". Any remark one wishes to add to the reco setup file. The remarks will then be carried along in the analysis output ROOT file. Note that number of characters should not exceed CSTRING_MAX defined in recoSettings.h
 */
@@ -197,6 +207,11 @@ public:
 
    //ClassDef 13
    int runIterativeReconstruction;
+   double offsetBlock_threshold_V;
+   double offsetBlock_threshold_H;
+   float offsetBlock_timeRangeCut;
+   int cwFilter;
+   int minCWCoincidence;
 
    ClassDef(recoSettings, 13); //2: convert all string parameters to char
                               //3: add openCLDeviceType and openCLMaxNumberOfDevices parameters

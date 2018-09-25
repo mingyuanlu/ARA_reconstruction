@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <sys/stat.h>
+#include <algorithm>
 
 #include "RawIcrrStationEvent.h"
 #include "RawAtriStationEvent.h"
@@ -172,6 +173,8 @@ float r_true, zen_true, azi_true;
 float recoRecAngles[16], recoLauAngles[16], trueRecAngles[16], trueLauAngles[16];
 bool recoSuccess;
 int *snrRank;
+bool dropARA02D4BH, dropARA03D4;
+dropARA02D4BH = dropARA03D4 = false;
 
 /*
  * Variables used in dataType == 0 case
@@ -196,13 +199,28 @@ char dir_char[200];
 AraEventCalibrator *calib;
 vector<vector<double> > pulserLocation;
 AraGeomTool *geom;
-int cutWaveAlert, nonIncreasingSampleTimeAlert;
+int cutWaveAlert, nonIncreasingSampleTimeAlert, mistaggedSoftEventAlert;
 double previous_times;
 double addDelay;
 double times, volts;
 double time_1, time_2, time_last;
 int utime, utime_runStart, utime_runEnd;
 utime_runStart = utime_runEnd = 0;
+
+/*
+ * Variables used in detecting offset blocks
+ */
+
+ int offsetBlockAlert;
+ float maxTime[16];
+ double meanMax[16];
+ double threshold_V = settings->offsetBlock_threshold_V;
+ double threshold_H = settings->offsetBlock_threshold_H;
+ double timeRangeCut = settings->offsetBlock_timeRangeCut;
+ int nChanBelowThres;
+ int nChanBelowThres_Thres;
+ double timeRange;
+ vector<float> maxTimeVec;
 
 /*
  * Variables used in nchnlFilter > 0 case
@@ -212,6 +230,14 @@ double threshold;
 int nchnlArray[3];
 int nchnl_tmp;
 
+/*
+ * Variables used in cwFilter > 0 case
+ */
+
+int minCoincidence = settings->minCWCoincidence;
+int maxCountBin, maxCount;
+double maxCountFreq;
+
 /* End of conditional variables pre-declaration */
 
 int runEventCount, trigEventCount, recoEventCount;
@@ -220,6 +246,10 @@ int runRFEventCount, runCalEventCount, runSoftEventCount;
 runRFEventCount = runCalEventCount = runSoftEventCount = 0;
 int cutWaveEventCount, nonIncreasingSampleTimeEventCount, cutWaveAndNonIncreasingEventCount;
 cutWaveEventCount = nonIncreasingSampleTimeEventCount = cutWaveAndNonIncreasingEventCount = 0;
+int mistaggedSoftEventCount, offsetBlockEventCount;
+mistaggedSoftEventCount = offsetBlockEventCount = 0;
+int nchnlFilteredEventCount, cwFilteredEventCount;
+nchnlFilteredEventCount = cwFilteredEventCount = 0;
 runInfoTree->Branch("runEventCount",  &runEventCount);
 runInfoTree->Branch("runRFEventCount", &runRFEventCount);
 runInfoTree->Branch("runCalEventCount", &runCalEventCount);
@@ -231,6 +261,10 @@ runInfoTree->Branch("utime_runEnd",   &utime_runEnd);
 runInfoTree->Branch("cutWaveEventCount", &cutWaveEventCount);
 runInfoTree->Branch("nonIncreasingSampleTimeEventCount", &nonIncreasingSampleTimeEventCount);
 runInfoTree->Branch("cutWaveAndNonIncreasingEventCount", &cutWaveAndNonIncreasingEventCount);
+runInfoTree->Branch("mistaggedSoftEventCount", &mistaggedSoftEventCount);
+runInfoTree->Branch("offsetBlockEventCount", &offsetBlockEventCount);
+runInfoTree->Branch("cwFilteredEventCount", &cwFilteredEventCount);
+runInfoTree->Branch("nchnlFilteredEventCount", &nchnlFilteredEventCount);
 
 if(settings->dataType == 1)//real events
 {
@@ -452,8 +486,10 @@ if( err<0 ){
    TGraph *grInt[16];
    TGraph *grWinPad[16];
    TGraph *grNormWinPad[16];
-   TGraph *gr_fft[16];
-   TGraph *grHilbert[16];
+   //TGraph *gr_fft[16];
+   //TGraph *grHilbert[16];
+   TGraph *grMean[16];
+   TGraph *grFFT[16];
 
 if(settings->dataType == 1){
 /*
@@ -614,6 +650,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 	  //*** I encountered only a few of them, so maybe this is not ***//
 	  //*** really neccessary anymore. *******************************//
 	  if(gr_v_temp[a]->GetN()<5 ){ cerr<< "BAD EVENT: " << ev << " Channel: " << a << ", points: " << gr_v_temp[a]->GetN() << endl;cutWaveAlert=1; /*cutWaveEventCount++;*/ /*continue;*/}
+     if(gr_v_temp[a]->GetN()<(IRS2IRS2SamplePerBlock*maxSoftTriggerReadoutBlocks)){ mistaggedSoftEventAlert=1; }
 	  int pc = 0;
     gr_v_temp[a]->GetPoint(0, times, volts);
     previous_times = times;
@@ -626,12 +663,17 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
          if(/*times*/(times - previous_times)>20.0)
          {
-         if(stationId==3 && utime_runStart>=dropD4Time && (a%4==3))
-         gr_v[a]->SetPoint(pc, times-addDelay, 0.); //Drop 2014 ARA03 D4
-         else if(stationId==2 && a==15) gr_v[a]->SetPoint(pc, times-addDelay, 0.);//Drop ARA02 D4BH
+         if(stationId==3 && utime_runStart>=dropD4Time && (a%4==3)){
+            gr_v[a]->SetPoint(pc, times-addDelay, 0.); //Drop 2014 ARA03 D4
+            dropARA03D4 = true;
+         }
+         else if(stationId==2 && a==15){
+            gr_v[a]->SetPoint(pc, times-addDelay, 0.);//Drop ARA02 D4BH
+            dropARA02D4BH = true;
+         }
          else {
-         gr_v[a]->SetPoint(pc, times - addDelay, volts);
-         average[a]+=volts;
+            gr_v[a]->SetPoint(pc, times - addDelay, volts);
+            average[a]+=volts;
          }
 		 pc++;
          }
@@ -684,6 +726,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    if (cutWaveAlert == 1 && nonIncreasingSampleTimeAlert == 1){ cutWaveAndNonIncreasingEventCount++; shouldSkip = true; }
    if (cutWaveAlert == 1) { cerr<<"Event "<<ev<<" discarded due to cutWaveAlert\n"; cutWaveEventCount++; shouldSkip = true; }
    if (nonIncreasingSampleTimeAlert == 1) { cerr<<"Event "<<ev<<" discarded due to nonIncreasingSampleTimeAlert\n"; nonIncreasingSampleTimeEventCount++; shouldSkip = true; }
+   if (mistaggedSoftEventAlert == 1) { cerr<<"Event "<<ev<<" discarded due to mistaggedSoftEventAlert\n"; mistaggedSoftEventCount++; shouldSkip = true;}
    if (shouldSkip) continue;
 
    beginTime = 1e10;
@@ -693,6 +736,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       if( t<beginTime ) beginTime = t ;
 
    }
+
+   nChanBelowThres = 0
+   maxTimeVec.clear();
 
    for(int ch=0; ch<16; ch++){
 
@@ -710,8 +756,32 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    /* The task of normalizing wf should be the responsibility of each reco method */
    cleanEvent.push_back(grWinPad[ch]);
 
+   grMean[ch] = evProcessTools::getRollingMeanGraph(grInt[ch], IRS2SamplePerBlock);
+   meanMax[ch] = evProcessTools::getMax(grMean[ch], &maxTime[ch]);
+   if(meanMax[ch]<(ch<8?threshold_V:threshold_H)){
+      nChanBelowThres += 1;
+      maxTimeVec.push_back(maxTime[ch]);
+   }
+
    delete gr_v[ch];
    }//end of ch
+
+   /* Check for offset block */
+
+   nChanBelowThres_Thres = (dropARA02D4BH?15:(dropARA03D4?12:16));
+   if( nChanBelowThres >= nChanBelowThres_Thres ){
+      timeRange = *max_element(maxTimeVec.begin(), maxTimeVec.end()) - *min_element(maxTimeVec.begin(), maxTimeVec.end());
+      cout<<"max element: "<<*max_element(maxTimeVec.begin(), maxTimeVec.end())<<" min element: "<<*min_element(maxTimeVec.begin(), maxTimeVec.end())<<" timeRange: "<<timeRange<<endl;
+      if(timeRange < timeRangeCut){
+         offsetBlockAlert = 1;
+         offsetBlockEventCount += 1;
+         unpaddedEvent.clear();
+         cleanEvent.clear();
+         delete realAtriEvPtr;
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; }
+         continue;
+      }
+   }
 
    numSatChan = getSaturation(settings, unpaddedEvent, satChan);
    summary->setSaturatedChannels(numSatChan, satChan);
@@ -724,26 +794,77 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    //numSatChan = 0;
    if(settings->nchnlFilter > 0){
 
-   //getNchnlMaskSat(unpaddedEvent, threshold, nchnlArray, chanMask, goodChan, numSatChan);
-   getNchnl(settings, unpaddedEvent, threshold, nchnlArray, goodChan);
+      //getNchnlMaskSat(unpaddedEvent, threshold, nchnlArray, chanMask, goodChan, numSatChan);
+      getNchnl(settings, unpaddedEvent, threshold, nchnlArray, goodChan);
 
-   if      (settings->nchnlFilter==1/*recoPolType == "vpol"*/) nchnl_tmp = nchnlArray[1];
-   else if (settings->nchnlFilter==2/*recoPolType == "hpol"*/) nchnl_tmp = nchnlArray[2];
-   else                                                        nchnl_tmp = nchnlArray[0];
+      if      (settings->nchnlFilter==1/*recoPolType == "vpol"*/) nchnl_tmp = nchnlArray[1];
+      else if (settings->nchnlFilter==2/*recoPolType == "hpol"*/) nchnl_tmp = nchnlArray[2];
+      else                                                        nchnl_tmp = nchnlArray[0];
 
-   if(nchnl_tmp < settings->nchnlCut){
+      if(nchnl_tmp < settings->nchnlCut){
 
-      //cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl;
-      unpaddedEvent.clear();
-      cleanEvent.clear();
-      delete realAtriEvPtr;
-      for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; }
-      continue;
-   }
+         nchnlFilteredEventCount+=1;
+         //cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl;
+         unpaddedEvent.clear();
+         cleanEvent.clear();
+         delete realAtriEvPtr;
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; }
+         continue;
+      }
    }
    //else {
    //for(int i=0; i<16; i++) goodChan[i] = chanMask[i];
    //}
+
+
+   /* CW filter */
+
+   if(settings->cwFilter > 0){
+
+      for(int ch=0; ch<16; ch++){
+
+         grFFT[ch] = FFTtools::makePowerSpectrumMilliVoltsNanoSecondsdB(grWinPad[ch]);
+
+         if(ch==0){
+            freqCountLen_V = grFFT[ch]->GetN();
+            freqCount_V = new int [freqCountLen_V];
+            fill(&freqCount_V[0], &freqCount_V[freqCountLen_V], 0);
+            freqBinWidth_V = evProcessTools::getFFTBinWidth(grFFT[ch]);
+         }
+         else if (ch==8){
+            freqCountLen_H = grFFT[ch]->GetN();
+            freqCount_H = new int [freqCountLen_H];
+            fill(&freqCount_H[0], &freqCount_H[freqCountLen_H], 0);
+            freqBinWidth_H = evProcessTools::getFFTBinWidth(grFFT[ch]);
+         }
+
+         int maxFracBin;
+         double maxFrac = FFTtools::getPeakVal(grFFT[ch], &maxFracBin);
+         //cout<<"ch: "<<ch<<" macFrac: "<<maxFrac<<" maxFracBin: "<<maxFracBin<<endl;
+         if(ch<8)
+            freqCount_V[maxFracBin]++;
+         else
+            freqCount_H[maxFracBin]++;
+
+      }//end of ch
+
+      maxCount_V = evProcessTools::getMaxCount(freqCountLen_V, freqCount_V, &maxCountBin, 2); // a coincidence of >= 2 counts as potentially meaningful
+      maxCountFreq_V = freqBinWidth_V * maxCountBin;
+
+      maxCount_H = evProcessTools::getMaxCount(freqCountLen_H, freqCount_H, &maxCountBin, 2);
+      maxCountFreq_H = freqBinWidth_H * maxCountBin;
+
+      if(maxCount_V >= minCWCoincidence || maxCount_H >= minCWCoincidence){
+
+         cwFilteredEventCount+=1;
+         unpaddedEvent.clear();
+         cleanEvent.clear();
+         delete realAtriEvPtr;
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grFFT[ch]; }
+         continue;
+
+      }
+   }
 
    /* Constant N reco for surface filter */
 
@@ -967,12 +1088,14 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
       if(AraSim_settings->DETECTOR_STATION==2 && AraRootChannel-1==15 && settings->dropARA02D4BH==1)//ARA02: always drop D4BH
       {
+         dropARA02D4BH = true;
          for(int s=64; s<nSamp; s++){
             gr_v[AraRootChannel-1]->SetPoint(s-64, report->stations[0].strings[string_i].antennas[antenna_i].time_mimic[s], 0.);
          }
       }
       else if(AraSim_settings->DETECTOR_STATION==3 && AraRootChannel%4==0 && settings->dropARA03D4==1)
       {
+         dropARA03D4 = true;
          for(int s=64; s<nSamp; s++){
             gr_v[AraRootChannel-1]->SetPoint(s-64, report->stations[0].strings[string_i].antennas[antenna_i].time_mimic[s], 0.);
          }
@@ -1011,6 +1134,9 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    }
 
+   nChanBelowThres = 0
+   maxTimeVec.clear();
+
    for(int ch=0; ch<16; ch++){
 
    goodChan[ch] = chanMask[ch];
@@ -1024,8 +1150,32 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    /* The task of normalizing wf should be the responsibility of each reco method */
    cleanEvent.push_back(grWinPad[ch]);
 
+   grMean[ch] = evProcessTools::getRollingMeanGraph(grInt[ch], IRS2SamplePerBlock);
+   meanMax[ch] = evProcessTools::getMax(grMean[ch], &maxTime[ch]);
+   if(meanMax[ch]<(ch<8?threshold_V:threshold_H)){
+      nChanBelowThres += 1;
+      maxTimeVec.push_back(maxTime[ch]);
+   }
+
    delete gr_v[ch];
    }//end of ch
+
+   /* Check for offset block */
+
+   nChanBelowThres_Thres = (dropARA02D4BH?15:(dropARA03D4?12:16));
+   if( nChanBelowThres >= nChanBelowThres_Thres ){
+      timeRange = *max_element(maxTimeVec.begin(), maxTimeVec.end()) - *min_element(maxTimeVec.begin(), maxTimeVec.end());
+      cout<<"max element: "<<*max_element(maxTimeVec.begin(), maxTimeVec.end())<<" min element: "<<*min_element(maxTimeVec.begin(), maxTimeVec.end())<<" timeRange: "<<timeRange<<endl;
+      if(timeRange < timeRangeCut){
+         offsetBlockAlert = 1;
+         offsetBlockEventCount += 1;
+         unpaddedEvent.clear();
+         cleanEvent.clear();
+         delete realAtriEvPtr;
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; }
+         continue;
+      }
+   }
 
    numSatChan = getSaturation(settings, unpaddedEvent, satChan);
    summary->setSaturatedChannels(numSatChan, satChan);
@@ -1050,7 +1200,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       //cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl;
       unpaddedEvent.clear();
       cleanEvent.clear();
-      for(int ch=0; ch<16; ch++){ /*delete gr_v[ch];*/ delete grInt[ch]; delete grWinPad[ch]; }
+      for(int ch=0; ch<16; ch++){ /*delete gr_v[ch];*/ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch];}
       continue;
 
    }
@@ -1058,6 +1208,55 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    //else {
    //for(int i=0; i<16; i++) goodChan[i] = chanMask[i];
    //}
+
+   /* CW filter */
+
+   if(settings->cwFilter > 0){
+
+      for(int ch=0; ch<16; ch++){
+
+         grFFT[ch] = FFTtools::makePowerSpectrumMilliVoltsNanoSecondsdB(grWinPad[ch]);
+
+         if(ch==0){
+            freqCountLen_V = grFFT[ch]->GetN();
+            freqCount_V = new int [freqCountLen_V];
+            fill(&freqCount_V[0], &freqCount_V[freqCountLen_V], 0);
+            freqBinWidth_V = evProcessTools::getFFTBinWidth(grFFT[ch]);
+         }
+         else if (ch==8){
+            freqCountLen_H = grFFT[ch]->GetN();
+            freqCount_H = new int [freqCountLen_H];
+            fill(&freqCount_H[0], &freqCount_H[freqCountLen_H], 0);
+            freqBinWidth_H = evProcessTools::getFFTBinWidth(grFFT[ch]);
+         }
+
+         int maxFracBin;
+         double maxFrac = FFTtools::getPeakVal(grFFT[ch], &maxFracBin);
+         //cout<<"ch: "<<ch<<" macFrac: "<<maxFrac<<" maxFracBin: "<<maxFracBin<<endl;
+         if(ch<8)
+            freqCount_V[maxFracBin]++;
+         else
+            freqCount_H[maxFracBin]++;
+
+      }//end of ch
+
+      maxCount_V = evProcessTools::getMaxCount(freqCountLen_V, freqCount_V, &maxCountBin, 2); // a coincidence of >= 2 counts as potentially meaning
+      maxCountFreq_V = freqBinWidth_V * maxCountBin;
+
+      maxCount_H = evProcessTools::getMaxCount(freqCountLen_H, freqCount_H, &maxCountBin, 2);
+      maxCountFreq_H = freqBinWidth_H * maxCountBin;
+
+      if(maxCount_V >= minCWCoincidence || maxCount_H >= minCWCoincidence){
+
+         cwFilteredEventCount+=1;
+         unpaddedEvent.clear();
+         cleanEvent.clear();
+         delete realAtriEvPtr;
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grFFT[ch]; }
+         continue;
+
+      }
+   }
 
    /* Constant N reco for surface filter */
 
@@ -1248,6 +1447,7 @@ clock_t c_after_event_loop = clock();
 
 cout<<"runEventCount: "<<runEventCount<<" recoEventCount: "<<recoEventCount<<" trigEventCount: "<<trigEventCount<<endl;
 cout<<"cutWaveEventCount: "<<cutWaveEventCount<<" nonIncreasingSampleTimeEventCount: "<<nonIncreasingSampleTimeEventCount<<" cutWaveAndNonIncreasingEventCount: "<<cutWaveAndNonIncreasingEventCount<<endl;
+cout<<"mistaggedSoftEventCount: "<<mistaggedSoftEventCount<<" offsetBlockEventCount: "<<offsetBlockEventCount<<" nchnlFilteredEventCount: "<<nchnlFilteredEventCount<<" cwFilteredEventCount: "<<cwFilteredEventCount<<endl;
 
 runInfoTree->Fill();
 

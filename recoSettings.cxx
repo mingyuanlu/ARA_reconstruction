@@ -83,6 +83,13 @@ void recoSettings::initialize(){
 
   runIterativeReconstruction = 0;
 
+  offsetBlock_threshold_V = -20.;
+  offsetBlock_threshold_H = -12.;
+  offsetBlock_timeRangeCut = 40;
+
+  cwFilter = 0;
+  minCWCoincidence = 3;
+
   //remark = "Default.";
   snprintf(remark, sizeof(remark), "Default.");
 
@@ -155,6 +162,11 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
             else if(label == "maskSaturatedChannels") maskSaturatedChannels = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "saturationVoltage_mV") saturationVoltage_mV = atof( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "runIterativeReconstruction") runIterativeReconstruction = atoi( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "offsetBlock_threshold_V") offsetBlock_threshold_V = atof( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "offsetBlock_threshold_H") offsetBlock_threshold_H = atof( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "offsetBlock_timeRangeCut") offsetBlock_timeRangeCut = atof( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "cwFilter") cwFilter = atoi( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "minCWCoincidence") minCWCoincidence = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label != "") cerr<<"Undefined parameter detected. Label: "<<label<<endl;
          }
       }
@@ -223,6 +235,11 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
       if( saturationVoltage_mV < 0 ){             cerr<<"saturationVoltage_mV: "<<saturationVoltage_mV<<endl; errCnt++; }
       if( (unsigned)(runIterativeReconstruction-0) > 1){    cerr<<"runIterativeReconstruction: "<<runIterativeReconstruction<<endl; errCnt++; }
       if(nchnlFilter < 1 && maskSubThresholdChannels){ cerr<<"nchnlFilter: "<<nchnlFilter<<" incompatible with maskSubThresholdChannels: "<<maskSubThresholdChannels<<endl; errCnt++;}
+      if( offsetBlock_threshold_V >= 0 ){         cerr<<"offsetBlock_threshold_V: "<<offsetBlock_threshold_V<<endl; errCnt++; }
+      if( offsetBlock_threshold_H >= 0 ){         cerr<<"offsetBlock_threshold_H: "<<offsetBlock_threshold_H<<endl; errCnt++; }
+      if( offsetBlock_timeRangeCut < 0 ){         cerr<<"offsetBlock_timeRangeCut: "<<offsetBlock_timeRangeCut<<endl; errCnt++; }
+      if( (unsigned)(cwFilter-0) > 1){            cerr<<"cwFilter: "<<cwFilter<<endl; errCnt++; }
+      if( (unsigned)(minCWCoincidence-0) > 8){    cerr<<"minCWCoincidence: "<<minCWCoincidence<<endl; errCnt++; }
       if(errCnt > 0) return false;
 
    } else { cerr<<"Unable to open "<<sf<<endl; return false; }

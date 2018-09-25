@@ -84,6 +84,11 @@ static double getMeanBaseLine(TGraph *gr);
 static int spikingString(std::vector<TGraph*> gr, int stationId);
 static double modifiedHannWindow(int idx, int numSample, int modFrac);
 static double uniformWindow();
+static double getFFTBinWidth(TGraph *grFFT);
+static int getMaxCount(int freqCountSize, int *freqCount, int *maxCountBin, int minCoindence);
+static TGraph* getRollingMeanGraph(TGraph *grInt, int samplerPerBlock);
+static double getMean(TGraph *gr);
+static double getMax(TGraph *gr, int* maxBin);
 //static double getPeakSqValRange(TGraph *gr, int *index, int firstBin, int lastBin);
 
 };

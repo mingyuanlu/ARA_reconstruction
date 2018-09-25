@@ -31,6 +31,14 @@ using namespace std;
                               //run1946 from 1388840284 - 1388861817
                               //This run covers 2014 Jan. 4 16:00 GMT. After this time ARA03 D4 should be discarded
 
+#define maxSoftTriggerReadoutBlocks 16 //Software triggers are mostly 8-1 blocks, except it is 16-1
+                                       //ARA02 run4879-4934, run5210-5277
+                                       //ARA03 run3918-3974, run4009-4072
+                                       //Since we are cutting away mistagged software triggers, we will just use the max number of
+                                       //blocks - 15, with +1 as some leeway, to distinguish them from RF triggers. RF triggers have
+                                       //typically 21-1 or 26-1 blocks.
+#define IRS2SamplePerBlock 64 //Number of samples per IRS2 capacitor block
+
 //Unix timestamp of 2017 Jan 24 23:48- Jan 25 00:00 (UTC) IC deep pulser string 1 shallow pulser operation. This is in ARA2 run8573
 #define deepPulserString1StartTime_2017 1485301680
 #define deepPulserString1EndTime_2017 1485302400
