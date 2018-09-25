@@ -7074,6 +7074,12 @@ write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
 cout<<"Healpix map written\n";
 
 /* If want to run iterative reconstruciton */
+
+float *MIter;
+cl_mem MIterBuffer, indexBuffer;
+float *MSegment, iterMaxPixCoherence;
+int *segRank, *iterMaxPixIdx;
+
 if (settings->runIterativeReconstruction){
 
    /*
@@ -7082,10 +7088,10 @@ if (settings->runIterativeReconstruction){
     */
 
    int numIter = nAnt - (settings->nchnlCut - 1); //For vpol/hpol and nchnlCut = 3, we use 3-8 channels, so a total of 8-(3-1) = 6 iterations
-   float *MIter = (float*)calloc(numIter*nLayer*nDir, sizeof(float));
-   cl_mem MIterBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(float)*numIter*nLayer*nDir,
+   MIter = (float*)calloc(numIter*nLayer*nDir, sizeof(float));
+   MIterBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(float)*numIter*nLayer*nDir,
                      MIter, &err);
-   cl_mem indexBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(int)*nAnt, index, &err);
+   indexBuffer = clCreateBuffer(clEnv->context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(int)*nAnt, index, &err);
    /*
    clSetKernelArg(clEnv->computeCoherence, 0, sizeof(cl_mem), &MBuffer);
    clSetKernelArg(clEnv->computeCoherence, 1, sizeof(cl_mem), &CijBuffer);
@@ -7112,12 +7118,12 @@ if (settings->runIterativeReconstruction){
     * Loop over M to find the max coherence and its pix index
     */
 
-   float *MSegment = (float*)calloc(nLayer*nDir, sizeof(float));
+   MSegment = (float*)calloc(nLayer*nDir, sizeof(float));
    //float max=0.f;
    //int maxPixIdx;
-   int *segRank = (int*)calloc(nLayer*nDir, sizeof(int));
-   int *iterMaxPixIdx = (int*)calloc(numIter, sizeof(int));
-   float *iterMaxPixCoherence = (float*)calloc(numIter, sizeof(float));
+   segRank = (int*)calloc(nLayer*nDir, sizeof(int));
+   iterMaxPixIdx = (int*)calloc(numIter, sizeof(int));
+   iterMaxPixCoherence = (float*)calloc(numIter, sizeof(float));
 
    for(int iter=0; iter<numIter; iter++){
 
