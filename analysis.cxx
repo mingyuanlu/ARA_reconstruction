@@ -625,6 +625,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       int stationId = realAtriEvPtr->stationId;
       cutWaveAlert = 0;
       nonIncreasingSampleTimeAlert = 0;
+      mistaggedSoftEventAlert = 1;
       previous_times = 0.;
       double stdDelay = 0.;
 
@@ -654,7 +655,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 	  //*** really neccessary anymore. *******************************//
 	  if(gr_v_temp[a]->GetN()<5 ){ cerr<< "BAD EVENT: " << ev << " Channel: " << a << ", points: " << gr_v_temp[a]->GetN() << endl;cutWaveAlert=1; /*cutWaveEventCount++;*/ /*continue;*/}
      cout<<"Nsamp: "<<gr_v_temp[a]->GetN()<<" Soft trig nSamp: "<<IRS2SamplePerBlock*maxSoftTriggerReadoutBlocks<<endl;
-     if(gr_v_temp[a]->GetN()<(IRS2SamplePerBlock*maxSoftTriggerReadoutBlocks)){ mistaggedSoftEventAlert=1; }
+     if(gr_v_temp[a]->GetN()>=(IRS2SamplePerBlock*maxSoftTriggerReadoutBlocks)){ mistaggedSoftEventAlert=0; }
 	  int pc = 0;
     gr_v_temp[a]->GetPoint(0, times, volts);
     previous_times = times;
