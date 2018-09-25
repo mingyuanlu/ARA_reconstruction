@@ -212,7 +212,7 @@ utime_runStart = utime_runEnd = 0;
  */
 
  int offsetBlockAlert;
- float maxTime[16];
+ double maxTime[16];
  double meanMax[16];
  double threshold_V = settings->offsetBlock_threshold_V;
  double threshold_H = settings->offsetBlock_threshold_H;
@@ -220,7 +220,7 @@ utime_runStart = utime_runEnd = 0;
  int nChanBelowThres;
  int nChanBelowThres_Thres;
  double timeRange;
- vector<float> maxTimeVec;
+ vector<double> maxTimeVec;
 
 /*
  * Variables used in nchnlFilter > 0 case
@@ -234,9 +234,12 @@ int nchnl_tmp;
  * Variables used in cwFilter > 0 case
  */
 
-int minCoincidence = settings->minCWCoincidence;
-int maxCountBin, maxCount;
-double maxCountFreq;
+int minCWCoincidence = settings->minCWCoincidence;
+int maxCountBin, maxCount_V, maxCount_H;
+double maxCountFreq_V, maxCountFreq_H;
+int freqCountLen_V, freqCountLen_H;
+int *freqCount_V, *freqCount_H;
+double freqBinWidth_V, freqBinWidth_H;
 
 /* End of conditional variables pre-declaration */
 
@@ -650,7 +653,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 	  //*** I encountered only a few of them, so maybe this is not ***//
 	  //*** really neccessary anymore. *******************************//
 	  if(gr_v_temp[a]->GetN()<5 ){ cerr<< "BAD EVENT: " << ev << " Channel: " << a << ", points: " << gr_v_temp[a]->GetN() << endl;cutWaveAlert=1; /*cutWaveEventCount++;*/ /*continue;*/}
-     if(gr_v_temp[a]->GetN()<(IRS2IRS2SamplePerBlock*maxSoftTriggerReadoutBlocks)){ mistaggedSoftEventAlert=1; }
+     if(gr_v_temp[a]->GetN()<(IRS2SamplePerBlock*maxSoftTriggerReadoutBlocks)){ mistaggedSoftEventAlert=1; }
 	  int pc = 0;
     gr_v_temp[a]->GetPoint(0, times, volts);
     previous_times = times;
@@ -737,7 +740,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    }
 
-   nChanBelowThres = 0
+   nChanBelowThres = 0;
    maxTimeVec.clear();
 
    for(int ch=0; ch<16; ch++){
@@ -1130,11 +1133,11 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    for(int ch=0; ch<16; ch++){
 
       gr_v[ch]->GetPoint(0,t,v);
-      if( t<beginTime ) beginTime = t ;
+      if( t<beginTime ) beginTime = t;
 
    }
 
-   nChanBelowThres = 0
+   nChanBelowThres = 0;
    maxTimeVec.clear();
 
    for(int ch=0; ch<16; ch++){

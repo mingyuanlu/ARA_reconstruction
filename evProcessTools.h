@@ -88,7 +88,7 @@ static double getFFTBinWidth(TGraph *grFFT);
 static int getMaxCount(int freqCountSize, int *freqCount, int *maxCountBin, int minCoindence);
 static TGraph* getRollingMeanGraph(TGraph *grInt, int samplerPerBlock);
 static double getMean(TGraph *gr);
-static double getMax(TGraph *gr, int* maxBin);
+static double getMax(TGraph *gr, double* maxTime);
 //static double getPeakSqValRange(TGraph *gr, int *index, int firstBin, int lastBin);
 
 };

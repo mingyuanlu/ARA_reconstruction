@@ -1709,20 +1709,26 @@ return mean;
 }
 
 
-double evProcessTools::getMax(TGraph* gr, int* maxBin){
+double evProcessTools::getMax(TGraph* gr, double* maxTime){
 
    double max = 0.;
    double x,y;
-   int _maxBin = -1;
+   //int _maxBin = -1;
+   //double t0,t1,v0,v1;
+   //gr->GetPoint(0,t0,v0);
+   //gr->GetPoint(1,t1,v1);
+   //double wInt = t1 - t0;
+   double _maxTime;
+
    for(int i=0; i<gr->GetN(); i++){
       gr->GetPoint(i,x,y);
       if(fabs(y)>fabs(max)){
          max = y;
-         _maxBin = i;
+         _maxTime = x;
       }
    }
 
-   if(maxBin) *maxBin = _maxBin;
+   if(maxTime) *maxTime = _maxTime;
 
    return max;
 }
