@@ -39,13 +39,13 @@ int trackEngine::buildBaselineTracks(const vector< vector<double> >& antLocation
        dy = antLocation[ant2][1] - antLocation[ant1][1];
        dz = antLocation[ant2][2] - antLocation[ant1][2];
        uVec.SetXYZ(dx, dy, dz);
-       cout<<"ant1: "<<ant1<<" ant2: "<<ant2<<" norm "<<uVec.Mag()<<endl;
+       //cout<<"ant1: "<<ant1<<" ant2: "<<ant2<<" norm "<<uVec.Mag()<<endl;
        uVec.Print();
        dt = uVec.Mag() * nIce / speedOfLight;
        tempTime.push_back(dt);
        if(uVec.Mag()==0) tempVec.push_back(zeroVector);
        else              tempVec.push_back(uVec.Unit());
-       cout<<"Unit norm: "<<tempVec[ant2].Mag()<<" tempTime: "<<tempTime[ant2]<<endl;
+       //cout<<"Unit norm: "<<tempVec[ant2].Mag()<<" tempTime: "<<tempTime[ant2]<<endl;
 
       }
    baselineTrackTimes.push_back(tempTime);
