@@ -1634,6 +1634,101 @@ double evProcessTools::uniformWindow(){
 }
 
 /*
+ * Returns the bin width of an FFT waveform.
+ */
+
+double evProcessTools::getFFTBinWidth(TGraph *grFFT){
+
+   double f0,f1,p0,p1;
+   grFFT->GetPoint(0,f0,p0);
+   grFFT->GetPoint(1,f1,p1);
+
+   return f1-f0;
+
+}
+
+/*
+ * Given a frequency count sequence, returns the max bin count, and pass that bin value in maxCountBin.
+ */
+int evProcessTools::getMaxCount(int freqCountSize, int *freqCount, int *maxCountBin, int minCoincidence){
+
+
+  int maxCount = -1;
+  int _maxCountBin = -1;
+
+  for(int bin=0; bin<freqCountSize; bin++){
+     if(freqCount[bin]>maxCount && freqCount[bin] >= minCoincidence){
+        maxCount = freqCount[bin];
+        _maxCountBin = bin;
+     }
+  }
+
+  if(maxCountBin)
+     *maxCountBin = _maxCountBin;
+
+  return maxCount;
+}
+
+/*
+ * Returns a rolling mean graph with a window size samplePerBlock.
+ */
+
+TGraph* evProcessTools::getRollingMeanGraph(TGraph *grInt, int samplePerBlock){
+
+   int nSamp = grInt->GetN();
+   double t0, t1, v0, v1;
+   grInt->GetPoint(0, t0, v0);
+   grInt->GetPoint(1, t1, v1);
+   double wInt = t1 - t0;
+   TGraph *grCrop;
+   TGraph *grMean = new TGraph();
+
+   for(int i=0; i<nSamp-samplePerBlock; i++){
+      grCrop = FFTtools::cropWave(grInt, t0+i*wInt, t0+(i+samplePerBlock)*wInt);
+      grMean->SetPoint(i, wInt*i, evProcessTools::getMean(grCrop));
+      delete grCrop;
+   }
+
+
+   return grMean;
+}
+
+double evProcessTools::getMean(TGraph *gr){
+
+double v, t, mean;
+mean=0;
+
+for(int i=0; i<gr->GetN(); i++){
+
+gr->GetPoint(i,t,v);
+mean+=v;
+}
+
+mean = mean / double(gr->GetN());
+return mean;
+}
+
+
+double evProcessTools::getMax(TGraph* gr, int* maxBin){
+
+   double max = 0.;
+   double x,y;
+   int _maxBin = -1;
+   for(int i=0; i<gr->GetN(); i++){
+      gr->GetPoint(i,x,y);
+      if(fabs(y)>fabs(max)){
+         max = y;
+         _maxBin = i;
+      }
+   }
+
+   if(maxBin) *maxBin = _maxBin;
+
+   return max;
+}
+
+
+/*
 double evProcessTools::getPeakSqValRange(TGraph *gr, int *index, int firstBin, int lastBin)
 {
 
