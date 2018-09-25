@@ -653,6 +653,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 	  //*** I encountered only a few of them, so maybe this is not ***//
 	  //*** really neccessary anymore. *******************************//
 	  if(gr_v_temp[a]->GetN()<5 ){ cerr<< "BAD EVENT: " << ev << " Channel: " << a << ", points: " << gr_v_temp[a]->GetN() << endl;cutWaveAlert=1; /*cutWaveEventCount++;*/ /*continue;*/}
+     cout<<"Nsamp: "<<gr_v_temp[a]->GetN()<<" Soft trig nSamp: "<<IRS2SamplePerBlock*maxSoftTriggerReadoutBlocks<<endl;
      if(gr_v_temp[a]->GetN()<(IRS2SamplePerBlock*maxSoftTriggerReadoutBlocks)){ mistaggedSoftEventAlert=1; }
 	  int pc = 0;
     gr_v_temp[a]->GetPoint(0, times, volts);
@@ -727,9 +728,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    int maxSamp;
    bool shouldSkip = false;
    if (cutWaveAlert == 1 && nonIncreasingSampleTimeAlert == 1){ cutWaveAndNonIncreasingEventCount++; shouldSkip = true; }
-   if (cutWaveAlert == 1) { cerr<<"Event "<<ev<<" discarded due to cutWaveAlert\n"; cutWaveEventCount++; shouldSkip = true; }
-   if (nonIncreasingSampleTimeAlert == 1) { cerr<<"Event "<<ev<<" discarded due to nonIncreasingSampleTimeAlert\n"; nonIncreasingSampleTimeEventCount++; shouldSkip = true; }
-   if (mistaggedSoftEventAlert == 1) { cerr<<"Event "<<ev<<" discarded due to mistaggedSoftEventAlert\n"; mistaggedSoftEventCount++; shouldSkip = true;}
+   if (cutWaveAlert == 1) { cerr<<"Event "<<realAtriEvPtr->eventNumber<<" discarded due to cutWaveAlert\n"; cutWaveEventCount++; shouldSkip = true; }
+   if (nonIncreasingSampleTimeAlert == 1) { cerr<<"Event "<<realAtriEvPtr->eventNumber<<" discarded due to nonIncreasingSampleTimeAlert\n"; nonIncreasingSampleTimeEventCount++; shouldSkip = true; }
+   if (mistaggedSoftEventAlert == 1) { cerr<<"Event "<<realAtriEvPtr->eventNumber<<" discarded due to mistaggedSoftEventAlert\n"; mistaggedSoftEventCount++; shouldSkip = true;}
    if (shouldSkip) continue;
 
    beginTime = 1e10;
