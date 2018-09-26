@@ -40,7 +40,7 @@ int trackEngine::buildBaselineTracks(const vector< vector<double> >& antLocation
        dz = antLocation[ant2][2] - antLocation[ant1][2];
        uVec.SetXYZ(dx, dy, dz);
        //cout<<"ant1: "<<ant1<<" ant2: "<<ant2<<" norm "<<uVec.Mag()<<endl;
-       uVec.Print();
+       //uVec.Print();
        dt = uVec.Mag() * nIce / speedOfLight;
        tempTime.push_back(dt);
        if(uVec.Mag()==0) tempVec.push_back(zeroVector);
