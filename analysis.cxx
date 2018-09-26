@@ -253,6 +253,7 @@ int mistaggedSoftEventCount, offsetBlockEventCount;
 mistaggedSoftEventCount = offsetBlockEventCount = 0;
 int nchnlFilteredEventCount, cwFilteredEventCount;
 nchnlFilteredEventCount = cwFilteredEventCount = 0;
+int corruptFirst3EventCount = 0;
 runInfoTree->Branch("runEventCount",  &runEventCount);
 runInfoTree->Branch("runRFEventCount", &runRFEventCount);
 runInfoTree->Branch("runCalEventCount", &runCalEventCount);
@@ -268,6 +269,7 @@ runInfoTree->Branch("mistaggedSoftEventCount", &mistaggedSoftEventCount);
 runInfoTree->Branch("offsetBlockEventCount", &offsetBlockEventCount);
 runInfoTree->Branch("cwFilteredEventCount", &cwFilteredEventCount);
 runInfoTree->Branch("nchnlFilteredEventCount", &nchnlFilteredEventCount);
+runInfoTree->Branch("corruptFirst3EventCount", &corruptFirst3EventCount);
 
 if(settings->dataType == 1)//real events
 {
@@ -599,6 +601,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    if(settings->recoEventIndex > -1){ //check if only want to reconstruct a specified event
    if(rawAtriEvPtr->eventNumber != settings->recoEventIndex) continue;
    }
+
+
    //cout<<"Code loop ev: "<<ev<<" eventId: "<<rawAtriEvPtr->eventId<<" eventNumber: "<<rawAtriEvPtr->eventNumber<<endl;
    summary->setEventId(rawAtriEvPtr->eventId);
    summary->setEventNumber(rawAtriEvPtr->eventNumber);
@@ -628,6 +632,14 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       mistaggedSoftEventAlert = 1;
       previous_times = 0.;
       double stdDelay = 0.;
+
+//***********CHECK FIRTS 3 EVENTS CORRUPTION*************************
+
+   if ( stationId == 2 && realAtriEvPtr->unixTime >= corruptFirst3EventStartTime && realAtriEvPtr->eventNumber < corruptEventEndEventNumber){
+      corruptFirst3EventCount+=1;
+      delete realAtriEvPtr;
+      continue;
+   }
 
 
    double average[16]={0.};
@@ -732,7 +744,11 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    if (cutWaveAlert == 1) { cerr<<"Event "<<realAtriEvPtr->eventNumber<<" discarded due to cutWaveAlert\n"; cutWaveEventCount++; shouldSkip = true; }
    if (nonIncreasingSampleTimeAlert == 1) { cerr<<"Event "<<realAtriEvPtr->eventNumber<<" discarded due to nonIncreasingSampleTimeAlert\n"; nonIncreasingSampleTimeEventCount++; shouldSkip = true; }
    if (mistaggedSoftEventAlert == 1) { cerr<<"Event "<<realAtriEvPtr->eventNumber<<" discarded due to mistaggedSoftEventAlert\n"; mistaggedSoftEventCount++; shouldSkip = true;}
-   if (shouldSkip) continue;
+   if (shouldSkip){
+      delete realAtriEvPtr;
+      for(int ch=0; ch<16; ch++) delete gr_v[ch];
+      continue;
+   }
 
    beginTime = 1e10;
    for(int ch=0; ch<16; ch++){

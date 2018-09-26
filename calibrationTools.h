@@ -39,6 +39,9 @@ using namespace std;
                                        //typically 21-1 or 26-1 blocks.
 #define IRS2SamplePerBlock 64 //Number of samples per IRS2 capacitor block
 
+#define corruptFirst3EventStartTime 1448485911 //ARA02 run 3 start time
+#define corruptEventEndEventNumber 4
+
 //Unix timestamp of 2017 Jan 24 23:48- Jan 25 00:00 (UTC) IC deep pulser string 1 shallow pulser operation. This is in ARA2 run8573
 #define deepPulserString1StartTime_2017 1485301680
 #define deepPulserString1EndTime_2017 1485302400
