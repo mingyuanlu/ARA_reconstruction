@@ -172,10 +172,12 @@ public:
 
 //ClassDef 14
    int maxFreqBin[16];
+   double maxFreqPower[16];
    double freqBinWidth_V, freqBinWidth_H;
    double maxCountFreq_V, maxCountFreq_H;
    void setMaxFreqBin(int *_maxFreqBin);
-   void setMaxFreqBinByChannel(int ch, int _maxFreqBin);
+   void setMaxFreqPower(double *_maxFreqPower);
+   void setMaxFreqBinByChannel(int ch, int _maxFreqBin, double _maxFreqPower);
    void setFreqBinWidth(double _freqBinWidth_V, double _freqBinWidth_H);
    void setMaxCountFreq(double _maxCountFreq_V, double _maxCountFreq_H);
 
