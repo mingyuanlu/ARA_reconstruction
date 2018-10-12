@@ -870,7 +870,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
       }//end of ch
 
-      summy->setFreqBinWidth(freqBinWidth_V, freqBinWidth_H);
+      summary->setFreqBinWidth(freqBinWidth_V, freqBinWidth_H);
 
       maxCount_V = evProcessTools::getMaxCount(freqCountLen_V, freqCount_V, &maxCountBin, 2); // a coincidence of >= 2 counts as potentially meaningful
       maxCountFreq_V = freqBinWidth_V * maxCountBin;
@@ -1255,7 +1255,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
             freqBinWidth_H = evProcessTools::getFFTBinWidth(grFFT[ch]);
          }
 
-         summray->setFreqBinWidth(freqBinWidth_V, freqBinWidth_H);
+         summary->setFreqBinWidth(freqBinWidth_V, freqBinWidth_H);
 
          int maxFracBin;
          double maxFrac = FFTtools::getPeakVal(grFFT[ch], &maxFracBin);
