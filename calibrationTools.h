@@ -42,6 +42,9 @@ using namespace std;
 #define corruptFirst3EventStartTime 1448485911 //ARA02 run 3 start time
 #define corruptEventEndEventNumber 4
 
+#define ARA02D1CorruptionStartTime 1448485911 //ARA02 run 3, 11, 59, 60
+#define ARA02D1CorruptionEndTime 1448954419
+
 //Unix timestamp of 2017 Jan 24 23:48- Jan 25 00:00 (UTC) IC deep pulser string 1 shallow pulser operation. This is in ARA2 run8573
 #define deepPulserString1StartTime_2017 1485301680
 #define deepPulserString1EndTime_2017 1485302400

@@ -254,6 +254,7 @@ mistaggedSoftEventCount = offsetBlockEventCount = 0;
 int nchnlFilteredEventCount, cwFilteredEventCount;
 nchnlFilteredEventCount = cwFilteredEventCount = 0;
 int corruptFirst3EventCount = 0;
+int corruptD1EventCount = 0;
 runInfoTree->Branch("runEventCount",  &runEventCount);
 runInfoTree->Branch("runRFEventCount", &runRFEventCount);
 runInfoTree->Branch("runCalEventCount", &runCalEventCount);
@@ -270,6 +271,7 @@ runInfoTree->Branch("offsetBlockEventCount", &offsetBlockEventCount);
 runInfoTree->Branch("cwFilteredEventCount", &cwFilteredEventCount);
 runInfoTree->Branch("nchnlFilteredEventCount", &nchnlFilteredEventCount);
 runInfoTree->Branch("corruptFirst3EventCount", &corruptFirst3EventCount);
+runInfoTree->Branch("corruptD1EventCount", &corruptD1EventCount);
 
 if(settings->dataType == 1)//real events
 {
@@ -632,6 +634,14 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       mistaggedSoftEventAlert = 1;
       previous_times = 0.;
       double stdDelay = 0.;
+
+//***********CHECK ARA02 D1 CORRUPTION*******************************
+
+   if( stationId == 2 && realAtriEvPtr->unixTime >= ARA02D1CorruptionStartTime && realAtriEvPtr->unixTime <= ARA02D1ARA02D1CorruptionEndTime){
+      corruptD1EventCount+=1;
+      delete realAtriEvPtr;
+      continue;
+   }
 
 //***********CHECK FIRTS 3 EVENTS CORRUPTION*************************
 
@@ -1475,7 +1485,7 @@ time_t t_after_event_loop = time(NULL);
 clock_t c_after_event_loop = clock();
 
 cout<<"runEventCount: "<<runEventCount<<" recoEventCount: "<<recoEventCount<<" trigEventCount: "<<trigEventCount<<endl;
-cout<<"cutWaveEventCount: "<<cutWaveEventCount<<" nonIncreasingSampleTimeEventCount: "<<nonIncreasingSampleTimeEventCount<<" cutWaveAndNonIncreasingEventCount: "<<cutWaveAndNonIncreasingEventCount<<" corruptFirst3EventCount: "<<corruptFirst3EventCount<<endl;
+cout<<"cutWaveEventCount: "<<cutWaveEventCount<<" nonIncreasingSampleTimeEventCount: "<<nonIncreasingSampleTimeEventCount<<" cutWaveAndNonIncreasingEventCount: "<<cutWaveAndNonIncreasingEventCount<<" corruptD1EventCount: "<<corruptD1EventCount<<" corruptFirst3EventCount: "<<corruptFirst3EventCount<<endl;
 cout<<"mistaggedSoftEventCount: "<<mistaggedSoftEventCount<<" offsetBlockEventCount: "<<offsetBlockEventCount<<" nchnlFilteredEventCount: "<<nchnlFilteredEventCount<<" cwFilteredEventCount: "<<cwFilteredEventCount<<endl;
 
 runInfoTree->Fill();
