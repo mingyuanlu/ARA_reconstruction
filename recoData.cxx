@@ -73,6 +73,11 @@ using namespace std;
    iterMaxPixIdx.clear();
    iterMaxPixCoherence.clear();
 
+   std::fill(&maxFreqBin[0], &maxFreqBin[16], 0);
+   std::fill(&maxFreqPower[0], &maxFreqPower[16], 0.);
+   freqBinWidth_V = freqBinWidth_H = 0.;
+   maxCountFreq_V = maxCountFreq_H = 0.;
+
    }
 
 
@@ -465,6 +470,40 @@ using namespace std;
 
    }
 
+   void recoData::setMaxFreqBin(int *_maxFreqBin){
+
+      for(int i=0; i<16; i++) maxFreqBin[i] = _maxFreqBin[i];
+
+   }
+
+   void recoData::setMaxFreqPower(double *_maxFreqPower){
+
+      for(int i=0; i<16; i++) maxFreqPower[i] = _maxFreqPower[i];
+
+   }
+
+   void recoData::setMaxFreqBinByChannel(int ch, int _maxFreqBin, double _maxFreqPower){
+
+      if( ch < 0 || ch > 15 ){ cerr<<"ch out of range 0-15: "<<ch<<endl; }
+      maxFreqBin[ch] = _maxFreqBin;
+      maxFreqPower[ch] = _maxFreqPower;
+
+   }
+
+   void recoData::setFreqBinWidth(double _freqBinWidth_V, double _freqBinWidth_H){
+
+      freqBinWidth_V = _freqBinWidth_V;
+      freqBinWidth_H = _freqBinWidth_H;
+
+   }
+
+   void recoData::setMaxCountFreq(double _maxCountFreq_V, double _maxCountFreq_H){
+
+      maxCountFreq_V = _maxCountFreq_V;
+      maxCountFreq_H = _maxCountFreq_H;
+
+   }
+
    void recoData::duplicate(recoSettings *settings, recoData *old){
 
    int *_topMaxPixIdx         = (int*)calloc(old->topN, sizeof(int));
@@ -542,6 +581,10 @@ using namespace std;
    setChannelInWindowSNR(old->channelInWindowSNR);
    setSurvivalProbability(old->survivalProbability);
    setIterMaxPixInfo(settings, _iterMaxPixIdx, _iterMaxPixCoherence);
+   setMaxFreqBin(old->maxFreqBin);
+   setMaxFreqPower(old->maxFreqPower);
+   setFreqBinWidth(old->freqBinWidth_V, old->freqBinWidth_H);
+   setMaxCountFreq(old->maxCountFreq_V, old->maxCountFreq_H);
 /*
    weight = old->weight;
 
@@ -636,5 +679,9 @@ using namespace std;
    survivalProbability = 0.;
    iterMaxPixIdx.clear();
    iterMaxPixCoherence.clear();
+   std::fill(&maxFreqBin[0], &maxFreqBin[16], 0);
+   std::fill(&maxFreqPower[0], &maxFreqPower[16], 0.);
+   freqBinWidth_V = freqBinWidth_H = 0.;
+   maxCountFreq_V = maxCountFreq_H = 0.;
 
    }
