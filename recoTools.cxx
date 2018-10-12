@@ -12995,7 +12995,8 @@ int getSaturation(recoSettings *settings, const vector<TGraph *>& cleanEvent, in
             /* check if saturated at +/- 1500mV */
             //if( fabs( fabs(v) - 1500. ) < 0.5 ){
 
-            if( fabs( fabs(v) - settings->saturationVoltage_mV ) < 0.5 ){
+            //if( fabs( fabs(v) - settings->saturationVoltage_mV ) < 0.5 ){
+            if( fabs(v) >= settings->saturationVoltage_mV){
 
                //saturated[ch] = 1;
                satChan[ch] = 1;
