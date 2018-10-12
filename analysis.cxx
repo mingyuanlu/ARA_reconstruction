@@ -637,7 +637,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
 //***********CHECK ARA02 D1 CORRUPTION*******************************
 
-   if( stationId == 2 && realAtriEvPtr->unixTime >= ARA02D1CorruptionStartTime && realAtriEvPtr->unixTime <= ARA02D1ARA02D1CorruptionEndTime){
+   if( stationId == 2 && realAtriEvPtr->unixTime >= ARA02D1CorruptionStartTime && realAtriEvPtr->unixTime <= ARA02D1CorruptionEndTime){
       corruptD1EventCount+=1;
       delete realAtriEvPtr;
       continue;
