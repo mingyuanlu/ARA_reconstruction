@@ -255,6 +255,11 @@ int nchnlFilteredEventCount, cwFilteredEventCount;
 nchnlFilteredEventCount = cwFilteredEventCount = 0;
 int corruptFirst3EventCount = 0;
 int corruptD1EventCount = 0;
+double weightedTrigEventCount = 0.;
+double weightedRecoEventCount = 0.;
+double weightedOffsetBlockEventCount = 0.;
+double weightedNchnlFilteredEventCount = 0.;
+double weightedCWFilteredEventCount = 0.;
 runInfoTree->Branch("runEventCount",  &runEventCount);
 runInfoTree->Branch("runRFEventCount", &runRFEventCount);
 runInfoTree->Branch("runCalEventCount", &runCalEventCount);
@@ -272,6 +277,11 @@ runInfoTree->Branch("cwFilteredEventCount", &cwFilteredEventCount);
 runInfoTree->Branch("nchnlFilteredEventCount", &nchnlFilteredEventCount);
 runInfoTree->Branch("corruptFirst3EventCount", &corruptFirst3EventCount);
 runInfoTree->Branch("corruptD1EventCount", &corruptD1EventCount);
+runInfoTree->Branch("weightedTrigEventCount", &weightedTrigEventCount);
+runInfoTree->Branch("weightedRecoEventCount", &weightedRecoEventCount);
+runInfoTree->Branch("weightedOffsetBlockEventCount", &weightedOffsetBlockEventCount);
+runInfoTree->Branch("weightedNchnlFilteredEventCount", &weightedNchnlFilteredEventCount);
+runInfoTree->Branch("weightedCWFilteredEventCount", &weightedCWFilteredEventCount);
 
 if(settings->dataType == 1)//real events
 {
@@ -1097,7 +1107,16 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    chain2.GetEntry(ev);
    if(report->stations[0].Global_Pass > 0){
 
+      summary->setSurvivalProbability(event->Nu_Interaction[0].weight);
+      double L_ice = event->Nu_Interaction[0].len_int_kgm2_total/Signal::RHOICE;
+      double p_int = 1.-exp(-1.*(event->Nu_Interaction[0].r_enterice.Distance(event->Nu_Interaction[0].nuexitice)/L_ice)); // probability it interacts in ice along its path
+      summary->setProbabilities(p_int, p_int*event->Nu_Interaction[0].weight);
+      double weight = computeWeight(AraSim_settings, detector, event, icemodel, -1.*stationCenterDepth, L_ice);
+      if(weight<0){ cerr<<"Weight compuation error!\n"; return -1; }
+      summary->setWeight(weight);
+
       trigEventCount++;
+      weightedTrigEventCount+=weight;
       dx = event->Nu_Interaction[0].posnu.GetX()-detector->stations[0].GetX();
       dy = event->Nu_Interaction[0].posnu.GetY()-detector->stations[0].GetY();
       dz = event->Nu_Interaction[0].posnu.GetZ()-detector->stations[0].GetZ() + stationCenterDepth;
@@ -1205,6 +1224,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       if(timeRange < timeRangeCut){
          offsetBlockAlert = 1;
          offsetBlockEventCount += 1;
+         weightedOffsetBlockEventCount += weight;
          unpaddedEvent.clear();
          cleanEvent.clear();
          for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; }
@@ -1233,6 +1253,8 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    if(nchnl_tmp < settings->nchnlCut){
 
       //cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl;
+      nchnlFilteredEventCount += 1;
+      weightedNchnlFilteredEventCount += weight;
       unpaddedEvent.clear();
       cleanEvent.clear();
       for(int ch=0; ch<16; ch++){ /*delete gr_v[ch];*/ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch];}
@@ -1289,6 +1311,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       if(maxCount_V >= minCWCoincidence || maxCount_H >= minCWCoincidence){
 
          cwFilteredEventCount+=1;
+         weightedCWFilteredEventCount += weight;
          unpaddedEvent.clear();
          cleanEvent.clear();
          for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grFFT[ch]; }
@@ -1365,13 +1388,13 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    //recoData *summary = new recoData();
    //if(settings->dataType == 0){
    //summary->setWeight(event->Nu_Interaction[0].weight);
-   summary->setSurvivalProbability(event->Nu_Interaction[0].weight);
-   double L_ice = event->Nu_Interaction[0].len_int_kgm2_total/Signal::RHOICE;
-   double p_int = 1.-exp(-1.*(event->Nu_Interaction[0].r_enterice.Distance(event->Nu_Interaction[0].nuexitice)/L_ice)); // probability it interacts in ice along its path
-   summary->setProbabilities(p_int, p_int*event->Nu_Interaction[0].weight);
-   double weight = computeWeight(AraSim_settings, detector, event, icemodel, -1.*stationCenterDepth, L_ice);
-   if(weight<0){ cerr<<"Weight compuation error!\n"; return -1; }
-   summary->setWeight(weight);
+//   summary->setSurvivalProbability(event->Nu_Interaction[0].weight);
+//   double L_ice = event->Nu_Interaction[0].len_int_kgm2_total/Signal::RHOICE;
+//   double p_int = 1.-exp(-1.*(event->Nu_Interaction[0].r_enterice.Distance(event->Nu_Interaction[0].nuexitice)/L_ice)); // probability it interacts in ice along its path
+//   summary->setProbabilities(p_int, p_int*event->Nu_Interaction[0].weight);
+//   double weight = computeWeight(AraSim_settings, detector, event, icemodel, -1.*stationCenterDepth, L_ice);
+//   if(weight<0){ cerr<<"Weight compuation error!\n"; return -1; }
+//   summary->setWeight(weight);
    summary->setTrueRadius(r_true);
    summary->setTrueDir(zen_true*180./M_PI, azi_true*180./M_PI);
    //}
@@ -1392,7 +1415,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    }
 
    recoEventCount++;
-
+   weightedRecoEventCount += weight;
    /* Reco with radiospline */
 
    recoSuccess = false;
