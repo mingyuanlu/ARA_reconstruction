@@ -187,6 +187,7 @@ Event    *event    = 0;
 Report   *report   = 0;
 Trigger  *trigger  = 0;
 IceModel *icemodel = 0;
+double weight;
 
 /*
  * Variables used in dataType == 1 case
@@ -1111,7 +1112,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       double L_ice = event->Nu_Interaction[0].len_int_kgm2_total/Signal::RHOICE;
       double p_int = 1.-exp(-1.*(event->Nu_Interaction[0].r_enterice.Distance(event->Nu_Interaction[0].nuexitice)/L_ice)); // probability it interacts in ice along its path
       summary->setProbabilities(p_int, p_int*event->Nu_Interaction[0].weight);
-      double weight = computeWeight(AraSim_settings, detector, event, icemodel, -1.*stationCenterDepth, L_ice);
+      weight = computeWeight(AraSim_settings, detector, event, icemodel, -1.*stationCenterDepth, L_ice);
       if(weight<0){ cerr<<"Weight compuation error!\n"; return -1; }
       summary->setWeight(weight);
 
