@@ -78,6 +78,8 @@ using namespace std;
    freqBinWidth_V = freqBinWidth_H = 0.;
    maxCountFreq_V = maxCountFreq_H = 0.;
 
+   timeSequenceParameter = 0.;
+
    }
 
 
@@ -504,6 +506,12 @@ using namespace std;
 
    }
 
+   void recoData::setTimeSequenceParameter(double _timeSequenceParameter){
+
+      timeSequenceParameter = _timeSequenceParameter;
+
+   }
+
    void recoData::duplicate(recoSettings *settings, recoData *old){
 
    int *_topMaxPixIdx         = (int*)calloc(old->topN, sizeof(int));
@@ -585,6 +593,7 @@ using namespace std;
    setMaxFreqPower(old->maxFreqPower);
    setFreqBinWidth(old->freqBinWidth_V, old->freqBinWidth_H);
    setMaxCountFreq(old->maxCountFreq_V, old->maxCountFreq_H);
+   setTimeSequenceParameter(old->timeSequenceParameter);
 /*
    weight = old->weight;
 
@@ -683,5 +692,6 @@ using namespace std;
    std::fill(&maxFreqPower[0], &maxFreqPower[16], 0.);
    freqBinWidth_V = freqBinWidth_H = 0.;
    maxCountFreq_V = maxCountFreq_H = 0.;
+   timeSequenceParameter = 0.;
 
    }
