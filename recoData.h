@@ -181,7 +181,11 @@ public:
    void setFreqBinWidth(double _freqBinWidth_V, double _freqBinWidth_H);
    void setMaxCountFreq(double _maxCountFreq_V, double _maxCountFreq_H);
 
-   ClassDef(recoData, 14);
+//ClassDef 15
+   double timeSequenceParameter;
+   void setTimeSequenceParameter(double _timeSequenceParameter);
+
+   ClassDef(recoData, 15);
 
 };
 
