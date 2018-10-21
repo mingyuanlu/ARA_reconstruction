@@ -12,7 +12,7 @@ using namespace std;
 
    void recoData::initialize(){
 
-   weight = 0.;
+   weight = 1.;
    trueZen = trueAzi = recoZen = recoAzi = 0.f;
    trueRadius = recoRadius = 0.f;
    std::fill(&recoChan[0], &recoChan[16], 0);
@@ -641,7 +641,7 @@ using namespace std;
 
    void recoData::clear(){
 
-   weight = 0.;
+   weight = 1.;
    trueZen = trueAzi = recoZen = recoAzi = 0.f;
    trueRadius = recoRadius = 0.f;
    std::fill(&recoRecAngle[0], &recoRecAngle[16], -1.);
