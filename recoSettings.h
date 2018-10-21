@@ -36,7 +36,7 @@ public:
       Default 111. This is a three digit code specifying what kind of events to reco. Only meaningful when analyzing real data.
       1st digit: RF non-calpulser trigger. 2nd digit: RF calpulser trigger. 3rd digit: software trigger. 0: do not reco. 1: do reco
    layerAllocationMode:
-      Default 0. 0: nonlinear separation betweem layers. 1: linear separation between layers.
+      Default 0. 0: linear separation betweem layers. 1: nonlinear separation between layers.
    skymapSearchMode:
       Default 0. 0: one pixelation throughout the entire search. 1: multi-step grid search with increasing pixelation - aka zoom approach.
    beamformMethod:

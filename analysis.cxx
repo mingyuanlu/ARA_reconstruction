@@ -863,6 +863,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    if(settings->cwFilter > 0){
 
+      bool isCW = false;
       for(int ch=0; ch<16; ch++){
 
          grFFT[ch] = FFTtools::makePowerSpectrumMilliVoltsNanoSecondsdB(grWinPad[ch]);
@@ -901,7 +902,42 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
       summary->setMaxCountFreq(maxCountFreq_V, maxCountFreq_H);
 
-      if(maxCount_V >= minCWCoincidence || maxCount_H >= minCWCoincidence){
+      /* If coincidence >= minCWCoincidence */
+      if(maxCount_V >= minCWCoincidence || maxCount_H >= minCWCoincidence) isCW = true;
+
+      /* If coincidence = minCWCoincidence - 1 and there is at least one neighboring peak bin */
+
+      //Check Vpol
+      if (!isCW){
+         if( ((freqCount_V[0] == minCWCoincidence-1) && (freqCount_V[1] > 0) )) ||
+             ((freqCount_V[freqCountLen_V-1] == minCWCoincidence-1) && (freqCount_V[freqCountLen_V-2] > 0))
+          ) isCW = true;
+      }
+      if (!isCW){
+          for(int i=1; i<freqCountLen_V-1; i++){
+             if(freqCount_V[i]==minCWCoincidence-1 && (freqCount_V[i-1]>0 || freqCount_V[i+1]>0)){
+                isCW = true;
+                break;
+             }
+          }
+      }
+
+      //Check Hpol
+      if (!isCW){
+         if( ((freqCount_H[0] == minCWCoincidence-1) && (freqCount_H[1] > 0) )) ||
+             ((freqCount_H[freqCountLen_H-1] == minCWCoincidence-1) && (freqCount_H[freqCountLen_H-2] > 0))
+          ) isCW = true;
+      }
+      if (!isCW){
+          for(int i=1; i<freqCountLen_H-1; i++){
+             if(freqCount_H[i]==minCWCoincidence-1 && (freqCount_H[i-1]>0 || freqCount_H[i+1]>0)){
+                isCW = true;
+                break;
+             }
+          }
+      }
+
+      if(isCW){
 
          cwFilteredEventCount+=1;
          unpaddedEvent.clear();
@@ -1078,7 +1114,7 @@ cout<<"*********************************** inWindowSNR_V: "<<summary->inWindowSN
    delete realAtriEvPtr;
    //delete summary;
    treg->clearForNextEvent();
-   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; }
+   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grFFT[ch]; }
    }//end of ev loop
 
    fp->Close();
@@ -1271,6 +1307,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    if(settings->cwFilter > 0){
 
+      bool isCW = false;
       for(int ch=0; ch<16; ch++){
 
          grFFT[ch] = FFTtools::makePowerSpectrumMilliVoltsNanoSecondsdB(grWinPad[ch]);
@@ -1309,7 +1346,42 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
       summary->setMaxCountFreq(maxCountFreq_V, maxCountFreq_H);
 
-      if(maxCount_V >= minCWCoincidence || maxCount_H >= minCWCoincidence){
+      /* If coincidence >= minCWCoincidence */
+      if(maxCount_V >= minCWCoincidence || maxCount_H >= minCWCoincidence) isCW = true;
+
+      /* If coincidence = minCWCoincidence - 1 and there is at least one neighboring peak bin */
+
+      //Check Vpol
+      if (!isCW){
+         if( ((freqCount_V[0] == minCWCoincidence-1) && (freqCount_V[1] > 0) )) ||
+             ((freqCount_V[freqCountLen_V-1] == minCWCoincidence-1) && (freqCount_V[freqCountLen_V-2] > 0))
+          ) isCW = true;
+      }
+      if (!isCW){
+          for(int i=1; i<freqCountLen_V-1; i++){
+             if(freqCount_V[i]==minCWCoincidence-1 && (freqCount_V[i-1]>0 || freqCount_V[i+1]>0)){
+                isCW = true;
+                break;
+             }
+          }
+      }
+
+      //Check Hpol
+      if (!isCW){
+         if( ((freqCount_H[0] == minCWCoincidence-1) && (freqCount_H[1] > 0) )) ||
+             ((freqCount_H[freqCountLen_H-1] == minCWCoincidence-1) && (freqCount_H[freqCountLen_H-2] > 0))
+          ) isCW = true;
+      }
+      if (!isCW){
+          for(int i=1; i<freqCountLen_H-1; i++){
+             if(freqCount_H[i]==minCWCoincidence-1 && (freqCount_H[i-1]>0 || freqCount_H[i+1]>0)){
+                isCW = true;
+                break;
+             }
+          }
+      }
+
+      if(isCW){
 
          cwFilteredEventCount+=1;
          weightedCWFilteredEventCount += weight;
@@ -1499,7 +1571,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    cleanEvent.clear();
    //delete summary;
    treg->clearForNextEvent();
-   for(int ch=0; ch<16; ch++){ /*delete gr_v[ch];*/ delete grInt[ch]; delete grWinPad[ch]; }
+   for(int ch=0; ch<16; ch++){ /*delete gr_v[ch];*/ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grFFT[ch]; }
    }//end of ev loop
 
 }//end of dataType == 0
