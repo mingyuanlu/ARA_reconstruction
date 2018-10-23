@@ -909,7 +909,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
       //Check Vpol
       if (!isCW){
-         if( ((freqCount_V[0] == minCWCoincidence-1) && (freqCount_V[1] > 0) )) ||
+         if( ((freqCount_V[0] == minCWCoincidence-1) && (freqCount_V[1] > 0) ) ||
              ((freqCount_V[freqCountLen_V-1] == minCWCoincidence-1) && (freqCount_V[freqCountLen_V-2] > 0))
           ) isCW = true;
       }
@@ -924,7 +924,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
       //Check Hpol
       if (!isCW){
-         if( ((freqCount_H[0] == minCWCoincidence-1) && (freqCount_H[1] > 0) )) ||
+         if( ((freqCount_H[0] == minCWCoincidence-1) && (freqCount_H[1] > 0) ) ||
              ((freqCount_H[freqCountLen_H-1] == minCWCoincidence-1) && (freqCount_H[freqCountLen_H-2] > 0))
           ) isCW = true;
       }
