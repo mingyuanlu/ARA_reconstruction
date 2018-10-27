@@ -14057,3 +14057,64 @@ void resetTimer(timer *t){
 
 }
 */
+
+double impulsivityMeasure(const TGraph * wf, TGraph * distance_cdf,int pt/*, bool    hilbert*/)
+{
+
+  //const TGraphAligned * g = hilbert ? wf->hilbertEnvelope() : wf->even();
+  const TGraph *g = FFTtools::getHilbertEnvelope( wf );
+
+  if (pt < 0)
+  {
+    //g->peakVal(&pt,0,-1,true);
+    pt = FFTtools::getPeakBin(g);
+  }
+
+  int N = TMath::Max(pt+1, wf->GetN()-pt+1); 
+
+  if (distance_cdf) distance_cdf->Set(N);
+
+
+  double total = /*g->getSumV2()*/FFTtools::sumVoltageSquared(g, 0, g->GetN()-1);
+  double sumv2 = 0;
+
+
+  double v= g->GetY()[pt];
+  sumv2+=v*v;
+  if (distance_cdf)
+  {
+    distance_cdf->GetX()[0] = 0;
+    distance_cdf->GetY()[0] = sumv2/total;
+  }
+
+  double ysum = sumv2;
+
+  double deltaT = wf->GetX()[1]-wf->GetX()[0];
+
+  int i = 0;
+  while(++i < N)
+  {
+    if (pt+i < wf->GetN())
+    {
+      v= g->GetY()[pt+i];
+      sumv2+=v*v;
+    }
+
+    if (pt -i >= 0)
+    {
+      v= g->GetY()[pt-i];
+      sumv2+=v*v;
+    }
+
+    if (distance_cdf)
+    {
+      distance_cdf->GetY()[i] = sumv2 / total;
+      distance_cdf->GetX()[i] = i * deltaT;
+    }
+
+    ysum+= sumv2;
+  }
+
+
+  return 2 * ysum / (N*total)-1;
+}
