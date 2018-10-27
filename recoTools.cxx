@@ -14058,11 +14058,11 @@ void resetTimer(timer *t){
 }
 */
 
-double impulsivityMeasure(const TGraph * wf, TGraph * distance_cdf,int pt/*, bool    hilbert*/)
+double impulsivityMeasure(TGraph * wf, TGraph * distance_cdf,int pt/*, bool    hilbert*/)
 {
 
   //const TGraphAligned * g = hilbert ? wf->hilbertEnvelope() : wf->even();
-  const TGraph *g = FFTtools::getHilbertEnvelope( wf );
+  TGraph *g = FFTtools::getHilbertEnvelope( wf );
 
   if (pt < 0)
   {
@@ -14070,7 +14070,7 @@ double impulsivityMeasure(const TGraph * wf, TGraph * distance_cdf,int pt/*, boo
     pt = FFTtools::getPeakBin(g);
   }
 
-  int N = TMath::Max(pt+1, wf->GetN()-pt+1); 
+  int N = TMath::Max(pt+1, wf->GetN()-pt+1);
 
   if (distance_cdf) distance_cdf->Set(N);
 
