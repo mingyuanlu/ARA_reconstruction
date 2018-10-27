@@ -80,6 +80,8 @@ using namespace std;
 
    timeSequenceParameter = 0.;
 
+   std:fill(&impulsivity[0], &impulsivity[16], 0.);
+
    }
 
 
@@ -512,6 +514,19 @@ using namespace std;
 
    }
 
+   void recoData::setImpulsivity(double *_impulsivity){
+
+      for(int i=0; i<16; i++) impulsivity[i] = _impulsivity[i];
+
+   }
+
+   void recoData::setImpulsivityByChannel(int ch, double _impulsivity){
+
+      if( ch < 0 || ch > 15 ){ cerr<<"ch out of range 0-15: "<<ch<<endl; }
+      impulsivity[ch] = _impulsivity;
+
+   }
+
    void recoData::duplicate(recoSettings *settings, recoData *old){
 
    int *_topMaxPixIdx         = (int*)calloc(old->topN, sizeof(int));
@@ -594,6 +609,7 @@ using namespace std;
    setFreqBinWidth(old->freqBinWidth_V, old->freqBinWidth_H);
    setMaxCountFreq(old->maxCountFreq_V, old->maxCountFreq_H);
    setTimeSequenceParameter(old->timeSequenceParameter);
+   setImpulsivity(old->impulsivity);
 /*
    weight = old->weight;
 
@@ -693,5 +709,6 @@ using namespace std;
    freqBinWidth_V = freqBinWidth_H = 0.;
    maxCountFreq_V = maxCountFreq_H = 0.;
    timeSequenceParameter = 0.;
+   std::fill(&impulsivity[0], &impulsivity[16], 0.);
 
    }

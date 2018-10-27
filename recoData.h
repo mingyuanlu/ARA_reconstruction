@@ -185,7 +185,12 @@ public:
    double timeSequenceParameter;
    void setTimeSequenceParameter(double _timeSequenceParameter);
 
-   ClassDef(recoData, 15);
+//ClassDef 16
+   double impulsivity[16];
+   void setImpulsivity(double *_impulsivity);
+   void setImpulsivityByChannel(int ch, double _impulsivity);
+
+   ClassDef(recoData, 16);
 
 };
 

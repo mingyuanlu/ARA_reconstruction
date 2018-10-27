@@ -1277,6 +1277,12 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    // FILTER SECTION
    //****************************************************
 
+   /* Measure impulsivity */
+   for(int ch=0; ch<16; ch++){
+      summary->setImpulsivityByChannel(ch, impulsivityMeasure(unpaddedEvent[ch], NULL, NULL));
+   }
+
+   /* Nchnl filter */
    //numSatChan = 0;
    if(settings->nchnlFilter > 0){
 

@@ -426,5 +426,5 @@ int computeMapLikelihoodAndPValue(const int nDir, const int nLayer, const char *
 double getPeakSqValRange(TGraph *gr, int *index, int firstBin, int lastBin);
 //int recordTime(timer *t, const int count);
 //void resetTimer(timer *t);
-double impulsivityMeasure(TGraph * wf, TGraph * distance_cdf,int pt/*, bool    hilbert*/);
+double impulsivityMeasure(TGraph * wf, TGraph * distance_cdf = 0, int pt = -1/*, bool    hilbert*/);
 #endif
