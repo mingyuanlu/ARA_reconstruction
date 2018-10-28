@@ -1116,9 +1116,9 @@ cout<<"*********************************** inWindowSNR_V: "<<summary->inWindowSN
       }
    }
    summary->setRecoAngles(recoRecAngles, recoLauAngles);
-
+cout<<"1119\n";
    dataTree->Fill();
-
+cout<<"1121\n";
    unpaddedEvent.clear();
    cleanEvent.clear();
    delete realAtriEvPtr;
