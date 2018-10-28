@@ -11635,7 +11635,7 @@ double r, zRec, zSrc;
 //float tempRecAngle = 0.f;
 //vector<float> solvedDelay;
 double coordSrc[3], coordTrg[3];
-cout<<"recoDelays:\n";
+//cout<<"recoDelays:\n";
 //for(int layer=0; layer<nLayer; layer++){
 
    //test_r = onion->layerRadii[layer]; //in meters
@@ -11658,11 +11658,11 @@ cout<<"recoDelays:\n";
       coordSrc[2] = test_r*cos(test_zenith);
 
 
-      cout<<"coordSrc: "<<coordSrc[0]<<"\t"<<coordSrc[1]<<"\t"<<coordSrc[2]<<endl;
+      //cout<<"coordSrc: "<<coordSrc[0]<<"\t"<<coordSrc[1]<<"\t"<<coordSrc[2]<<endl;
       //cout<<"nAnt: "<<nAnt<<endl;
       //cout<<"tempDelay:\n";
       for(int k=0; k<nAnt; k++){
-      cout<<"k: "<<k<<endl;
+      //cout<<"k: "<<k<<endl;
       coordTrg[0] = (antLoc[k][0]);
       coordTrg[1] = (antLoc[k][1]);
       coordTrg[2] = (antLoc[k][2]);
@@ -11672,7 +11672,7 @@ cout<<"recoDelays:\n";
       //tempDelay = static_cast<float>(ray.GetPropagationTime(r, zRec, zSrc));
       recoLauAngles[k] = static_cast<float>(ray.GetLaunchAngle(r, zRec, zSrc));
       recoRecAngles[k] = static_cast<float>(ray.GetReceiveAngle(r, zRec, zSrc));
-      cout<<"11675\n";
+
 /*
       //cout<<tempDelay<<" ";
       if( tempDelay > 1.f )
