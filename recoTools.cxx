@@ -14116,6 +14116,6 @@ double impulsivityMeasure(TGraph * wf, TGraph * distance_cdf,int pt/*, bool    h
     ysum+= sumv2;
   }
 
-
+  delete g;
   return 2 * ysum / (N*total)-1;
 }
