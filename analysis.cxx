@@ -1123,12 +1123,15 @@ cout<<"1121\n";
    cleanEvent.clear();
    delete realAtriEvPtr;
    //delete summary;
+   cout<<"1126\n";
    treg->clearForNextEvent();
+   cout<<"1128\n";
    for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grFFT[ch]; }
+   cout<<"1130\n";
    }//end of ev loop
-
+cout<<"1132\n";
    fp->Close();
-
+cout<<"1134\n";
 } //if dataType == 1
 
 else {
