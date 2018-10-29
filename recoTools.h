@@ -427,4 +427,5 @@ double getPeakSqValRange(TGraph *gr, int *index, int firstBin, int lastBin);
 //int recordTime(timer *t, const int count);
 //void resetTimer(timer *t);
 double impulsivityMeasure(TGraph * wf, TGraph * distance_cdf = 0, int pt = -1/*, bool    hilbert*/);
+TGraph * impulsivityMeasure(TGraph * wf, double *impulsivity/*TGraph * distance_cdf*/,int pt/*, bool    hilbert*/);
 #endif
