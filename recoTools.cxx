@@ -14181,7 +14181,7 @@ TGraph * impulsivityMeasure(TGraph * wf, double *impulsivity/*TGraph * distance_
 
   delete g;
   //return 2 * ysum / (N*total)-1;
-  impulsivity = 2 * ysum / (N*total)-1;
+  *impulsivity = 2 * ysum / (N*total)-1;
 
   return distance_cdf;
 }
