@@ -14122,7 +14122,7 @@ double impulsivityMeasure(TGraph * wf, TGraph * distance_cdf,int pt/*, bool    h
 
 TGraph * impulsivityMeasure(TGraph * wf, double *impulsivity/*TGraph * distance_cdf*/,int pt/*, bool    hilbert*/)
 {
-  cout<<"pt: "<<pt<<endl;
+  //cout<<"pt: "<<pt<<endl;
   //const TGraphAligned * g = hilbert ? wf->hilbertEnvelope() : wf->even();
   TGraph *g = FFTtools::getHilbertEnvelope( wf );
 
@@ -14130,7 +14130,7 @@ TGraph * impulsivityMeasure(TGraph * wf, double *impulsivity/*TGraph * distance_
   {
     //g->peakVal(&pt,0,-1,true);
     pt = FFTtools::getPeakBin(g);
-    cout<<"peak bin: "<<pt<<endl;
+    //cout<<"peak bin: "<<pt<<endl;
   }
 
   int N = TMath::Max(pt+1, wf->GetN()-pt+1);
