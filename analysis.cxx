@@ -508,6 +508,7 @@ if( err<0 ){
    //TGraph *grHilbert[16];
    TGraph *grMean[16];
    TGraph *grFFT[16];
+   TGraph *grCDF[16];
 
 if(settings->dataType == 1){
 /*
@@ -687,7 +688,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 	  //*** I encountered only a few of them, so maybe this is not ***//
 	  //*** really neccessary anymore. *******************************//
 	  if(gr_v_temp[a]->GetN()<5 ){ cerr<< "BAD EVENT: " << ev << " Channel: " << a << ", points: " << gr_v_temp[a]->GetN() << endl;cutWaveAlert=1; /*cutWaveEventCount++;*/ /*continue;*/}
-     //cout<<"Nsamp: "<<gr_v_temp[a]->GetN()<<" Soft trig nSamp: "<<IRS2SamplePerBlock*maxSoftTriggerReadoutBlocks<<endl;
+     cout<<"Nsamp: "<<gr_v_temp[a]->GetN()<<" Soft trig nSamp: "<<IRS2SamplePerBlock*maxSoftTriggerReadoutBlocks<<endl;
      if(gr_v_temp[a]->GetN()>=(IRS2SamplePerBlock*maxSoftTriggerReadoutBlocks)){ mistaggedSoftEventAlert=0; }
 	  int pc = 0;
     gr_v_temp[a]->GetPoint(0, times, volts);
@@ -837,7 +838,10 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    /* Measure impulsivity */
 
    for(int ch=0; ch<16; ch++){
-      summary->setImpulsivityByChannel(ch, impulsivityMeasure(unpaddedEvent[ch], NULL, NULL));
+      double imp;
+      grCDF[ch] =  impulsivityMeasure(unpaddedEvent[ch], &imp);
+      //summary->setImpulsivityByChannel(ch, impulsivityMeasure(unpaddedEvent[ch], NULL, NULL));
+      summary->setImpulsivityByChannel(ch, imp);
    }
 
 
@@ -860,7 +864,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          unpaddedEvent.clear();
          cleanEvent.clear();
          delete realAtriEvPtr;
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; }
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grCDF[ch];}
          continue;
       }
    }
@@ -953,7 +957,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          unpaddedEvent.clear();
          cleanEvent.clear();
          delete realAtriEvPtr;
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grFFT[ch]; }
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grFFT[ch]; delete grCDF[ch]; }
          continue;
 
       }
@@ -1126,7 +1130,7 @@ cout<<"*********************************** inWindowSNR_V: "<<summary->inWindowSN
 
    treg->clearForNextEvent();
 
-   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; if(settings->cwFilter > 0) delete grFFT[ch]; }
+   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grCDF[ch]; if(settiings->cwFilter>0) delete grFFT[ch]; }
 
    }//end of ev loop
 
@@ -1292,7 +1296,10 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    /* Measure impulsivity */
    for(int ch=0; ch<16; ch++){
-      summary->setImpulsivityByChannel(ch, impulsivityMeasure(unpaddedEvent[ch], NULL, NULL));
+      double imp;
+      grCDF[ch] = impulsivityMeasure(unpaddedEvent[ch], &imp);
+      //summary->setImpulsivityByChannel(ch, impulsivityMeasure(unpaddedEvent[ch], NULL, NULL));
+      summary->setImpulsivityByChannel(ch, imp);
    }
 
    /* Nchnl filter */
@@ -1313,7 +1320,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       weightedNchnlFilteredEventCount += weight;
       unpaddedEvent.clear();
       cleanEvent.clear();
-      for(int ch=0; ch<16; ch++){ /*delete gr_v[ch];*/ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch];}
+      for(int ch=0; ch<16; ch++){ /*delete gr_v[ch];*/ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grCDF[ch]; }
       continue;
 
    }
@@ -1406,7 +1413,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
          weightedCWFilteredEventCount += weight;
          unpaddedEvent.clear();
          cleanEvent.clear();
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grFFT[ch]; }
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grFFT[ch]; delete grCDF[ch]; }
          continue;
 
       }
@@ -1590,7 +1597,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    cleanEvent.clear();
    //delete summary;
    treg->clearForNextEvent();
-   for(int ch=0; ch<16; ch++){ /*delete gr_v[ch];*/ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; if(settings->cwFilter > 0) delete grFFT[ch]; }
+   for(int ch=0; ch<16; ch++){ /*delete gr_v[ch];*/ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grCDF[ch]; if(settings->cwFilter>0) delete grFFT[ch]; }
    }//end of ev loop
 
 }//end of dataType == 0
