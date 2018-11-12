@@ -1130,7 +1130,7 @@ cout<<"*********************************** inWindowSNR_V: "<<summary->inWindowSN
 
    treg->clearForNextEvent();
 
-   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grCDF[ch]; if(settiings->cwFilter>0) delete grFFT[ch]; }
+   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grCDF[ch]; if(settings->cwFilter>0) delete grFFT[ch]; }
 
    }//end of ev loop
 
