@@ -842,6 +842,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    int nonZeroChan = 0;
    double avgImp = 0.;
+
    for(int ch=0; ch<16; ch++){
       double imp;
       grCDF[ch] =  impulsivityMeasure(unpaddedEvent[ch], &imp);
@@ -852,8 +853,6 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    if(settings->impulsivityFilter > 0){
 
-      int nonZeroChan = 0;
-      double avgImp = 0.;
       for(int ch=(string(settings->recoPolType)=="hpol"?8:0); ch<(string(settings->recoPolType)=="vpol"?8:16); ch++){
          if(fabs(summary->impulsivity[ch]-0)>1e-9){
             nonZeroChan += 1;
@@ -1325,6 +1324,9 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    //****************************************************
    // FILTER SECTION
    //****************************************************
+
+   int nonZeroChan = 0;
+   double avgImp = 0.;
 
    /* Measure impulsivity */
    for(int ch=0; ch<16; ch++){
