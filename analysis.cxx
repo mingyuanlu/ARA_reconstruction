@@ -252,8 +252,8 @@ int cutWaveEventCount, nonIncreasingSampleTimeEventCount, cutWaveAndNonIncreasin
 cutWaveEventCount = nonIncreasingSampleTimeEventCount = cutWaveAndNonIncreasingEventCount = 0;
 int mistaggedSoftEventCount, offsetBlockEventCount;
 mistaggedSoftEventCount = offsetBlockEventCount = 0;
-int nchnlFilteredEventCount, cwFilteredEventCount;
-nchnlFilteredEventCount = cwFilteredEventCount = 0;
+int nchnlFilteredEventCount, cwFilteredEventCount, impulsivityFilteredEventCount;
+nchnlFilteredEventCount = cwFilteredEventCount = impulsivityFilteredEventCount = 0;
 int corruptFirst3EventCount = 0;
 int corruptD1EventCount = 0;
 double weightedTrigEventCount = 0.;
@@ -261,6 +261,7 @@ double weightedRecoEventCount = 0.;
 double weightedOffsetBlockEventCount = 0.;
 double weightedNchnlFilteredEventCount = 0.;
 double weightedCWFilteredEventCount = 0.;
+double weightedImpulsivityFilteredEventCount = 0.;
 runInfoTree->Branch("runEventCount",  &runEventCount);
 runInfoTree->Branch("runRFEventCount", &runRFEventCount);
 runInfoTree->Branch("runCalEventCount", &runCalEventCount);
@@ -276,6 +277,7 @@ runInfoTree->Branch("mistaggedSoftEventCount", &mistaggedSoftEventCount);
 runInfoTree->Branch("offsetBlockEventCount", &offsetBlockEventCount);
 runInfoTree->Branch("cwFilteredEventCount", &cwFilteredEventCount);
 runInfoTree->Branch("nchnlFilteredEventCount", &nchnlFilteredEventCount);
+runInfoTree->Branch("impulsivityFilteredEventCount", &impulsivityFilteredEventCount);
 runInfoTree->Branch("corruptFirst3EventCount", &corruptFirst3EventCount);
 runInfoTree->Branch("corruptD1EventCount", &corruptD1EventCount);
 runInfoTree->Branch("weightedTrigEventCount", &weightedTrigEventCount);
@@ -283,6 +285,7 @@ runInfoTree->Branch("weightedRecoEventCount", &weightedRecoEventCount);
 runInfoTree->Branch("weightedOffsetBlockEventCount", &weightedOffsetBlockEventCount);
 runInfoTree->Branch("weightedNchnlFilteredEventCount", &weightedNchnlFilteredEventCount);
 runInfoTree->Branch("weightedCWFilteredEventCount", &weightedCWFilteredEventCount);
+runInfoTree->Branch("weightedImpulsivityFilteredEventCount", &weightedImpulsivityFilteredEventCount);
 
 if(settings->dataType == 1)//real events
 {
@@ -837,13 +840,41 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    /* Measure impulsivity */
 
+   int nonZeroChan = 0;
+   double avgImp = 0.;
    for(int ch=0; ch<16; ch++){
       double imp;
       grCDF[ch] =  impulsivityMeasure(unpaddedEvent[ch], &imp);
       //summary->setImpulsivityByChannel(ch, impulsivityMeasure(unpaddedEvent[ch], NULL, NULL));
       summary->setImpulsivityByChannel(ch, imp);
+
    }
 
+   if(settings->impulsivityFilter > 0){
+
+      int nonZeroChan = 0;
+      double avgImp = 0.;
+      for(int ch=(string(settings->recoPolType)=="hpol"?8:0); ch<(string(settings->recoPolType)=="vpol"?8:16); ch++){
+         if(fabs(summary->impulsivity[ch]-0)>1e-9){
+            nonZeroChan += 1;
+            avgImp += summary->impulsivity[ch];
+         }
+      }
+
+      if(nonZeroChan>0) avgImp /= (double)nonZeroChan;
+      else avgImp = 0.;
+
+      if(avgImp < settings->impulsivityThreshold){
+
+         impulsivityFilteredEventCount+=1;
+         unpaddedEvent.clear();
+         cleanEvent.clear();
+         delete realAtriEvPtr;
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grCDF[ch];}
+         continue;
+      }
+
+   }
 
    /* Nchnl filter */
 
@@ -875,82 +906,83 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    /* CW filter */
 
-   if(settings->cwFilter > 0){
+   //if(settings->cwFilter > 0){
 
-      bool isCW = false;
-      for(int ch=0; ch<16; ch++){
+   bool isCW = false;
+   for(int ch=0; ch<16; ch++){
 
-         grFFT[ch] = FFTtools::makePowerSpectrumMilliVoltsNanoSecondsdB(grWinPad[ch]);
+      grFFT[ch] = FFTtools::makePowerSpectrumMilliVoltsNanoSecondsdB(grWinPad[ch]);
 
-         if(ch==0){
-            freqCountLen_V = grFFT[ch]->GetN();
-            freqCount_V = new int [freqCountLen_V];
-            fill(&freqCount_V[0], &freqCount_V[freqCountLen_V], 0);
-            freqBinWidth_V = evProcessTools::getFFTBinWidth(grFFT[ch]);
+      if(ch==0){
+         freqCountLen_V = grFFT[ch]->GetN();
+         freqCount_V = new int [freqCountLen_V];
+         fill(&freqCount_V[0], &freqCount_V[freqCountLen_V], 0);
+         freqBinWidth_V = evProcessTools::getFFTBinWidth(grFFT[ch]);
+      }
+      else if (ch==8){
+         freqCountLen_H = grFFT[ch]->GetN();
+         freqCount_H = new int [freqCountLen_H];
+         fill(&freqCount_H[0], &freqCount_H[freqCountLen_H], 0);
+         freqBinWidth_H = evProcessTools::getFFTBinWidth(grFFT[ch]);
+      }
+
+      int maxFracBin;
+      double maxFrac = FFTtools::getPeakVal(grFFT[ch], &maxFracBin);
+      //cout<<"ch: "<<ch<<" macFrac: "<<maxFrac<<" maxFracBin: "<<maxFracBin<<endl;
+      summary->setMaxFreqBinByChannel(ch, maxFracBin, maxFrac);
+      if(ch<8)
+      freqCount_V[maxFracBin]++;
+      else
+      freqCount_H[maxFracBin]++;
+
+   }//end of ch
+
+   summary->setFreqBinWidth(freqBinWidth_V, freqBinWidth_H);
+
+   maxCount_V = evProcessTools::getMaxCount(freqCountLen_V, freqCount_V, &maxCountBin, 2); // a coincidence of >= 2 counts as potentially meaningful
+   maxCountFreq_V = freqBinWidth_V * maxCountBin;
+
+   maxCount_H = evProcessTools::getMaxCount(freqCountLen_H, freqCount_H, &maxCountBin, 2);
+   maxCountFreq_H = freqBinWidth_H * maxCountBin;
+
+   summary->setMaxCountFreq(maxCountFreq_V, maxCountFreq_H);
+
+   /* If coincidence >= minCWCoincidence */
+   if(maxCount_V >= minCWCoincidence || maxCount_H >= minCWCoincidence) isCW = true;
+
+   /* If coincidence = minCWCoincidence - 1 and there is at least one neighboring peak bin */
+
+   //Check Vpol
+   if (!isCW){
+      if( ((freqCount_V[0] == minCWCoincidence-1) && (freqCount_V[1] > 0) ) ||
+      ((freqCount_V[freqCountLen_V-1] == minCWCoincidence-1) && (freqCount_V[freqCountLen_V-2] > 0))
+   ) isCW = true;
+   }
+   if (!isCW){
+      for(int i=1; i<freqCountLen_V-1; i++){
+         if(freqCount_V[i]==minCWCoincidence-1 && (freqCount_V[i-1]>0 || freqCount_V[i+1]>0)){
+            isCW = true;
+            break;
          }
-         else if (ch==8){
-            freqCountLen_H = grFFT[ch]->GetN();
-            freqCount_H = new int [freqCountLen_H];
-            fill(&freqCount_H[0], &freqCount_H[freqCountLen_H], 0);
-            freqBinWidth_H = evProcessTools::getFFTBinWidth(grFFT[ch]);
+      }
+   }
+
+   //Check Hpol
+   if (!isCW){
+      if( ((freqCount_H[0] == minCWCoincidence-1) && (freqCount_H[1] > 0) ) ||
+      ((freqCount_H[freqCountLen_H-1] == minCWCoincidence-1) && (freqCount_H[freqCountLen_H-2] > 0))
+   ) isCW = true;
+   }
+   if (!isCW){
+      for(int i=1; i<freqCountLen_H-1; i++){
+         if(freqCount_H[i]==minCWCoincidence-1 && (freqCount_H[i-1]>0 || freqCount_H[i+1]>0)){
+            isCW = true;
+            break;
          }
-
-         int maxFracBin;
-         double maxFrac = FFTtools::getPeakVal(grFFT[ch], &maxFracBin);
-         //cout<<"ch: "<<ch<<" macFrac: "<<maxFrac<<" maxFracBin: "<<maxFracBin<<endl;
-         summary->setMaxFreqBinByChannel(ch, maxFracBin, maxFrac);
-         if(ch<8)
-            freqCount_V[maxFracBin]++;
-         else
-            freqCount_H[maxFracBin]++;
-
-      }//end of ch
-
-      summary->setFreqBinWidth(freqBinWidth_V, freqBinWidth_H);
-
-      maxCount_V = evProcessTools::getMaxCount(freqCountLen_V, freqCount_V, &maxCountBin, 2); // a coincidence of >= 2 counts as potentially meaningful
-      maxCountFreq_V = freqBinWidth_V * maxCountBin;
-
-      maxCount_H = evProcessTools::getMaxCount(freqCountLen_H, freqCount_H, &maxCountBin, 2);
-      maxCountFreq_H = freqBinWidth_H * maxCountBin;
-
-      summary->setMaxCountFreq(maxCountFreq_V, maxCountFreq_H);
-
-      /* If coincidence >= minCWCoincidence */
-      if(maxCount_V >= minCWCoincidence || maxCount_H >= minCWCoincidence) isCW = true;
-
-      /* If coincidence = minCWCoincidence - 1 and there is at least one neighboring peak bin */
-
-      //Check Vpol
-      if (!isCW){
-         if( ((freqCount_V[0] == minCWCoincidence-1) && (freqCount_V[1] > 0) ) ||
-             ((freqCount_V[freqCountLen_V-1] == minCWCoincidence-1) && (freqCount_V[freqCountLen_V-2] > 0))
-          ) isCW = true;
       }
-      if (!isCW){
-          for(int i=1; i<freqCountLen_V-1; i++){
-             if(freqCount_V[i]==minCWCoincidence-1 && (freqCount_V[i-1]>0 || freqCount_V[i+1]>0)){
-                isCW = true;
-                break;
-             }
-          }
-      }
+   }
 
-      //Check Hpol
-      if (!isCW){
-         if( ((freqCount_H[0] == minCWCoincidence-1) && (freqCount_H[1] > 0) ) ||
-             ((freqCount_H[freqCountLen_H-1] == minCWCoincidence-1) && (freqCount_H[freqCountLen_H-2] > 0))
-          ) isCW = true;
-      }
-      if (!isCW){
-          for(int i=1; i<freqCountLen_H-1; i++){
-             if(freqCount_H[i]==minCWCoincidence-1 && (freqCount_H[i-1]>0 || freqCount_H[i+1]>0)){
-                isCW = true;
-                break;
-             }
-          }
-      }
-
+   if(settings->cwFilter>0){
       if(isCW){
 
          cwFilteredEventCount+=1;
@@ -1130,7 +1162,7 @@ cout<<"*********************************** inWindowSNR_V: "<<summary->inWindowSN
 
    treg->clearForNextEvent();
 
-   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grCDF[ch]; if(settings->cwFilter>0) delete grFFT[ch]; }
+   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grCDF[ch]; /*if(settings->cwFilter>0)*/ delete grFFT[ch]; }
 
    }//end of ev loop
 
@@ -1302,6 +1334,30 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       summary->setImpulsivityByChannel(ch, imp);
    }
 
+   if(settings->impulsivityFilter > 0){
+
+      for(int ch=(string(settings->recoPolType)=="hpol"?8:0); ch<(string(settings->recoPolType)=="vpol"?8:16); ch++){
+         if(fabs(summary->impulsivity[ch]-0)>1e-9){
+            nonZeroChan += 1;
+            avgImp += summary->impulsivity[ch];
+         }
+      }
+
+      if(nonZeroChan>0) avgImp /= (double)nonZeroChan;
+      else avgImp = 0.;
+
+      if(avgImp < settings->impulsivityThreshold){
+
+         impulsivityFilteredEventCount+=1;
+         weightedImpulsivityFilteredEventCount += weight;
+         unpaddedEvent.clear();
+         cleanEvent.clear();
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grCDF[ch];}
+         continue;
+      }
+
+   }
+
    /* Nchnl filter */
    //numSatChan = 0;
    if(settings->nchnlFilter > 0){
@@ -1331,81 +1387,83 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    /* CW filter */
 
+   //if(settings->cwFilter > 0){
+
+   bool isCW = false;
+   for(int ch=0; ch<16; ch++){
+
+      grFFT[ch] = FFTtools::makePowerSpectrumMilliVoltsNanoSecondsdB(grWinPad[ch]);
+
+      if(ch==0){
+         freqCountLen_V = grFFT[ch]->GetN();
+         freqCount_V = new int [freqCountLen_V];
+         fill(&freqCount_V[0], &freqCount_V[freqCountLen_V], 0);
+         freqBinWidth_V = evProcessTools::getFFTBinWidth(grFFT[ch]);
+      }
+      else if (ch==8){
+         freqCountLen_H = grFFT[ch]->GetN();
+         freqCount_H = new int [freqCountLen_H];
+         fill(&freqCount_H[0], &freqCount_H[freqCountLen_H], 0);
+         freqBinWidth_H = evProcessTools::getFFTBinWidth(grFFT[ch]);
+      }
+
+      summary->setFreqBinWidth(freqBinWidth_V, freqBinWidth_H);
+
+      int maxFracBin;
+      double maxFrac = FFTtools::getPeakVal(grFFT[ch], &maxFracBin);
+      //cout<<"ch: "<<ch<<" macFrac: "<<maxFrac<<" maxFracBin: "<<maxFracBin<<endl;
+      summary->setMaxFreqBinByChannel(ch, maxFracBin, maxFrac);
+      if(ch<8)
+      freqCount_V[maxFracBin]++;
+      else
+      freqCount_H[maxFracBin]++;
+
+   }//end of ch
+
+   maxCount_V = evProcessTools::getMaxCount(freqCountLen_V, freqCount_V, &maxCountBin, 2); // a coincidence of >= 2 counts as potentially meaning
+   maxCountFreq_V = freqBinWidth_V * maxCountBin;
+
+   maxCount_H = evProcessTools::getMaxCount(freqCountLen_H, freqCount_H, &maxCountBin, 2);
+   maxCountFreq_H = freqBinWidth_H * maxCountBin;
+
+   summary->setMaxCountFreq(maxCountFreq_V, maxCountFreq_H);
+
+   /* If coincidence >= minCWCoincidence */
+   if(maxCount_V >= minCWCoincidence || maxCount_H >= minCWCoincidence) isCW = true;
+
+   /* If coincidence = minCWCoincidence - 1 and there is at least one neighboring peak bin */
+
+   //Check Vpol
+   if (!isCW){
+      if( ((freqCount_V[0] == minCWCoincidence-1) && (freqCount_V[1] > 0) ) ||
+      ((freqCount_V[freqCountLen_V-1] == minCWCoincidence-1) && (freqCount_V[freqCountLen_V-2] > 0))
+      ) isCW = true;
+   }
+   if (!isCW){
+      for(int i=1; i<freqCountLen_V-1; i++){
+         if(freqCount_V[i]==minCWCoincidence-1 && (freqCount_V[i-1]>0 || freqCount_V[i+1]>0)){
+            isCW = true;
+            break;
+         }
+      }
+   }
+
+   //Check Hpol
+   if (!isCW){
+      if( ((freqCount_H[0] == minCWCoincidence-1) && (freqCount_H[1] > 0) ) ||
+      ((freqCount_H[freqCountLen_H-1] == minCWCoincidence-1) && (freqCount_H[freqCountLen_H-2] > 0))
+      ) isCW = true;
+   }
+   if (!isCW){
+      for(int i=1; i<freqCountLen_H-1; i++){
+         if(freqCount_H[i]==minCWCoincidence-1 && (freqCount_H[i-1]>0 || freqCount_H[i+1]>0)){
+            isCW = true;
+            break;
+         }
+      }
+   }
+
    if(settings->cwFilter > 0){
-
-      bool isCW = false;
-      for(int ch=0; ch<16; ch++){
-
-         grFFT[ch] = FFTtools::makePowerSpectrumMilliVoltsNanoSecondsdB(grWinPad[ch]);
-
-         if(ch==0){
-            freqCountLen_V = grFFT[ch]->GetN();
-            freqCount_V = new int [freqCountLen_V];
-            fill(&freqCount_V[0], &freqCount_V[freqCountLen_V], 0);
-            freqBinWidth_V = evProcessTools::getFFTBinWidth(grFFT[ch]);
-         }
-         else if (ch==8){
-            freqCountLen_H = grFFT[ch]->GetN();
-            freqCount_H = new int [freqCountLen_H];
-            fill(&freqCount_H[0], &freqCount_H[freqCountLen_H], 0);
-            freqBinWidth_H = evProcessTools::getFFTBinWidth(grFFT[ch]);
-         }
-
-         summary->setFreqBinWidth(freqBinWidth_V, freqBinWidth_H);
-
-         int maxFracBin;
-         double maxFrac = FFTtools::getPeakVal(grFFT[ch], &maxFracBin);
-         //cout<<"ch: "<<ch<<" macFrac: "<<maxFrac<<" maxFracBin: "<<maxFracBin<<endl;
-         summary->setMaxFreqBinByChannel(ch, maxFracBin, maxFrac);
-         if(ch<8)
-            freqCount_V[maxFracBin]++;
-         else
-            freqCount_H[maxFracBin]++;
-
-      }//end of ch
-
-      maxCount_V = evProcessTools::getMaxCount(freqCountLen_V, freqCount_V, &maxCountBin, 2); // a coincidence of >= 2 counts as potentially meaning
-      maxCountFreq_V = freqBinWidth_V * maxCountBin;
-
-      maxCount_H = evProcessTools::getMaxCount(freqCountLen_H, freqCount_H, &maxCountBin, 2);
-      maxCountFreq_H = freqBinWidth_H * maxCountBin;
-
-      summary->setMaxCountFreq(maxCountFreq_V, maxCountFreq_H);
-
-      /* If coincidence >= minCWCoincidence */
-      if(maxCount_V >= minCWCoincidence || maxCount_H >= minCWCoincidence) isCW = true;
-
-      /* If coincidence = minCWCoincidence - 1 and there is at least one neighboring peak bin */
-
-      //Check Vpol
-      if (!isCW){
-         if( ((freqCount_V[0] == minCWCoincidence-1) && (freqCount_V[1] > 0) ) ||
-             ((freqCount_V[freqCountLen_V-1] == minCWCoincidence-1) && (freqCount_V[freqCountLen_V-2] > 0))
-          ) isCW = true;
-      }
-      if (!isCW){
-          for(int i=1; i<freqCountLen_V-1; i++){
-             if(freqCount_V[i]==minCWCoincidence-1 && (freqCount_V[i-1]>0 || freqCount_V[i+1]>0)){
-                isCW = true;
-                break;
-             }
-          }
-      }
-
-      //Check Hpol
-      if (!isCW){
-         if( ((freqCount_H[0] == minCWCoincidence-1) && (freqCount_H[1] > 0) ) ||
-             ((freqCount_H[freqCountLen_H-1] == minCWCoincidence-1) && (freqCount_H[freqCountLen_H-2] > 0))
-          ) isCW = true;
-      }
-      if (!isCW){
-          for(int i=1; i<freqCountLen_H-1; i++){
-             if(freqCount_H[i]==minCWCoincidence-1 && (freqCount_H[i-1]>0 || freqCount_H[i+1]>0)){
-                isCW = true;
-                break;
-             }
-          }
-      }
 
       if(isCW){
 
@@ -1597,7 +1655,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    cleanEvent.clear();
    //delete summary;
    treg->clearForNextEvent();
-   for(int ch=0; ch<16; ch++){ /*delete gr_v[ch];*/ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grCDF[ch]; if(settings->cwFilter>0) delete grFFT[ch]; }
+   for(int ch=0; ch<16; ch++){ /*delete gr_v[ch];*/ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grCDF[ch]; /*if(settings->cwFilter>0)*/ delete grFFT[ch]; }
    }//end of ev loop
 
 }//end of dataType == 0
@@ -1608,7 +1666,7 @@ clock_t c_after_event_loop = clock();
 
 cout<<"runEventCount: "<<runEventCount<<" recoEventCount: "<<recoEventCount<<" trigEventCount: "<<trigEventCount<<endl;
 cout<<"cutWaveEventCount: "<<cutWaveEventCount<<" nonIncreasingSampleTimeEventCount: "<<nonIncreasingSampleTimeEventCount<<" cutWaveAndNonIncreasingEventCount: "<<cutWaveAndNonIncreasingEventCount<<" corruptD1EventCount: "<<corruptD1EventCount<<" corruptFirst3EventCount: "<<corruptFirst3EventCount<<endl;
-cout<<"mistaggedSoftEventCount: "<<mistaggedSoftEventCount<<" offsetBlockEventCount: "<<offsetBlockEventCount<<" nchnlFilteredEventCount: "<<nchnlFilteredEventCount<<" cwFilteredEventCount: "<<cwFilteredEventCount<<endl;
+cout<<"mistaggedSoftEventCount: "<<mistaggedSoftEventCount<<" offsetBlockEventCount: "<<offsetBlockEventCount<<" nchnlFilteredEventCount: "<<nchnlFilteredEventCount<<" cwFilteredEventCount: "<<cwFilteredEventCount<<<<" impulsivityFilteredEventCount: "<<impulsivityFilteredEventCount<<endl;
 
 runInfoTree->Fill();
 
