@@ -1668,7 +1668,7 @@ clock_t c_after_event_loop = clock();
 
 cout<<"runEventCount: "<<runEventCount<<" recoEventCount: "<<recoEventCount<<" trigEventCount: "<<trigEventCount<<endl;
 cout<<"cutWaveEventCount: "<<cutWaveEventCount<<" nonIncreasingSampleTimeEventCount: "<<nonIncreasingSampleTimeEventCount<<" cutWaveAndNonIncreasingEventCount: "<<cutWaveAndNonIncreasingEventCount<<" corruptD1EventCount: "<<corruptD1EventCount<<" corruptFirst3EventCount: "<<corruptFirst3EventCount<<endl;
-cout<<"mistaggedSoftEventCount: "<<mistaggedSoftEventCount<<" offsetBlockEventCount: "<<offsetBlockEventCount<<" nchnlFilteredEventCount: "<<nchnlFilteredEventCount<<" cwFilteredEventCount: "<<cwFilteredEventCount<<<<" impulsivityFilteredEventCount: "<<impulsivityFilteredEventCount<<endl;
+cout<<"mistaggedSoftEventCount: "<<mistaggedSoftEventCount<<" offsetBlockEventCount: "<<offsetBlockEventCount<<" nchnlFilteredEventCount: "<<nchnlFilteredEventCount<<" cwFilteredEventCount: "<<cwFilteredEventCount<<" impulsivityFilteredEventCount: "<<impulsivityFilteredEventCount<<endl;
 
 runInfoTree->Fill();
 
