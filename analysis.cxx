@@ -691,7 +691,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 	  //*** I encountered only a few of them, so maybe this is not ***//
 	  //*** really neccessary anymore. *******************************//
 	  if(gr_v_temp[a]->GetN()<5 ){ cerr<< "BAD EVENT: " << ev << " Channel: " << a << ", points: " << gr_v_temp[a]->GetN() << endl;cutWaveAlert=1; /*cutWaveEventCount++;*/ /*continue;*/}
-     cout<<"Nsamp: "<<gr_v_temp[a]->GetN()<<" Soft trig nSamp: "<<IRS2SamplePerBlock*maxSoftTriggerReadoutBlocks<<endl;
+     //cout<<"Nsamp: "<<gr_v_temp[a]->GetN()<<" Soft trig nSamp: "<<IRS2SamplePerBlock*maxSoftTriggerReadoutBlocks<<endl;
      if(gr_v_temp[a]->GetN()>=(IRS2SamplePerBlock*maxSoftTriggerReadoutBlocks)){ mistaggedSoftEventAlert=0; }
 	  int pc = 0;
     gr_v_temp[a]->GetPoint(0, times, volts);
