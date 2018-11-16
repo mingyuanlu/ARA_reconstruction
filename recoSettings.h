@@ -110,7 +110,7 @@ public:
    maskSaturatedChannels:
       Default 1. 0: do not mask saturated channels. 1: mask saturated channels.
    saturationVoltage_mV:
-      Default 1500. The saturation voltage value, in mV. Saturation is checked in both +/- voltages.
+      Default 600. The saturation voltage value, in mV. Saturation is checked in both +/- voltages.
    runIterativeReconstruction:
       Default 0. 0: do not run iterative reconstruction. 1: run iterative reconstruction.
    offsetBlock_threshold_V:

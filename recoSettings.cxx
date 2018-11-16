@@ -79,7 +79,7 @@ void recoSettings::initialize(){
 
   maskSubThresholdChannels = 0;
   maskSaturatedChannels = 1;
-  saturationVoltage_mV = 1500.;
+  saturationVoltage_mV = 600.;
 
   runIterativeReconstruction = 0;
 
