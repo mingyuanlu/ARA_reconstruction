@@ -193,7 +193,7 @@ public:
 //ClassDef 17
    vector<int> iterMaxPixIdxEachLayer;
    vector<float> iterMaxPixCoherenceEachLayer;
-   void setIterMaxPixInfoEachLayer(recoSettings *settings, int *_iterMaxPixIdxEachLayer, int *_iterMaxPixCoherenceEachLayer);
+   void setIterMaxPixInfoEachLayer(recoSettings *settings, int *_iterMaxPixIdxEachLayer, float *_iterMaxPixCoherenceEachLayer);
 
    ClassDef(recoData, 17);
 
