@@ -127,6 +127,8 @@ public:
       Default 0. 0: no average impulsivity filer.1: with average impulsivity filter.
    impulsivityThreshold:
       Default 0. The filter threshold value for average impulsivity.
+   flattenSaturatedAmplitude:
+      Default 0. Whether the amplitudes in a waveforms that exceeds the +-saturationVoltage_mV will be flattened to be equal to saturationVoltage_mV or not. 0: no. 1: yes.
    remark:
       Default "". Any remark one wishes to add to the reco setup file. The remarks will then be carried along in the analysis output ROOT file. Note that number of characters should not exceed CSTRING_MAX defined in recoSettings.h
 */
@@ -221,7 +223,10 @@ public:
    int impulsivityFilter;
    double impulsivityThreshold;
 
-   ClassDef(recoSettings, 14); //2: convert all string parameters to char
+   //ClassDef 15
+   int flattenSaturatedAmplitude;
+
+   ClassDef(recoSettings, 15); //2: convert all string parameters to char
                               //3: add openCLDeviceType and openCLMaxNumberOfDevices parameters
 };
 

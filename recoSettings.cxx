@@ -93,6 +93,8 @@ void recoSettings::initialize(){
   impulsivityFilter = 0;
   impulsivityThreshold = 0.;
 
+  flattenSaturatedAmplitude = 0;
+
   //remark = "Default.";
   snprintf(remark, sizeof(remark), "Default.");
 
@@ -172,6 +174,7 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
             else if(label == "minCWCoincidence") minCWCoincidence = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "impulsivityFilter") impulsivityFilter = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "impulsivityThreshold") impulsivityThreshold = atof( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "flattenSaturatedAmplitude") flattenSaturatedAmplitude = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label != "") cerr<<"Undefined parameter detected. Label: "<<label<<endl;
          }
       }
@@ -247,6 +250,7 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
       if( (unsigned)(minCWCoincidence-0) > 8){    cerr<<"minCWCoincidence: "<<minCWCoincidence<<endl; errCnt++; }
       if( (unsigned)(impulsivityFilter-0) > 1){   cerr<<"impulsivityFilter: "<<impulsivityFilter<<endl; errCnt++; }
       if( impulsivityThreshold < 0 ){             cerr<<"impulsivityThreshold: "<<impulsivityThreshold<<endl; errCnt++; }
+      if( (unsigned)(flattenSaturatedAmplitude-0) > 1){   cerr<<"flattenSaturatedAmplitude: "<<flattenSaturatedAmplitude<<endl; errCnt++; }
       if(errCnt > 0) return false;
 
    } else { cerr<<"Unable to open "<<sf<<endl; return false; }
