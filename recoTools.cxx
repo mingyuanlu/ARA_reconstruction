@@ -7077,7 +7077,7 @@ cout<<"Healpix map written\n";
 
 float *MIter;
 cl_mem MIterBuffer, indexBuffer;
-float *MSegment, *iterMaxPixCoherence, *MSegmentEachLayer, *iterMaxPixIdxEachLayer;
+float *MSegment, *iterMaxPixCoherence, *MSegmentEachLayer, *iterMaxPixCoherenceEachLayer;
 int *segRank, *iterMaxPixIdx, *segRankEachLayer, *iterMaxPixIdxEachLayer;
 
 if (settings->runIterativeReconstruction){
