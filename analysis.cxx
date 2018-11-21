@@ -1261,6 +1261,15 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
          gr_v[AraRootChannel-1]->SetPoint(pc, times, volts-average[AraRootChannel-1]);
       }
 
+      if(settings->flattenSaturatedAmplitude){
+         for(pc=0; pc<gr_v[AraRootChannel-1]->GetN(); pc++){
+            gr_v[AraRootChannel-1]->GetPoint(pc, times, volts);
+            if( volts > settings->saturationVoltage_mV ) volts = settings->saturationVoltage_mV;
+            else if( volts < -1.*settings->saturationVoltage_mV ) volts = -1.*settings->saturationVoltage_mV;
+            gr_v[AraRootChannel-1]->SetPoint(pc, times, volts);
+         }
+      }
+
    }//End looping channels
 
    double wInt;
