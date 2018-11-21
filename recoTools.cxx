@@ -7077,8 +7077,8 @@ cout<<"Healpix map written\n";
 
 float *MIter;
 cl_mem MIterBuffer, indexBuffer;
-float *MSegment, *iterMaxPixCoherence;
-int *segRank, *iterMaxPixIdx;
+float *MSegment, *iterMaxPixCoherence, *MSegmentEachLayer, *iterMaxPixIdxEachLayer;
+int *segRank, *iterMaxPixIdx, *segRankEachLayer, *iterMaxPixIdxEachLayer;
 
 if (settings->runIterativeReconstruction){
 
@@ -7119,18 +7119,27 @@ if (settings->runIterativeReconstruction){
     */
 
    MSegment = (float*)calloc(nLayer*nDir, sizeof(float));
+   MSegmentEachLayer = (float*)calloc(nDir, sizeof(float));
    //float max=0.f;
    //int maxPixIdx;
    segRank = (int*)calloc(nLayer*nDir, sizeof(int));
+   segRankEachLayer = (int*)calloc(nDir, sizeof(int));
    iterMaxPixIdx = (int*)calloc(numIter, sizeof(int));
    iterMaxPixCoherence = (float*)calloc(numIter, sizeof(float));
+   iterMaxPixIdxEachLayer = (int*)calloc(numIter*nLayer, sizeof(int));
+   iterMaxPixCoherenceEachLayer = (float*)calloc(numIter*nLayer, sizeof(float));
 
    for(int iter=0; iter<numIter; iter++){
-
       for(int layer=0; layer<nLayer; layer++){
          for(int dir=0; dir<nDir; dir++){
             MSegment[layer*nDir+dir] = MIter[iter*nLayer*nDir+layer*nDir+dir];
+            MSegmentEachLayer[dir] = MIter[iter*nLayer*nDir+layer*nDir+dir];
          }
+
+         TMath::Sort(nDir, MSegmentEachLayer, segRankEachLayer);
+         iterMaxPixIdxEachLayer[iter*nLayer+layer] = segRankEachLayer[0];
+         iterMaxPixCoherenceEachLayer[iter*nLayer+layer] = MSegmentEachLayer[segRankEachLayer[0]];
+
       }
       TMath::Sort(nLayer*nDir, MSegment, segRank);
       iterMaxPixIdx[iter] = segRank[0];
@@ -7138,6 +7147,7 @@ if (settings->runIterativeReconstruction){
    }
 
    summary->setIterMaxPixInfo(settings, iterMaxPixIdx, iterMaxPixCoherence);
+   summary->setIterMaxPixInfoEachLayer(settings, iterMaxPixIdxEachLayer, iterMaxPixCoherenceEachLayer);
 
 }
 //int nSideExp = 7;
@@ -7241,6 +7251,10 @@ free(MSegment);
 free(segRank);
 free(iterMaxPixIdx);
 free(iterMaxPixCoherence);
+free(MSegmentEachLayer);
+free(segRankEachLayer);
+free(iterMaxPixIdxEachLayer);
+free(iterMaxPixCoherenceEachLayer);
 }
 cout<<"Memories deallocated\n";
 

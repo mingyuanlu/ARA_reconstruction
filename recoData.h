@@ -190,7 +190,12 @@ public:
    void setImpulsivity(double *_impulsivity);
    void setImpulsivityByChannel(int ch, double _impulsivity);
 
-   ClassDef(recoData, 16);
+//ClassDef 17
+   vector<int> iterMaxPixIdxEachLayer;
+   vector<float> iterMaxPixCoherenceEachLayer;
+   void setIterMaxPixInfoEachLayer(recoSettings *settings, int *_iterMaxPixIdxEachLayer, int *_iterMaxPixCoherenceEachLayer);
+
+   ClassDef(recoData, 17);
 
 };
 

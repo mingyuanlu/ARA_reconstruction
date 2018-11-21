@@ -82,6 +82,9 @@ using namespace std;
 
    std:fill(&impulsivity[0], &impulsivity[16], 0.);
 
+   iterMaxPixIdxEachLayer.clear();
+   iterMaxPixCoherenceEachLayer.clear();
+
    }
 
 
@@ -527,6 +530,23 @@ using namespace std;
 
    }
 
+   void recoData::setIterMaxPixInfoEachLayer(recoSettings *settings, int *_iterMaxPixIdxEachLayer, float *_iterMaxPixCoherenceEachLayer){
+
+      iterMaxPixIdxEachLayer.clear();
+      iterMaxPixCoherenceEachLayer.clear();
+
+      int nAnt = (string(settings->recoPolType)=="both" ? 16 : 8);
+      int numIter = nAnt - settings->nchnlCut + 1;
+      int nLayer = settings->nLayer;
+      for(int iter=0; iter<numIter; iter++){
+         for(int layer=0; layer<nLayer; layer++){
+            iterMaxPixIdxEachLayer.push_back(_iterMaxPixIdxEachLayer[iter*nLayer+layer]);
+            iterMaxPixCoherenceEachLayer.push_back(_iterMaxPixCoherenceEachLayer[iter*nLayer+layer]);
+         }
+      }
+
+   }
+
    void recoData::duplicate(recoSettings *settings, recoData *old){
 
    int *_topMaxPixIdx         = (int*)calloc(old->topN, sizeof(int));
@@ -564,6 +584,16 @@ using namespace std;
    for(int iter=0; iter<numIter; iter++){
       _iterMaxPixIdx[iter]       = old->iterMaxPixIdx[iter];
       _iterMaxPixCoherence[iter] = old->iterMaxPixCoherence[iter];
+   }
+
+   int nLayer = settings->nLayer;
+   int *_iterMaxPixIdxEachLayer         = (int*)calloc(numIter*nLayer, sizeof(int));
+   float *_iterMaxPixCoherenceEachLayer = (float*)calloc(numIter*nLayer, sizeof(float));
+   for(int iter=0; iter<numIter; iter++){
+      for(int layer=0; layer<nLayer; layer++){
+         _iterMaxPixIdxEachLayer[iter*nLayer+layer]       = old->iterMaxPixIdxEachLayer[iter*nLayer+layer];
+         _iterMaxPixCoherenceEachLayer[iter*nLayer+layer] = old->iterMaxPixCoherenceEachLayer[iter*nLayer+layer];
+      }
    }
 
    setAllData(old->eventId,     old->eventNumber
@@ -610,6 +640,7 @@ using namespace std;
    setMaxCountFreq(old->maxCountFreq_V, old->maxCountFreq_H);
    setTimeSequenceParameter(old->timeSequenceParameter);
    setImpulsivity(old->impulsivity);
+   setIterMaxPixInfoEachLayer(settings, _iterMaxPixIdxEachLayer, _iterMaxPixCoherenceEachLayer);
 /*
    weight = old->weight;
 
@@ -653,6 +684,9 @@ using namespace std;
    free(_maxPixCoherenceEachLayer2);
    free(_iterMaxPixIdx);
    free(_iterMaxPixCoherence);
+   free(_iterMaxPixIdxEachLayer);
+   free(_iterMaxPixCoherenceEachLayer);
+
    }
 
    void recoData::clear(){
@@ -710,5 +744,7 @@ using namespace std;
    maxCountFreq_V = maxCountFreq_H = 0.;
    timeSequenceParameter = 0.;
    std::fill(&impulsivity[0], &impulsivity[16], 0.);
+   iterMaxPixIdxEachLayer.clear();
+   iterMaxPixCoherenceEachLayer.clear();
 
    }
