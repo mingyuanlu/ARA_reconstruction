@@ -80,10 +80,15 @@ using namespace std;
 
    timeSequenceParameter = 0.;
 
-   std:fill(&impulsivity[0], &impulsivity[16], 0.);
+   std::fill(&impulsivity[0], &impulsivity[16], 0.);
 
    iterMaxPixIdxEachLayer.clear();
    iterMaxPixCoherenceEachLayer.clear();
+
+   std::fill(&bipolarness[0], &bipolarness[16], 0.);
+   std::fill(&posPowerPeak[0], &posPowerPeak[16], 0.);
+   std::fill(&negPowerPeak[0], &negPowerPeak[16], 0.);
+   std::fill(&powerPeaksDeltaT[0], &powerPeaksDeltaT[16], 0.);
 
    }
 
@@ -547,6 +552,22 @@ using namespace std;
 
    }
 
+   void recoData::setBipolarnessByChannel(int ch, double _bipolarness){
+
+      if( ch < 0 || ch > 15 ){ cerr<<"ch out of range 0-15: "<<ch<<endl; }
+      bipolarness[ch] = _bipolarness;
+
+   }
+
+   void recoData::setPowerPeaksByChannel(int ch, double _posPowerPeak, double _negPowerPeak, double _powerPeaksDeltaT){
+
+      if( ch < 0 || ch > 15 ){ cerr<<"ch out of range 0-15: "<<ch<<endl; }
+      posPowerPeak[ch] = _posPowerPeak;
+      negPowerPeak[ch] = _negPowerPeak;
+      powerPeaksDeltaT[ch] = _powerPeaksDeltaT;
+
+   }
+
    void recoData::duplicate(recoSettings *settings, recoData *old){
 
    int *_topMaxPixIdx         = (int*)calloc(old->topN, sizeof(int));
@@ -641,6 +662,10 @@ using namespace std;
    setTimeSequenceParameter(old->timeSequenceParameter);
    setImpulsivity(old->impulsivity);
    setIterMaxPixInfoEachLayer(settings, _iterMaxPixIdxEachLayer, _iterMaxPixCoherenceEachLayer);
+   for(int ch=0; ch<16; ch++){
+      setBipolarnessByChannel(ch, old->bipolarness[ch]);
+      setPowerPeaksByChannel(ch, old->posPowerPeak[ch], old->negPowerPeak[ch], old->powerPeaksDeltaT[ch]);
+   }
 /*
    weight = old->weight;
 
@@ -746,5 +771,9 @@ using namespace std;
    std::fill(&impulsivity[0], &impulsivity[16], 0.);
    iterMaxPixIdxEachLayer.clear();
    iterMaxPixCoherenceEachLayer.clear();
-
+   std::fill(&bipolarness[0], &bipolarness[16], 0.);
+   std::fill(&posPowerPeak[0], &posPowerPeak[16], 0.);
+   std::fill(&negPowerPeak[0], &negPowerPeak[16], 0.);
+   std::fill(&powerPeaksDeltaT[0], &powerPeaksDeltaT[16], 0.);
+   
    }

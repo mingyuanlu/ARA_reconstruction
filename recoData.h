@@ -195,7 +195,15 @@ public:
    vector<float> iterMaxPixCoherenceEachLayer;
    void setIterMaxPixInfoEachLayer(recoSettings *settings, int *_iterMaxPixIdxEachLayer, float *_iterMaxPixCoherenceEachLayer);
 
-   ClassDef(recoData, 17);
+//ClassDef 18
+   double bipolarness[16];
+   double posPowerPeak[16];
+   double negPowerPeak[16];
+   double powerPeaksDeltaT[16];
+   void setBipolarnessByChannel(int ch, double _bipolarness);
+   void setPowerPeaksByChannel(int ch, double _posPowerPeak, double _negPowerPeak, double _powerPeaksDeltaT);
+
+   ClassDef(recoData, 18);
 
 };
 

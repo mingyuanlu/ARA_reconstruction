@@ -512,6 +512,8 @@ if( err<0 ){
    TGraph *grMean[16];
    TGraph *grFFT[16];
    TGraph *grCDF[16];
+   TGraph *grCumuSumCDF[16];
+
 
 if(settings->dataType == 1){
 /*
@@ -833,23 +835,64 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    summary->setSaturatedChannels(numSatChan, satChan);
    if(settings->maskSaturatedChannels) for(int ch=0; ch<16; ch++) goodChan[ch] = goodChan[ch] && (!satChan[ch]);
 
-   //****************************************************
-   // FILTER SECTION
-   //****************************************************
 
-
-   /* Measure impulsivity */
-
-   int nonZeroChan = 0;
-   double avgImp = 0.;
+   double imp;
+   double bipolarness;
+   double posPowerPeak, negPowerPeak, powerPeaksDeltaT;
+   int maxFracBin;
+   double maxFrac;
 
    for(int ch=0; ch<16; ch++){
-      double imp;
+
+      /* Measure impulsivity */
       grCDF[ch] =  impulsivityMeasure(unpaddedEvent[ch], &imp);
       //summary->setImpulsivityByChannel(ch, impulsivityMeasure(unpaddedEvent[ch], NULL, NULL));
       summary->setImpulsivityByChannel(ch, imp);
 
+      /* Measure bipolarness */
+      grCumuSumCDF[ch] = bipolarnessMeasure(unpaddedEvent[ch], &bipolarness);
+      summary->setBipolarnessByChannel(ch, bipolarness);
+
+      /* Measure +/- power peaks and dT */
+      getPosNegPowerPeakAndDeltaT(unpaddedEvent[ch], NULL, &posPowerPeak, &negPowerPeak, &powerPeaksDeltaT);
+      summary->setPowerPeaksByChannel(ch, posPowerPeak, negPowerPeak, powerPeaksDeltaT);
+
+      /* Get max freq bin */
+      grFFT[ch] = FFTtools::makePowerSpectrumMilliVoltsNanoSecondsdB(grWinPad[ch]);
+
+      if(ch==0){
+         freqCountLen_V = grFFT[ch]->GetN();
+         freqCount_V = new int [freqCountLen_V];
+         fill(&freqCount_V[0], &freqCount_V[freqCountLen_V], 0);
+         freqBinWidth_V = evProcessTools::getFFTBinWidth(grFFT[ch]);
+      }
+      else if (ch==8){
+         freqCountLen_H = grFFT[ch]->GetN();
+         freqCount_H = new int [freqCountLen_H];
+         fill(&freqCount_H[0], &freqCount_H[freqCountLen_H], 0);
+         freqBinWidth_H = evProcessTools::getFFTBinWidth(grFFT[ch]);
+      }
+
+      maxFrac = FFTtools::getPeakVal(grFFT[ch], &maxFracBin);
+      //cout<<"ch: "<<ch<<" macFrac: "<<maxFrac<<" maxFracBin: "<<maxFracBin<<endl;
+      summary->setMaxFreqBinByChannel(ch, maxFracBin, maxFrac);
+      if(ch<8)
+      freqCount_V[maxFracBin]++;
+      else
+      freqCount_H[maxFracBin]++;
+
+      delete grCDF[ch];
+      delete grCumuSumCDF[ch];
+      delete grFFT[ch];
+
    }
+
+   summary->setFreqBinWidth(freqBinWidth_V, freqBinWidth_H);
+
+   //****************************************************
+   // FILTER SECTION
+   //****************************************************
+
 
    if(settings->impulsivityFilter > 0){
 
@@ -869,7 +912,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          unpaddedEvent.clear();
          cleanEvent.clear();
          delete realAtriEvPtr;
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grCDF[ch];}
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/}
          continue;
       }
 
@@ -894,7 +937,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          unpaddedEvent.clear();
          cleanEvent.clear();
          delete realAtriEvPtr;
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grCDF[ch];}
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/}
          continue;
       }
    }
@@ -908,6 +951,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    //if(settings->cwFilter > 0){
 
    bool isCW = false;
+/*
    for(int ch=0; ch<16; ch++){
 
       grFFT[ch] = FFTtools::makePowerSpectrumMilliVoltsNanoSecondsdB(grWinPad[ch]);
@@ -937,7 +981,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    }//end of ch
 
    summary->setFreqBinWidth(freqBinWidth_V, freqBinWidth_H);
-
+*/
    maxCount_V = evProcessTools::getMaxCount(freqCountLen_V, freqCount_V, &maxCountBin, 2); // a coincidence of >= 2 counts as potentially meaningful
    maxCountFreq_V = freqBinWidth_V * maxCountBin;
 
@@ -988,7 +1032,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          unpaddedEvent.clear();
          cleanEvent.clear();
          delete realAtriEvPtr;
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grFFT[ch]; delete grCDF[ch]; }
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ /*delete grCDF[ch];*/ }
          continue;
 
       }
@@ -1161,7 +1205,7 @@ cout<<"*********************************** inWindowSNR_V: "<<summary->inWindowSN
 
    treg->clearForNextEvent();
 
-   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grCDF[ch]; /*if(settings->cwFilter>0)*/ delete grFFT[ch]; }
+   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ /*if(settings->cwFilter>0)*/ /*delete grFFT[ch];*/ }
 
    }//end of ev loop
 
@@ -1330,6 +1374,60 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    summary->setSaturatedChannels(numSatChan, satChan);
    if(settings->maskSaturatedChannels) for(int ch=0; ch<16; ch++) goodChan[ch] = goodChan[ch] && (!satChan[ch]);
 
+   double imp;
+   double bipolarness;
+   double posPowerPeak, negPowerPeak, powerPeaksDeltaT;
+   int maxFracBin;
+   double maxFrac;
+
+   for(int ch=0; ch<16; ch++){
+
+      /* Measure impulsivity */
+      grCDF[ch] =  impulsivityMeasure(unpaddedEvent[ch], &imp);
+      //summary->setImpulsivityByChannel(ch, impulsivityMeasure(unpaddedEvent[ch], NULL, NULL));
+      summary->setImpulsivityByChannel(ch, imp);
+
+      /* Measure bipolarness */
+      grCumuSumCDF[ch] = bipolarnessMeasure(unpaddedEvent[ch], &bipolarness);
+      summary->setBipolarnessByChannel(ch, bipolarness);
+
+      /* Measure +/- power peaks and dT */
+      getPosNegPowerPeakAndDeltaT(unpaddedEvent[ch], NULL, &posPowerPeak, &negPowerPeak, &powerPeaksDeltaT);
+      summary->setPowerPeaksByChannel(ch, posPowerPeak, negPowerPeak, powerPeaksDeltaT);
+
+      /* Get max freq bin */
+      grFFT[ch] = FFTtools::makePowerSpectrumMilliVoltsNanoSecondsdB(grWinPad[ch]);
+
+      if(ch==0){
+         freqCountLen_V = grFFT[ch]->GetN();
+         freqCount_V = new int [freqCountLen_V];
+         fill(&freqCount_V[0], &freqCount_V[freqCountLen_V], 0);
+         freqBinWidth_V = evProcessTools::getFFTBinWidth(grFFT[ch]);
+      }
+      else if (ch==8){
+         freqCountLen_H = grFFT[ch]->GetN();
+         freqCount_H = new int [freqCountLen_H];
+         fill(&freqCount_H[0], &freqCount_H[freqCountLen_H], 0);
+         freqBinWidth_H = evProcessTools::getFFTBinWidth(grFFT[ch]);
+      }
+
+      maxFrac = FFTtools::getPeakVal(grFFT[ch], &maxFracBin);
+      //cout<<"ch: "<<ch<<" macFrac: "<<maxFrac<<" maxFracBin: "<<maxFracBin<<endl;
+      summary->setMaxFreqBinByChannel(ch, maxFracBin, maxFrac);
+      if(ch<8)
+      freqCount_V[maxFracBin]++;
+      else
+      freqCount_H[maxFracBin]++;
+
+      delete grCDF[ch];
+      delete grCumuSumCDF[ch];
+      delete grFFT[ch];
+
+   }
+
+   summary->setFreqBinWidth(freqBinWidth_V, freqBinWidth_H);
+
+
    //****************************************************
    // FILTER SECTION
    //****************************************************
@@ -1338,13 +1436,14 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    double avgImp = 0.;
 
    /* Measure impulsivity */
+/*
    for(int ch=0; ch<16; ch++){
       double imp;
       grCDF[ch] = impulsivityMeasure(unpaddedEvent[ch], &imp);
       //summary->setImpulsivityByChannel(ch, impulsivityMeasure(unpaddedEvent[ch], NULL, NULL));
       summary->setImpulsivityByChannel(ch, imp);
    }
-
+*/
    if(settings->impulsivityFilter > 0){
 
       for(int ch=(string(settings->recoPolType)=="hpol"?8:0); ch<(string(settings->recoPolType)=="vpol"?8:16); ch++){
@@ -1363,7 +1462,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
          weightedImpulsivityFilteredEventCount += weight;
          unpaddedEvent.clear();
          cleanEvent.clear();
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grCDF[ch];}
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/}
          continue;
       }
 
@@ -1401,6 +1500,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    //if(settings->cwFilter > 0){
 
    bool isCW = false;
+/*
    for(int ch=0; ch<16; ch++){
 
       grFFT[ch] = FFTtools::makePowerSpectrumMilliVoltsNanoSecondsdB(grWinPad[ch]);
@@ -1430,7 +1530,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       freqCount_H[maxFracBin]++;
 
    }//end of ch
-
+*/
    maxCount_V = evProcessTools::getMaxCount(freqCountLen_V, freqCount_V, &maxCountBin, 2); // a coincidence of >= 2 counts as potentially meaning
    maxCountFreq_V = freqBinWidth_V * maxCountBin;
 
@@ -1482,7 +1582,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
          weightedCWFilteredEventCount += weight;
          unpaddedEvent.clear();
          cleanEvent.clear();
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grFFT[ch]; delete grCDF[ch]; }
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ delete grCDF[ch]; }
          continue;
 
       }
@@ -1666,7 +1766,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    cleanEvent.clear();
    //delete summary;
    treg->clearForNextEvent();
-   for(int ch=0; ch<16; ch++){ /*delete gr_v[ch];*/ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grCDF[ch]; /*if(settings->cwFilter>0)*/ delete grFFT[ch]; }
+   for(int ch=0; ch<16; ch++){ /*delete gr_v[ch];*/ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grCDF[ch]; /*if(settings->cwFilter>0)*/ /*delete grFFT[ch];*/ }
    }//end of ev loop
 
 }//end of dataType == 0

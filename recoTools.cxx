@@ -14231,4 +14231,8 @@ void getPosNegPowerPeakAndDeltaT(TGraph *wf, int nIntSamp=50, double *posPowerPe
    *negPowerPeak = -1.*sqrt(FFTtools::getPeakSqVal(negPwrGr, &negPeakIdx));
    *deltaT = fabs(posPeakIdx - negPeakIdx) * wInt;
 
+   delete posGr;
+   delete negGr;
+   delete posPwrGr;
+   delete negPwrGr;
 }
