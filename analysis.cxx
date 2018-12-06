@@ -852,6 +852,7 @@ cout<<"845\n";
 cout<<"852\n";
       /* Measure bipolarness */
       grCumuSum[ch] = bipolarnessMeasure(unpaddedEvent[ch], &bipolarness, grCumuSumCDF[ch]);
+      cout<<"n: "<<grCumuSumCDF[ch]->GetN()<<endl;
       summary->setBipolarnessByChannel(ch, bipolarness);
 cout<<"856\n";
       /* Measure +/- power peaks and dT */
