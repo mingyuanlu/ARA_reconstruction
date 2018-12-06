@@ -512,6 +512,7 @@ if( err<0 ){
    TGraph *grMean[16];
    TGraph *grFFT[16];
    TGraph *grCDF[16];
+   TGraph *grCumuSum[16];
    TGraph *grCumuSumCDF[16];
 
 
@@ -850,7 +851,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       summary->setImpulsivityByChannel(ch, imp);
 
       /* Measure bipolarness */
-      grCumuSumCDF[ch] = bipolarnessMeasure(unpaddedEvent[ch], &bipolarness);
+      grCumuSum[ch] = bipolarnessMeasure(unpaddedEvent[ch], &bipolarness, grCumuSumCDF[ch]);
       summary->setBipolarnessByChannel(ch, bipolarness);
 
       /* Measure +/- power peaks and dT */
@@ -882,6 +883,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       freqCount_H[maxFracBin]++;
 
       delete grCDF[ch];
+      delete grCumuSum[ch];
       delete grCumuSumCDF[ch];
       delete grFFT[ch];
 
@@ -1390,7 +1392,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       summary->setImpulsivityByChannel(ch, imp);
 
       /* Measure bipolarness */
-      grCumuSumCDF[ch] = bipolarnessMeasure(unpaddedEvent[ch], &bipolarness);
+      grCumuSum[ch] = bipolarnessMeasure(unpaddedEvent[ch], &bipolarness, grCumuSumCDF[ch]);
       summary->setBipolarnessByChannel(ch, bipolarness);
 
       /* Measure +/- power peaks and dT */
@@ -1422,6 +1424,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       freqCount_H[maxFracBin]++;
 
       delete grCDF[ch];
+      delete grCumuSum[ch];
       delete grCumuSumCDF[ch];
       delete grFFT[ch];
 
