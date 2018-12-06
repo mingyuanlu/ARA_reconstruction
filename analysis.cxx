@@ -854,7 +854,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       summary->setBipolarnessByChannel(ch, bipolarness);
 
       /* Measure +/- power peaks and dT */
-      getPosNegPowerPeakAndDeltaT(unpaddedEvent[ch], &posPowerPeak, &negPowerPeak, &powerPeaksDeltaT);
+      PowerPeakAndDeltaT(unpaddedEvent[ch], &posPowerPeak, &negPowerPeak, &powerPeaksDeltaT);
       summary->setPowerPeaksByChannel(ch, posPowerPeak, negPowerPeak, powerPeaksDeltaT);
 
       /* Get max freq bin */
@@ -893,6 +893,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    // FILTER SECTION
    //****************************************************
 
+   int nonZeroChan = 0;
+   double avgImp = 0.;
 
    if(settings->impulsivityFilter > 0){
 
