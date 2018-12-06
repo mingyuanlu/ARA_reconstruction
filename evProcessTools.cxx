@@ -1762,3 +1762,76 @@ double evProcessTools::getPeakSqValRange(TGraph *gr, int *index, int firstBin, i
 
 }
 */
+
+TGraph* evProcessTools::getCumulativeVoltageSumGraph(TGraph *gr, int startPoint, int endPoint)
+{
+
+   int nPoints = gr->GetN();
+   if(nPoints<1){ cerr<<"evProcessTools::getCumulativeVoltageSumGraph receives no waveforms!"<<endl; return NULL; }
+
+   TGraph *grOut = new TGraph(nPoints);
+   double sum, t, v;
+   sum = 0.;
+
+   if(startPoint<0 || startPoint>=nPoints) { cerr<<"startPoint: "<<startPoint<<" is either <0 or >nPoints"<<endl; return NULL; }
+   if(endPoint<-1 || endPoint>=nPoints) { cerr<<"endPoint: "<<endPoint<<" is either <-1 or >nPoints"<<endl; return NULL; }
+
+   if (endPoint == -1) endPoint = nPoints-1;
+
+   for(int p=0; p<nPoints; p++){
+
+      gr->GetPoint(p, t, v);
+
+      if( p >= startPoint && p<=endPoint){
+      //sum = 0.;
+      sum += v;
+      grOut->SetPoint(p, t, sum);
+      }
+      else grOut->SetPoint(p,t,0);
+
+   }
+
+   return grOut;
+}
+TGraph* evProcessTools::getOneSidedWaveform(TGraph *gr, bool positive){
+
+   TGraph *grOneSide = new TGraph();
+
+   double t,v;
+
+   if(positive){
+      for(int p=0; p<gr->GetN(); p++){
+         gr->GetPoint(p,t,v);
+         if(v<0) grOneSide->SetPoint(p,t,0);
+         else    grOneSide->SetPoint(p,t,v);
+      }
+   } else {
+      for(int p=0; p<gr->GetN(); p++){
+         gr->GetPoint(p,t,v);
+         if(v>0) grOneSide->SetPoint(p,t,0);
+         else    grOneSide->SetPoint(p,t,v);
+      }
+   }
+
+   return grOneSide;
+}
+
+TGraph* evProcessTools::getVoltageSummedWaveform(TGraph *gr, int nIntSamp){
+
+   TGraph *grVSummed = new TGraph();
+   double t, v, t0;
+   double sum;
+   for(int p=0; p<gr->GetN()-nIntSamp; p++){
+
+      sum=0.;
+      for(int q=p; q<p+nIntSamp; q++){
+         gr->GetPoint(q,t,v);
+         sum+=v;
+         if(q==p) t0 = t;
+      }
+      grVSummed->SetPoint(p, t0, sum);
+
+   }
+
+   return grVSummed;
+}

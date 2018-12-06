@@ -14201,3 +14201,34 @@ TGraph * impulsivityMeasure(TGraph * wf, double *impulsivity/*TGraph * distance_
 
   return distance_cdf;
 }
+
+TGraph *bipolarnessMeasure(TGraph *wf, double *bipolarness, TGraph *grCumuSumCDF){
+
+   TGraph *grCumuSum = evProcessTools::getCumulativeVoltageSumGraph( wf );
+
+   //double bipolarness;
+   grCumuSumCDF = impulsivityMeasure(grCumuSum, bipolarness);
+
+   return grCumuSum;
+}
+void getPosNegPowerPeakAndDeltaT(TGraph *wf, int nIntSamp=50, double *posPowerPeak, double *negPowerPeak, double *deltaT){
+
+   double t1, v1, t2, v2;
+   wf->GetPoint(0,t1,v1);
+   wf->GetPoint(1,t2,v2);
+   double wInt = t2-t1;
+
+   bool positive = true;
+   TGraph *posGr = evProcessTools::getOneSidedWaveform(wf, positive);
+   positive = false;
+   TGraph *negGr = evProcessTools::getOneSidedWaveform(wf, positive);
+
+   TGraph *posPwrGr = evProcessTools::getVoltageSummedWaveform(posGr, nIntSamp);
+   TGraph *negPwrGr = evProcessTools::getVoltageSummedWaveform(negGr, nIntSamp);
+
+   int posPeakIdx, negPeakIdx;
+   *posPowerPeak =     sqrt(FFTtools::getPeakSqVal(posPwrGr, &posPeakIdx));
+   *negPowerPeak = -1.*sqrt(FFTtools::getPeakSqVal(negPwrGr, &negPeakIdx));
+   *deltaT = fabs(posPeakIdx - negPeakIdx) * wInt;
+
+}
