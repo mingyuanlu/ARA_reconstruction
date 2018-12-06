@@ -883,10 +883,13 @@ cout<<"876\n";
       freqCount_H[maxFracBin]++;
 cout<<"884\n";
       delete grCDF[ch];
+cout<<"886\n";
       delete grCumuSum[ch];
+cout<<"888\n";
       delete grCumuSumCDF[ch];
+cout<<"890\n";
       delete grFFT[ch];
-cout<<"889\n";
+cout<<"892\n";
    }
 
    summary->setFreqBinWidth(freqBinWidth_V, freqBinWidth_H);
