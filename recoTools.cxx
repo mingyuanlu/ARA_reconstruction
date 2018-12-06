@@ -14211,7 +14211,7 @@ TGraph *bipolarnessMeasure(TGraph *wf, double *bipolarness, TGraph *grCumuSumCDF
 
    return grCumuSum;
 }
-void getPosNegPowerPeakAndDeltaT(TGraph *wf, int nIntSamp=50, double *posPowerPeak, double *negPowerPeak, double *deltaT){
+void getPosNegPowerPeakAndDeltaT(TGraph *wf, double *posPowerPeak, double *negPowerPeak, double *deltaT, int nIntSamp){
 
    double t1, v1, t2, v2;
    wf->GetPoint(0,t1,v1);

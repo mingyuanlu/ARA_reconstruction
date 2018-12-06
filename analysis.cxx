@@ -854,7 +854,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       summary->setBipolarnessByChannel(ch, bipolarness);
 
       /* Measure +/- power peaks and dT */
-      getPosNegPowerPeakAndDeltaT(unpaddedEvent[ch], NULL, &posPowerPeak, &negPowerPeak, &powerPeaksDeltaT);
+      getPosNegPowerPeakAndDeltaT(unpaddedEvent[ch], &posPowerPeak, &negPowerPeak, &powerPeaksDeltaT);
       summary->setPowerPeaksByChannel(ch, posPowerPeak, negPowerPeak, powerPeaksDeltaT);
 
       /* Get max freq bin */
@@ -1392,7 +1392,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       summary->setBipolarnessByChannel(ch, bipolarness);
 
       /* Measure +/- power peaks and dT */
-      getPosNegPowerPeakAndDeltaT(unpaddedEvent[ch], NULL, &posPowerPeak, &negPowerPeak, &powerPeaksDeltaT);
+      getPosNegPowerPeakAndDeltaT(unpaddedEvent[ch], &posPowerPeak, &negPowerPeak, &powerPeaksDeltaT);
       summary->setPowerPeaksByChannel(ch, posPowerPeak, negPowerPeak, powerPeaksDeltaT);
 
       /* Get max freq bin */
