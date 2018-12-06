@@ -851,8 +851,8 @@ cout<<"845\n";
       summary->setImpulsivityByChannel(ch, imp);
 cout<<"852\n";
       /* Measure bipolarness */
-      grCumuSum[ch] = bipolarnessMeasure(unpaddedEvent[ch], &bipolarness, grCumuSumCDF[ch]);
-      cout<<"n: "<<grCumuSumCDF[ch]->GetN()<<endl;
+      grCumuSum[ch] = bipolarnessMeasure(unpaddedEvent[ch], &bipolarness/*, grCumuSumCDF[ch]*/);
+      //cout<<"n: "<<grCumuSumCDF[ch]->GetN()<<endl;
       summary->setBipolarnessByChannel(ch, bipolarness);
 cout<<"856\n";
       /* Measure +/- power peaks and dT */
@@ -887,7 +887,7 @@ cout<<"884\n";
 cout<<"886\n";
       delete grCumuSum[ch];
 cout<<"888\n";
-      delete grCumuSumCDF[ch];
+      //delete grCumuSumCDF[ch];
 cout<<"890\n";
       delete grFFT[ch];
 cout<<"892\n";
@@ -1396,7 +1396,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       summary->setImpulsivityByChannel(ch, imp);
 
       /* Measure bipolarness */
-      grCumuSum[ch] = bipolarnessMeasure(unpaddedEvent[ch], &bipolarness, grCumuSumCDF[ch]);
+      grCumuSum[ch] = bipolarnessMeasure(unpaddedEvent[ch], &bipolarness/*, grCumuSumCDF[ch]*/);
       summary->setBipolarnessByChannel(ch, bipolarness);
 
       /* Measure +/- power peaks and dT */
@@ -1429,7 +1429,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
       delete grCDF[ch];
       delete grCumuSum[ch];
-      delete grCumuSumCDF[ch];
+      //delete grCumuSumCDF[ch];
       delete grFFT[ch];
 
    }

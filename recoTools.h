@@ -428,6 +428,6 @@ double getPeakSqValRange(TGraph *gr, int *index, int firstBin, int lastBin);
 //void resetTimer(timer *t);
 double impulsivityMeasure(TGraph * wf, TGraph * distance_cdf = 0, int pt = -1/*, bool    hilbert*/);
 TGraph *impulsivityMeasure(TGraph * wf, double *impulsivity/*TGraph * distance_cdf*/,int pt = -1/*, bool    hilbert*/);
-TGraph *bipolarnessMeasure(TGraph *wf, double *bipolarness, TGraph *grCumuSumCDF);
+TGraph *bipolarnessMeasure(TGraph *wf, double *bipolarness/*, TGraph *grCumuSumCDF*/);
 void getPosNegPowerPeakAndDeltaT(TGraph *wf, double *posPowerPeak, double *negPowerPeak, double *deltaT, int nIntSamp=50);
 #endif
