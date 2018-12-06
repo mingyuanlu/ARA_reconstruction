@@ -669,7 +669,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       continue;
    }
 
-
+cout<<"672\n";
    double average[16]={0.};
 
    for(int a=0;a<16;a++)
@@ -842,25 +842,25 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    double posPowerPeak, negPowerPeak, powerPeaksDeltaT;
    int maxFracBin;
    double maxFrac;
-
+cout<<"845\n";
    for(int ch=0; ch<16; ch++){
 
       /* Measure impulsivity */
       grCDF[ch] =  impulsivityMeasure(unpaddedEvent[ch], &imp);
       //summary->setImpulsivityByChannel(ch, impulsivityMeasure(unpaddedEvent[ch], NULL, NULL));
       summary->setImpulsivityByChannel(ch, imp);
-
+cout<<"852\n";
       /* Measure bipolarness */
       grCumuSum[ch] = bipolarnessMeasure(unpaddedEvent[ch], &bipolarness, grCumuSumCDF[ch]);
       summary->setBipolarnessByChannel(ch, bipolarness);
-
+cout<<"856\n";
       /* Measure +/- power peaks and dT */
       getPosNegPowerPeakAndDeltaT(unpaddedEvent[ch], &posPowerPeak, &negPowerPeak, &powerPeaksDeltaT);
       summary->setPowerPeaksByChannel(ch, posPowerPeak, negPowerPeak, powerPeaksDeltaT);
-
+cout<<"860\n";
       /* Get max freq bin */
       grFFT[ch] = FFTtools::makePowerSpectrumMilliVoltsNanoSecondsdB(grWinPad[ch]);
-
+cout<<"863\n";
       if(ch==0){
          freqCountLen_V = grFFT[ch]->GetN();
          freqCount_V = new int [freqCountLen_V];
@@ -873,7 +873,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          fill(&freqCount_H[0], &freqCount_H[freqCountLen_H], 0);
          freqBinWidth_H = evProcessTools::getFFTBinWidth(grFFT[ch]);
       }
-
+cout<<"876\n";
       maxFrac = FFTtools::getPeakVal(grFFT[ch], &maxFracBin);
       //cout<<"ch: "<<ch<<" macFrac: "<<maxFrac<<" maxFracBin: "<<maxFracBin<<endl;
       summary->setMaxFreqBinByChannel(ch, maxFracBin, maxFrac);
@@ -881,16 +881,16 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       freqCount_V[maxFracBin]++;
       else
       freqCount_H[maxFracBin]++;
-
+cout<<"884\n";
       delete grCDF[ch];
       delete grCumuSum[ch];
       delete grCumuSumCDF[ch];
       delete grFFT[ch];
-
+cout<<"889\n";
    }
 
    summary->setFreqBinWidth(freqBinWidth_V, freqBinWidth_H);
-
+cout<<"893\n";
    //****************************************************
    // FILTER SECTION
    //****************************************************
