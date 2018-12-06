@@ -90,7 +90,9 @@ static TGraph* getRollingMeanGraph(TGraph *grInt, int samplerPerBlock);
 static double getMean(TGraph *gr);
 static double getMax(TGraph *gr, double* maxTime);
 //static double getPeakSqValRange(TGraph *gr, int *index, int firstBin, int lastBin);
-static TGraph* getCumulativeVoltageSumGraph(TGraph *gr, int startBin=0, int endBin = -1);
+static TGraph* getCumulativeVoltageSumGraph(TGraph *gr, int startPoint=1, int endPoint = -1);
+static TGraph* getOneSidedWaveform(TGraph *gr, bool positive);
+static TGraph* getVoltageSummedWaveform(TGraph *gr, int nIntSamp);
 
 };
 #endif
