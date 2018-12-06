@@ -14207,8 +14207,8 @@ TGraph *bipolarnessMeasure(TGraph *wf, double *bipolarness, TGraph *grCumuSumCDF
    TGraph *grCumuSum = evProcessTools::getCumulativeVoltageSumGraph( wf );
 
    //double bipolarness;
-   grCumuSumCDF = impulsivityMeasure(grCumuSum, bipolarness);
-   cout<<"n in func: "<<grCumuSumCDF->GetN()<<endl;
+   *grCumuSumCDF = impulsivityMeasure(grCumuSum, bipolarness);
+   cout<<"n in func: "<<*grCumuSumCDF->GetN()<<endl;
    return grCumuSum;
 }
 void getPosNegPowerPeakAndDeltaT(TGraph *wf, double *posPowerPeak, double *negPowerPeak, double *deltaT, int nIntSamp){
