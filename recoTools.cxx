@@ -8,7 +8,7 @@
  * In this example, we will use platform 0
  *
  */
-//#include "evProcessTools.h"
+#include "evProcessTools.h"
 #include "recoTools.h"
 #include "TObject.h"
 
@@ -14210,7 +14210,7 @@ TGraph *bipolarnessMeasure(TGraph *wf, double *bipolarness/*, TGraph *grCumuSumC
    TGraph *grCumuSumCDF = impulsivityMeasure(grCumuSum, bipolarness);
    //cout<<"n in func: "<<grCumuSumCDF->GetN()<<endl;
    delete grCumuSumCDF;
-   
+
    return grCumuSum;
 }
 void getPosNegPowerPeakAndDeltaT(TGraph *wf, double *posPowerPeak, double *negPowerPeak, double *deltaT, int nIntSamp){
