@@ -1491,7 +1491,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       weightedNchnlFilteredEventCount += weight;
       unpaddedEvent.clear();
       cleanEvent.clear();
-      for(int ch=0; ch<16; ch++){ /*delete gr_v[ch];*/ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grCDF[ch]; }
+      for(int ch=0; ch<16; ch++){ /*delete gr_v[ch];*/ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch];/* delete grCDF[ch]; */}
       continue;
 
    }
@@ -1587,7 +1587,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
          weightedCWFilteredEventCount += weight;
          unpaddedEvent.clear();
          cleanEvent.clear();
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ delete grCDF[ch]; }
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ /*delete grCDF[ch]; */}
          continue;
 
       }
@@ -1771,7 +1771,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    cleanEvent.clear();
    //delete summary;
    treg->clearForNextEvent();
-   for(int ch=0; ch<16; ch++){ /*delete gr_v[ch];*/ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grCDF[ch]; /*if(settings->cwFilter>0)*/ /*delete grFFT[ch];*/ }
+   for(int ch=0; ch<16; ch++){ /*delete gr_v[ch];*/ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ /*if(settings->cwFilter>0)*/ /*delete grFFT[ch];*/ }
    }//end of ev loop
 
 }//end of dataType == 0
