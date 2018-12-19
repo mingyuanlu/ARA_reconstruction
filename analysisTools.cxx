@@ -5,7 +5,7 @@ ClassImp(recoData);
 
 using namespace std;
 
-int getRunType(string STATION, in runNum){
+int getRunType(string STATION, int runNum){
 
    int type;
 
@@ -17,11 +17,11 @@ int getRunType(string STATION, in runNum){
       } else if ( runNum >= 3465 && runNum <= 4027 ){
          type = 3;
       } else if ( ( runNum >= 4029 && runNum <= 6481) || ( runNum >= 3 && runNum <= 60) || ( runNum >= 8100 && runNum <= 8246) ){
-         type = 4
+         type = 4;
       } else if ( (runNum >= 6500 && runNum <= 8097) || runNum == 0 ){
          type = 5;
       } else {
-         type = 0
+         type = 0;
       }
    } else if ( STATION == "ARA03" ) {
       if ( runNum >= 1449 && runNum <= 3061 ) {
@@ -33,7 +33,7 @@ int getRunType(string STATION, in runNum){
       } else if ( runNum >= 6005 && runNum <= 7653 ){
          type = 4;
       } else {
-         type = 0
+         type = 0;
       }
    } else {
       type = 0;
