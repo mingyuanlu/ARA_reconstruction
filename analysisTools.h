@@ -93,7 +93,7 @@ public:
    cutParameter surfaceCut_constantN;
    cutParameter surfaceCut_iterReco;
 
-   void setValue(cutParamater& param, double _val, double _plus, double _minus);
+   void setValue(cutParameter& param, double _val, double _plus, double _minus);
 
    ClassDef(ARA02_cutValues, 1);
 
