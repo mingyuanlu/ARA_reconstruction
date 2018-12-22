@@ -52,6 +52,8 @@ ARA02_cutValues::ARA02_cutValues(){ initialize(); }
 
 void ARA02_cutValues::initialize(){
 
+   cutParameter c;
+
    setValue(cwImpCut[0], 0.29936375,0.00071682,-0.00071682);
    setValue(cwImpCut[1], 0.32188931,0.00097344,-0.00097344);
    setValue(cwImpCut[2], 0.2955359,0.00070074,-0.00070074);
