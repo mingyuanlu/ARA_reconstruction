@@ -52,13 +52,14 @@ class cutParameter /*: public TObject*/
 
 public:
 
-   cutParameter();
-   ~cutParameter();
+
 
    double val;
    double plus;
    double minus;
 
+   cutParameter();
+   ~cutParameter();
    //ClassDef(cutParameter, 1);
 };
 
