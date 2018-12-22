@@ -47,7 +47,7 @@ using namespace std;
 
 int getRunType(string STATION, int runNum);
 
-class cutParameter : public TObject
+class cutParameter : /*public TObject*/
 {
 
 public:
@@ -60,7 +60,7 @@ public:
    ClassDef(cutParameter, 1);
 };
 
-class ARA02_cutValues : public TObject
+class ARA02_cutValues : /*public TObject*/
 {
 private:
 
