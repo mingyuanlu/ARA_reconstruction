@@ -2,8 +2,8 @@
 
 ClassImp(recoSettings);
 ClassImp(recoData);
-ClassImp(ARA02_cutValues);
 ClassImp(cutParameter);
+ClassImp(ARA02_cutValues);
 
 using namespace std;
 
@@ -45,14 +45,13 @@ int getRunType(string STATION, int runNum){
 
 }
 
-cutParameter::cutParameter() { /*default constructor*/ }
+cutParameter::cutParameter() {  }
 cutParameter::~cutParameter() { /*default destructor*/ }
 
 ARA02_cutValues::ARA02_cutValues(){ initialize(); }
 
 void ARA02_cutValues::initialize(){
 
-   cutParameter c;
 
    setValue(cwImpCut[0], 0.29936375,0.00071682,-0.00071682);
    setValue(cwImpCut[1], 0.32188931,0.00097344,-0.00097344);
