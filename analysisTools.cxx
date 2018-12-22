@@ -49,6 +49,7 @@ cutParameter::cutParameter() {  }
 cutParameter::~cutParameter() { /*default destructor*/ }
 
 ARA02_cutValues::ARA02_cutValues(){ initialize(); }
+ARA02_cutValues::~ARA02_cutValues(){ /* default destructor */ }
 
 void ARA02_cutValues::initialize(){
 
@@ -109,8 +110,6 @@ void ARA02_cutValues::initialize(){
    setValue(surfaceCut_iterReco, 36.77852,	-0.588241,	0.588241);
 
 }
-
-ARA02_cutValues::~ARA02_cutValues(){ /* default destructor */ }
 
 void ARA02_cutValues::setValue(cutParameter& param, double _val, double _plus, double _minus){
 
