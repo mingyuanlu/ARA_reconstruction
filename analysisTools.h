@@ -52,12 +52,14 @@ class cutParameter /*: public TObject*/
 
 public:
 
-   double val, plus, minus;
-
    cutParameter();
    ~cutParameter();
 
-   ClassDef(cutParameter, 1);
+   double val;
+   double plus;
+   double minus;
+
+   //ClassDef(cutParameter, 1);
 };
 
 class ARA02_cutValues /*: public TObject*/
@@ -96,7 +98,7 @@ public:
    void initialize();
    void setValue(cutParameter& param, double _val, double _plus, double _minus);
 
-   ClassDef(ARA02_cutValues, 1);
+   //ClassDef(ARA02_cutValues, 1);
 
 };
 
