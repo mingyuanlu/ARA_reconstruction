@@ -1,10 +1,10 @@
 #include "analysisTools.h"
-
+/*
 ClassImp(recoSettings);
 ClassImp(recoData);
 ClassImp(cutParameter);
 ClassImp(ARA02_cutValues);
-
+*/
 using namespace std;
 
 int getRunType(string STATION, int runNum){
