@@ -86,7 +86,7 @@ void ARA02_cutValues::initialize(){
 
    setValue(impCut, 0.25563478, 0.00124038, -0.00124038);
 
-   setValue(zenMin[0],0.5409,	-0.001924625,	0.001924625); // +: cut region is larger -: cut regin is smaller
+   setValue(zenMin[0],0.5409,	-0.001924625,	0.001924625); // plus: cut region is larger minus: cut regin is smaller
    setValue(zenMin[1],-31.4,	-0.030723404,	0.030723404);
    setValue(zenMin[2],-27.78,	-0.0405,	0.0405);
    setValue(zenMin[3],24.07,	-0.005442857,	0.005442857);
@@ -106,7 +106,7 @@ void ARA02_cutValues::initialize(){
    setValue(aziMax[2],58.32,	0.015909091,	-0.015909091);
    setValue(aziMax[3],75.25,	0.010268085,	-0.010268085);
 
-   setValue(surfaceCut_constantN, 35.648,	-0.693,	0.693); // +: cut region is larger, -: cut region is smaller
+   setValue(surfaceCut_constantN, 35.648,	-0.693,	0.693); // plus: cut region is larger, minus: cut region is smaller
    setValue(surfaceCut_iterReco, 36.77852,	-0.588241,	0.588241);
 
 }
