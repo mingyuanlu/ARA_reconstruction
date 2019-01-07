@@ -7691,7 +7691,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    xCorrGraph[ant1*nAnt+ant2]->Draw("AL");
 
    //TGraph* envelope = FFTtools::getHilbertEnvelope( xCorrGraph );
-   envelope[ant1*nAnt+ant2] = FFTtools::getHilbertEnvelope( xCorrGraph );
+   envelope[ant1*nAnt+ant2] = FFTtools::getHilbertEnvelope( xCorrGraph[ant1*nAnt+ant2] );
 
    //peakBin = FFTtools::getPeakBin(envelope);
    //envelope->GetPoint(peakBin,x,y);
@@ -7792,7 +7792,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 
    for(int s=0; s<nSamp; s++){
 
-   envelope->GetPoint(s,t_temp,v_temp);
+   envelope[ant1*nAnt+ant2]->GetPoint(s,t_temp,v_temp);
    xCorrTime[nSamp*baseline + s] = static_cast<float>(v_temp);
 /*
    if(s!=nSamp-1)
@@ -7812,8 +7812,8 @@ for(int baseline=0; baseline<nBaseline; baseline++){
   //xCorrPeakHist[baseline]->Write();
   //envPeakHist[baseline]->Write();
 
-  delete xCorrGraph;
-  delete envelope;
+  //delete xCorrGraph;
+  //delete envelope;
 
 }
 
