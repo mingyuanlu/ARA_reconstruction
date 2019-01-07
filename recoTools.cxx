@@ -7643,6 +7643,10 @@ int lastBin  = nSamp / 2;
 //FILE *hilbertEnvelopeGraphDataFile = fopen("hilbertEnvGraphDataFile_A3_run3811_IC22S_10Events_allAnt.csv","a+");
 //TFile *hilbertEnvelopeGraphDataFile = new TFile("hilbertEnvGraphDataFile_A3_run2328_rooftop.root","UPDATE");
 
+TGraph *xCorrGraph[64];
+TGraph *envelope[64];
+TLine *dt[64];
+
 for(int baseline=0; baseline<nBaseline; baseline++){
 
 
@@ -7661,7 +7665,8 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 */
    }
 
-   TGraph *xCorrGraph = new TGraph(nSamp, dt, xCorrValue);
+   //TGraph *xCorrGraph = new TGraph(nSamp, dt, xCorrValue);
+   xCorrGraph[ant1*nAnt+ant2] = new TGraph(nSamp, dt, xCorrValue);
 
 //   y = getPeakSqValRange(xCorrGraph, &peakBin, firstBin, lastBin);
 //   xCorrGraph->GetPoint(peakBin,x,y);
@@ -7683,12 +7688,13 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 */
    cvs.cd(ant1*nAnt+ant2+1);
    //cvs.cd();
-   xCorrGraph->Draw("AL");
+   xCorrGraph[ant1*nAnt+ant2]->Draw("AL");
 
-   TGraph* envelope = FFTtools::getHilbertEnvelope( xCorrGraph );
+   //TGraph* envelope = FFTtools::getHilbertEnvelope( xCorrGraph );
+   envelope[ant1*nAnt+ant2] = FFTtools::getHilbertEnvelope( xCorrGraph );
 
-   peakBin = FFTtools::getPeakBin(envelope);
-   envelope->GetPoint(peakBin,x,y);
+   //peakBin = FFTtools::getPeakBin(envelope);
+   //envelope->GetPoint(peakBin,x,y);
    //envPeakHist[baseline]->Fill(x);
   //cout<<"env Peak Bin: "<<peakBin<<" Peak Value: "<<y<<endl;
 
@@ -7697,19 +7703,20 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    //sprintf(envelopename, "xCorrEnvelope_ARA02_run8111_ev800_chan%d_%d.C", ant1, ant2);
    //cvs.cd();
    //envelope->Draw("AL");
-   envelope->SetLineColor(kRed);
+   envelope[ant1*nAnt+ant2]->SetLineColor(kRed);
    //xCorrGraph->Draw("AL");
-   envelope->Draw("Lsame");
+   envelope[ant1*nAnt+ant2]->Draw("Lsame");
 
    double dCalRecoDelays = calRecoDelays[ant1] - calRecoDelays[ant2];
    if (dCalRecoDelays < 0) dCalRecoDelays = nSamp * wInt + dCalRecoDelays;
-   TLine dt(dCalRecoDelays, -5e6, dCalRecoDelays, 5e6);
-   dt.SetLineColor(kBlue);
-   dt.SetLineWidth(2);
-   dt.SetLineStyle(7);
-   dt.Draw("same");
+   //TLine dt(dCalRecoDelays, -5e6, dCalRecoDelays, 5e6);
+   dt[ant1*nAnt+ant2] = new TLine(dCalRecoDelays, -5e6, dCalRecoDelays, 5e6);
+   dt[ant1*nAnt+ant2]->SetLineColor(kBlue);
+   dt[ant1*nAnt+ant2]->SetLineWidth(2);
+   dt[ant1*nAnt+ant2]->SetLineStyle(7);
+   dt[ant1*nAnt+ant2]->Draw("same");
 
-   xCorrGraph->GetXaxis()->SetRangeUser(dCalRecoDelays-50, dCalRecoDelays+50);
+   xCorrGraph[ant1*nAnt+ant2]->GetXaxis()->SetRangeUser(dCalRecoDelays-50, dCalRecoDelays+50);
 
    //cvs.SaveAs(envelopename);
 /*
