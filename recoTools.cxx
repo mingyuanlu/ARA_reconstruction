@@ -7645,7 +7645,7 @@ int lastBin  = nSamp / 2;
 
 TGraph *xCorrGraph[64];
 TGraph *envelope[64];
-TLine *dt[64];
+TLine *dtLine[64];
 
 for(int baseline=0; baseline<nBaseline; baseline++){
 
@@ -7710,11 +7710,11 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    double dCalRecoDelays = calRecoDelays[ant1] - calRecoDelays[ant2];
    if (dCalRecoDelays < 0) dCalRecoDelays = nSamp * wInt + dCalRecoDelays;
    //TLine dt(dCalRecoDelays, -5e6, dCalRecoDelays, 5e6);
-   dt[ant1*nAnt+ant2] = new TLine(dCalRecoDelays, -5e6, dCalRecoDelays, 5e6);
-   dt[ant1*nAnt+ant2]->SetLineColor(kBlue);
-   dt[ant1*nAnt+ant2]->SetLineWidth(2);
-   dt[ant1*nAnt+ant2]->SetLineStyle(7);
-   dt[ant1*nAnt+ant2]->Draw("same");
+   dtLine[ant1*nAnt+ant2] = new TLine(dCalRecoDelays, -5e6, dCalRecoDelays, 5e6);
+   dtLine[ant1*nAnt+ant2]->SetLineColor(kBlue);
+   dtLine[ant1*nAnt+ant2]->SetLineWidth(2);
+   dtLine[ant1*nAnt+ant2]->SetLineStyle(7);
+   dtLine[ant1*nAnt+ant2]->Draw("same");
 
    xCorrGraph[ant1*nAnt+ant2]->GetXaxis()->SetRangeUser(dCalRecoDelays-50, dCalRecoDelays+50);
 
