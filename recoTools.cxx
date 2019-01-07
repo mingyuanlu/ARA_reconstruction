@@ -7704,7 +7704,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    if (dCalRecoDelays < 0) dCalRecoDelays = nSamp * wInt + dCalRecoDelays;
    TLine dt(dCalRecoDelays, -5e6, dCalRecoDelays, 5e6);
    dt.SetLineColor(kBlue);
-   dt.SetLineWidth(3);
+   dt.SetLineWidth(2);
    dt.Draw("same");
 
    cvs.SaveAs(envelopename);
