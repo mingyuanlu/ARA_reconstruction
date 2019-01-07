@@ -7559,8 +7559,8 @@ cout<<"Done inverse FFT\n";
  * Get Hilbert transform of XCorr function
  */
 
-TCanvas cvs("cvs","cvs",800,800);
-//cvs.Divide(1,2);
+TCanvas cvs("cvs","cvs",1600,1600);
+cvs.Divide(8,8);
 char envelopename[200];
 
 float dt[nSamp];
@@ -7680,20 +7680,21 @@ for(int baseline=0; baseline<nBaseline; baseline++){
      fprintf(dtFile, "%d,", baseline);
      fprintf(dtFile, "%f\n", x);
    }
-*/ //cvs.cd(1);
-   cvs.cd();
+*/
+   cvs.cd(ant1*nAnt+ant2+1);
+   //cvs.cd();
    xCorrGraph->Draw("AL");
 
    TGraph* envelope = FFTtools::getHilbertEnvelope( xCorrGraph );
 
-   //peakBin = FFTtools::getPeakBin(envelope);
-   //envelope->GetPoint(peakBin,x,y);
+   peakBin = FFTtools::getPeakBin(envelope);
+   envelope->GetPoint(peakBin,x,y);
    //envPeakHist[baseline]->Fill(x);
   //cout<<"env Peak Bin: "<<peakBin<<" Peak Value: "<<y<<endl;
 
    //sprintf(envelopename,"xCorrEnvelope_2014_A3_burn_RF_chan%d_%d.C", ant1, ant2);
    //sprintf(envelopename,"xCorrSumGraph_baseline%d_chan%d_%d.C",baseline,ant1,ant2);
-   sprintf(envelopename, "xCorrEnvelope_ARA02_run8111_ev800_chan%d_%d.C", ant1, ant2);
+   //sprintf(envelopename, "xCorrEnvelope_ARA02_run8111_ev800_chan%d_%d.C", ant1, ant2);
    //cvs.cd();
    //envelope->Draw("AL");
    envelope->SetLineColor(kRed);
@@ -7708,7 +7709,9 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    dt.SetLineStyle(7);
    dt.Draw("same");
 
-   cvs.SaveAs(envelopename);
+   xCorrGraph->GetXaxis()->SetRangeUser(dCalRecoDelays-50, dCalRecoDelays+50);
+
+   //cvs.SaveAs(envelopename);
 /*
    if((ant1==1 && ant2==4) || (ant1==1 && ant2==5) || (ant1==4 && ant2==5)){
 
@@ -7806,6 +7809,9 @@ for(int baseline=0; baseline<nBaseline; baseline++){
   delete envelope;
 
 }
+
+sprintf(envelopename, "xCorrEnvelope_ARA02_run8111_ev800_masterPanel.C");
+cvs.SaveAs(envelopename);
 
 //xCorrPeakFile->Close();
 //free(xCorrPeakHist);
