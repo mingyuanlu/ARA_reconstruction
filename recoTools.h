@@ -334,6 +334,9 @@ int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(recoSettings *settings, vector
                     float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask, int *index,
                     recoData *summary, char *filename, float *mapData);
 int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
+                    float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask, int *index,
+                    recoData *summary, char *filename, float *mapData, double calRecoDelays);
+int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                     float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask, /*int *index,*/
                     recoData *summary, char *filename, float *mapData);
 int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_2ndRayReco(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
@@ -393,7 +396,7 @@ int compute3DRecoDelaysWithRadioSplineForSinglePoint_sphericalCoordInDeg(const i
                                      //Healpix_Onion *onion,
                                      float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                                      const double *srcLoc);
-                                     
+
 int compute3DRecoAnglesWithRadioSplineForSinglePixel(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc, Healpix_Onion *onion, float *recoLauAngles, float *recoRecAngles, const int pix);
 
 int compute3DRecoAnglesWithRadioSplineForSinglePoint(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc, float *recoLauAngles, float *recoRecAngles, const double *srcLoc);

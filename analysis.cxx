@@ -430,6 +430,12 @@ double cal_r = 42;
 double cal_zen = 112.76;
 double cal_azi = 334.855;
 double calLocation[3] = {cal_r, cal_zen, cal_azi};
+double calRecoDelays[16], calRecoDelays_V[8], calRecoDelays_H[8];
+
+/* Print calpulser location delays */
+compute3DRecoDelaysWithRadioSplineForSinglePoint_sphericalCoordInDeg(nAnt, -1.f*stationCenterDepth, antLocation, calRecoDelays, calRecoDelays_V, calRecoDelays_H, calLocation);
+
+for(int ch=0; ch<16; ch++) cout<<"calRecoDelays "<<ch<<": "<<calRecoDelays[ch]<<endl;
 
 //recordTime(tmr,1);
 time_t t_before_recoDelays = time(NULL);
@@ -1174,7 +1180,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       sprintf(fitsFile, fitsFileStr.c_str());
 
       if(settings->skymapSearchMode == 0){ //no zoom mode
-      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, snrRank, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
+      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, snrRank, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/, calRecoDelays);
 
       if(settings->use2ndRayReco){
       fitsFileStr = fitsFile_tmp /*+ ".ev" + evStr*/ + ".2ndRay.fits";
@@ -1224,9 +1230,6 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       }
    }
    summary->setRecoAngles(recoRecAngles, recoLauAngles);
-
-   /* Print calpulser location delays */
-   compute3DRecoDelaysWithRadioSplineForSinglePoint_sphericalCoordInDeg(nAnt, -1.f*stationCenterDepth, antLocation, calRecoDelays, calRecoDelays_V, calRecoDelays_H, calLocation);
 
 
    dataTree->Fill();
