@@ -335,7 +335,7 @@ int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(recoSettings *settings, vector
                     recoData *summary, char *filename, float *mapData);
 int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                     float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask, int *index,
-                    recoData *summary, char *filename, float *mapData, double calRecoDelays);
+                    recoData *summary, char *filename, float *mapData, float* calRecoDelays);
 int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                     float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask, /*int *index,*/
                     recoData *summary, char *filename, float *mapData);

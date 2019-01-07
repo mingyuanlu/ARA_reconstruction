@@ -430,7 +430,7 @@ double cal_r = 42;
 double cal_zen = 112.76;
 double cal_azi = 334.855;
 double calLocation[3] = {cal_r, cal_zen, cal_azi};
-double calRecoDelays[16], calRecoDelays_V[8], calRecoDelays_H[8];
+float calRecoDelays[16], calRecoDelays_V[8], calRecoDelays_H[8];
 
 /* Print calpulser location delays */
 compute3DRecoDelaysWithRadioSplineForSinglePoint_sphericalCoordInDeg(nAnt, -1.f*stationCenterDepth, antLocation, calRecoDelays, calRecoDelays_V, calRecoDelays_H, calLocation);
