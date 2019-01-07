@@ -7689,7 +7689,11 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    cvs.cd(ant1*nAnt+ant2+1);
    //cvs.cd();
    xCorrGraph[ant1*nAnt+ant2]->Draw("AL");
-
+   sprintf(envelopename,"Chan_%d_%d", ant1, ant2);
+   xCorrGraph[ant1*nAnt+ant2]->SetTitle(envelopename);
+   xCorrGraph[ant1*nAnt+ant2]->SetTitleSize(0.8);
+   xCorrGraph[ant1*nAnt+ant2]->GetXAxis()->SetLabelSize(0.8);
+   xCorrGraph[ant1*nAnt+ant2]->GetYAxis()->SetLabelSize(0.8);
    //TGraph* envelope = FFTtools::getHilbertEnvelope( xCorrGraph );
    envelope[ant1*nAnt+ant2] = FFTtools::getHilbertEnvelope( xCorrGraph[ant1*nAnt+ant2] );
 
