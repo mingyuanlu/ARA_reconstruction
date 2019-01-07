@@ -7692,8 +7692,8 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    sprintf(envelopename,"Chan_%d_%d", ant1, ant2);
    xCorrGraph[ant1*nAnt+ant2]->SetTitle(envelopename);
    //xCorrGraph[ant1*nAnt+ant2]->SetTitleSize(0.8);
-   xCorrGraph[ant1*nAnt+ant2]->GetXaxis()->SetLabelSize(0.8);
-   xCorrGraph[ant1*nAnt+ant2]->GetYaxis()->SetLabelSize(0.8);
+   xCorrGraph[ant1*nAnt+ant2]->GetXaxis()->SetLabelSize(0.08);
+   xCorrGraph[ant1*nAnt+ant2]->GetYaxis()->SetLabelSize(0.08);
    //TGraph* envelope = FFTtools::getHilbertEnvelope( xCorrGraph );
    envelope[ant1*nAnt+ant2] = FFTtools::getHilbertEnvelope( xCorrGraph[ant1*nAnt+ant2] );
 
