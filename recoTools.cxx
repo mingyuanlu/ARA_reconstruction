@@ -7693,7 +7693,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 
    //sprintf(envelopename,"xCorrEnvelope_2014_A3_burn_RF_chan%d_%d.C", ant1, ant2);
    //sprintf(envelopename,"xCorrSumGraph_baseline%d_chan%d_%d.C",baseline,ant1,ant2);
-   sprintf(envelopename, "xCorrEnvelope_ARA02_run8111_ev3187_chan%d_%d.C", ant1, ant2);
+   sprintf(envelopename, "xCorrEnvelope_ARA02_run8111_ev800_chan%d_%d.C", ant1, ant2);
    //cvs.cd();
    //envelope->Draw("AL");
    envelope->SetLineColor(kRed);
