@@ -425,6 +425,12 @@ float *recoDelays, *recoDelays_V, *recoDelays_H;
 float *recoRefracDelays, *recoRefracDelays_V, *recoRefracDelays_H;
 Healpix_Onion *onion;
 
+//A2 D5BV
+double cal_r = 42;
+double cal_zen = 112.76;
+double cal_azi = 334.855;
+double calLocation[3] = {cal_r, cal_zen, cal_azi};
+
 //recordTime(tmr,1);
 time_t t_before_recoDelays = time(NULL);
 clock_t c_before_recoDelays = clock();
@@ -1218,6 +1224,10 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       }
    }
    summary->setRecoAngles(recoRecAngles, recoLauAngles);
+
+   /* Print calpulser location delays */
+   compute3DRecoDelaysWithRadioSplineForSinglePoint_sphericalCoordInDeg(nAnt, -1.f*stationCenterDepth, antLocation, calRecoDelays, calRecoDelays_V, calRecoDelays_H, calLocation);
+
 
    dataTree->Fill();
 
