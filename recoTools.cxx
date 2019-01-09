@@ -12817,7 +12817,7 @@ double coordSrc[3], coordTrg[3];
       for(int k=0; k<nAnt; k++){
       //cout<<"k: "<<k<<endl;
       stationMeanX += antLoc[k][0];
-      stationMeanY += antloc[k][1];
+      stationMeanY += antLoc[k][1];
       stationMeanZ += antLoc[k][2];
 
       coordTrg[0] = (antLoc[k][0]);
