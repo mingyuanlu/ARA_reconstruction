@@ -12720,6 +12720,199 @@ free(delays);
    return 0;
 }
 
+int compute3DRecoDelaysWithRadioSplineForSinglePoint_cartesianCoord(const int nAnt,
+                                     const float zCenter, const vector<vector<double> >& antLoc,
+                                     //const float radius, const int nSideExp,
+                                     //Healpix_Onion *onion,
+                                     float *recoDelays, float *recoDelays_V, float *recoDelays_H,
+                                     const double *srcLoc)
+{
+
+if(zCenter > 0 ) cerr<<"zCenter should be negative under the ice surfac\n";
+/*
+ * Initializing Healpix base
+ */
+/*
+if(nSideExp < 0 || nSideExp > 8){ cerr<<"Invalid nSideExp\n"; return -1; }
+int nSide = pow(2, nSideExp);
+Healpix_Base hpBase = Healpix_Base(nSide, RING, SET_NSIDE);
+int nDir = hpBase.Npix();
+pointing pt;
+cout<<"Healpix base initialization success. nDir: "<<nDir<<endl;
+*/
+
+/*
+ * Initialize variables related to Healpix_Onion
+ */
+
+//int nDir   = onion->nDir;
+//int nLayer = onion->nLayer;
+//cout<<"Healpix_Onion info obtained. nDir: "<<nDir<<" nLayer: "<<nLayer<<endl;
+
+/*
+ * Get delay from each layer and pixel direction
+ */
+
+//float *recoDelays;
+//recoDelays  = (float*)malloc(nDir*nAnt*sizeof(float));
+//recoDelays_V= (float*)malloc(nDir*(nAnt/2)*sizeof(float));
+//recoDelays_H= (float*)malloc(nDir*(nAnt/2)*sizeof(float));
+/*
+float test_r, test_zenith, test_azimuth;
+test_r       = srcLoc[0];
+test_zenith  = srcLoc[1] * TMath::DegToRad();
+test_azimuth = srcLoc[2] * TMath::DegToRad();
+*/
+/* Using radiospline to delay times */
+char * tablePath = getenv("RADIOSPLINE_TABLE_DIR");
+if (tablePath == NULL) {
+    std::cout << "ERROR: please point the RADIOSPLINE_TABLE_DIR environment variable to" << std::endl;
+    std::cout << " the spline .fits table directory." << std::endl;
+    return -1;
+}
+std::string tablePathStr(tablePath);
+//RayDelay ray(tablePathStr+"/"+ICE_FILE,
+//             tablePathStr+"/"+AIR_FILE,
+//             tablePathStr+"/"+SHADOW_FILE);
+RayTrace ray(tablePathStr);
+cout<<"RayTrace object created\n";
+
+double r, zRec, zSrc;
+float tempDelay, meanDelay=0.f;
+vector<float> solvedDelay;
+double coordSrc[3], coordTrg[3];
+//cout<<"recoDelays:\n";
+//for(int layer=0; layer<nLayer; layer++){
+
+   //test_r = onion->layerRadii[layer]; //in meters
+   //test_r = onion->getLayerRadius( pix );
+   //cout<<"test_r at layer "<<layer<<" is: "<<test_r<<endl;
+   //for(int pix=0; pix<nDir; pix++){
+
+      //pt = hpBase.pix2ang( pix );
+      //test_zenith  = pt.theta; //  in radians
+      //test_azimuth = pt.phi  ;
+      //test_zenith  = onion->getPointing( pix ).theta;  //in radians
+      //test_azimuth = onion->getPointing( pix ).phi  ;
+      /*
+      coordSrc[0] = radius*sin(test_zenith)*cos(test_azimuth);
+      coordSrc[1] = radius*sin(test_zenith)*sin(test_azimuth);
+      coordSrc[2] = radius*cos(test_zenith);
+      */
+      /*
+      coordSrc[0] = test_r*sin(test_zenith)*cos(test_azimuth);
+      coordSrc[1] = test_r*sin(test_zenith)*sin(test_azimuth);
+      coordSrc[2] = test_r*cos(test_zenith);
+      */
+      coordSrc[0] = srcLoc[0];
+      coordSrc[1] = srcLoc[0];
+      coordSrc[2] = srcLoc[2];
+
+      //cout<<"coordSrc: "<<coordSrc[0]<<"\t"<<coordSrc[1]<<"\t"<<coordSrc[2]<<endl;
+      //cout<<"nAnt: "<<nAnt<<endl;
+      //cout<<"tempDelay:\n";
+      double stationMeanX, stationMeanY, stationMeanZ;
+      stationMeanX = stationMeanY = stationMeanZ = 0.;
+
+      for(int k=0; k<nAnt; k++){
+      //cout<<"k: "<<k<<endl;
+      stationMeanX += antLoc[k][0];
+      stationMeanY += antloc[k][1];
+      stationMeanZ += antLoc[k][2];
+
+      coordTrg[0] = (antLoc[k][0]);
+      coordTrg[1] = (antLoc[k][1]);
+      coordTrg[2] = (antLoc[k][2]);
+      if (Detector2Cylinder(coordSrc, coordTrg, zCenter, &r, &zRec, &zSrc) != 0)
+      std::cout << "ERROR: couldn't convert to cylindrical coordinates." << std::endl;
+
+      tempDelay = static_cast<float>(ray.GetPropagationTime(r, zRec, zSrc));
+      //cout<<tempDelay<<" ";
+      if( tempDelay > 1.f )
+         //if( k<8 || k>11 )
+            solvedDelay.push_back(tempDelay);
+      if( tempDelay > 1e9 ) cout<<"Unreasonbaly large delay\n";
+
+      //recoDelays[layer*nDir*nAnt + pix*nAnt + k] = tempDelay;
+      recoDelays[k] = tempDelay;
+
+      }//end of k
+      //cout<<endl;
+      meanDelay = getMeanDelay( solvedDelay );
+      //cout<<"meanDelay = "<<meanDelay<<endl;
+
+      stationMeanX /= (double)nAnt;
+      stationMeanY /= (double)nAnt;
+      stationMeanZ /= (double)nAnt;
+      double dx, dy, dz;
+      dx = coordSrc[0]-stationMeanX;
+      dy = coordSrc[1]-stationMeanY;
+      dz = coordSrc[2]-stationMeanZ;
+      double rxyz = sqrt(dx*dx + dy*dy + dz*dz);
+      double rxy  = sqrt(dx*dx + dy*dy);
+      double phi, theta;
+      if (dy > 0) phi = acos(dx/rxy) * TMath::RadToDeg();
+      else phi = 360. - acos(dx/rxy) * TMath::RadToDeg();
+      theta = 90. - atan(dz/rxy) * TMath::RadToDeg();
+      cout<<"Src r: "<<rxyz<<" theta: "<<theta<<" phi: "<<phi<<endl;
+
+      for(int k=0; k<nAnt; k++){
+
+      if(recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k] > 1.f ){
+         recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k] -= meanDelay;
+         //cout<<recoDelays[layer*nDir*nAnt + pix*nAnt + k]<<" ";
+         if(k<8) recoDelays_V[/*layer*nDir*nAnt/2 + pix*nAnt/2 + */k]   = recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k];
+         else    recoDelays_H[/*layer*nDir*nAnt/2 + pix*nAnt/2 + */k-8] = recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k];
+      } else {
+          recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k] = -1e10; // no solution!
+          if(k<8) recoDelays_V[/*layer*nDir*nAnt/2 + pix*nAnt/2 + */k]   = recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k];
+          else    recoDelays_H[/*layer*nDir*nAnt/2 + pix*nAnt/2 + */k-8] = recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k];
+          //cout<<"recoDelays: "<<recoDelays[layer*nDir*nAnt + pix*nAnt + k]<<"\t";
+      }
+      //cout<<"End of assigning delays\n";
+      }//end of nAnt
+      //cout<<endl;
+   //}//end of pix
+//}//end of layer
+/*
+ * Write FITS file
+ */
+/*
+cout<<"Creating Healpix map of channel 0 & 4 delays, and writing to FITS....\n";
+
+float *delays = (float*)calloc(nDir, sizeof(float));
+arr<float> delaysArr;
+Healpix_Map<float> delaysSkyMap;
+fitshandle fitsOut;
+char filename[200];
+
+for(int layer=0; layer<nLayer; layer++){
+   for(int pix=0; pix<nDir; pix++){
+
+   delays[pix] = recoDelays[layer*nDir*nAnt + pix*nAnt + 0] - recoDelays[layer*nDir*nAnt + pix*nAnt + 4];
+   if(delays[pix] > 1e9 || delays[pix] < -1e9 ) delays[pix] = 0.f;
+
+   }
+   cout<<endl;
+delaysArr = arr<float>(&delays[0], (size_t)nDir);
+delaysSkyMap = Healpix_Map<float>(delaysArr, RING);
+
+//fitshandle fitsOut;
+sprintf(filename, "delaysSkyMap_A3_layer%d_chan0_4.fits", layer);
+remove(filename);
+fitsOut.create(filename);
+
+write_Healpix_map_to_fits(fitsOut, delaysSkyMap, PLANCK_FLOAT32);
+cout<<"Healpix map written\n";
+
+}
+
+free(delays);
+*/
+   return 0;
+}
+
+
 int compute3DRecoAnglesWithRadioSplineForSinglePixel(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
                                      //const float radius, const int nSideExp,
                                      Healpix_Onion *onion,

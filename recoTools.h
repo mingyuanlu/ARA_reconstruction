@@ -396,7 +396,12 @@ int compute3DRecoDelaysWithRadioSplineForSinglePoint_sphericalCoordInDeg(const i
                                      //Healpix_Onion *onion,
                                      float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                                      const double *srcLoc);
-
+int compute3DRecoDelaysWithRadioSplineForSinglePoint_cartesianCoord(const int nAnt,
+                                     const float zCenter, const vector<vector<double> >& antLoc,
+                                     //const float radius, const int nSideExp,
+                                     //Healpix_Onion *onion,
+                                     float *recoDelays, float *recoDelays_V, float *recoDelays_H,
+                                     const double *srcLoc);
 int compute3DRecoAnglesWithRadioSplineForSinglePixel(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc, Healpix_Onion *onion, float *recoLauAngles, float *recoRecAngles, const int pix);
 
 int compute3DRecoAnglesWithRadioSplineForSinglePoint(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc, float *recoLauAngles, float *recoRecAngles, const double *srcLoc);
