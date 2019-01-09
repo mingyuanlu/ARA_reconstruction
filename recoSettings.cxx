@@ -256,7 +256,7 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
       if( (unsigned)(impulsivityFilter-0) > 1){   cerr<<"impulsivityFilter: "<<impulsivityFilter<<endl; errCnt++; }
       if( impulsivityThreshold < 0 ){             cerr<<"impulsivityThreshold: "<<impulsivityThreshold<<endl; errCnt++; }
       if( (unsigned)(flattenSaturatedAmplitude-0) > 1){   cerr<<"flattenSaturatedAmplitude: "<<flattenSaturatedAmplitude<<endl; errCnt++; }
-      int code; for(int i=0; i<16; i++){ code = chanMask[i] - '0'; if( (unsigned)(code-0) > 1){ printf("chanMask: %s\n", chanMask); errCnt++;}}
+      for(int i=0; i<16; i++){ code = chanMask[i] - '0'; if( (unsigned)(code-0) > 1){ printf("chanMask: %s\n", chanMask); errCnt++;}}
 
       if(errCnt > 0) return false;
 
