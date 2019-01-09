@@ -12844,10 +12844,12 @@ double coordSrc[3], coordTrg[3];
       stationMeanX /= (double)nAnt;
       stationMeanY /= (double)nAnt;
       stationMeanZ /= (double)nAnt;
+      cout<<"stationMeanX: "<<stationMeanX<<" stationMeanY: "<<stationMeanY<<" stationMeanZ: "<<stationMeanZ<<endl;
       double dx, dy, dz;
       dx = coordSrc[0]-stationMeanX;
       dy = coordSrc[1]-stationMeanY;
       dz = coordSrc[2]; //already relative to stationCenterDepth
+      cout<<"dx: "<<dx<<" dy: "<<dy<<" dz: "<<dz<<endl;
       double rxyz = sqrt(dx*dx + dy*dy + dz*dz);
       double rxy  = sqrt(dx*dx + dy*dy);
       double phi, theta;
