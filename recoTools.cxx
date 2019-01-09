@@ -7265,7 +7265,7 @@ return maxPixIdx;
 int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                 float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                 const int *chanMask/*, const float *snrArray*/, int *index, recoData *summary, char *filename, float *mapData,
-                float *calRecoDelays)
+                float *calRecoDelays, TH1F *dtHist[])
 {
 
 cout<<"Entered reconstruct3DXCorrEnvelopeGetMaxPixAndMapData method\n";
@@ -7697,10 +7697,11 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    //TGraph* envelope = FFTtools::getHilbertEnvelope( xCorrGraph );
    envelope[ant1*nAnt+ant2] = FFTtools::getHilbertEnvelope( xCorrGraph[ant1*nAnt+ant2] );
 
-   //peakBin = FFTtools::getPeakBin(envelope);
-   //envelope->GetPoint(peakBin,x,y);
+   peakBin = FFTtools::getPeakBin(envelope);
+   envelope->GetPoint(peakBin,x,y);
    //envPeakHist[baseline]->Fill(x);
-  //cout<<"env Peak Bin: "<<peakBin<<" Peak Value: "<<y<<endl;
+   cout<<"env Peak Bin: "<<peakBin<<" Peak Value: "<<y<<endl;
+   dtHist[ant1*nAnt+ant2]->Fill(x);
 
    //sprintf(envelopename,"xCorrEnvelope_2014_A3_burn_RF_chan%d_%d.C", ant1, ant2);
    //sprintf(envelopename,"xCorrSumGraph_baseline%d_chan%d_%d.C",baseline,ant1,ant2);
