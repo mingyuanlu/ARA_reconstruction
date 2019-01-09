@@ -7821,7 +7821,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 
 }
 
-sprintf(envelopename, "xCorrEnvelope_ARA02_run8111_ev3187_masterPanel.C");
+sprintf(envelopename, "xCorrEnvelope_ARA02_masterPanel.C");
 cvs.SaveAs(envelopename);
 
 //xCorrPeakFile->Close();
