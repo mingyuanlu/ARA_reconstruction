@@ -12847,7 +12847,7 @@ double coordSrc[3], coordTrg[3];
       double dx, dy, dz;
       dx = coordSrc[0]-stationMeanX;
       dy = coordSrc[1]-stationMeanY;
-      dz = coordSrc[2]-stationMeanZ;
+      dz = coordSrc[2]; //already relative to stationCenterDepth
       double rxyz = sqrt(dx*dx + dy*dy + dz*dz);
       double rxy  = sqrt(dx*dx + dy*dy);
       double phi, theta;
