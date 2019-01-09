@@ -7686,6 +7686,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
      fprintf(dtFile, "%f\n", x);
    }
 */
+   /*
    cvs.cd(ant1*nAnt+ant2+1);
    //cvs.cd();
    xCorrGraph[ant1*nAnt+ant2]->Draw("AL");
@@ -7694,13 +7695,14 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    //xCorrGraph[ant1*nAnt+ant2]->SetTitleSize(0.8);
    xCorrGraph[ant1*nAnt+ant2]->GetXaxis()->SetLabelSize(0.08);
    xCorrGraph[ant1*nAnt+ant2]->GetYaxis()->SetLabelSize(0.08);
+   */
    //TGraph* envelope = FFTtools::getHilbertEnvelope( xCorrGraph );
    envelope[ant1*nAnt+ant2] = FFTtools::getHilbertEnvelope( xCorrGraph[ant1*nAnt+ant2] );
 
    peakBin = FFTtools::getPeakBin(envelope[ant1*nAnt+ant2]);
    envelope[ant1*nAnt+ant2]->GetPoint(peakBin,x,y);
    //envPeakHist[baseline]->Fill(x);
-   cout<<"env Peak Bin: "<<peakBin<<" Peak Value: "<<y<<endl;
+   //cout<<"env Peak Bin: "<<peakBin<<" Peak Value: "<<y<<endl;
    dtHist[ant1*nAnt+ant2]->Fill(x);
 
    //sprintf(envelopename,"xCorrEnvelope_2014_A3_burn_RF_chan%d_%d.C", ant1, ant2);
@@ -7708,6 +7710,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    //sprintf(envelopename, "xCorrEnvelope_ARA02_run8111_ev800_chan%d_%d.C", ant1, ant2);
    //cvs.cd();
    //envelope->Draw("AL");
+   /*
    envelope[ant1*nAnt+ant2]->SetLineColor(kRed);
    //xCorrGraph->Draw("AL");
    envelope[ant1*nAnt+ant2]->Draw("Lsame");
@@ -7722,7 +7725,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    dtLine[ant1*nAnt+ant2]->Draw("same");
 
    xCorrGraph[ant1*nAnt+ant2]->GetXaxis()->SetRangeUser(dCalRecoDelays-50, dCalRecoDelays+50);
-
+   */
    //cvs.SaveAs(envelopename);
 /*
    if((ant1==1 && ant2==4) || (ant1==1 && ant2==5) || (ant1==4 && ant2==5)){
@@ -7823,7 +7826,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
 }
 
 sprintf(envelopename, "xCorrEnvelope_ARA02_masterPanel.C");
-cvs.SaveAs(envelopename);
+//cvs.SaveAs(envelopename);
 
 //xCorrPeakFile->Close();
 //free(xCorrPeakHist);
