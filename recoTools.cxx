@@ -12808,7 +12808,7 @@ double coordSrc[3], coordTrg[3];
       coordSrc[1] = srcLoc[0];
       coordSrc[2] = srcLoc[2];
 
-      //cout<<"coordSrc: "<<coordSrc[0]<<"\t"<<coordSrc[1]<<"\t"<<coordSrc[2]<<endl;
+      cout<<"coordSrc: "<<coordSrc[0]<<"\t"<<coordSrc[1]<<"\t"<<coordSrc[2]<<endl;
       //cout<<"nAnt: "<<nAnt<<endl;
       //cout<<"tempDelay:\n";
       double stationMeanX, stationMeanY, stationMeanZ;
