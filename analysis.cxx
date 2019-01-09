@@ -78,7 +78,7 @@ int err;
  * Specify the channels to be used in the analysis
  * 1: use, 0: don't use
  */
-
+/*
 const int chanMask[16] = {  1 //chan 0  D1TV
                            ,1 //chan 1  D2TV
                            ,1 //chan 2  D3TV
@@ -96,7 +96,7 @@ const int chanMask[16] = {  1 //chan 0  D1TV
                            ,1 //chan 14 D3BH
                            ,1 //chan 15 D4BH
                          };
-
+*/
 
 
 recoSettings *settings = new recoSettings();
@@ -166,6 +166,18 @@ TH1F *dZenDist = new TH1F("recoZenDiff", "recoZenDiff", 360, -180, 180);
 TH1F *dAziDist = new TH1F("recoAziDiff", "recoAziDiff", 720, -360, 360);
 TH2F *recoTrueZenDist = new TH2F("recoTrueZenDist", "recoTrueZenDist", 180, 0, 180, 180, 0, 180);
 TH2F *recoTrueAziDist = new TH2F("recoTrueAziDist", "recoTrueAziDist", 360, 0, 360, 360, 0, 360);
+
+/*
+ * Specify the channels to be used in the analysis
+ * 1: use, 0: don't use
+ */
+
+const int chanMask[16];
+for(int ch=0; ch<16; ch++){
+  chanMask[ch] = settings->chanMask[ch] - '0';
+  cout<<"chanMask "<<ch<<": "<<chanMask[ch]<<endl;
+}
+
 
 float radius, r_xy;
 float dx, dy, dz;
