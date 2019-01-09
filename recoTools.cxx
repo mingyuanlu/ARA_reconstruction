@@ -7697,8 +7697,8 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    //TGraph* envelope = FFTtools::getHilbertEnvelope( xCorrGraph );
    envelope[ant1*nAnt+ant2] = FFTtools::getHilbertEnvelope( xCorrGraph[ant1*nAnt+ant2] );
 
-   peakBin = FFTtools::getPeakBin(envelope);
-   envelope->GetPoint(peakBin,x,y);
+   peakBin = FFTtools::getPeakBin(envelope[ant1*nAnt+ant2]);
+   envelope[ant1*nAnt+ant2]->GetPoint(peakBin,x,y);
    //envPeakHist[baseline]->Fill(x);
    cout<<"env Peak Bin: "<<peakBin<<" Peak Value: "<<y<<endl;
    dtHist[ant1*nAnt+ant2]->Fill(x);
