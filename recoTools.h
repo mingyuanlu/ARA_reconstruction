@@ -348,6 +348,9 @@ int reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode(recoSettings *settings, vector<
                     const float stationCenterDepth, const vector<vector<double> >& antLocation,
                     float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask,
                     recoData *summary, char *filename);
+int getXCorrEnvelopeAnddTHist(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
+                    /*float *recoDelays, float *recoDelays_V, float *recoDelays_H, */const int *chanMask,/* int *index,
+                    recoData *summary, char *filename, float *mapData, */float* calRecoDelays, TH1F* dtHist[]);
 
 int tearDown(recoEnvData *clEnv);
 int computeRecoDelaysWithConstantN(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
