@@ -624,6 +624,14 @@ cout<<"runEventCount: "<<runEventCount<<endl;
 recoData *summary = new recoData();
 dataTree->Branch("summary", &summary);
 
+char histname[200];
+TH1F *dtHist[64];
+for(int b=0; b<64; b++){
+   sprintf(histname, "chan%d_%d", b/8, b%8);
+   dtHist[b] = new TH1F(histname, histname, 840*2, 0, 840);
+}
+
+
 //recordTime(tmr,3);
 time_t t_before_event_loop = time(NULL);
 clock_t c_before_event_loop = clock();
@@ -1180,7 +1188,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       sprintf(fitsFile, fitsFileStr.c_str());
 
       if(settings->skymapSearchMode == 0){ //no zoom mode
-      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, snrRank, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/, calRecoDelays);
+      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, snrRank, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/, calRecoDelays, dtHist);
 
       if(settings->use2ndRayReco){
       fitsFileStr = fitsFile_tmp /*+ ".ev" + evStr*/ + ".2ndRay.fits";
