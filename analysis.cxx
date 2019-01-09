@@ -172,7 +172,7 @@ TH2F *recoTrueAziDist = new TH2F("recoTrueAziDist", "recoTrueAziDist", 360, 0, 3
  * 1: use, 0: don't use
  */
 
-const int chanMask[16];
+int chanMask[16];
 for(int ch=0; ch<16; ch++){
   chanMask[ch] = settings->chanMask[ch] - '0';
   cout<<"chanMask "<<ch<<": "<<chanMask[ch]<<endl;
