@@ -8672,7 +8672,7 @@ for(int baseline=0; baseline<nBaseline; baseline++){
    //envPeakHist[baseline]->Fill(x);
    //cout<<"env Peak Bin: "<<peakBin<<" Peak Value: "<<y<<endl;
    dtHist[ant1*nAnt+ant2]->Fill(x);
-   cout<<"max: "<<dtHist[ant1*nAnt+ant2]->GetMaximum()<<end;
+   cout<<"max: "<<dtHist[ant1*nAnt+ant2]->GetMaximum()<<endl;
    //sprintf(envelopename,"xCorrEnvelope_2014_A3_burn_RF_chan%d_%d.C", ant1, ant2);
    //sprintf(envelopename,"xCorrSumGraph_baseline%d_chan%d_%d.C",baseline,ant1,ant2);
    //sprintf(envelopename, "xCorrEnvelope_ARA02_run8111_ev800_chan%d_%d.C", ant1, ant2);
