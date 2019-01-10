@@ -8809,7 +8809,7 @@ fclose(dtFile);
 //fclose(xCorrGraphDataFile);
 //fclose(hilbertEnvelopeGraphDataFile);
 //hilbertEnvelopeGraphDataFile->Close();
-*/
+
 
 /*
  * Deallocate memories
