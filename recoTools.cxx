@@ -13384,7 +13384,7 @@ std::string tablePathStr(tablePath);
 //             tablePathStr+"/"+AIR_FILE,
 //             tablePathStr+"/"+SHADOW_FILE);
 RayTrace ray(tablePathStr);
-cout<<"RayTrace object created\n";
+//cout<<"RayTrace object created\n";
 
 double r, zRec, zSrc;
 float tempDelay, meanDelay=0.f;
@@ -13417,7 +13417,7 @@ double coordSrc[3], coordTrg[3];
       coordSrc[1] = srcLoc[1];
       coordSrc[2] = srcLoc[2];
 
-      cout<<"coordSrc: "<<coordSrc[0]<<"\t"<<coordSrc[1]<<"\t"<<coordSrc[2]<<endl;
+      //cout<<"coordSrc: "<<coordSrc[0]<<"\t"<<coordSrc[1]<<"\t"<<coordSrc[2]<<endl;
       //cout<<"nAnt: "<<nAnt<<endl;
       //cout<<"tempDelay:\n";
       double stationMeanX, stationMeanY, stationMeanZ;
@@ -13458,14 +13458,14 @@ double coordSrc[3], coordTrg[3];
       dx = coordSrc[0]; //-stationMeanX;
       dy = coordSrc[1]; //-stationMeanY;
       dz = coordSrc[2]; //already relative to stationCenterDepth
-      cout<<"dx: "<<dx<<" dy: "<<dy<<" dz: "<<dz<<endl;
+      //cout<<"dx: "<<dx<<" dy: "<<dy<<" dz: "<<dz<<endl;
       double rxyz = sqrt(dx*dx + dy*dy + dz*dz);
       double rxy  = sqrt(dx*dx + dy*dy);
       double phi, theta;
       if (dy > 0) phi = acos(dx/rxy) * TMath::RadToDeg();
       else phi = 360. - acos(dx/rxy) * TMath::RadToDeg();
       theta = 90. - atan(dz/rxy) * TMath::RadToDeg();
-      cout<<"Src r: "<<rxyz<<" theta: "<<theta<<" phi: "<<phi<<endl;
+      //cout<<"Src r: "<<rxyz<<" theta: "<<theta<<" phi: "<<phi<<endl;
 
       for(int k=0; k<nAnt; k++){
 
