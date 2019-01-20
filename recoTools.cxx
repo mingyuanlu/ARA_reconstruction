@@ -13465,7 +13465,7 @@ double coordSrc[3], coordTrg[3];
       if (dy > 0) phi = acos(dx/rxy) * TMath::RadToDeg();
       else phi = 360. - acos(dx/rxy) * TMath::RadToDeg();
       theta = 90. - atan(dz/rxy) * TMath::RadToDeg();
-      //cout<<"Src r: "<<rxyz<<" theta: "<<theta<<" phi: "<<phi<<endl;
+      cout<<"Src r: "<<rxyz<<" theta: "<<theta<<" phi: "<<phi<<endl;
 
       for(int k=0; k<nAnt; k++){
 
