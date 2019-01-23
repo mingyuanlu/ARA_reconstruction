@@ -13374,7 +13374,7 @@ void getChannelTotalPowerSNR(const vector<TGraph *>& cleanEvent, int nIntSamp, f
 
          //Determine the position of the max bin with sliding V2 envelope
          v2Gr = evProcessTools::getVoltageSquaredSummedWaveform(cleanEvent[ch], nIntSamp);
-         int MaxBin = getPeakBin(v2Gr) + nIntSamp/2;
+         int MaxBin = FFTtools::getPeakBin(v2Gr) + nIntSamp/2;
 
          bin = cleanEvent[ch]->GetN();
          cleanEvent[ch]->GetPoint(0,t1,v1);
