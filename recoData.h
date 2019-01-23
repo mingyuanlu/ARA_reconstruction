@@ -206,7 +206,7 @@ public:
 //ClassDef 19
    float slidingV2SNR[16];
    float totalPowerSNR[16];
-   void setSlidingV2SNRBybChannel(int ch, float _slidingV2SNR);
+   void setSlidingV2SNRByChannel(int ch, float _slidingV2SNR);
    void setTotalPowerSNRByChannel(int ch, float _totalPowerSNR);
    void setChannelSlidingV2SNR(float *_channelSlidingV2SNR);
    void setChannelTotalPowerSNR(float *_channelSlidingV2SNR);
