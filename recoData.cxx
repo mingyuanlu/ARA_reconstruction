@@ -584,7 +584,7 @@ using namespace std;
 
    }
 
-   void recoData::setTotalPowerSNRByChannel(int ch, float _totalPowerV2SNR){
+   void recoData::setTotalPowerSNRByChannel(int ch, float _totalPowerSNR){
 
       if( ch < 0 || ch > 15 ){ cerr<<"ch out of range 0-15: "<<ch<<endl; }
       totalPowerSNR[ch] = _totalPowerSNR;
