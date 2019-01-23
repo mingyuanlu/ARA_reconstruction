@@ -13370,7 +13370,7 @@ void getChannelTotalPowerSNR(const vector<TGraph *>& cleanEvent, int nIntSamp, f
 
    for ( int ch=0; ch<(int)cleanEvent.size(); ch++){
 
-         double totalIntPower = FFTtools::integrateVoltageSquared(cleanEVent[ch]);
+         double totalIntPower = FFTtools::integrateVoltageSquared(cleanEvent[ch]);
 
          //Determine the position of the max bin with sliding V2 envelope
          v2Gr = evProcessTools::getVoltageSquaredSummedWaveform(cleanEvent[ch], nIntSamp);
@@ -13386,8 +13386,8 @@ void getChannelTotalPowerSNR(const vector<TGraph *>& cleanEvent, int nIntSamp, f
             if( MaxBin <= bin/4 ){
 
                for (int i=MaxBin+bin/4; i<bin-1; i++){
-               gr->GetPoint(i, t1, v1);
-               gr->GetPoint(i+1, t2, v2);
+               cleanEvent[ch]->GetPoint(i, t1, v1);
+               cleanEvent[ch]->GetPoint(i+1, t2, v2);
                dt = t2 - t1;
                noiseIntPower += v1*v1*dt;
                binCounter++;
@@ -13399,37 +13399,37 @@ void getChannelTotalPowerSNR(const vector<TGraph *>& cleanEvent, int nIntSamp, f
             else if( MaxBin >= 3*bin/4 ){
 
                for (int i=0; i<MaxBin-bin/4-1; i++){
-               gr->GetPoint(i, t1, v1);
-               gr->GetPoint(i+1, t2, v2);
+               cleanEvent[ch]->GetPoint(i, t1, v1);
+               cleanEvent[ch]->GetPoint(i+1, t2, v2);
                dt = t2 - t1;
                noiseIntPower += v1*v1*dt;
                binCounter++;
                }
                noiseIntPower += v2*v2*dt;
-               binCount++;
+               binCounter++;
             }
 
             else{
 
                for (int i=0; i<MaxBin-bin/4-1; i++){
-               gr->GetPoint(i, t1, v1);
-               gr->GetPoint(i+1, t2, v2);
+               cleanEvent[ch]->GetPoint(i, t1, v1);
+               cleanEvent[ch]->GetPoint(i+1, t2, v2);
                dt = t2 - t1;
                noiseIntPower += v1*v1*dt;
                binCounter++;
                }
                noiseIntPower += v2*v2*dt;
-               binCount++;
+               binCounter++;
 
                for (int i=MaxBin+bin/4; i<bin-1; i++){
-               gr->GetPoint(i, t1, v1);
-               gr->GetPoint(i+1, t2, v2);
+               cleanEvent[ch]->GetPoint(i, t1, v1);
+               cleanEvent[ch]->GetPoint(i+1, t2, v2);
                dt = t2 - t1;
                noiseIntPower += v1*v1*dt;
                binCounter++;
                }
                noiseIntPower += v2*v2*dt;
-               binCount++;
+               binCounter++;
             }
 
             noiseIntPower *= ((double)bin/(double)binCounter); //scale the integrated noise power by the relative length of "noise part" waveform to whole waveform
