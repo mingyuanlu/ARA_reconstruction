@@ -571,7 +571,7 @@ using namespace std;
 
    }
 
-   void recoData::setSlidingV2SNRByChannel(int ch, double _slidingV2SNR){
+   void recoData::setSlidingV2SNRByChannel(int ch, float _slidingV2SNR){
 
       if( ch < 0 || ch > 15 ){ cerr<<"ch out of range 0-15: "<<ch<<endl; }
       slidingV2SNR[ch] = _slidingV2SNR;
@@ -584,7 +584,7 @@ using namespace std;
 
    }
 
-   void recoData::setTotalPowerSNRByChannel(int ch, double _totalPowerV2SNR){
+   void recoData::setTotalPowerSNRByChannel(int ch, float _totalPowerV2SNR){
 
       if( ch < 0 || ch > 15 ){ cerr<<"ch out of range 0-15: "<<ch<<endl; }
       totalPowerSNR[ch] = _totalPowerSNR;
