@@ -1836,7 +1836,7 @@ TGraph* evProcessTools::getVoltageSummedWaveform(TGraph *gr, int nIntSamp){
    return grVSummed;
 }
 
-TGraph* evProcessTools::getVoltageSquaredSummedWaveform(TGraph *gr, int nIntSamp){
+TGraph* evProcessTools::getSqrtVoltageSquaredSummedWaveform(TGraph *gr, int nIntSamp){
 
    TGraph *grV2Summed = new TGraph();
    double t, v, t0;
@@ -1850,7 +1850,7 @@ TGraph* evProcessTools::getVoltageSquaredSummedWaveform(TGraph *gr, int nIntSamp
          if(q==p) t0 = t;
       }
       sum /= (double)nIntSamp;
-      grV2Summed->SetPoint(p, t0, sum);
+      grV2Summed->SetPoint(p, t0, sqrt(sum));
 
    }
 
