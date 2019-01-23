@@ -13258,6 +13258,196 @@ nchnlArray[2] = totalPassedHpol;
 }
 
 
+/*
+ * Returns the sliding V^2 SNR as the number of sigmas between the V^2 peak and mean for all channels. This is Thomas' definition of SNR
+ */
+void getChannelSlidingV2SNR(const vector<TGraph *>& cleanEvent, int nIntSamp, float *snrArray){
+
+   double sigma;
+   double mean;
+   double absPeak;
+   double statsArray[2]={0};
+
+   double t, v;
+   int bin;
+
+
+   TGraph *v2Gr = new TGraph();
+
+   for ( int ch=0; ch<(int)cleanEvent.size(); ch++){
+
+         absPeak = 0.;
+         //passThreshold[ch] = 0;
+         //saturated[ch]= 0;
+         //AraAntPol::AraAntPol_t polType = tempGeom->getStationInfo(stationId)->getAntennaInfo(ch)->polType;
+
+         //if ( polType == AraAntPol::kVertical ){
+         //          //cout<<"mean="<<mean<<"\tsigma="<<sigma<<endl;
+         //gr = theEvent->getGraphFromRFChan(ch);
+         //gr = cleanEvent[ch];
+         //volts = gr->GetY();
+
+         v2Gr = evProcessTools::getVoltageSquaredSummedWaveform(cleanEvent[ch], nIntSamp);
+
+         bin   = v2Gr->GetN();
+         //setMeanAndSigmaInNoMax(gr,statsArray);
+         setMeanAndSigmaInNoMax(v2Gr, statsArray);
+
+         mean  = statsArray[0];
+         sigma = statsArray[1];
+
+         for (int binCounter=0; binCounter<bin; binCounter++){
+
+            v2Gr->GetPoint(binCounter, t, v);
+
+            /* check if SNR > threshold*sigma */
+            //if ( fabs(v - mean) > threshold * sigma ){
+            if( fabs(v-mean) > absPeak ){
+               //totalPassedChnl += 1;
+               //passThreshold[ch] = 1;
+               absPeak = fabs(v-mean);
+               //if( ch<8 ) totalPassedVpol += 1;
+               //else       totalPassedHpol += 1;
+               //if ( polType == AraAntPol::kVertical){ totalPassedVpol += 1;
+               //} else if ( polType == AraAntPol::kHorizontal){ totalPassedHpol += 1;
+               //} else { cerr<<"********************* polType not vpol or hpol !!! ***********************"<<endl;
+               //}
+               //break;
+            }
+
+            /* check if saturated at +/- 1000mV */
+            //if( fabs( fabs(v) - 1000. ) < 0.5 ){
+
+            //   saturated[ch] = 1;
+            //}
+
+
+         }//end of binCounter
+
+      //delete gr;
+      if(sigma>0)
+      snrArray[ch] = static_cast<float>(absPeak / sigma);
+      else
+      snrArray[ch] = 0.f;
+
+      ///cout<<"ch: "<<ch<<" sigma: "<<sigma<<" snr: "<<snrArray[ch]<<endl;
+      delete v2Gr;
+
+   }//end of ch
+   /*
+   for(int ch=0; ch<16; ch++){
+
+   goodChan[ch] = (chanMask[ch] && passThreshold[ch] );
+   if( saturated[ch] ) goodChan[ch] = 0;
+
+   totalPassedChnl += goodChan[ch];
+   totalSatChnl    += saturated[ch];
+   if(ch<8){ totalPassedVpol += goodChan[ch]; totalSatVpol += saturated[ch]; }
+   else    { totalPassedHpol += goodChan[ch]; totalSatHpol += saturated[ch]; }
+
+   }
+   */
+/* only look at Vpols now */
+/*
+numSatChan = totalSatVpol;
+
+nchnlArray[0] = totalPassedChnl;
+nchnlArray[1] = totalPassedVpol;
+nchnlArray[2] = totalPassedHpol;
+*/
+}
+
+/*
+ * Returns the total-power SNR as the ratio of (Total integrated power of S+N - Total integrated power of N) / (Total integrated power of N * (1ns/T)). This is the definition from RNO-related discussions
+ */
+void getChannelTotalPowerSNR(const vector<TGraph *>& cleanEvent, int nIntSamp, float *snrArray){
+
+
+   double t1, v1, t2, v2, dt;
+   int bin;
+
+   TGraph *v2Gr = new TGraph();
+
+   for ( int ch=0; ch<(int)cleanEvent.size(); ch++){
+
+         double totalIntPower = FFTtools::integrateVoltageSquared(cleanEVent[ch]);
+
+         //Determine the position of the max bin with sliding V2 envelope
+         v2Gr = evProcessTools::getVoltageSquaredSummedWaveform(cleanEvent[ch], nIntSamp);
+         int MaxBin = getPeakBin(v2Gr) + nIntSamp/2;
+
+         bin = cleanEvent[ch]->GetN();
+         cleanEvent[ch]->GetPoint(0,t1,v1);
+         cleanEvent[ch]->GetPoint(bin-1,t2,v2);
+         double bigT = t2 - t1; //waveform duration
+         int binCounter = 0;
+         double noiseIntPower = 0.;
+
+            if( MaxBin <= bin/4 ){
+
+               for (int i=MaxBin+bin/4; i<bin-1; i++){
+               gr->GetPoint(i, t1, v1);
+               gr->GetPoint(i+1, t2, v2);
+               dt = t2 - t1;
+               noiseIntPower += v1*v1*dt;
+               binCounter++;
+               }
+               noiseIntPower += v2*v2*dt;
+               binCounter++;
+            }
+
+            else if( MaxBin >= 3*bin/4 ){
+
+               for (int i=0; i<MaxBin-bin/4-1; i++){
+               gr->GetPoint(i, t1, v1);
+               gr->GetPoint(i+1, t2, v2);
+               dt = t2 - t1;
+               noiseIntPower += v1*v1*dt;
+               binCounter++;
+               }
+               noiseIntPower += v2*v2*dt;
+               binCount++;
+            }
+
+            else{
+
+               for (int i=0; i<MaxBin-bin/4-1; i++){
+               gr->GetPoint(i, t1, v1);
+               gr->GetPoint(i+1, t2, v2);
+               dt = t2 - t1;
+               noiseIntPower += v1*v1*dt;
+               binCounter++;
+               }
+               noiseIntPower += v2*v2*dt;
+               binCount++;
+
+               for (int i=MaxBin+bin/4; i<bin-1; i++){
+               gr->GetPoint(i, t1, v1);
+               gr->GetPoint(i+1, t2, v2);
+               dt = t2 - t1;
+               noiseIntPower += v1*v1*dt;
+               binCounter++;
+               }
+               noiseIntPower += v2*v2*dt;
+               binCount++;
+            }
+
+            noiseIntPower *= ((double)bin/(double)binCounter); //scale the integrated noise power by the relative length of "noise part" waveform to whole waveform
+
+            double snr;
+            if(noiseIntPower > 0)
+               snr = (totalIntPower - noiseIntPower) / noiseIntPower * bigT;
+            else
+               snr = 0.f;
+
+            snrArray[ch] = snr;
+
+            delete v2Gr;
+
+   }//end of ch
+
+}
+
 //int recordDiff(int nSideExp, int maxPixIdx, float maxPixValue, double weight, float zen_true, float azi_true, float r_true, int *usedChan, char *rootFilename){
 /*
 int recordDiff(int nSideExp, recoData *summary, char *rootFilename){

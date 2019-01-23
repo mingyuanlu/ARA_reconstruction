@@ -131,6 +131,8 @@ public:
       Default 0. Whether the amplitudes in a waveforms that exceeds the +-saturationVoltage_mV will be flattened to be equal to saturationVoltage_mV or not. 0: no. 1: yes.
    chanMask:
       Default 1111111111111111. 16-digit code specifying which channels will be used in reconstruction. 1: use. 0: don't use. This is to replace the implementation in the body of analysis.cxx.
+   nIntSamp:
+      Default 25. Number of points to integrate when using evProcessTools::getVoltageSquaredSummedWaveform.
    remark:
       Default "". Any remark one wishes to add to the reco setup file. The remarks will then be carried along in the analysis output ROOT file. Note that number of characters should not exceed CSTRING_MAX defined in recoSettings.h
 */
@@ -231,7 +233,10 @@ public:
    //ClassDef 16
    char chanMask[CSTRING_MAX];
 
-   ClassDef(recoSettings, 16); //2: convert all string parameters to char
+   //ClassDef 17
+   int nIntSamp;
+
+   ClassDef(recoSettings, 17); //2: convert all string parameters to char
                               //3: add openCLDeviceType and openCLMaxNumberOfDevices parameters
 };
 

@@ -90,6 +90,9 @@ using namespace std;
    std::fill(&negPowerPeak[0], &negPowerPeak[16], 0.);
    std::fill(&powerPeaksDeltaT[0], &powerPeaksDeltaT[16], 0.);
 
+   std::fill(&slidingV2SNR[0], &slidingV2SNR[16], 0.f);
+   std::fill(&totalPowerSNR[0], &totalPowerSNR[16], 0.f);
+
    }
 
 
@@ -568,6 +571,32 @@ using namespace std;
 
    }
 
+   void recoData::setSlidingV2SNRByChannel(int ch, double _slidingV2SNR){
+
+      if( ch < 0 || ch > 15 ){ cerr<<"ch out of range 0-15: "<<ch<<endl; }
+      slidingV2SNR[ch] = _slidingV2SNR;
+
+   }
+
+   void recoData::setChannelSlidingV2SNR(float *_channelSlidingV2SNR){
+
+      for(int i=0; i<16; i++) slidingV2SNR[i] = _channelSlidingV2SNR[i];
+
+   }
+
+   void recoData::setTotalPowerSNRByChannel(int ch, double _totalPowerV2SNR){
+
+      if( ch < 0 || ch > 15 ){ cerr<<"ch out of range 0-15: "<<ch<<endl; }
+      totalPowerSNR[ch] = _totalPowerSNR;
+
+   }
+
+   void recoData::setChannelTotalPowerSNR(float *_channelTotalPowerSNR){
+
+      for(int i=0; i<16; i++) totalPowerSNR[i] = _channelTotalPowerSNR[i];
+
+   }
+
    void recoData::duplicate(recoSettings *settings, recoData *old){
 
    int *_topMaxPixIdx         = (int*)calloc(old->topN, sizeof(int));
@@ -665,6 +694,8 @@ using namespace std;
    for(int ch=0; ch<16; ch++){
       setBipolarnessByChannel(ch, old->bipolarness[ch]);
       setPowerPeaksByChannel(ch, old->posPowerPeak[ch], old->negPowerPeak[ch], old->powerPeaksDeltaT[ch]);
+      setSlidingV2SNRByChannel(ch, old->slidingV2SNR[ch]);
+      setTotalPowerSNRByChannel(ch, old->totalPowerSNR[ch]);
    }
 /*
    weight = old->weight;
@@ -775,5 +806,7 @@ using namespace std;
    std::fill(&posPowerPeak[0], &posPowerPeak[16], 0.);
    std::fill(&negPowerPeak[0], &negPowerPeak[16], 0.);
    std::fill(&powerPeaksDeltaT[0], &powerPeaksDeltaT[16], 0.);
-   
+   std::fill(&slidingV2SNR[0], &slidingV2SNR[16], 0.f);
+   std::fill(&totalPowerSNR[0], &totalPowerSNR[16], 0.f);
+
    }

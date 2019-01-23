@@ -203,7 +203,15 @@ public:
    void setBipolarnessByChannel(int ch, double _bipolarness);
    void setPowerPeaksByChannel(int ch, double _posPowerPeak, double _negPowerPeak, double _powerPeaksDeltaT);
 
-   ClassDef(recoData, 18);
+//ClassDef 19
+   float slidingV2SNR[16];
+   float totalPowerSNR[16];
+   void setSlidingV2SNRBybChannel(int ch, float _slidingV2SNR);
+   void setTotalPowerSNRByChannel(int ch, float _totalPowerSNR);
+   void setChannelSlidingV2SNR(float *_channelSlidingV2SNR)
+   void setChannelTotalPowerSNR(float *_channelSlidingV2SNR)
+
+   ClassDef(recoData, 19);
 
 };
 

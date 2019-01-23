@@ -848,6 +848,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    if(settings->maskSaturatedChannels) for(int ch=0; ch<16; ch++) goodChan[ch] = goodChan[ch] && (!satChan[ch]);
 
 
+
+
    double imp;
    double bipolarness;
    double posPowerPeak, negPowerPeak, powerPeaksDeltaT;
@@ -902,6 +904,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    }
 
    summary->setFreqBinWidth(freqBinWidth_V, freqBinWidth_H);
+
 
    //****************************************************
    // FILTER SECTION
@@ -1089,6 +1092,16 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
 
    getChannelSNR(unpaddedEvent, snrArray);
+   summary->setChannelInWindowSNR(snrArray);
+
+   getChannelTotalPowerSNR(unpaddedEvent, settings->nIntSamp, snrArray);
+   summary->setChannelTotalPowerSNR(snrArray);
+
+   getChannelSlidingV2SNR(unpaddedEvent, settings->nIntSamp, snrArray);
+   summary->setChannelSlidingV2SNR(snrArray);
+
+   /* Use sliding V^2 SNR as the event SNR */
+
    TMath::Sort(16,snrArray,index);
 
    for(int i=0; i<8; i++){
@@ -1102,7 +1115,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    TMath::Sort(8,snrArray_H,index_H);
 
    getChannelUnmodifiedSNR(unpaddedEvent, unmodSNRArray);
-   TMath::Sort(16,unmodSNRArray,index);
+   //TMath::Sort(16,unmodSNRArray,index);
 
    snrRank = (string(settings->recoPolType)=="both" ? index : (string(settings->recoPolType)=="vpol" ? index_V : index_H));
 
@@ -1125,7 +1138,6 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    summary->setRecoChan(goodChan);
    summary->setInWindowSNR(snrArray[index[2]]);
    summary->setInWindowSNRBothPol(snrArray_V[index_V[2]], snrArray_H[index_H[2]]);
-   summary->setChannelInWindowSNR(snrArray);
    summary->setUnmodSNR(unmodSNRArray[index[2]]);
    if(settings->nchnlFilter>0){
       if(settings->nchnlFilter==1){
@@ -1653,6 +1665,16 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    summary->setTrueAngles(trueRecAngles, trueLauAngles);
 
    getChannelSNR(unpaddedEvent, snrArray);
+   summary->setChannelInWindowSNR(snrArray);
+
+   getChannelTotalPowerSNR(unpaddedEvent, settings->nIntSamp, snrArray);
+   summary->setChannelTotalPowerSNR(snrArray);
+
+   getChannelSlidingV2SNR(unpaddedEvent, settings->nIntSamp, snrArray);
+   summary->setChannelSlidingV2SNR(snrArray);
+
+   /* Use sliding V^2 SNR as the event SNR */
+
    TMath::Sort(16,snrArray,index);
 
    for(int i=0; i<8; i++){
@@ -1665,10 +1687,11 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    }
    TMath::Sort(8,snrArray_H,index_H);
 
+   getChannelUnmodifiedSNR(unpaddedEvent, unmodSNRArray);
+   //TMath::Sort(16,unmodSNRArray,index);
+
    snrRank = (string(settings->recoPolType)=="both" ? index : (string(settings->recoPolType)=="vpol" ? index_V : index_H));
 
-   getChannelUnmodifiedSNR(unpaddedEvent, unmodSNRArray);
-   TMath::Sort(16,unmodSNRArray,index);
 
    //recoData *summary = new recoData();
    //if(settings->dataType == 0){
@@ -1688,7 +1711,6 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    summary->setRecoChan(goodChan);
    summary->setInWindowSNR(snrArray[index[2]]);
    summary->setInWindowSNRBothPol(snrArray_V[index_V[2]], snrArray_H[index_H[2]]);
-   summary->setChannelInWindowSNR(snrArray);
    summary->setUnmodSNR(unmodSNRArray[index[2]]);
    if(settings->nchnlFilter>0){
       if(settings->nchnlFilter==1){

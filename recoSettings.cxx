@@ -97,6 +97,8 @@ void recoSettings::initialize(){
 
   snprintf(chanMask, sizeof(chanMask), "1111111111111111");
 
+  nIntSamp = 25;
+
   //remark = "Default.";
   snprintf(remark, sizeof(remark), "Default.");
 
@@ -180,6 +182,7 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
             else if(label == "chanMask"){
                for(int ch=0; ch<16; ch++) chanMask[ch] = line.substr(line.find_first_of("=")+1).at(ch);
             }
+            else if(label == "nIntSamp")                nIntSamp            = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label != "") cerr<<"Undefined parameter detected. Label: "<<label<<endl;
          }
       }
@@ -257,6 +260,7 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
       if( impulsivityThreshold < 0 ){             cerr<<"impulsivityThreshold: "<<impulsivityThreshold<<endl; errCnt++; }
       if( (unsigned)(flattenSaturatedAmplitude-0) > 1){   cerr<<"flattenSaturatedAmplitude: "<<flattenSaturatedAmplitude<<endl; errCnt++; }
       for(int i=0; i<16; i++){ code = chanMask[i] - '0'; if( (unsigned)(code-0) > 1){ printf("chanMask: %s\n", chanMask); errCnt++;}}
+      if( nIntSamp < 0 ){                         cerr<<"nIntSamp: "<<nIntSamp<<endl; errCnt++; }
 
       if(errCnt > 0) return false;
 
