@@ -208,8 +208,8 @@ public:
    float totalPowerSNR[16];
    void setSlidingV2SNRBybChannel(int ch, float _slidingV2SNR);
    void setTotalPowerSNRByChannel(int ch, float _totalPowerSNR);
-   void setChannelSlidingV2SNR(float *_channelSlidingV2SNR)
-   void setChannelTotalPowerSNR(float *_channelSlidingV2SNR)
+   void setChannelSlidingV2SNR(float *_channelSlidingV2SNR);
+   void setChannelTotalPowerSNR(float *_channelSlidingV2SNR);
 
    ClassDef(recoData, 19);
 
