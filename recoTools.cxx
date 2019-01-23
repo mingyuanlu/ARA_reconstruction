@@ -13261,7 +13261,7 @@ nchnlArray[2] = totalPassedHpol;
 /*
  * Returns the sliding V^2 SNR as the number of sigmas between the V^2 peak and mean for all channels. This is Thomas' definition of SNR
  */
-void getChannelSlidingV2SNR(const vector<TGraph *>& cleanEvent, int nIntSamp, float *snrArray){
+void getChannelSlidingV2SNR(const vector<TGraph *>& cleanEvent, int nIntSamp_V, int nIntSamp_H, float *snrArray){
 
    double sigma;
    double mean;
@@ -13287,7 +13287,7 @@ void getChannelSlidingV2SNR(const vector<TGraph *>& cleanEvent, int nIntSamp, fl
          //gr = cleanEvent[ch];
          //volts = gr->GetY();
 
-         v2Gr = evProcessTools::getSqrtVoltageSquaredSummedWaveform(cleanEvent[ch], nIntSamp);
+         v2Gr = evProcessTools::getSqrtVoltageSquaredSummedWaveform(cleanEvent[ch], (ch<8?nIntSamp_V:nIntSamp_H));
 
          bin   = v2Gr->GetN();
          //setMeanAndSigmaInNoMax(gr,statsArray);
@@ -13360,7 +13360,7 @@ nchnlArray[2] = totalPassedHpol;
 /*
  * Returns the total-power SNR as the ratio of (Total integrated power of S+N - Total integrated power of N) / (Total integrated power of N * (1ns/T)). This is the definition from RNO-related discussions
  */
-void getChannelTotalPowerSNR(const vector<TGraph *>& cleanEvent, int nIntSamp, float *snrArray){
+void getChannelTotalPowerSNR(const vector<TGraph *>& cleanEvent, int nIntSamp_V, int nIntSamp_H, float *snrArray){
 
 
    double t1, v1, t2, v2, dt;
@@ -13373,7 +13373,7 @@ void getChannelTotalPowerSNR(const vector<TGraph *>& cleanEvent, int nIntSamp, f
          double totalIntPower = FFTtools::integrateVoltageSquared(cleanEvent[ch]);
 
          //Determine the position of the max bin with sliding V2 envelope
-         v2Gr = evProcessTools::getSqrtVoltageSquaredSummedWaveform(cleanEvent[ch], nIntSamp);
+         v2Gr = evProcessTools::getSqrtVoltageSquaredSummedWaveform(cleanEvent[ch], (ch<8?nIntSamp_V:nIntSamp_H));
          int MaxBin = FFTtools::getPeakBin(v2Gr) + nIntSamp/2;
 
          bin = cleanEvent[ch]->GetN();

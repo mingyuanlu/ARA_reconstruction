@@ -430,6 +430,6 @@ double impulsivityMeasure(TGraph * wf, TGraph * distance_cdf = 0, int pt = -1/*,
 TGraph *impulsivityMeasure(TGraph * wf, double *impulsivity/*TGraph * distance_cdf*/,int pt = -1/*, bool    hilbert*/);
 TGraph *bipolarnessMeasure(TGraph *wf, double *bipolarness/*, TGraph *grCumuSumCDF*/);
 void getPosNegPowerPeakAndDeltaT(TGraph *wf, double *posPowerPeak, double *negPowerPeak, double *deltaT, int nIntSamp=50);
-void getChannelSlidingV2SNR(const vector<TGraph *>& cleanEvent, int nIntSamp, float *snrArray);
-void getChannelTotalPowerSNR(const vector<TGraph *>& cleanEvent, int nIntSamp, float *snrArray);
+void getChannelSlidingV2SNR(const vector<TGraph *>& cleanEvent, int nIntSamp_V, int nIntSamp_H, float *snrArray);
+void getChannelTotalPowerSNR(const vector<TGraph *>& cleanEvent, int nIntSamp_V, int nIntSamp_H, float *snrArray);
 #endif

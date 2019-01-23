@@ -1094,10 +1094,10 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    getChannelSNR(unpaddedEvent, snrArray);
    summary->setChannelInWindowSNR(snrArray);
 
-   getChannelTotalPowerSNR(unpaddedEvent, settings->nIntSamp, snrArray);
+   getChannelTotalPowerSNR(unpaddedEvent, (int)settings->powerEnvIntDuration/settings->wInt_V, (int)settings->powerEnvIntDuration/settings->wInt_H, snrArray);
    summary->setChannelTotalPowerSNR(snrArray);
 
-   getChannelSlidingV2SNR(unpaddedEvent, settings->nIntSamp, snrArray);
+   getChannelSlidingV2SNR(unpaddedEvent, (int)settings->powerEnvIntDuration/settings->wInt_V, (int)settings->powerEnvIntDuration/settings->wInt_H, snrArray);
    summary->setChannelSlidingV2SNR(snrArray);
 
    /* Use sliding V^2 SNR as the event SNR */
@@ -1667,10 +1667,10 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    getChannelSNR(unpaddedEvent, snrArray);
    summary->setChannelInWindowSNR(snrArray);
 
-   getChannelTotalPowerSNR(unpaddedEvent, settings->nIntSamp, snrArray);
+   getChannelTotalPowerSNR(unpaddedEvent, (int)settings->powerEnvIntDuration/settings->wInt_V, (int)settings->powerEnvIntDuration/settings->wInt_H, snrArray);
    summary->setChannelTotalPowerSNR(snrArray);
 
-   getChannelSlidingV2SNR(unpaddedEvent, settings->nIntSamp, snrArray);
+   getChannelSlidingV2SNR(unpaddedEvent, (int)settings->powerEnvIntDuration/settings->wInt_V, (int)settings->powerEnvIntDuration/settings->wInt_H, snrArray);
    summary->setChannelSlidingV2SNR(snrArray);
 
    /* Use sliding V^2 SNR as the event SNR */
