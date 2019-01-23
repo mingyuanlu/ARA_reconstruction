@@ -94,6 +94,7 @@ static TGraph* getCumulativeVoltageSumGraph(TGraph *gr, int startPoint=0, int en
 static TGraph* getOneSidedWaveform(TGraph *gr, bool positive);
 static TGraph* getVoltageSummedWaveform(TGraph *gr, int nIntSamp);
 static TGraph* getVoltageSquaredSummedWaveform(TGraph *gr, int nIntSamp);
+static TGraph* getVoltageSquaredWaveform(TGraph *gr);
 
 };
 #endif
