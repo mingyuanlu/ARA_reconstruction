@@ -426,16 +426,16 @@ float *recoRefracDelays, *recoRefracDelays_V, *recoRefracDelays_H;
 Healpix_Onion *onion;
 
 //A2 D5BV
-double cal_r = 42;
-double cal_zen = 112.76;
-double cal_azi = 334.855;
-double calLocation[3] = {cal_r, cal_zen, cal_azi};
-float calRecoDelays[16], calRecoDelays_V[8], calRecoDelays_H[8];
+//double cal_r = 42;
+//double cal_zen = 112.76;
+//double cal_azi = 334.855;
+//double calLocation[3] = {cal_r, cal_zen, cal_azi};
+//float calRecoDelays[16], calRecoDelays_V[8], calRecoDelays_H[8];
 
 /* Print calpulser location delays */
-compute3DRecoDelaysWithRadioSplineForSinglePoint_sphericalCoordInDeg(nAnt, -1.f*stationCenterDepth, antLocation, calRecoDelays, calRecoDelays_V, calRecoDelays_H, calLocation);
+//compute3DRecoDelaysWithRadioSplineForSinglePoint_sphericalCoordInDeg(nAnt, -1.f*stationCenterDepth, antLocation, calRecoDelays, calRecoDelays_V, calRecoDelays_H, calLocation);
 
-for(int ch=0; ch<16; ch++) cout<<"calRecoDelays "<<ch<<": "<<calRecoDelays[ch]<<endl;
+//for(int ch=0; ch<16; ch++) cout<<"calRecoDelays "<<ch<<": "<<calRecoDelays[ch]<<endl;
 
 //recordTime(tmr,1);
 time_t t_before_recoDelays = time(NULL);
@@ -625,11 +625,11 @@ recoData *summary = new recoData();
 dataTree->Branch("summary", &summary);
 
 char histname[200];
-TH1F *dtHist[64];
-for(int b=0; b<64; b++){
-   sprintf(histname, "chan%d_%d", b/8, b%8);
-   dtHist[b] = new TH1F(histname, histname, 840*2, 0, 840);
-}
+//TH1F *dtHist[64];
+//for(int b=0; b<64; b++){
+//   sprintf(histname, "chan%d_%d", b/8, b%8);
+//   dtHist[b] = new TH1F(histname, histname, 840*2, 0, 840);
+//}
 
 
 //recordTime(tmr,3);
@@ -1188,7 +1188,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       sprintf(fitsFile, fitsFileStr.c_str());
 
       if(settings->skymapSearchMode == 0){ //no zoom mode
-      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, snrRank, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/, calRecoDelays, dtHist);
+      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, snrRank, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*//*, calRecoDelays, dtHist*/);
 
       if(settings->use2ndRayReco){
       fitsFileStr = fitsFile_tmp /*+ ".ev" + evStr*/ + ".2ndRay.fits";
