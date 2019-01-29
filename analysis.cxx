@@ -598,7 +598,6 @@ TH1F *snrDist = new TH1F("snrDist","snrDist",100,0,50);
 int goodChan[16];
 int satChan[16];
 int numSatChan;
-float snrArray[16];
 if(settings->nchnlFilter > 0){
    threshold = settings->nchnlThreshold;
    //int nchnlArray[3];
@@ -909,13 +908,13 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    computeSNR(settings, unpaddedEvent, summary);
 
    std::fill(&snrArray[0], &snrArray[16], 0.);
-   if(settings->snrMode==0) memcpy(snrArray, summary->inWindowSNR, sizeof(summary->inWindowSNR)); //snrArray[ch] = summary->inWindowSNR[ch];
+   if(settings->snrMode==0) memcpy(snrArray, summary->channelInWindowSNR, sizeof(summary->channelInWindowSNR)); //snrArray[ch] = summary->inWindowSNR[ch];
    else if (settings->snrMode==1) memcpy(snrArray, summary->slidingV2SNR, sizeof(summary->slidingV2SNR)); //snrArray[ch] = summary->slidingV2SNR[ch];
    else if (settings->snrMode==2) memcpy(snrArray, summary->totalPowerSNR, sizeof(summary->totalPowerSNR)); //snrArray[ch] = summary->totalPowerSNR[ch];
    else { cerr<<"Invalid snrMode: "<<settings->snrMode<<endl; return -1; }
 
    for(int ch=0; ch<16; ch++){
-      cout<<snrArray[ch]<<" "<<summary->inWindowSNR[ch]<<" "<<summary->slidingV2SNR[ch]<<" "<<summary->totalPowerSNR[ch]<<endl;
+      cout<<snrArray[ch]<<" "<<summary->channelInWindowSNR[ch]<<" "<<summary->slidingV2SNR[ch]<<" "<<summary->totalPowerSNR[ch]<<endl;
    }
 
    for(int ch=0; ch<8; ch++){
@@ -1455,7 +1454,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    computeSNR(settings, unpaddedEvent, summary);
 
    std::fill(&snrArray[0], &snrArray[16], 0.);
-   if(settings->snrMode==0) memcpy(snrArray, summary->inWindowSNR, sizeof(summary->inWindowSNR)); //snrArray[ch] = summary->inWindowSNR[ch];
+   if(settings->snrMode==0) memcpy(snrArray, summary->channelInWindowSNR, sizeof(summary->channelInWindowSNR)); //snrArray[ch] = summary->inWindowSNR[ch];
    else if (settings->snrMode==1) memcpy(snrArray, summary->slidingV2SNR, sizeof(summary->slidingV2SNR)); //snrArray[ch] = summary->slidingV2SNR[ch];
    else if (settings->snrMode==2) memcpy(snrArray, summary->totalPowerSNR, sizeof(summary->totalPowerSNR)); //snrArray[ch] = summary->totalPowerSNR[ch];
    else { cerr<<"Invalid snrMode: "<<settings->snrMode<<endl; return -1; }
@@ -1525,10 +1524,10 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       if( selectedSNR < threshold )
       {
          nchnlFilteredEventCount+=1;
+         weightedNchnlFilteredEventCount += weight;
          //cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl;
          unpaddedEvent.clear();
          cleanEvent.clear();
-         delete realAtriEvPtr;
          for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/}
          continue;
       }
