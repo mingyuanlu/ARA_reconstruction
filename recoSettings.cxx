@@ -99,6 +99,8 @@ void recoSettings::initialize(){
 
   powerEnvIntDuration = 25;
 
+  snrMode = 0;
+
   //remark = "Default.";
   snprintf(remark, sizeof(remark), "Default.");
 
@@ -183,6 +185,7 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
                for(int ch=0; ch<16; ch++) chanMask[ch] = line.substr(line.find_first_of("=")+1).at(ch);
             }
             else if(label == "powerEnvIntDuration")   powerEnvIntDuration = atof( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "snrMode")               snrMode             = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label != "") cerr<<"Undefined parameter detected. Label: "<<label<<endl;
          }
       }
@@ -261,7 +264,7 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
       if( (unsigned)(flattenSaturatedAmplitude-0) > 1){   cerr<<"flattenSaturatedAmplitude: "<<flattenSaturatedAmplitude<<endl; errCnt++; }
       for(int i=0; i<16; i++){ code = chanMask[i] - '0'; if( (unsigned)(code-0) > 1){ printf("chanMask: %s\n", chanMask); errCnt++;}}
       if( powerEnvIntDuration < 0 ){              cerr<<"powerEnvIntDuration: "<<powerEnvIntDuration<<endl; errCnt++; }
-
+      if( (unsigned)(snrMode-0) > 2){             cerr<<"snrMode: "<<snrMode<<endl; errCnt++; }
       if(errCnt > 0) return false;
 
    } else { cerr<<"Unable to open "<<sf<<endl; return false; }

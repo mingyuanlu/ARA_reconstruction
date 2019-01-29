@@ -72,7 +72,7 @@ int calibrateGeometryAndDelays(const RawAraStationEvent *rawEvPtr,
         char posDelayFile[200];
         int stationId = rawEvPtr->stationId;
         sprintf(posDelayFile, "geometryResultsARA%dE.txt", rawEvPtr->stationId );
-        //cout<<"stationId: "<<stationId<<" posDelayFile: "<<posDelayFile<<endl;
+        cout<<"stationId: "<<stationId<<" posDelayFile: "<<posDelayFile<<endl;
         ind.open(posDelayFile);
         //double posDelayArray[4][4]={{0}};
         //double pulserCorr[5] = {0};
@@ -145,6 +145,7 @@ int calibrateGeometryAndDelays(const RawAraStationEvent *rawEvPtr,
                  antl.push_back( antloc[1] + pulserCorr[2] );
                  antl.push_back( antloc[2] + stationCenterDepth + pulserCorr[0] );
                  } else if ( locName[locName.length()-1] == '6'){
+                 //cout<<"D6 xOrg: "<<antloc[0]<<" yOrg: "<<antloc[1]<<" zOrg: "<<antloc[2]+stationCenterDepth<<" pulserCorr(xy): "<<pulserCorr[4]<<" pulserCorrZ: "<<pulserCorr[3]<<endl;
                  antl.push_back( (1.+pulserCorr[4]) * antloc[0] );
                  antl.push_back( (1.+pulserCorr[4]) * antloc[1] );
                  antl.push_back( antloc[2] + stationCenterDepth + pulserCorr[3] );

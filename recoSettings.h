@@ -56,9 +56,9 @@ public:
    nchnlCut:
       Default 0. The least number of good channels in an event to clear the nchnl filter. Note that this may be dependent on "nchnlFilter" parameter.
    nchnlThreshold:
-      Default 0. The voltage threshold in unit of noise rms used to determine if a channel is good (that is, has signal).
+      Default 0. The SNR threshold used to determine if a channel is good (that is, has signal).
    nchnlThreshold_anotherPol:
-      Deafult 0. The voltage threshold as above, but for another polarization if nchnlFilter == 1 or 2. In cases where nchnlFilter = 0 or 3, this parameter will not be used.
+      Deafult 0. The SNR threshold as above, but for another polarization if nchnlFilter == 1 or 2. In cases where nchnlFilter = 0 or 3, this parameter will not be used.
    nchnlThreshold_A1:
       Default 0. The nchnlThreshold value for A1 to reduce the noise rate to 1%, assuming nchnlFilter == 1 && nchnlCut == 3. This should be a value determined
       by examining RF data of A1.
@@ -133,6 +133,8 @@ public:
       Default 1111111111111111. 16-digit code specifying which channels will be used in reconstruction. 1: use. 0: don't use. This is to replace the implementation in the body of analysis.cxx.
    powerEnvIntDuration:
       Default 25ns. Time duration to integrate when using evProcessTools::getSqrtVoltageSquaredSummedWaveform.
+   snrMode:
+      Default 0. 0: V_peak/RMS (crest factor). 1: sqrt((1/N)*(Sum V^2)) within powerEnvIntDuration of time. 2: E_s+n - E_n / E_n / (1ns/T)
    remark:
       Default "". Any remark one wishes to add to the reco setup file. The remarks will then be carried along in the analysis output ROOT file. Note that number of characters should not exceed CSTRING_MAX defined in recoSettings.h
 */
@@ -236,7 +238,10 @@ public:
    //ClassDef 17
    int powerEnvIntDuration;
 
-   ClassDef(recoSettings, 17); //2: convert all string parameters to char
+   //ClassDef 18
+   int snrMode;
+
+   ClassDef(recoSettings, 18); //2: convert all string parameters to char
                               //3: add openCLDeviceType and openCLMaxNumberOfDevices parameters
 };
 

@@ -598,6 +598,7 @@ TH1F *snrDist = new TH1F("snrDist","snrDist",100,0,50);
 int goodChan[16];
 int satChan[16];
 int numSatChan;
+float snrArray[16];
 if(settings->nchnlFilter > 0){
    threshold = settings->nchnlThreshold;
    //int nchnlArray[3];
@@ -905,6 +906,28 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    summary->setFreqBinWidth(freqBinWidth_V, freqBinWidth_H);
 
+   computeSNR(settings, unpaddedEvent, summary);
+
+   std::fill(&snrArray[0], &snrArray[16], 0.);
+   if(settings->snrMode==0) memcpy(snrArray, summary->inWindowSNR, sizeof(summary->inWindowSNR)); //snrArray[ch] = summary->inWindowSNR[ch];
+   else if (settings->snrMode==1) memcpy(snrArray, summary->slidingV2SNR, sizeof(summary->slidingV2SNR)); //snrArray[ch] = summary->slidingV2SNR[ch];
+   else if (settings->snrMode==2) memcpy(snrArray, summary->totalPowerSNR, sizeof(summary->totalPowerSNR)); //snrArray[ch] = summary->totalPowerSNR[ch];
+   else { cerr<<"Invalid snrMode: "<<settings->snrMode<<endl; return -1; }
+
+   for(int ch=0; ch<16; ch++){
+      cout<<snrArray[ch]<<" "<<summary->inWindowSNR[ch]<<" "<<summary->slidingV2SNR[ch]<<" "<<summary->totalPowerSNR[ch]<<endl;
+   }
+
+   for(int ch=0; ch<8; ch++){
+      snrArray_V[ch] = snrArray[ch];
+      snrArray_H[ch] = snrArray[ch+8];
+   }
+
+   TMath::Sort(16, snrArray, index);
+   TMath::Sort(8, snrArray_V, index_V);
+   TMath::Sort(8, snrArray_H, index_H);
+
+   snrRank = (string(settings->recoPolType)=="both" ? index : (string(settings->recoPolType)=="vpol" ? index_V : index_H));
 
    //****************************************************
    // FILTER SECTION
@@ -939,18 +962,16 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    /* Nchnl filter */
 
-   //numSatChan = 0;
    if(settings->nchnlFilter > 0){
 
-      //getNchnlMaskSat(unpaddedEvent, threshold, nchnlArray, chanMask, goodChan, numSatChan);
-      getNchnl(settings, unpaddedEvent, threshold, nchnlArray, goodChan);
+      float selectedSNR;
+      if(settings->nchnlFilter == 3)      selectedSNR = snrArray[index[settings->nchnlCut-1]];
+      else if(settings->nchnlFilter == 1) selectedSNR = snrArray_V[index_V[settings->nchnlCut-1]];
+      else                                selectedSNR = snrArray_H[index_H[settings->nchnlCut-1]];
 
-      if      (settings->nchnlFilter==1/*recoPolType == "vpol"*/) nchnl_tmp = nchnlArray[1];
-      else if (settings->nchnlFilter==2/*recoPolType == "hpol"*/) nchnl_tmp = nchnlArray[2];
-      else                                                        nchnl_tmp = nchnlArray[0];
-
-      if(nchnl_tmp < settings->nchnlCut){
-
+      //if(nchnl_tmp < settings->nchnlCut){
+      if( selectedSNR < threshold )
+      {
          nchnlFilteredEventCount+=1;
          //cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl;
          unpaddedEvent.clear();
@@ -959,10 +980,24 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/}
          continue;
       }
-   }
-   //else {
-   //for(int i=0; i<16; i++) goodChan[i] = chanMask[i];
-   //}
+      else {
+         //if the event passes the filter then we consider whether we want to mask sub-threshold channels
+         if(settings->maskSubThresholdChannels){
+            for(int ch=0; ch<16; ch++){
+               if(snrArray[ch] < threshold) goodChan[ch] = 0;
+            }
+         }
+
+         //if the events passes the filter, we consider whether it passes another pol as well
+         if(settings->nchnlFilter==1){
+            if(snrArray_H[index_H[settings->nchnlCut-1]]>=settings->nchnlThreshold_anotherPol) summary->setPassAnotherPolNchnl(true);
+         }
+         else if(settings->nchnlFilter==2){
+            if(snrArray_V[index_V[settings->nchnlCut-1]]>=settings->nchnlThreshold_anotherPol) summary->setPassAnotherPolNchnl(true);
+         }
+
+      }
+   }//end if if nchnlFilter=1
 
 
    /* CW filter */
@@ -1091,35 +1126,6 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    //****************************************************
 
 
-   getChannelSNR(unpaddedEvent, snrArray);
-   summary->setChannelInWindowSNR(snrArray);
-
-   getChannelTotalPowerSNR(unpaddedEvent, (int)settings->powerEnvIntDuration/settings->wInt_V, (int)settings->powerEnvIntDuration/settings->wInt_H, snrArray);
-   summary->setChannelTotalPowerSNR(snrArray);
-
-   getChannelSlidingV2SNR(unpaddedEvent, (int)settings->powerEnvIntDuration/settings->wInt_V, (int)settings->powerEnvIntDuration/settings->wInt_H, snrArray);
-   summary->setChannelSlidingV2SNR(snrArray);
-
-   /* Use sliding V^2 SNR as the event SNR */
-
-   TMath::Sort(16,snrArray,index);
-
-   for(int i=0; i<8; i++){
-      snrArray_V[i] = snrArray[i];
-   }
-   TMath::Sort(8,snrArray_V,index_V);
-
-   for(int i=0; i<8; i++){
-      snrArray_H[i] = snrArray[i+8];
-   }
-   TMath::Sort(8,snrArray_H,index_H);
-
-   getChannelUnmodifiedSNR(unpaddedEvent, unmodSNRArray);
-   //TMath::Sort(16,unmodSNRArray,index);
-
-   snrRank = (string(settings->recoPolType)=="both" ? index : (string(settings->recoPolType)=="vpol" ? index_V : index_H));
-
-    //recoData *summary = new recoData();
 /*
     if(settings->dataType == 0){
     summary->setWeight(event->Nu_Interaction[0].weight);
@@ -1136,18 +1142,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
     //summary->setOnion(onion);
    summary->setTopN(topN);
    summary->setRecoChan(goodChan);
-   summary->setInWindowSNR(snrArray[index[2]]);
-   summary->setInWindowSNRBothPol(snrArray_V[index_V[2]], snrArray_H[index_H[2]]);
-   summary->setUnmodSNR(unmodSNRArray[index[2]]);
-   if(settings->nchnlFilter>0){
-      if(settings->nchnlFilter==1){
-         if(snrArray_H[index_H[2]]>=settings->nchnlThreshold_anotherPol) summary->setPassAnotherPolNchnl(true);
-      }
-      else if(settings->nchnlFilter==2){
-         if(snrArray_V[index_V[2]]>=settings->nchnlThreshold_anotherPol) summary->setPassAnotherPolNchnl(true);
-      }
-   }
-cout<<"*********************************** inWindowSNR_V: "<<summary->inWindowSNR_V<<"*************************************"<<endl;
+
+   cout<<"*********************************** inWindowSNR_V: "<<summary->inWindowSNR_V<<"*************************************"<<endl;
    recoEventCount++;
 
    /* Reco with radiospline */
@@ -1456,6 +1452,24 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    summary->setFreqBinWidth(freqBinWidth_V, freqBinWidth_H);
 
+   computeSNR(settings, unpaddedEvent, summary);
+
+   std::fill(&snrArray[0], &snrArray[16], 0.);
+   if(settings->snrMode==0) memcpy(snrArray, summary->inWindowSNR, sizeof(summary->inWindowSNR)); //snrArray[ch] = summary->inWindowSNR[ch];
+   else if (settings->snrMode==1) memcpy(snrArray, summary->slidingV2SNR, sizeof(summary->slidingV2SNR)); //snrArray[ch] = summary->slidingV2SNR[ch];
+   else if (settings->snrMode==2) memcpy(snrArray, summary->totalPowerSNR, sizeof(summary->totalPowerSNR)); //snrArray[ch] = summary->totalPowerSNR[ch];
+   else { cerr<<"Invalid snrMode: "<<settings->snrMode<<endl; return -1; }
+
+   for(int ch=0; ch<8; ch++){
+      snrArray_V[ch] = snrArray[ch];
+      snrArray_H[ch] = snrArray[ch+8];
+   }
+
+   TMath::Sort(16, snrArray, index);
+   TMath::Sort(8, snrArray_V, index_V);
+   TMath::Sort(8, snrArray_H, index_H);
+
+   snrRank = (string(settings->recoPolType)=="both" ? index : (string(settings->recoPolType)=="vpol" ? index_V : index_H));
 
    //****************************************************
    // FILTER SECTION
@@ -1499,30 +1513,44 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    /* Nchnl filter */
    //numSatChan = 0;
+
    if(settings->nchnlFilter > 0){
 
-   //getNchnlMaskSat(unpaddedEvent, threshold, nchnlArray, chanMask, goodChan, numSatChan);
-   getNchnl(settings, unpaddedEvent, threshold, nchnlArray, goodChan);
+      float selectedSNR;
+      if(settings->nchnlFilter == 3)      selectedSNR = snrArray[index[settings->nchnlCut-1]];
+      else if(settings->nchnlFilter == 1) selectedSNR = snrArray_V[index_V[settings->nchnlCut-1]];
+      else                                selectedSNR = snrArray_H[index_H[settings->nchnlCut-1]];
 
-   if      (settings->nchnlFilter==1/*recoPolType == "vpol"*/) nchnl_tmp = nchnlArray[1];
-   else if (settings->nchnlFilter==2/*recoPolType == "hpol"*/) nchnl_tmp = nchnlArray[2];
-   else                                                        nchnl_tmp = nchnlArray[0];
+      //if(nchnl_tmp < settings->nchnlCut){
+      if( selectedSNR < threshold )
+      {
+         nchnlFilteredEventCount+=1;
+         //cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl;
+         unpaddedEvent.clear();
+         cleanEvent.clear();
+         delete realAtriEvPtr;
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/}
+         continue;
+      }
+      else {
+         //if the event passes the filter then we consider whether we want to mask sub-threshold channels
+         if(settings->maskSubThresholdChannels){
+            for(int ch=0; ch<16; ch++){
+               if(snrArray[ch] < threshold) goodChan[ch] = 0;
+            }
+         }
 
-   if(nchnl_tmp < settings->nchnlCut){
+         //if the events passes the filter, we consider whether it passes another pol as well
+         if(settings->nchnlFilter==1){
+            if(snrArray_H[index_H[settings->nchnlCut-1]]>=settings->nchnlThreshold_anotherPol) summary->setPassAnotherPolNchnl(true);
+         }
+         else if(settings->nchnlFilter==2){
+            if(snrArray_V[index_V[settings->nchnlCut-1]]>=settings->nchnlThreshold_anotherPol) summary->setPassAnotherPolNchnl(true);
+         }
 
-      //cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl;
-      nchnlFilteredEventCount += 1;
-      weightedNchnlFilteredEventCount += weight;
-      unpaddedEvent.clear();
-      cleanEvent.clear();
-      for(int ch=0; ch<16; ch++){ /*delete gr_v[ch];*/ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch];/* delete grCDF[ch]; */}
-      continue;
+      }
+   }//end if if nchnlFilter=1
 
-   }
-   }
-   //else {
-   //for(int i=0; i<16; i++) goodChan[i] = chanMask[i];
-   //}
 
    /* CW filter */
 
@@ -1664,34 +1692,34 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    summary->setTrueAngles(trueRecAngles, trueLauAngles);
 
-   getChannelSNR(unpaddedEvent, snrArray);
-   summary->setChannelInWindowSNR(snrArray);
-
-   getChannelTotalPowerSNR(unpaddedEvent, (int)settings->powerEnvIntDuration/settings->wInt_V, (int)settings->powerEnvIntDuration/settings->wInt_H, snrArray);
-   summary->setChannelTotalPowerSNR(snrArray);
-
-   getChannelSlidingV2SNR(unpaddedEvent, (int)settings->powerEnvIntDuration/settings->wInt_V, (int)settings->powerEnvIntDuration/settings->wInt_H, snrArray);
-   summary->setChannelSlidingV2SNR(snrArray);
-
-   /* Use sliding V^2 SNR as the event SNR */
-
-   TMath::Sort(16,snrArray,index);
-
-   for(int i=0; i<8; i++){
-      snrArray_V[i] = snrArray[i];
-   }
-   TMath::Sort(8,snrArray_V,index_V);
-
-   for(int i=0; i<8; i++){
-      snrArray_H[i] = snrArray[i+8];
-   }
-   TMath::Sort(8,snrArray_H,index_H);
-
-   getChannelUnmodifiedSNR(unpaddedEvent, unmodSNRArray);
-   //TMath::Sort(16,unmodSNRArray,index);
-
-   snrRank = (string(settings->recoPolType)=="both" ? index : (string(settings->recoPolType)=="vpol" ? index_V : index_H));
-
+//   getChannelSNR(unpaddedEvent, snrArray);
+//   summary->setChannelInWindowSNR(snrArray);
+//
+//   getChannelTotalPowerSNR(unpaddedEvent, (int)settings->powerEnvIntDuration/settings->wInt_V, (int)settings->powerEnvIntDuration/settings->wInt_H, snrArray);
+//   summary->setChannelTotalPowerSNR(snrArray);
+//
+//   getChannelSlidingV2SNR(unpaddedEvent, (int)settings->powerEnvIntDuration/settings->wInt_V, (int)settings->powerEnvIntDuration/settings->wInt_H, snrArray);
+//   summary->setChannelSlidingV2SNR(snrArray);
+//
+//   /* Use sliding V^2 SNR as the event SNR */
+//
+//   TMath::Sort(16,snrArray,index);
+//
+//   for(int i=0; i<8; i++){
+//      snrArray_V[i] = snrArray[i];
+//   }
+//   TMath::Sort(8,snrArray_V,index_V);
+//
+//   for(int i=0; i<8; i++){
+//      snrArray_H[i] = snrArray[i+8];
+//   }
+//   TMath::Sort(8,snrArray_H,index_H);
+//
+//   getChannelUnmodifiedSNR(unpaddedEvent, unmodSNRArray);
+//   //TMath::Sort(16,unmodSNRArray,index);
+//
+//   snrRank = (string(settings->recoPolType)=="both" ? index : (string(settings->recoPolType)=="vpol" ? index_V : index_H));
+//
 
    //recoData *summary = new recoData();
    //if(settings->dataType == 0){
@@ -1709,18 +1737,18 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    //summary->setOnion(onion);
    summary->setTopN(topN);
    summary->setRecoChan(goodChan);
-   summary->setInWindowSNR(snrArray[index[2]]);
-   summary->setInWindowSNRBothPol(snrArray_V[index_V[2]], snrArray_H[index_H[2]]);
-   summary->setUnmodSNR(unmodSNRArray[index[2]]);
-   if(settings->nchnlFilter>0){
-      if(settings->nchnlFilter==1){
-         if(snrArray_H[index_H[2]]>=settings->nchnlThreshold_anotherPol) summary->setPassAnotherPolNchnl(true);
-      }
-      else if(settings->nchnlFilter==2){
-         if(snrArray_V[index_V[2]]>=settings->nchnlThreshold_anotherPol) summary->setPassAnotherPolNchnl(true);
-      }
-   }
-
+   //summary->setInWindowSNR(snrArray[index[2]]);
+   //summary->setInWindowSNRBothPol(snrArray_V[index_V[2]], snrArray_H[index_H[2]]);
+   //summary->setUnmodSNR(unmodSNRArray[index[2]]);
+//   if(settings->nchnlFilter>0){
+//      if(settings->nchnlFilter==1){
+//         if(snrArray_H[index_H[2]]>=settings->nchnlThreshold_anotherPol) summary->setPassAnotherPolNchnl(true);
+//      }
+//      else if(settings->nchnlFilter==2){
+//         if(snrArray_V[index_V[2]]>=settings->nchnlThreshold_anotherPol) summary->setPassAnotherPolNchnl(true);
+//      }
+//   }
+//
    recoEventCount++;
    weightedRecoEventCount += weight;
    /* Reco with radiospline */

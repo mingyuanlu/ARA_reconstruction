@@ -12948,6 +12948,81 @@ nchnlArray[2] = totalPassedHpol;
 }
 
 /*
+ * Compute 3 different definitions of the SNR + write SNR values to recoData object summary
+ */
+void computeSNR(recoSettings * settings, const vector<TGraph *>& cleanEvent, recoData *summary){
+
+   //double sigma;
+   //double mean;
+   //double statsArray[2]={0};
+   //TGraph *gr;
+   //Double_t *volts;
+   //double t, v;
+   //int bin;
+   //int index[cleanEvent.size()];
+   //int index_V[cleanEvent.size()/2];
+   //int index_H[cleanEvent.size()/2];
+   //int passThreshold[cleanEvent.size()];  //IF THE CHANNEL PASSED THRESHOLD*SIGMA, THIS NUMBER IS SET TO ONE
+   float vSNRArray[cleanEVent.size()];
+   float v2SNRArray[cleanEvent.size()];
+   float totalPowerSNRArray[cleanEvent.size()];
+   float unmodSNRArray[cleanEvent.size()];
+   float snrArray[cleanEvent.size()];
+   float snrArray_V[cleanEvent.size()/2];
+   float snrArray_H[cleanEvent.size()/2];
+   //int saturated[cleanEvent.size()];
+   //int totalPassedChnl, totalPassedVpol, totalPassedHpol;
+   //int totalSatChnl,   totalSatVpol, totalSatHpol;
+   //totalPassedChnl = totalPassedVpol = totalPassedHpol = 0;
+   //totalSatChnl = totalSatVpol = totalSatHpol = 0;
+   //AraGeomTool *tempGeom = AraGeomTool::Instance();
+   //Int_t stationId = theEvent->stationId;
+
+   getChannelSNR(cleanEvent, vSNRArray);
+   summary->setChannelInWindowSNR(vSNRArray);
+
+   getChannelTotalPowerSNR(cleanEvent, (int)settings->powerEnvIntDuration/settings->wInt_V, (int)settings->powerEnvIntDuration/settings->wInt_H, totalPowerSNRArray);
+   summary->setChannelTotalPowerSNR(totalPowerSNRArray);
+
+   getChannelSlidingV2SNR(cleanEvent, (int)settings->powerEnvIntDuration/settings->wInt_V, (int)settings->powerEnvIntDuration/settings->wInt_H, v2SNRArray);
+   summary->setChannelSlidingV2SNR(v2SNRArray);
+
+   getChannelUnmodifiedSNR(cleanEvent, unmodSNRArray);
+
+   if(settings->snrMode==0) memcpy(snrArray, vSNRArray, sizeof(vSNRArray));
+   else if(settings->snrMode==1) memcpy(snrArray, v2SNRArray, sizeof(v2SNRArray));
+   else if(settings->snrMode==2) memcpy(snrArray, totalPowerSNRArray, sizeof(totalPowerSNRArray));
+   else { cerr<<"Undefined snrMode: "<<settings->snrMode<<endl; return -1; }
+
+   TMath::Sort((int)cleanEvent.size(),snrArray,index);
+
+   for(int i=0; i<(int)cleanEvent.size()/2; i++){
+      snrArray_V[i] = snrArray[i];
+      snrArray_H[i] = snrArray[i+(int)cleanEvent.size()/2];
+   }
+   TMath::Sort((int)cleanEvent.size()/2,snrArray_V,index_V);
+   TMath::Sort((int)cleanEvent.size()/2,snrArray_H,index_H);
+
+   //SNR is always defined as 3rd largest peak
+   summary->setInWindowSNR(snrArray[index[2]]);
+   summary->setInWindowSNRBothPol(snrArray_V[index_V[2]], snrArray_H[index_H[2]]);
+/*
+   if(settings->nchnlFilter>0){
+
+      for ( int ch=0; ch<(int)cleanEvent.size(); ch++){
+         passThreshold[ch] = 0;
+         if(snrArray[ch] > threshold ) passThreshold[ch] = 1;
+         if(settings->maskSubThresholdChannels) goodChan[ch] = (goodChan[ch] && passThreshold[ch]);
+      }
+
+   }
+*/
+   TMath::Sort(16,unmodSNRArray,index);
+   summary->setUnmodSNR(unmodSNRArray[index[2]]);
+
+}
+
+/*
  * Returns number of saturated channels (dep on recoPolType), and modifies satChan
  */
 int getSaturation(recoSettings *settings, const vector<TGraph *>& cleanEvent, int *satChan){
