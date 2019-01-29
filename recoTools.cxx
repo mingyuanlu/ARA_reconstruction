@@ -12959,11 +12959,11 @@ void computeSNR(recoSettings * settings, const vector<TGraph *>& cleanEvent, rec
    //Double_t *volts;
    //double t, v;
    //int bin;
-   //int index[cleanEvent.size()];
-   //int index_V[cleanEvent.size()/2];
-   //int index_H[cleanEvent.size()/2];
+   int index[cleanEvent.size()];
+   int index_V[cleanEvent.size()/2];
+   int index_H[cleanEvent.size()/2];
    //int passThreshold[cleanEvent.size()];  //IF THE CHANNEL PASSED THRESHOLD*SIGMA, THIS NUMBER IS SET TO ONE
-   float vSNRArray[cleanEVent.size()];
+   float vSNRArray[cleanEvent.size()];
    float v2SNRArray[cleanEvent.size()];
    float totalPowerSNRArray[cleanEvent.size()];
    float unmodSNRArray[cleanEvent.size()];
