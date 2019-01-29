@@ -12992,7 +12992,7 @@ void computeSNR(recoSettings * settings, const vector<TGraph *>& cleanEvent, rec
    if(settings->snrMode==0) memcpy(snrArray, vSNRArray, sizeof(vSNRArray));
    else if(settings->snrMode==1) memcpy(snrArray, v2SNRArray, sizeof(v2SNRArray));
    else if(settings->snrMode==2) memcpy(snrArray, totalPowerSNRArray, sizeof(totalPowerSNRArray));
-   else { cerr<<"Undefined snrMode: "<<settings->snrMode<<endl; return -1; }
+   //else { cerr<<"Undefined snrMode: "<<settings->snrMode<<endl; return -1; }
 
    TMath::Sort((int)cleanEvent.size(),snrArray,index);
 
