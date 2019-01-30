@@ -933,9 +933,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    else if (settings->snrMode==2) memcpy(snrArray, summary->totalPowerSNR, sizeof(summary->totalPowerSNR)); //snrArray[ch] = summary->totalPowerSNR[ch];
    else { cerr<<"Invalid snrMode: "<<settings->snrMode<<endl; return -1; }
 
-   for(int ch=0; ch<16; ch++){
-      cout<<"snrArray: "<<snrArray[ch]<<" channelInWindowSNR: "<<summary->channelInWindowSNR[ch]<<" slidingV2SNR: "<<summary->slidingV2SNR[ch]<<" totalPowerSNR: "<<summary->totalPowerSNR[ch]<<endl;
-   }
+   //for(int ch=0; ch<16; ch++){
+   //   cout<<"snrArray: "<<snrArray[ch]<<" channelInWindowSNR: "<<summary->channelInWindowSNR[ch]<<" slidingV2SNR: "<<summary->slidingV2SNR[ch]<<" totalPowerSNR: "<<summary->totalPowerSNR[ch]<<endl;
+   //}
 
    for(int ch=0; ch<8; ch++){
       snrArray_V[ch] = snrArray[ch];
