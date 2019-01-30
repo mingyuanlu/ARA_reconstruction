@@ -14938,7 +14938,7 @@ void computeSNR(recoSettings * settings, const vector<TGraph *>& cleanEvent, rec
    TMath::Sort((int)cleanEvent.size()/2,snrArray_H,index_H);
 
    //SNR is always defined as 3rd largest peak
-   //summary->setInWindowSNR(snrArray[index[2]]);
+   summary->setInWindowSNR(snrArray[index[2]]);
    summary->setInWindowSNRBothPol(snrArray_V[index_V[2]], snrArray_H[index_H[2]]);
 /*
    if(settings->nchnlFilter>0){
@@ -14953,7 +14953,7 @@ void computeSNR(recoSettings * settings, const vector<TGraph *>& cleanEvent, rec
 */
    TMath::Sort(16,unmodSNRArray,index);
    summary->setUnmodSNR(unmodSNRArray[index[2]]);
-   summary->setInWindowSNR(snrArray[index[2]]);
+   
 }
 
 /*
