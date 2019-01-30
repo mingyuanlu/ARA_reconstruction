@@ -101,6 +101,8 @@ void recoSettings::initialize(){
 
   snrMode = 0;
 
+  applyA2Ch6Correction = 1;
+
   //remark = "Default.";
   snprintf(remark, sizeof(remark), "Default.");
 
@@ -186,6 +188,7 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
             }
             else if(label == "powerEnvIntDuration")   powerEnvIntDuration = atof( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "snrMode")               snrMode             = atoi( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "applyA2Ch6Correction")  applyA2Ch6Correction= atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label != "") cerr<<"Undefined parameter detected. Label: "<<label<<endl;
          }
       }
@@ -265,6 +268,7 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
       for(int i=0; i<16; i++){ code = chanMask[i] - '0'; if( (unsigned)(code-0) > 1){ printf("chanMask: %s\n", chanMask); errCnt++;}}
       if( powerEnvIntDuration < 0 ){              cerr<<"powerEnvIntDuration: "<<powerEnvIntDuration<<endl; errCnt++; }
       if( (unsigned)(snrMode-0) > 2){             cerr<<"snrMode: "<<snrMode<<endl; errCnt++; }
+      if( (unsigned)(applyA2Ch6Correction-0) > 1){cerr<<"applyA2Ch6Correction: "<<applyA2Ch6Correction<<endl; errCnt++; }
       if(errCnt > 0) return false;
 
    } else { cerr<<"Unable to open "<<sf<<endl; return false; }

@@ -394,6 +394,11 @@ if(settings->dataType == 1){
 
 }
 
+if(settings->applyA2Ch6Correction){
+   /* Add correction from Fit 2 of D5BV+D6BV calpulsers to D3BV (ch6) Z */
+   antLocation[6][2] += (-0.6);
+}
+
 /* Initiate a track engine instance, build baseline vectors */
 trackEngine *treg = new trackEngine();
 treg->initialize();
@@ -715,6 +720,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
       //stdDelay= geom->getStationInfo(stationId)->getCableDelay(a);
       //addDelay += stdDelay;
+      if(settings->applyA2Ch6Correction) if(a==6) addDelay += 6.8; //Fit 2, ch6 delay+=6.87ns
 
 	  //*** We put the waveform into a graph. ***//
 	  gr_v_temp[a] = realAtriEvPtr->getGraphFromRFChan(a);

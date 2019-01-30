@@ -135,6 +135,8 @@ public:
       Default 25ns. Time duration to integrate when using evProcessTools::getSqrtVoltageSquaredSummedWaveform.
    snrMode:
       Default 0. 0: V_peak/RMS (crest factor). 1: sqrt((1/N)*(Sum V^2)) within powerEnvIntDuration of time. 2: E_s+n - E_n / E_n / (1ns/T)
+   applyA2Ch6Correction:
+      Default: 1. 0: do not apply. 1: apply.
    remark:
       Default "". Any remark one wishes to add to the reco setup file. The remarks will then be carried along in the analysis output ROOT file. Note that number of characters should not exceed CSTRING_MAX defined in recoSettings.h
 */
@@ -241,7 +243,10 @@ public:
    //ClassDef 18
    int snrMode;
 
-   ClassDef(recoSettings, 18); //2: convert all string parameters to char
+   //ClassDef 19
+   int applyA2Ch6Correction;
+
+   ClassDef(recoSettings, 19); //2: convert all string parameters to char
                               //3: add openCLDeviceType and openCLMaxNumberOfDevices parameters
 };
 
