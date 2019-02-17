@@ -87,7 +87,7 @@ public:
    cutParameter impCut;
 
    //Calpulser cut
-   const int nBoxes = 3;
+   static const int nBoxes = 3;
    cutParameter zenMin[nBoxes];
    cutParameter zenMax[nBoxes];
    cutParameter aziMin[nBoxes];
