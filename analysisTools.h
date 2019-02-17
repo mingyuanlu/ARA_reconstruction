@@ -87,10 +87,11 @@ public:
    cutParameter impCut;
 
    //Calpulser cut
-   cutParameter zenMin[4];
-   cutParameter zenMax[4];
-   cutParameter aziMin[4];
-   cutParameter aziMax[4];
+   const int nBoxes = 3;
+   cutParameter zenMin[nBoxes];
+   cutParameter zenMax[nBoxes];
+   cutParameter aziMin[nBoxes];
+   cutParameter aziMax[nBoxes];
 
    //Surface cut
    cutParameter surfaceCut_constantN;

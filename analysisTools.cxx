@@ -113,7 +113,7 @@ void ARA02_cutValues::initialize(){
    setValue(coherenceCut_outOfBand[4],0.095079, 0.000324, -0.000315);
 
    setValue(impCut, 0.25563478, 0.00124038, -0.00124038);
-
+/*
    setValue(zenMin[0],0.5409,	-0.001924625,	0.001924625); // plus: cut region is larger minus: cut regin is smaller
    setValue(zenMin[1],-31.4,	-0.030723404,	0.030723404);
    setValue(zenMin[2],-27.78,	-0.0405,	0.0405);
@@ -133,6 +133,23 @@ void ARA02_cutValues::initialize(){
    setValue(aziMax[1],341.01,	0.027090909,	-0.027090909);
    setValue(aziMax[2],58.32,	0.015909091,	-0.015909091);
    setValue(aziMax[3],75.25,	0.010268085,	-0.010268085);
+*/
+
+   setValue(zenMin[0], -32.445122,  -0.279150, 0.279150); // plus: cut region is larger minus: cut regin is smaller
+   setValue(zenMin[1], -0.5000384756620608, -0.049698, 0.049698);
+   setValue(zenMin[2], 26.676257582375015,  -0.014895, 0.014895);
+
+   setValue(zenMax[0], -15.09135433852994, 0.644769, -0.644769);
+   setValue(zenMax[1], 11.197893462051383, 0.005116, -0.005116);
+   setValue(zenMax[2], 36.74904979886475, 0.002851, -0.002851);
+
+   setValue(aziMin[0], 329.1813651101607, -0.011490, 0.011490);
+   setValue(aziMin[1], 55.31723520228566, -0.000069, 0.000069);
+   setValue(aziMin[2], 330.64429515858507,  -0.009783, 0.009783);
+
+   setValue(aziMax[0], 341.4794531938459, 0.287608, -0.287608);
+   setValue(aziMax[1], 67.22731842523841, 0.018698, -0.018698);
+   setValue(aziMax[2], 340.74104652018354, 0.739811, -0.739811);
 
    setValue(surfaceCut_constantN, 35.648,	-0.693,	0.693); // plus: cut region is larger, minus: cut region is smaller
    setValue(surfaceCut_iterReco, 36.77852,	-0.588241,	0.588241);
