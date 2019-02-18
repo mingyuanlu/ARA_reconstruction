@@ -112,7 +112,8 @@ void ARA02_cutValues::initialize(){
    setValue(coherenceCut_outOfBand[3],0.094770, 0.000120, -0.000119);
    setValue(coherenceCut_outOfBand[4],0.095079, 0.000324, -0.000315);
 
-   setValue(impCut, 0.25563478, 0.00124038, -0.00124038);
+   //setValue(impCut, 0.25563478, 0.00124038, -0.00124038);
+   setValue(impCut, 0.28108427, 0.00160186, -0.00160186);
 /*
    setValue(zenMin[0],0.5409,	-0.001924625,	0.001924625); // plus: cut region is larger minus: cut regin is smaller
    setValue(zenMin[1],-31.4,	-0.030723404,	0.030723404);
