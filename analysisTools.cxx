@@ -191,10 +191,10 @@ bool isCW_coincidence(bool &isVpolCW, bool &isHpolCW, int &maxCountFreqBin_V, in
    //cout<<endl;
    //cout<<"maxCountFreq_V: "<<dummyData->maxCountFreq_V<<" maxCountFreq_H: "<<dummyData->maxCountFreq_H<<endl;
 
-   minBin  =  *min_element(maxFreqBinVec_V.begin(), maxFreqBinVec_V.end());
-   maxBin  =  *max_element(maxFreqBinVec_V.begin(), maxFreqBinVec_V.end());
-   len = maxBin - minBin + 1;
-   freqCount_V = new int [len];
+   int minBin  =  *min_element(maxFreqBinVec_V.begin(), maxFreqBinVec_V.end());
+   int maxBin  =  *max_element(maxFreqBinVec_V.begin(), maxFreqBinVec_V.end());
+   int len = maxBin - minBin + 1;
+   int* freqCount_V = new int [len];
    std::fill(&freqCount_V[0], &freqCount_V[len], 0);
 
    for(int i=0; i<8; i++) freqCount_V[dummyData->maxFreqBin[i]-minBin] += 1;
@@ -226,7 +226,7 @@ bool isCW_coincidence(bool &isVpolCW, bool &isHpolCW, int &maxCountFreqBin_V, in
    minBin  =  *min_element(maxFreqBinVec_H.begin(), maxFreqBinVec_H.end());
    maxBin  =  *max_element(maxFreqBinVec_H.begin(), maxFreqBinVec_H.end());
    len = maxBin - minBin + 1;
-   freqCount_H = new int [len];
+   int* freqCount_H = new int [len];
    std::fill(&freqCount_H[0], &freqCount_H[len], 0);
 
    for(int i=8; i<16; i++) freqCount_H[dummyData->maxFreqBin[i]-minBin] += 1;
@@ -254,7 +254,10 @@ bool isCW_coincidence(bool &isVpolCW, bool &isHpolCW, int &maxCountFreqBin_V, in
       }
    }
 
-   return (isVpolCW || isHpolCW)
+   delete [] freqCount_V;
+   delete [] freqCount_H;
+
+   return (isVpolCW || isHpolCW);
 
 }
 
@@ -310,12 +313,12 @@ bool isCW_freqWindow(bool &isVpolCW, bool &isHpolCW, bool isXpolCW, recoData *du
             double fftResGap;
             if(orderedArrayPolType[i]+orderedArrayPolType[j] == 0){ //2 Vpol
                //fftRes = 2. * dummyData->freqBinWidth_V;
-               vResBin = int(fftRes / dummyData->freqBinWidth_V)+1;
+               int vResBin = int(fftRes / dummyData->freqBinWidth_V)+1;
                fftResGap = dummyData->freqBinWidth_V * (double)vResBin;
             }
             else if(orderedArrayPolType[i]+orderedArrayPolType[j] == 2){ //2H
                //fftRes = dummyData->freqBinWidth_V + dummyData->freqBinWidth_H;
-               hResBin = int(fftRes / dummyData->freqBinWidth_H)+1;
+               int hResBin = int(fftRes / dummyData->freqBinWidth_H)+1;
                fftResGap = dummyData->freqBinWidth_H * (double)hResBin;
             }
             else{ //1V + 1H
@@ -381,6 +384,8 @@ bool isThermal_boxCut(bool &inBand, recoSettings *settings, recoData *dummyData,
       double coherence, snr;
 
       double snrCutValue, coherenceCutValue;
+
+      bool passThermalCut;
 
       if(dummyData->maxPixCoherence > dummyData->maxPixCoherence2){
 
@@ -564,7 +569,9 @@ bool isCalpulserTime(string STATION, recoData *dummyData){
 
 bool isCalpulser(float &inBoxTheta, float &inBoxPhi, string STATION, recoData *dummyData, Healpix_Onion onion, recoSettings *settings, int type){
 
-   if(STATION == "ARA02") ARA02_cutValues *cutValues = new ARA02_cutValues();
+   ARA02_cutValues *cutValues;
+
+   if(STATION == "ARA02") cutValues = new ARA02_cutValues();
    //ARA03: to be implemented
 
    bool inBox = false;
@@ -574,6 +581,8 @@ bool isCalpulser(float &inBoxTheta, float &inBoxPhi, string STATION, recoData *d
    int inBoxCount = 0;
    inBoxTheta = 0.f;
    inBoxPhi   = 0.f;
+
+   int nLayer = settings->nLayer;
 
    int nAnt = (string(settings->recoPolType)=="both"?16:8);
    int numIter = nAnt - settings->nchnlCut + 1;
@@ -641,6 +650,8 @@ bool isCalpulser(float &inBoxTheta, float &inBoxPhi, string STATION, recoData *d
       inBoxPhi   /= (float)inBoxCount;
    }
 
+   delete cutValues;
+
    return inBox;
 }
 
@@ -652,6 +663,8 @@ bool isRecoverableByImp(bool isVpolCW, bool isHpolCW, bool isXpolCW, recoData *d
 
       bool passHighPassFilter = false;
       bool passImpulsivityCut = false;
+
+      int nonZeroCount;
 
       if((isVpolCW && isHpolCW) || isXpolCW){
 
@@ -747,6 +760,10 @@ bool isBelowThermalImpulsivityCut(recoData *dummyData, double postThermalAvgImpu
       int nonZeroCount = 0;
       double sum = 0.;
 
+      double avgImpulsivity = 0.;
+
+      bool passThermalImpulsivityCut =  false;
+
       for(int ch=0; ch<8; ch++){
          if(fabs( dummyData->impulsivity[ch] - 0 ) > 1e-9 ){
             nonZeroCount++;
@@ -763,6 +780,8 @@ bool isBelowThermalImpulsivityCut(recoData *dummyData, double postThermalAvgImpu
          //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<endl;
          passThermalImpulsivityCut = true;
 
+      } else {
+         passThermalImpulsivityCut = false;
       }
 
       return !passThermalImpulsivityCut;
