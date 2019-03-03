@@ -169,7 +169,7 @@ void ARA02_cutValues::setValue(cutParameter& param, double _val, double _plus, d
 }
 
 
-bool analysisTools::isCW_coincidence(bool &isVpolCW, bool &isHpolCW, int &maxCountFreqBin_V, int maxCountFreqBin_H, recoData *dummyData, int cwBinThres){
+bool isCW_coincidence(bool &isVpolCW, bool &isHpolCW, int &maxCountFreqBin_V, int maxCountFreqBin_H, recoData *dummyData, int cwBinThres){
 
    vector<int> maxFreqBinVec_V;
    vector<int> maxFreqBinVec_H;
@@ -258,7 +258,7 @@ bool analysisTools::isCW_coincidence(bool &isVpolCW, bool &isHpolCW, int &maxCou
 
 }
 
-bool analysisTools::isCW_freqWindow(bool &isVpolCW, bool &isHpolCW, bool isXpolCW, recoData *dummyData, double fftRes){
+bool isCW_freqWindow(bool &isVpolCW, bool &isHpolCW, bool isXpolCW, recoData *dummyData, double fftRes){
 
    bool isCW = false;
 
@@ -353,7 +353,7 @@ bool analysisTools::isCW_freqWindow(bool &isVpolCW, bool &isHpolCW, bool isXpolC
 
 }
 
-bool analysisTools::isLowFreqDominance(int& lowFreqCount_V, int& lowFreqCount_H, recoData *dummyData, double highPassFreq, int lowFreqCountThres){
+bool isLowFreqDominance(int& lowFreqCount_V, int& lowFreqCount_H, recoData *dummyData, double highPassFreq, int lowFreqCountThres){
 
    lowFreqCount_V = lowFreqCount_H = 0;
 
@@ -371,7 +371,7 @@ bool analysisTools::isLowFreqDominance(int& lowFreqCount_V, int& lowFreqCount_H,
 
 }
 
-bool analysisTools::isThermal_boxCut(bool &inBand, recoSettings *settings, recoData *dummyData, Healpix_Onion onion, double snrCut_inBand, double coherenceCut_inBand, double snrCut_outOfBand, double coherenceCut_outOfBand){
+bool isThermal_boxCut(bool &inBand, recoSettings *settings, recoData *dummyData, Healpix_Onion onion, double snrCut_inBand, double coherenceCut_inBand, double snrCut_outOfBand, double coherenceCut_outOfBand){
 
       float r     = onion.getLayerRadius(dummyData->maxPixIdx2);
       float theta = onion.getPointing(dummyData->maxPixIdx2).theta * TMath::RadToDeg();
@@ -419,7 +419,7 @@ bool analysisTools::isThermal_boxCut(bool &inBand, recoSettings *settings, recoD
    return !passThermalCut;
 }
 
-bool analysisTools::isSurface(recoData *dummyData, double surfaceCut_1){
+bool isSurface(recoData *dummyData, double surfaceCut_1){
 
       if(90.f-dummyData->constantNZen < /*SURFACE_CUT*/surfaceCut_1){
          //passSurfaceCut = true;
@@ -430,7 +430,7 @@ bool analysisTools::isSurface(recoData *dummyData, double surfaceCut_1){
 
 }
 
-bool analysisTools::isIterSurface(recoData *dummyData, Healpix_Onion onion, recoSettings *settings, double zenRange, double surfaceCut_2){
+bool isIterSurface(recoData *dummyData, Healpix_Onion onion, recoSettings *settings, double zenRange, double surfaceCut_2){
 
    int nAnt = (string(settings->recoPolType)=="both"?16:8);
    int numIter = nAnt - settings->nchnlCut + 1;
@@ -476,7 +476,7 @@ bool analysisTools::isIterSurface(recoData *dummyData, Healpix_Onion onion, reco
    return !passSurfaceCut_2;
 }
 
-float analysisTools::getZenMaj(const vector<float>& iterZenVec, float zenRange){
+float getZenMaj(const vector<float>& iterZenVec, float zenRange){
 
 
    float zenMaj = 100.f;
@@ -514,7 +514,7 @@ float analysisTools::getZenMaj(const vector<float>& iterZenVec, float zenRange){
    return zenMaj;
 }
 
-bool analysisTools::isNearNoisyRun(const vector<int>& noisyRuns, int runNum, int plusMinusRunNum){
+bool isNearNoisyRun(const vector<int>& noisyRuns, int runNum, int plusMinusRunNum){
 
 
    bool isNoisy = false;
@@ -530,7 +530,7 @@ bool analysisTools::isNearNoisyRun(const vector<int>& noisyRuns, int runNum, int
 
 }
 
-bool analysisTools::isDeepPulser(string STATION, recoData *dummyData, int runNum){
+bool isDeepPulser(string STATION, recoData *dummyData, int runNum){
 
    bool passDeepPulserCut = false;
 
@@ -546,7 +546,7 @@ bool analysisTools::isDeepPulser(string STATION, recoData *dummyData, int runNum
    return !passDeepPulserCut;
 }
 
-bool analysisTools::isCalpulserTime(string STATION, recoData *dummyData){
+bool isCalpulserTime(string STATION, recoData *dummyData){
 
    bool passCalpulserTimeCut = false;
    if( STATION == "ARA02" ){
@@ -562,7 +562,7 @@ bool analysisTools::isCalpulserTime(string STATION, recoData *dummyData){
    return !passCalpulserTimeCut;
 }
 
-bool analysisTools::isCalpulser(float &inBoxTheta, float &inBoxPhi, string STATION, recoData *dummyData, Healpix_Onion onion, recoSettings *settings, int type){
+bool isCalpulser(float &inBoxTheta, float &inBoxPhi, string STATION, recoData *dummyData, Healpix_Onion onion, recoSettings *settings, int type){
 
    if(STATION == "ARA02") ARA02_cutValues *cutValues = new ARA02_cutValues();
    //ARA03: to be implemented
@@ -644,7 +644,7 @@ bool analysisTools::isCalpulser(float &inBoxTheta, float &inBoxPhi, string STATI
    return inBox;
 }
 
-bool analysisTools::isRecoverableByImp(bool isVpolCW, bool isHpolCW, bool isXpolCW, recoData *dummyData, double impCut, double highPassFreq){
+bool isRecoverableByImp(bool isVpolCW, bool isHpolCW, bool isXpolCW, recoData *dummyData, double impCut, double highPassFreq){
 
       double impulsivity[16];
       std::fill(&impulsivity[0], &impulsivity[16], 0.);
@@ -740,7 +740,7 @@ bool analysisTools::isRecoverableByImp(bool isVpolCW, bool isHpolCW, bool isXpol
 }
 
 
-bool analysisTools::isBelowThermalImpulsivityCut(recoData *dummyData, double postThermalAvgImpulsivityCut){
+bool isBelowThermalImpulsivityCut(recoData *dummyData, double postThermalAvgImpulsivityCut){
 
       double impulsivity[16];
       std::fill(&impulsivity[0], &impulsivity[16], 0.);
