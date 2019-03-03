@@ -167,3 +167,603 @@ void ARA02_cutValues::setValue(cutParameter& param, double _val, double _plus, d
    param.minus = _minus;
 
 }
+
+
+bool analysisTools::isCW_coincidence(bool &isVpolCW, bool &isHpolCW, int &maxCountFreqBin_V, int maxCountFreqBin_H, recoData *dummyData, int cwBinThres){
+
+   vector<int> maxFreqBinVec_V;
+   vector<int> maxFreqBinVec_H;
+   vector<int> maxFreqBinVec;
+
+   maxFreqBinVec_V.clear();
+   maxFreqBinVec_H.clear();
+   maxFreqBinVec.clear();
+
+   for(int i=0; i<8; i++){
+      //cout<<"ch: "<<i<<" maxFreqBin: "<<dummyData->maxFreqBin[i]<<" maxFreq: "<<dummyData->maxFreqBin[i] * dummyData->freqBinWidth_V<<" maxFreqPower: "<<dummyData->maxFreqPower[i]<<" ";
+      maxFreqBinVec_V.push_back(dummyData->maxFreqBin[i]);
+   }
+   //cout<<endl;
+   for(int i=8; i<16; i++){
+      //cout<<"ch: "<<i<<" maxFreqBin: "<<dummyData->maxFreqBin[i]<<" maxFreq: "<<dummyData->maxFreqBin[i] * dummyData->freqBinWidth_H<<" maxFreqPower: "<<dummyData->maxFreqPower[i]<<" ";
+      maxFreqBinVec_H.push_back(dummyData->maxFreqBin[i]);
+   }
+   //cout<<endl;
+   //cout<<"maxCountFreq_V: "<<dummyData->maxCountFreq_V<<" maxCountFreq_H: "<<dummyData->maxCountFreq_H<<endl;
+
+   minBin  =  *min_element(maxFreqBinVec_V.begin(), maxFreqBinVec_V.end());
+   maxBin  =  *max_element(maxFreqBinVec_V.begin(), maxFreqBinVec_V.end());
+   len = maxBin - minBin + 1;
+   freqCount_V = new int [len];
+   std::fill(&freqCount_V[0], &freqCount_V[len], 0);
+
+   for(int i=0; i<8; i++) freqCount_V[dummyData->maxFreqBin[i]-minBin] += 1;
+
+   for(int i=0; i<len; i++){
+      if(freqCount_V[i] >= cwBinThres) { isVpolCW = true; maxCountFreqBin_V = minBin+i; }
+   }
+
+   if(!isVpolCW){
+      if (freqCount_V[0] >= cwBinThres-1){
+         if (freqCount_V[1] >= cwBinThres-2 ) { isVpolCW = true; maxCountFreqBin_V = minBin+0; }
+      } else if ( freqCount_V[len-1] >= cwBinThres-1){
+         if (freqCount_V[len-2] >= cwBinThres-2 ) { isVpolCW = true; maxCountFreqBin_V = minBin+len-1; }
+      }
+   }
+   if (!isVpolCW){
+      for(int i=1; i<len-1; i++){
+         if(freqCount_V[i]>=cwBinThres-1){
+            if(freqCount_V[i-1] >= cwBinThres-2 || freqCount_V[i+1] >= cwBinThres-2){
+               isVpolCW = true;
+               maxCountFreqBin_V = minBin+i;
+               break;
+            }
+         }
+      }
+   }
+
+
+   minBin  =  *min_element(maxFreqBinVec_H.begin(), maxFreqBinVec_H.end());
+   maxBin  =  *max_element(maxFreqBinVec_H.begin(), maxFreqBinVec_H.end());
+   len = maxBin - minBin + 1;
+   freqCount_H = new int [len];
+   std::fill(&freqCount_H[0], &freqCount_H[len], 0);
+
+   for(int i=8; i<16; i++) freqCount_H[dummyData->maxFreqBin[i]-minBin] += 1;
+
+   for(int i=0; i<len; i++){
+      if(freqCount_H[i] >= cwBinThres) { isHpolCW = true; maxCountFreqBin_H = minBin+i; }
+   }
+
+   if(!isHpolCW){
+      if (freqCount_H[0] >= cwBinThres-1){
+         if (freqCount_H[1] >= cwBinThres-2 ) { isHpolCW = true; maxCountFreqBin_H = minBin+0; }
+      } else if ( freqCount_H[len-1] >= cwBinThres-1){
+         if (freqCount_H[len-2] >= cwBinThres-2 ) { isHpolCW = true; maxCountFreqBin_H = minBin+len-1; }
+      }
+   }
+   if (!isHpolCW){
+      for(int i=1; i<len-1; i++){
+         if(freqCount_H[i]>=cwBinThres-1){
+            if(freqCount_H[i-1] >= cwBinThres-2 || freqCount_H[i+1] >= cwBinThres-2){
+               isHpolCW = true;
+               maxCountFreqBin_H = minBin+i;
+               break;
+            }
+         }
+      }
+   }
+
+   return (isVpolCW || isHpolCW)
+
+}
+
+bool analysisTools::isCW_freqWindow(bool &isVpolCW, bool &isHpolCW, bool isXpolCW, recoData *dummyData, double fftRes){
+
+   bool isCW = false;
+
+   double maxFreqArray[16];
+   int maxFreqArrayPolType[16];
+   int fIndex[16];
+   double orderedArray[16];
+   int orderedArrayPolType[16];
+
+      for(int ch=0; ch<16; ch++){
+
+         //maxFreqBinVec.push_back(dummyData->maxFreqBin[ch]);
+         maxFreqArray[ch] = dummyData->maxFreqBin[ch] * (ch<8?dummyData->freqBinWidth_V:dummyData->freqBinWidth_H);
+         if(ch<8) maxFreqArrayPolType[ch] = 0;//maxFreqArray_V[ch] =  dummyData->maxFreqBin[ch] * dummyData->freqBinWidth_V;
+         else     maxFreqArrayPolType[ch] = 1;//maxFreqArray_H[ch] =  dummyData->maxFreqBin[ch] * dummyData->freqBinWidth_H;
+
+      }
+
+
+
+      TMath::Sort(16, maxFreqArray, fIndex, kFALSE);
+      //TMath::Sort(8, maxFreqArray_V, fIndex_V, kFALSE);
+      //TMath::Sort(8, maxFreqArray_H, fIndex_H, kFALSE);
+
+
+      for(int ch=0; ch<16; ch++){
+
+         orderedArray[ch] = maxFreqArray[fIndex[ch]];
+         orderedArrayPolType[ch] = maxFreqArrayPolType[fIndex[ch]];
+         //cout<<orderedArray[ch]<<",";
+
+      }
+      //cout<<endl;
+/*
+      for(int ch=0; ch<8; ch++){
+
+         orderedArray[ch] =
+
+      }
+*/
+      int cwCount=0;
+      int cwCount_V, cwCount_H, cwCount_X;
+      cwCount_V = cwCount_H = cwCount_X = 0;
+
+      for(int i=0; i<16; i++){
+         for(int j=i+1; j<16; j++){
+
+            //cout<<"i: "<<i<<" j: "<<j<<endl;
+            double fftResGap;
+            if(orderedArrayPolType[i]+orderedArrayPolType[j] == 0){ //2 Vpol
+               //fftRes = 2. * dummyData->freqBinWidth_V;
+               vResBin = int(fftRes / dummyData->freqBinWidth_V)+1;
+               fftResGap = dummyData->freqBinWidth_V * (double)vResBin;
+            }
+            else if(orderedArrayPolType[i]+orderedArrayPolType[j] == 2){ //2H
+               //fftRes = dummyData->freqBinWidth_V + dummyData->freqBinWidth_H;
+               hResBin = int(fftRes / dummyData->freqBinWidth_H)+1;
+               fftResGap = dummyData->freqBinWidth_H * (double)hResBin;
+            }
+            else{ //1V + 1H
+              //fftRes = 2. * dummyData->freqBinWidth_H;
+              //xResBin = int(fftRes / (dummyData->freqBinWidth_V + dummyData->freqBinWidth_H));
+              //fftResGap = (dummyData->freqBinWidth_V + dummyData->freqBinWidth_H) * (double)xResBin + (dummyData->freqBinWidth_V>dummyData->freqBinWidth_H?dummyData->freqBinWidth_V:dummyData->freqBinWidth_H);
+              fftResGap = fftRes + (dummyData->freqBinWidth_V>dummyData->freqBinWidth_H?dummyData->freqBinWidth_V:dummyData->freqBinWidth_H);
+            }
+
+            //cout<<"poltype: "<<orderedArrayPolType[i]+orderedArrayPolType[j]<<" fftResGap: "<<fftResGap<<" orderedArray[i]: "<<orderedArray[i]<<" orderedArray[j]: "<<orderedArray[j]<<" diff: "<<orderedArray[j]-orderedArray[i]<<endl;
+            //printf("fftResGap: %le diff: %le diff-fftResGap: %le\n", fftResGap, orderedArray[j]-orderedArray[i], orderedArray[j]-orderedArray[i]-fftResGap);
+            if(orderedArray[i] > 1e-6 && orderedArray[j] > 1e-6){ //not zeros
+
+            if( (orderedArray[j] - orderedArray[i]) < fftResGap+1e-6/*fftRes*/) {
+               //cout<<"i: "<<i<<" j: "<<j<<" freq_i: "<<orderedArray[i]<<" freq_j: "<<orderedArray[j]<<endl;
+               if(orderedArrayPolType[i]+orderedArrayPolType[j] == 0){ cwCount_V++; }
+               else if (orderedArrayPolType[i]+orderedArrayPolType[j] == 2){ cwCount_H++; }
+               else {cwCount_X++;}
+               cwCount++;
+               i = j;
+            }
+
+            }
+
+         }
+      }
+
+      if(cwCount_V>=2) isVpolCW = true;
+      if(cwCount_H>=2) isHpolCW = true;
+      if(cwCount_X>=2) isXpolCW = true;
+      if(cwCount>=2) isCW = true;//cout<<"CW EVENT!!!!!"<<endl;
+      else isCW=false;//cout<<"NOT CW!!!!!"<<endl;
+
+      return isCW;
+
+}
+
+bool analysisTools::isLowFreqDominance(int& lowFreqCount_V, int& lowFreqCount_H, recoData *dummyData, double highPassFreq, int lowFreqCountThres){
+
+   lowFreqCount_V = lowFreqCount_H = 0;
+
+   for(int i=0; i<8; i++){
+      //cout<<"maxFreqBin: "<<dummyData->maxFreqBin[i]<<" maxFreq_V: "<<dummyData->maxFreqBin[i]   * dummyData->freqBinWidth_V<<endl;
+      //cout<<"maxFreqBin: "<<dummyData->maxFreqBin[i+8]<<" maxFreq_H: "<<dummyData->maxFreqBin[i+8]   * dummyData->freqBinWidth_H<<endl;
+      if( dummyData->maxFreqBin[i]   * dummyData->freqBinWidth_V < highPassFreq ) lowFreqCount_V += 1;
+      if( dummyData->maxFreqBin[i+8] * dummyData->freqBinWidth_H < highPassFreq ) lowFreqCount_H += 1;
+   }
+
+   if(lowFreqCount_V >= lowFreqCountThres || lowFreqCount_H >= lowFreqCountThres) //lowFreqDominance = true;
+      return true;
+   else
+      return false;
+
+}
+
+bool analysisTools::isThermal_boxCut(bool &inBand, recoSettings *settings, recoData *dummyData, Healpix_Onion onion, double snrCut_inBand, double coherenceCut_inBand, double snrCut_outOfBand, double coherenceCut_outOfBand){
+
+      float r     = onion.getLayerRadius(dummyData->maxPixIdx2);
+      float theta = onion.getPointing(dummyData->maxPixIdx2).theta * TMath::RadToDeg();
+      float phi   = onion.getPointing(dummyData->maxPixIdx2).phi   * TMath::RadToDeg();
+
+      float zen_bestHypo, azi_bestHypo;
+      double coherence, snr;
+
+      double snrCutValue, coherenceCutValue;
+
+      if(dummyData->maxPixCoherence > dummyData->maxPixCoherence2){
+
+         zen_bestHypo = 90.f-dummyData->recoZen;
+         azi_bestHypo = dummyData->recoAzi;
+         coherence = dummyData->maxPixCoherence;
+
+      } else {
+
+         zen_bestHypo = 90.f-theta;
+         azi_bestHypo = phi;
+         coherence = dummyData->maxPixCoherence2;
+
+      }
+
+      if (zen_bestHypo < ZEN_BAND_MAX && zen_bestHypo > ZEN_BAND_MIN){
+         snrCutValue = snrCut_inBand;
+         coherenceCutValue = coherenceCut_inBand;
+         inBand = true;
+      }
+      else {
+         snrCutValue = snrCut_outOfBand;
+         coherenceCutValue = coherenceCut_outOfBand;
+         inBand = false;
+       }
+
+      if(string(settings->recoPolType)=="vpol"){ snr = dummyData->inWindowSNR_V; }
+      else if(string(settings->recoPolType)=="hpol"){ snr = dummyData->inWindowSNR_H; }
+
+      if( snr > snrCutValue || coherence > coherenceCutValue){
+         passThermalCut = true;
+      } else {
+         passThermalCut = false;
+      }
+
+   return !passThermalCut;
+}
+
+bool analysisTools::isSurface(recoData *dummyData, double surfaceCut_1){
+
+      if(90.f-dummyData->constantNZen < /*SURFACE_CUT*/surfaceCut_1){
+         //passSurfaceCut = true;
+         return false;
+      } else {
+         return true;
+       }
+
+}
+
+bool analysisTools::isIterSurface(recoData *dummyData, Healpix_Onion onion, recoSettings *settings, double zenRange, double surfaceCut_2){
+
+   int nAnt = (string(settings->recoPolType)=="both"?16:8);
+   int numIter = nAnt - settings->nchnlCut + 1;
+   int nLayer = settings->nLayer;
+   vector<float> iterZenVec;
+   //iterZenVec.clear();
+
+   int iterIndex[nLayer];
+   float iterMaxPixCoherenceEachLayer[nLayer];
+   int iterMaxPixIdxEachLayer[nLayer];
+
+   for(int iter=0; iter<numIter; iter++){
+
+      if(8-5+iter >= 5){ // has >=5 chans in reco
+
+         for(int layer=0; layer<nLayer; layer++){
+
+            iterMaxPixIdxEachLayer[layer] = dummyData->iterMaxPixIdxEachLayer.at(iter*nLayer+layer);
+            iterMaxPixCoherenceEachLayer[layer] = dummyData->iterMaxPixCoherenceEachLayer.at(iter*nLayer+layer);
+
+         }
+
+         TMath::Sort(nLayer, iterMaxPixCoherenceEachLayer, iterIndex);
+         float iterZen = 90.f - onion.getPointing(iterMaxPixIdxEachLayer[iterIndex[0]]).theta * TMath::RadToDeg();
+         iterZenVec.push_back(iterZen);
+
+      }//end of if
+   }//end of iter
+
+   //float zenRange = 3.;
+   double zenMaj = getZenMaj(iterZenVec, zenRange);
+
+   bool passSurfaceCut_2 = false;
+   if(zenMaj <= 90 ){
+      //iterMajorityZenHist->Fill(zenMaj,dummyData->weight);
+
+      if(zenMaj < /*SURFACE_CUT_2*/surfaceCut_2 ){
+         passSurfaceCut_2 = true;
+      }
+
+   } else passSurfaceCut_2 = true; //if no majority zenith can be found through iter reco, use solely the constantN zenith to is whether passed surface cut or not
+
+   return !passSurfaceCut_2;
+}
+
+float analysisTools::getZenMaj(const vector<float>& iterZenVec, float zenRange){
+
+
+   float zenMaj = 100.f;
+
+   vector<int> cntVec;
+   int maxCnt=0;
+   int maxCntIdx = -1;
+
+   for(int i=0; i<(int)iterZenVec.size(); i++){
+
+      int cnt=0;
+
+      for(int j=0; j<(int)iterZenVec.size(); j++){
+
+         if(fabs(iterZenVec[i]-iterZenVec[j]) < zenRange) cnt++;
+
+      }//end of j
+      cntVec.push_back(cnt);
+      if(cnt>maxCnt){
+
+         maxCnt = cnt;
+         maxCntIdx = i;
+
+      } else if (cnt == maxCnt){
+
+         if(iterZenVec[i] > iterZenVec[maxCntIdx]){ //pick the larger value if two angles have the same count
+          maxCntIdx = i;
+         }
+
+      }
+
+   }//end of i
+
+   zenMaj = (maxCnt>1?iterZenVec[maxCntIdx]:100.f);
+   return zenMaj;
+}
+
+bool analysisTools::isNearNoisyRun(const vector<int>& noisyRuns, int runNum, int plusMinusRunNum){
+
+
+   bool isNoisy = false;
+
+   for(int run=0; run<noisyRuns.size(); run++){
+      if(fabs(noisyRuns[run] - runNum) <= plusMinusRunNum){
+         isNoisy=true;
+         break;
+      }
+   }
+
+   return isNoisy;
+
+}
+
+bool analysisTools::isDeepPulser(string STATION, recoData *dummyData, int runNum){
+
+   bool passDeepPulserCut = false;
+
+   if( STATION == "ARA02" ){
+      if( !(dummyData->unixTime < 1420.5122e6 && dummyData->unixTime > 1420.50905e6) && !(runNum >= 4795 && runNum <= 4800) && !(runNum == 4787 || runNum==4785 ) ){
+         passDeepPulserCut = true;
+      }
+   }
+   else if ( STATION == "ARA03" ){
+      //to be implemented
+   }
+
+   return !passDeepPulserCut;
+}
+
+bool analysisTools::isCalpulserTime(string STATION, recoData *dummyData){
+
+   bool passCalpulserTimeCut = false;
+   if( STATION == "ARA02" ){
+      if( !(dummyData->unixTime < 1393923046 && dummyData->unixTime > 1393917793) && !(dummyData->unixTime < 1395649842 && dummyData->unixTime > 1395648365) ){
+         passCalpulserTimeCut = true;
+      }
+   } else if (STATION == "ARA03" ){
+      if( !(dummyData->unixTime < 1393923742 && dummyData->unixTime > 1393922266) && !(dummyData->unixTime < 1395650418 && dummyData->unixTime > 1395648942) ){
+         passCalpulserTimeCut = true;
+      }
+   }
+
+   return !passCalpulserTimeCut;
+}
+
+bool analysisTools::isCalpulser(float &inBoxTheta, float &inBoxPhi, string STATION, recoData *dummyData, Healpix_Onion onion, recoSettings *settings, int type){
+
+   if(STATION == "ARA02") ARA02_cutValues *cutValues = new ARA02_cutValues();
+   //ARA03: to be implemented
+
+   bool inBox = false;
+   bool passCalpulserCut = false;
+
+   bool iterInBox = false;
+   int inBoxCount = 0;
+   inBoxTheta = 0.f;
+   inBoxPhi   = 0.f;
+
+   int nAnt = (string(settings->recoPolType)=="both"?16:8);
+   int numIter = nAnt - settings->nchnlCut + 1;
+
+   for(int iter=0; iter<numIter; iter++){
+
+      //int maxPixIdx = dummyData->iterMaxPixIdx.at(iter);
+      //float maxPixCoherence = dummyData->iterMaxPixCoherence.at(iter);
+      int maxPixIdx = dummyData->iterMaxPixIdxEachLayer.at(iter*nLayer+0);
+      float maxPixCoherence = dummyData->iterMaxPixCoherenceEachLayer.at(iter*nLayer+0);
+      //cout<<"maxPixIdx: "<<maxPixIdx<<" layer: "<<maxPixIdx/nDir<<" maxPixCoherence: "<<maxPixCoherence<<endl;
+      float theta = 90.f-TMath::RadToDeg()*onion.getPointing(maxPixIdx).theta;
+      float phi   = TMath::RadToDeg()*onion.getPointing(maxPixIdx).phi;
+
+
+      iterInBox = false;
+      /*** Box 1 ***/
+      ///if( theta > zenMin[0] && theta < zenMax[0] && phi > aziMin[0] && phi < aziMax[0] ) { inBox = true; iterInBox = true;}
+
+      /*** Box 2 ***/
+      //if( type != 3){
+      //if( (theta > zenMin[1] && theta < zenMax[1] && phi > aziMin[1] && phi < aziMax[1]) ){ inBox = true; iterInBox = true;}
+      //}
+
+      if( STATION == "ARA02"){
+
+         for(int box=0; box<cutValues->nBoxes; box++){
+
+            // 0: D5BV, 1: D6BV, 2: D5BV Mirror, only for type 5
+            if(box<2){
+
+               if( theta > cutValues->zenMin[box].val && theta < cutValues->zenMax[box].val && phi > cutValues->aziMin[box].val && phi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
+
+            } else {
+
+               if( type == 5 ){
+                  if( theta > cutValues->zenMin[box].val && theta < cutValues->zenMax[box].val && phi > cutValues->aziMin[box].val && phi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
+               }
+            }
+         }
+      } else {
+         //ARA03: to be implemented
+      }
+
+      /*** Box 3 & 4 ***/
+      //if ( type == 3 ){
+      //   if( (theta > zenMin[2] && theta < zenMax[2] && phi > aziMin[2] && phi < aziMax[2])
+      //     ||(theta > zenMin[3] && theta < zenMax[3] && phi > aziMin[3] && phi < aziMax[3])){ inBox = true; iterInBox = true;}
+      //}
+
+      if(iterInBox){
+         inBoxCount++;
+         inBoxTheta += theta;
+         inBoxPhi   += phi;
+      }
+
+   }//end of iter
+
+   //if (!inBox) passCalpulserCut = true;
+   //else passSurfaceCut = false;
+
+   if(inBoxCount > 0 ){
+
+      inBoxTheta /= (float)inBoxCount;
+      inBoxPhi   /= (float)inBoxCount;
+   }
+
+   return inBox;
+}
+
+bool analysisTools::isRecoverableByImp(bool isVpolCW, bool isHpolCW, bool isXpolCW, recoData *dummyData, double impCut, double highPassFreq){
+
+      double impulsivity[16];
+      std::fill(&impulsivity[0], &impulsivity[16], 0.);
+      double avgImpulsivity;
+
+      bool passHighPassFilter = false;
+      bool passImpulsivityCut = false;
+
+      if((isVpolCW && isHpolCW) || isXpolCW){
+
+      nonZeroCount = 0;
+      double sum = 0.;
+      for(int ch=0; ch<16; ch++){
+         if(fabs( dummyData->impulsivity[ch] - 0 ) > 1e-9 ){
+            nonZeroCount++;
+            impulsivity[ch] = dummyData->impulsivity[ch];
+            sum += impulsivity[ch];
+         }
+      }
+
+      //int index[16];
+      //TMath::Sort(16, impulsivity, index);
+      avgImpulsivity = sum / (double)nonZeroCount;
+
+      //impulsivityHist_max->Fill(impulsivity[index[0]], dummyData->weight);
+      //impulsivityHist_3rd->Fill(impulsivity[index[2]], dummyData->weight);
+      //impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight);
+      //outputFile<<avgImpulsivity<<",";
+      //thermalCWEventCount_both += dummyData->weight;
+
+      if(dummyData->maxCountFreq_V > highPassFreq || dummyData->maxCountFreq_H > highPassFreq) passHighPassFilter = true;
+
+      }
+
+      else if( isVpolCW && !isHpolCW){
+
+      nonZeroCount = 0;
+      double sum = 0.;
+      for(int ch=0; ch<8; ch++){
+         if(fabs( dummyData->impulsivity[ch] - 0 ) > 1e-9 ){
+            nonZeroCount++;
+            impulsivity[ch] = dummyData->impulsivity[ch];
+            sum += impulsivity[ch];
+         }
+      }
+
+      //int index[16];
+      //TMath::Sort(16, impulsivity, index);
+      avgImpulsivity = sum / (double)nonZeroCount;
+
+      //impulsivityHist_max->Fill(impulsivity[index[0]], dummyData->weight);
+      //impulsivityHist_3rd->Fill(impulsivity[index[2]], dummyData->weight);
+      //impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight);
+      //outputFile<<avgImpulsivity<<",";
+      //thermalCWEventCount_V += dummyData->weight;
+
+      if(dummyData->maxCountFreq_V > highPassFreq ) passHighPassFilter = true;
+
+      }
+
+      else {
+
+      nonZeroCount = 0;
+      double sum = 0.;
+      for(int ch=8; ch<16; ch++){
+         if(fabs( dummyData->impulsivity[ch] - 0 ) > 1e-9 ){
+            nonZeroCount++;
+            impulsivity[ch] = dummyData->impulsivity[ch];
+            sum += impulsivity[ch];
+         }
+      }
+
+      //int index[16];
+      //TMath::Sort(16, impulsivity, index);
+      avgImpulsivity = sum / (double)nonZeroCount;
+
+      //impulsivityHist_max->Fill(impulsivity[index[0]], dummyData->weight);
+      //impulsivityHist_3rd->Fill(impulsivity[index[2]], dummyData->weight);
+      //impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight);
+      //outputFile<<avgImpulsivity<<",";
+      //thermalCWEventCount_H += dummyData->weight;
+
+      if(dummyData->maxCountFreq_H > highPassFreq ) passHighPassFilter = true;
+
+      }
+      //cout<<"maxCountFreq_V: "<<dummyData->maxCountFreq_V<<" maxCountFreq_H: "<<dummyData->maxCountFreq_H<<" avgImp: "<<avgImpulsivity<<" impCut: "<<impCut<<endl;
+      if(avgImpulsivity > impCut){
+         passImpulsivityCut = true;
+         //nRecoveredByImp += dummyData->weight;
+      }
+
+      return passImpulsivityCut && passHighPassFilter;
+}
+
+
+bool analysisTools::isBelowThermalImpulsivityCut(recoData *dummyData, double postThermalAvgImpulsivityCut){
+
+      double impulsivity[16];
+      std::fill(&impulsivity[0], &impulsivity[16], 0.);
+      int nonZeroCount = 0;
+      double sum = 0.;
+
+      for(int ch=0; ch<8; ch++){
+         if(fabs( dummyData->impulsivity[ch] - 0 ) > 1e-9 ){
+            nonZeroCount++;
+            impulsivity[ch] = dummyData->impulsivity[ch];
+            sum += impulsivity[ch];
+         }
+      }
+
+      int index[16];
+      TMath::Sort(16, impulsivity, index);
+      avgImpulsivity = sum / (double)nonZeroCount;
+      if(avgImpulsivity > postThermalAvgImpulsivityCut){
+
+         //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<endl;
+         passThermalImpulsivityCut = true;
+
+      }
+
+      return !passThermalImpulsivityCut;
+}

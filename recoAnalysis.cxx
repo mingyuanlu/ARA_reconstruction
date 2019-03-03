@@ -55,7 +55,7 @@
 using namespace std;
 
 float statisticalRadiusReco(int arraySize, const float * const radii, const float * const value, float trueRadius,
-                          TH1F * const statRReco_weight, TH1F * const statRReco_max, TH1F * const statRReco_eventStack); 
+                          TH1F * const statRReco_weight, TH1F * const statRReco_max, TH1F * const statRReco_eventStack);
 
 float getMean(const vector<float>& thetas);
 float getRMS(const vector<float>& thetas);
@@ -78,13 +78,13 @@ ofstream outputFile(argv[3],std::ofstream::out|std::ofstream::app);
 /*TChain*/TTree *dataTree/*=new TChain("dataTree")*/;
 TChain *runInfoTree=new TChain("runInfoTree");
 
-for(int i=4; i<argc; i++){   
+for(int i=4; i<argc; i++){
 
    TFile fp( argv[i] );
 
    if( fp.IsZombie() ){ cerr<<"File "<<argv[i]<<" is zombie. Skipping..."<<endl; continue; }
    if( fp.TestBit(TFile::kRecovered) ){ cerr<<"File "<<argv[i]<<" is recovered file. Skipping..."<<endl; continue; }
-   
+
    //recoSettingsTree->Add( argv[i] );
    //dataTree->Add( argv[i] );
    runInfoTree->Add( argv[i] );
@@ -286,11 +286,11 @@ int numNoisyRuns = listOfRuns.size();
 
 
 /*************    START LOOPING THROUGH EVENTS *********************************************************************
- * we will have 
+ * we will have
  * 1. Deep pulser time cut
  * 2. Thermal cut
  * 3. calpulser cut
- * 4. 
+ * 4.
  * Then a list fo remaining events will be produced for iterative reconstruction.
  *******************************************************************************************************************/
 
@@ -329,21 +329,21 @@ double coherenceCut_outOfBand[5]={0.109582,0.105366,0.101697,0.097897, 0.094119}
 double snrCut_inBand[5]={7.266250, 8.107750, 8.029000, 7.693750, 8.827750};
 double coherenceCut_inBand[5]={0.114491, 0.110969, 0.105926, 0.100878, 0.100461};
 double snrCut_outOfBand[5]={7.468750, 6.944500, 7.950250, 7.113250, 7.673500};
-double coherenceCut_outOfBand[5]={0.105733, 0.108887, 0.106223, 0.096189, 0.093352}; 
+double coherenceCut_outOfBand[5]={0.105733, 0.108887, 0.106223, 0.096189, 0.093352};
 */
 /*
 //vnchnl0 + impulsivityFilter1 + noMaskSat
 double snrCut_inBand[5]={7.423750,7.489000,7.840000,6.994000,7.583500};
 double coherenceCut_inBand[5]={0.112664,0.111144,0.105927, 0.099630,0.097887};
 double snrCut_outOfBand[5]={9.471250,6.991750,7.797250,7.115500,7.669000};
-double coherenceCut_outOfBand[5]={0.108141,0.108556,0.106329,0.096141,0.092980}; 
+double coherenceCut_outOfBand[5]={0.108141,0.108556,0.106329,0.096141,0.092980};
 */
 //vnchnl3 + noMaskSat + flattenSat(sig)
 /*
 double snrCut_inBand[5]={8.970000,9.116000,8.640000,9.360000,9.480000 };
 double coherenceCut_inBand[5]={0.108971,0.111546,0.106706,0.099455,0.098104};
 double snrCut_outOfBand[5]={9.000000,9.128000,8.704000,9.524000,10.028000};
-double coherenceCut_outOfBand[5]={0.103402,0.105563,0.101873,0.094399,0.092622}; 
+double coherenceCut_outOfBand[5]={0.103402,0.105563,0.101873,0.094399,0.092622};
 */
 
 /* Extended each cut by 20% */
@@ -400,7 +400,7 @@ double thermalCWEventCount = 0.;
 double thermalCWEventCount_both, thermalCWEventCount_V, thermalCWEventCount_H;
 thermalCWEventCount_both = thermalCWEventCount_V = thermalCWEventCount_H = 0;
 
-double  impulsivityCut[5] = {0.29984903021901077, 0.3187978138449127, 0.295231029377421, 0.3008712367990549, 0.29173179944622674};
+//double  impulsivityCut[5] = {0.29984903021901077, 0.3187978138449127, 0.295231029377421, 0.3008712367990549, 0.29173179944622674};
 
 TH1F *maxCountFreq_V_hist = new TH1F("maxCountFreq_V_hist","maxCountFreq_V_hist", (int)(1000/0.4), 0, 1000);
 TH1F *maxCountFreq_H_hist = new TH1F("maxCountFreq_H_hist","maxCountFreq_H_hist", (int)(1000/0.4), 0, 1000);
@@ -417,7 +417,7 @@ TH1F *iterMajorityZenHist = new TH1F("iterMajorityZen","iterMajorityZen", 450, -
 vector<float> iterZenVec;
 
 int iterIndex[50];
-float iterMaxPixCoherenceEachLayer[50];   
+float iterMaxPixCoherenceEachLayer[50];
 int iterMaxPixIdxEachLayer[50];
 
 
@@ -464,7 +464,7 @@ for(int i=4; i<argc; i++){
    if(runNum==7100)                 continue;
    //Cal sweep
    if(runNum>=7625 && runNum<=7686) continue;
- 
+
 
    //int event  = atoi(  fin.substr(fin.find("event")+5, fin.find(".txt")-fin.find("event")-4).c_str() );
    TFile fp1( argv[i] );
@@ -509,7 +509,7 @@ for(int i=4; i<argc; i++){
    else { cerr<<"Event "<<entry<<" eventTrigType undefined! Skipping...\n"; continue; }
 
    passThermalCut = passSurfaceCut = passCalpulserCut = passDeepPulserCut = passCorruptionCut = false;
-   passImpulsivityCut = false; 
+   passImpulsivityCut = false;
    passNoisyRunCut = true;
    passHighPassFilter = false;
    passThermalImpulsivityCut = false;
@@ -523,12 +523,15 @@ for(int i=4; i<argc; i++){
    isVpolCW = isHpolCW = isXpolCW = false;
    int maxCountFreqBin_V, maxCountFreqBin_H;
    maxCountFreqBin_V = maxCountFreqBin_H = 0;
-/*
+   int cwBinThres = 3;
+
    //int cwPol = -1; //-1: not CW, 0: Vpol CW, 1: Hpol CW
    maxFreqBinVec_V.clear();
    maxFreqBinVec_H.clear();
    maxFreqBinVec.clear();
 
+   isCW = isCW_coincidence(isVpolCW, isHpolCW, maxCountFreqBin_V, maxCountFreqBin_H, dummyData, cwBinThres)
+/*
    for(int i=0; i<8; i++){
       //cout<<"ch: "<<i<<" maxFreqBin: "<<dummyData->maxFreqBin[i]<<" maxFreq: "<<dummyData->maxFreqBin[i] * dummyData->freqBinWidth_V<<" maxFreqPower: "<<dummyData->maxFreqPower[i]<<" ";
       maxFreqBinVec_V.push_back(dummyData->maxFreqBin[i]);
@@ -546,7 +549,7 @@ for(int i=4; i<argc; i++){
    len = maxBin - minBin + 1;
    freqCount_V = new int [len];
    std::fill(&freqCount_V[0], &freqCount_V[len], 0);
-      
+
    for(int i=0; i<8; i++) freqCount_V[dummyData->maxFreqBin[i]-minBin] += 1;
 
    for(int i=0; i<len; i++){
@@ -554,7 +557,7 @@ for(int i=4; i<argc; i++){
    }
 
    if(!isVpolCW){
-   if (freqCount_V[0] > 1){ 
+   if (freqCount_V[0] > 1){
       if (freqCount_V[1] > 0 ) { isVpolCW = true; maxCountFreqBin_V = minBin+0; }
    } else if ( freqCount_V[len-1] > 1){
       if (freqCount_V[len-2] > 0 ) { isVpolCW = true; maxCountFreqBin_V = minBin+len-1; }
@@ -586,7 +589,7 @@ for(int i=4; i<argc; i++){
    }
 
    if(!isHpolCW){
-   if (freqCount_H[0] > 1){ 
+   if (freqCount_H[0] > 1){
       if (freqCount_H[1] > 0 ) { isHpolCW = true; maxCountFreqBin_H = minBin+0; }
    } else if ( freqCount_H[len-1] > 1){
       if (freqCount_H[len-2] > 0 ) { isHpolCW = true; maxCountFreqBin_H = minBin+len-1; }
@@ -604,88 +607,85 @@ for(int i=4; i<argc; i++){
       }
    }
 
+
 */
-      for(int ch=0; ch<16; ch++){
 
-         //maxFreqBinVec.push_back(dummyData->maxFreqBin[ch]);
-         maxFreqArray[ch] = dummyData->maxFreqBin[ch] * (ch<8?dummyData->freqBinWidth_V:dummyData->freqBinWidth_H);
-         if(ch<8) maxFreqArrayPolType[ch] = 0;//maxFreqArray_V[ch] =  dummyData->maxFreqBin[ch] * dummyData->freqBinWidth_V;
-         else     maxFreqArrayPolType[ch] = 1;//maxFreqArray_H[ch] =  dummyData->maxFreqBin[ch] * dummyData->freqBinWidth_H;
+   isCW = isCW_freqWindow(isVpolCW, isHpolCW, isXpolCW, dummyData, fftRes);
 
-      }
-
-      
-
-      TMath::Sort(16, maxFreqArray, fIndex, kFALSE);
-      //TMath::Sort(8, maxFreqArray_V, fIndex_V, kFALSE);
-      //TMath::Sort(8, maxFreqArray_H, fIndex_H, kFALSE);
-
-      
-      for(int ch=0; ch<16; ch++){
-
-         orderedArray[ch] = maxFreqArray[fIndex[ch]];
-         orderedArrayPolType[ch] = maxFreqArrayPolType[fIndex[ch]];
-         //cout<<orderedArray[ch]<<",";
-                     
-      }
-      //cout<<endl;
-/*
-      for(int ch=0; ch<8; ch++){
-
-         orderedArray[ch] = 
-
-      }
-*/
-      int cwCount=0;
-      int cwCount_V, cwCount_H, cwCount_X;
-      cwCount_V = cwCount_H = cwCount_X = 0;
-
-      for(int i=0; i<16; i++){
-         for(int j=i+1; j<16; j++){
-
-            //cout<<"i: "<<i<<" j: "<<j<<endl;
-            double fftResGap;
-            if(orderedArrayPolType[i]+orderedArrayPolType[j] == 0){ //2 Vpol
-               //fftRes = 2. * dummyData->freqBinWidth_V;
-               vResBin = int(fftRes / dummyData->freqBinWidth_V)+1;
-               fftResGap = dummyData->freqBinWidth_V * (double)vResBin;
-            }
-            else if(orderedArrayPolType[i]+orderedArrayPolType[j] == 2){ //2H
-               //fftRes = dummyData->freqBinWidth_V + dummyData->freqBinWidth_H;
-               hResBin = int(fftRes / dummyData->freqBinWidth_H)+1;
-               fftResGap = dummyData->freqBinWidth_H * (double)hResBin;
-            }
-            else{ //1V + 1H
-              //fftRes = 2. * dummyData->freqBinWidth_H; 
-              //xResBin = int(fftRes / (dummyData->freqBinWidth_V + dummyData->freqBinWidth_H));
-              //fftResGap = (dummyData->freqBinWidth_V + dummyData->freqBinWidth_H) * (double)xResBin + (dummyData->freqBinWidth_V>dummyData->freqBinWidth_H?dummyData->freqBinWidth_V:dummyData->freqBinWidth_H);
-              fftResGap = fftRes + (dummyData->freqBinWidth_V>dummyData->freqBinWidth_H?dummyData->freqBinWidth_V:dummyData->freqBinWidth_H);
-            }
-
-            //cout<<"poltype: "<<orderedArrayPolType[i]+orderedArrayPolType[j]<<" fftResGap: "<<fftResGap<<" orderedArray[i]: "<<orderedArray[i]<<" orderedArray[j]: "<<orderedArray[j]<<" diff: "<<orderedArray[j]-orderedArray[i]<<endl;
-            //printf("fftResGap: %le diff: %le diff-fftResGap: %le\n", fftResGap, orderedArray[j]-orderedArray[i], orderedArray[j]-orderedArray[i]-fftResGap);
-            if(orderedArray[i] > 1e-6 && orderedArray[j] > 1e-6){ //not zeros
-
-            if( (orderedArray[j] - orderedArray[i]) < fftResGap+1e-6/*fftRes*/) { 
-               //cout<<"i: "<<i<<" j: "<<j<<" freq_i: "<<orderedArray[i]<<" freq_j: "<<orderedArray[j]<<endl;
-               if(orderedArrayPolType[i]+orderedArrayPolType[j] == 0){ cwCount_V++; }
-               else if (orderedArrayPolType[i]+orderedArrayPolType[j] == 2){ cwCount_H++; }
-               else {cwCount_X++;}
-               cwCount++;
-               i = j;
-            }
-
-            }
-
-         }
-      }
-
-      if(cwCount_V>=2) isVpolCW = true;
-      if(cwCount_H>=2) isHpolCW = true;
-      if(cwCount_X>=2) isXpolCW = true;
-      if(cwCount>=2) isCW = true;//cout<<"CW EVENT!!!!!"<<endl;
-      else isCW=false;//cout<<"NOT CW!!!!!"<<endl;
-
+//      for(int ch=0; ch<16; ch++){
+//
+//         //maxFreqBinVec.push_back(dummyData->maxFreqBin[ch]);
+//         maxFreqArray[ch] = dummyData->maxFreqBin[ch] * (ch<8?dummyData->freqBinWidth_V:dummyData->freqBinWidth_H);
+//         if(ch<8) maxFreqArrayPolType[ch] = 0;//maxFreqArray_V[ch] =  dummyData->maxFreqBin[ch] * dummyData->freqBinWidth_V;
+//         else     maxFreqArrayPolType[ch] = 1;//maxFreqArray_H[ch] =  dummyData->maxFreqBin[ch] * dummyData->freqBinWidth_H;
+//
+//      }
+//
+//
+//
+//      TMath::Sort(16, maxFreqArray, fIndex, kFALSE);
+//      //TMath::Sort(8, maxFreqArray_V, fIndex_V, kFALSE);
+//      //TMath::Sort(8, maxFreqArray_H, fIndex_H, kFALSE);
+//
+//
+//      for(int ch=0; ch<16; ch++){
+//
+//         orderedArray[ch] = maxFreqArray[fIndex[ch]];
+//         orderedArrayPolType[ch] = maxFreqArrayPolType[fIndex[ch]];
+//         //cout<<orderedArray[ch]<<",";
+//
+//      }
+//      //cout<<endl;
+//      int cwCount=0;
+//      int cwCount_V, cwCount_H, cwCount_X;
+//      cwCount_V = cwCount_H = cwCount_X = 0;
+//
+//      for(int i=0; i<16; i++){
+//         for(int j=i+1; j<16; j++){
+//
+//            //cout<<"i: "<<i<<" j: "<<j<<endl;
+//            double fftResGap;
+//            if(orderedArrayPolType[i]+orderedArrayPolType[j] == 0){ //2 Vpol
+//               //fftRes = 2. * dummyData->freqBinWidth_V;
+//               vResBin = int(fftRes / dummyData->freqBinWidth_V)+1;
+//               fftResGap = dummyData->freqBinWidth_V * (double)vResBin;
+//            }
+//            else if(orderedArrayPolType[i]+orderedArrayPolType[j] == 2){ //2H
+//               //fftRes = dummyData->freqBinWidth_V + dummyData->freqBinWidth_H;
+//               hResBin = int(fftRes / dummyData->freqBinWidth_H)+1;
+//               fftResGap = dummyData->freqBinWidth_H * (double)hResBin;
+//            }
+//            else{ //1V + 1H
+//              //fftRes = 2. * dummyData->freqBinWidth_H;
+//              //xResBin = int(fftRes / (dummyData->freqBinWidth_V + dummyData->freqBinWidth_H));
+//              //fftResGap = (dummyData->freqBinWidth_V + dummyData->freqBinWidth_H) * (double)xResBin + (dummyData->freqBinWidth_V>dummyData->freqBinWidth_H?dummyData->freqBinWidth_V:dummyData->freqBinWidth_H);
+//              fftResGap = fftRes + (dummyData->freqBinWidth_V>dummyData->freqBinWidth_H?dummyData->freqBinWidth_V:dummyData->freqBinWidth_H);
+//            }
+//
+//            //cout<<"poltype: "<<orderedArrayPolType[i]+orderedArrayPolType[j]<<" fftResGap: "<<fftResGap<<" orderedArray[i]: "<<orderedArray[i]<<" orderedArray[j]: "<<orderedArray[j]<<" diff: "<<orderedArray[j]-orderedArray[i]<<endl;
+//            //printf("fftResGap: %le diff: %le diff-fftResGap: %le\n", fftResGap, orderedArray[j]-orderedArray[i], orderedArray[j]-orderedArray[i]-fftResGap);
+//            if(orderedArray[i] > 1e-6 && orderedArray[j] > 1e-6){ //not zeros
+//
+//            if( (orderedArray[j] - orderedArray[i]) < fftResGap+1e-6/*fftRes*/) {
+//               //cout<<"i: "<<i<<" j: "<<j<<" freq_i: "<<orderedArray[i]<<" freq_j: "<<orderedArray[j]<<endl;
+//               if(orderedArrayPolType[i]+orderedArrayPolType[j] == 0){ cwCount_V++; }
+//               else if (orderedArrayPolType[i]+orderedArrayPolType[j] == 2){ cwCount_H++; }
+//               else {cwCount_X++;}
+//               cwCount++;
+//               i = j;
+//            }
+//
+//            }
+//
+//         }
+//      }
+//
+//      if(cwCount_V>=2) isVpolCW = true;
+//      if(cwCount_H>=2) isHpolCW = true;
+//      if(cwCount_X>=2) isXpolCW = true;
+//      if(cwCount>=2) isCW = true;//cout<<"CW EVENT!!!!!"<<endl;
+//      else isCW=false;//cout<<"NOT CW!!!!!"<<endl;
+//
 
 
 
@@ -694,6 +694,9 @@ for(int i=4; i<argc; i++){
    int lowFreqCountThres = 5;
    int lowFreqCount_V, lowFreqCount_H;
    lowFreqCount_V = lowFreqCount_H = 0;
+
+   lowFreqDominance = isLowFreqDominance(lowFreqCount_V, lowFreqCount_H, dummyData, highPassFreq, lowFreqCountThres);
+/*
    for(int i=0; i<8; i++){
       //cout<<"maxFreqBin: "<<dummyData->maxFreqBin[i]<<" maxFreq_V: "<<dummyData->maxFreqBin[i]   * dummyData->freqBinWidth_V<<endl;
       //cout<<"maxFreqBin: "<<dummyData->maxFreqBin[i+8]<<" maxFreq_H: "<<dummyData->maxFreqBin[i+8]   * dummyData->freqBinWidth_H<<endl;
@@ -701,7 +704,8 @@ for(int i=4; i<argc; i++){
       if( dummyData->maxFreqBin[i+8] * dummyData->freqBinWidth_H < highPassFreq ) lowFreqCount_H += 1;
    }
 
-   if(lowFreqCount_V >= lowFreqCountThres || lowFreqCount_H >= lowFreqCountThres) lowFreqDominance = true;      
+   if(lowFreqCount_V >= lowFreqCountThres || lowFreqCount_H >= lowFreqCountThres) lowFreqDominance = true;
+*/
    //cout<<"lowFreqCount_V: "<<lowFreqCount_V<<" lowFreqCount_H: "<<lowFreqCount_H<<" lowFreqDominance: "<<lowFreqDominance<<endl;
 
    //isCW = (isVpolCW || isHpolCW);
@@ -717,7 +721,7 @@ for(int i=4; i<argc; i++){
       dFHist_V->Fill( dummyData->freqBinWidth_V * (dummyData->maxFreqBin[ch] - maxCountFreqBin_V) );
       }
    }
-   
+
    if(isHpolCW){
 
       for(int ch=8; ch<16; ch++){
@@ -733,6 +737,8 @@ for(int i=4; i<argc; i++){
 */
    /***** 2. Thermal cut ********************/
 
+   passThermalCut = !isThermal_boxCut(inBand, settings, dummyData, onion, cutValues, type);
+/*
    r     = onion.getLayerRadius(dummyData->maxPixIdx2);
    theta = onion.getPointing(dummyData->maxPixIdx2).theta * TMath::RadToDeg();
    phi   = onion.getPointing(dummyData->maxPixIdx2).phi   * TMath::RadToDeg();
@@ -754,59 +760,69 @@ for(int i=4; i<argc; i++){
    if (zen_bestHypo < ZEN_BAND_MAX && zen_bestHypo > ZEN_BAND_MIN){ snrCutValue = cutValues->snrCut_inBand[type-1].val;    coherenceCutValue = cutValues->coherenceCut_inBand[type-1].val;    inBand = true; }
    else                                                           { snrCutValue = cutValues->snrCut_outOfBand[type-1].val; coherenceCutValue = cutValues->coherenceCut_outOfBand[type-1].val; inBand = false;}
 
-   if(string(settings->recoPolType)=="vpol"){ snr = dummyData->inWindowSNR_V; } 
-   else if(string(settings->recoPolType)=="hpol"){ snr = dummyData->inWindowSNR_H; } 
+   if(string(settings->recoPolType)=="vpol"){ snr = dummyData->inWindowSNR_V; }
+   else if(string(settings->recoPolType)=="hpol"){ snr = dummyData->inWindowSNR_H; }
 
    if( snr > snrCutValue || coherence > coherenceCutValue){
       passThermalCut = true;
    }
-
+*/
    /***** 3. Surface cut ********************/
-   if(90.f-dummyData->constantNZen < /*SURFACE_CUT*/surfaceCut_1){
-      passSurfaceCut = true;
-   }
 
-   iterZenVec.clear();
-   for(int iter=0; iter<numIter; iter++){
+   passSurfaceCut = !isSurface(dummyData, surfaceCut_1);
 
-      if(8-5+iter >= 5){ // has >=5 chans in reco
-
-         for(int layer=0; layer<nLayer; layer++){
-
-            iterMaxPixIdxEachLayer[layer] = dummyData->iterMaxPixIdxEachLayer.at(iter*nLayer+layer);
-            iterMaxPixCoherenceEachLayer[layer] = dummyData->iterMaxPixCoherenceEachLayer.at(iter*nLayer+layer);
-
-         }
-
-         TMath::Sort(50, iterMaxPixCoherenceEachLayer, iterIndex);
-         float iterZen = 90.f - onion.getPointing(iterMaxPixIdxEachLayer[iterIndex[0]]).theta * TMath::RadToDeg();
-         iterZenVec.push_back(iterZen);
-
-      }//end of if
-   }//end of iter
+   //if(90.f-dummyData->constantNZen < /*SURFACE_CUT*/surfaceCut_1){
+   //   passSurfaceCut = true;
+   //}
 
    float zenRange = 3.;
-   double zenMaj = getZenMaj(iterZenVec, zenRange);
-
-   if(zenMaj <= 90 ){
-      //iterMajorityZenHist->Fill(zenMaj,dummyData->weight);
-
-      if(zenMaj < /*SURFACE_CUT_2*/surfaceCut_2 ){
-         passSurfaceCut_2 = true;
-      }      
-
-   } else passSurfaceCut_2 = true; //if no majority zenith can be found through iter reco, use solely the constantN zenith to check whether passed surface cut or not
-   //{  zenMaj = 90.f - onion.getPointing(iterMaxPixIdxEachLayer[3]).theta * TMath::RadToDeg(); }
+   passSurfaceCut_2 = !isIterSurface(dummyData, onion, settings, zenRange, surfaceCut_2);
+//   iterZenVec.clear();
+//   for(int iter=0; iter<numIter; iter++){
+//
+//      if(8-5+iter >= 5){ // has >=5 chans in reco
+//
+//         for(int layer=0; layer<nLayer; layer++){
+//
+//            iterMaxPixIdxEachLayer[layer] = dummyData->iterMaxPixIdxEachLayer.at(iter*nLayer+layer);
+//            iterMaxPixCoherenceEachLayer[layer] = dummyData->iterMaxPixCoherenceEachLayer.at(iter*nLayer+layer);
+//
+//         }
+//
+//         TMath::Sort(50, iterMaxPixCoherenceEachLayer, iterIndex);
+//         float iterZen = 90.f - onion.getPointing(iterMaxPixIdxEachLayer[iterIndex[0]]).theta * TMath::RadToDeg();
+//         iterZenVec.push_back(iterZen);
+//
+//      }//end of if
+//   }//end of iter
+//
+//   float zenRange = 3.;
+//   double zenMaj = getZenMaj(iterZenVec, zenRange);
+//
+//   if(zenMaj <= 90 ){
+//      //iterMajorityZenHist->Fill(zenMaj,dummyData->weight);
+//
+//      if(zenMaj < /*SURFACE_CUT_2*/surfaceCut_2 ){
+//         passSurfaceCut_2 = true;
+//      }
+//
+//   } else passSurfaceCut_2 = true; //if no majority zenith can be found through iter reco, use solely the constantN zenith to check whether passed surface cut or not
+//   //{  zenMaj = 90.f - onion.getPointing(iterMaxPixIdxEachLayer[3]).theta * TMath::RadToDeg(); }
 
    /***** 4. Deep pulser time cut ***********/
+   passDeepPulserCut = !isDeepPulser(STATION, dummyData, runNum);
+   /*
    if( STATION == "ARA02" ){
       if( !(dummyData->unixTime < 1420.5122e6 && dummyData->unixTime > 1420.50905e6) && !(runNum >= 4795 && runNum <= 4800) && !(runNum == 4787 || runNum==4785 ) ){
          passDeepPulserCut = true;
       }
    }
-
+   */
 
    /***** Calpulser sweep time cut **********/
+
+   passCalpulserTimeCut = !isCalpulserTime(STATION, dummyData);
+/*
    if( STATION == "ARA02" ){
       if( !(dummyData->unixTime < 1393923046 && dummyData->unixTime > 1393917793) && !(dummyData->unixTime < 1395649842 && dummyData->unixTime > 1395648365) ){
          passCalpulserTimeCut = true;
@@ -814,9 +830,9 @@ for(int i=4; i<argc; i++){
    } else if (STATION == "ARA03" ){
       if( !(dummyData->unixTime < 1393923742 && dummyData->unixTime > 1393922266) && !(dummyData->unixTime < 1395650418 && dummyData->unixTime > 1395648942) ){
          passCalpulserTimeCut = true;
-      }   
+      }
    }
-
+*/
    /***** Calpulser angular cut *************/
    /*
    const int nBoxes = 4;
@@ -826,88 +842,93 @@ for(int i=4; i<argc; i++){
    zenMax[0] = 10.99;
    aziMin[0] = 54.96;
    aziMax[0] = 66.74;
-   
+
    ////ARA02 type 1-5 group 2 calpulser cut values - D5BV
    zenMin[1] = -31.40;
    zenMax[1] = -14.26;
    aziMin[1] = 324.05;
    aziMax[1] = 341.01;
-   
+
    ////ARA02 type 3 group 3 calpulser cut values
    zenMin[2] = -27.78;
    zenMax[2] = -14.22;
    aziMin[2] = 50.80;
    aziMax[2] = 58.32;
-   
+
    ////ARA02 type 3 group 4 calpulser cut values
    zenMin[3] = 24.07;
    zenMax[3] = 31.45;
    aziMin[3] = 67.30;
    aziMax[3] = 75.25;
-   */ 
-   bool inBox = false;
+   */
 
-   bool iterInBox = false;
-   int inBoxCount = 0;
-   float inBoxTheta = 0.f;
-   float inBoxPhi   = 0.f;
-   for(int iter=0; iter<numIter; iter++){
+   float inBoxTheta, inBoxPhi;
+   inBoxTheta = inBoxPhi = 0.f;
+   passCalpulserCut = !isCalpulser(inBoxTheta, inBoxPhi, STATION, dummyData, onion, settings, type);
 
-      //int maxPixIdx = dummyData->iterMaxPixIdx.at(iter);
-      //float maxPixCoherence = dummyData->iterMaxPixCoherence.at(iter);
-      int maxPixIdx = dummyData->iterMaxPixIdxEachLayer.at(iter*nLayer+0);
-      float maxPixCoherence = dummyData->iterMaxPixCoherenceEachLayer.at(iter*nLayer+0);
-      //cout<<"maxPixIdx: "<<maxPixIdx<<" layer: "<<maxPixIdx/nDir<<" maxPixCoherence: "<<maxPixCoherence<<endl;
-      float theta = 90.f-TMath::RadToDeg()*onion.getPointing(maxPixIdx).theta;
-      float phi   = TMath::RadToDeg()*onion.getPointing(maxPixIdx).phi;
-
-
-      iterInBox = false;
-      /*** Box 1 ***/
-      ///if( theta > zenMin[0] && theta < zenMax[0] && phi > aziMin[0] && phi < aziMax[0] ) { inBox = true; iterInBox = true;}
-
-      /*** Box 2 ***/
-      //if( type != 3){
-      //if( (theta > zenMin[1] && theta < zenMax[1] && phi > aziMin[1] && phi < aziMax[1]) ){ inBox = true; iterInBox = true;}
-      //}
-        
-      for(int box=0; box<cutValues->nBoxes; box++){
-
-      // 0: D5BV, 1: D6BV, 2: D5BV Mirror, only for type 5
-         if(box<2){
-
-            if( theta > cutValues->zenMin[box].val && theta < cutValues->zenMax[box].val && phi > cutValues->aziMin[box].val && phi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
-
-         } else {
-
-            if( type == 5 ){
-                if( theta > cutValues->zenMin[box].val && theta < cutValues->zenMax[box].val && phi > cutValues->aziMin[box].val && phi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
-            }
-         }
-      }
-
-      /*** Box 3 & 4 ***/
-      //if ( type == 3 ){
-      //   if( (theta > zenMin[2] && theta < zenMax[2] && phi > aziMin[2] && phi < aziMax[2])
-      //     ||(theta > zenMin[3] && theta < zenMax[3] && phi > aziMin[3] && phi < aziMax[3])){ inBox = true; iterInBox = true;}
-      //}
-
-      if(iterInBox){
-         inBoxCount++;
-         inBoxTheta += theta;
-         inBoxPhi   += phi;
-      }
-
-   }//end of iter
-
-   if (!inBox) passCalpulserCut = true;
-
-   if(inBoxCount > 0 ){
-
-      inBoxTheta /= (float)inBoxCount;
-      inBoxPhi   /= (float)inBoxCount;
-   }
-
+//   bool inBox = false;
+//
+//   bool iterInBox = false;
+//   int inBoxCount = 0;
+//   float inBoxTheta = 0.f;
+//   float inBoxPhi   = 0.f;
+//   for(int iter=0; iter<numIter; iter++){
+//
+//      //int maxPixIdx = dummyData->iterMaxPixIdx.at(iter);
+//      //float maxPixCoherence = dummyData->iterMaxPixCoherence.at(iter);
+//      int maxPixIdx = dummyData->iterMaxPixIdxEachLayer.at(iter*nLayer+0);
+//      float maxPixCoherence = dummyData->iterMaxPixCoherenceEachLayer.at(iter*nLayer+0);
+//      //cout<<"maxPixIdx: "<<maxPixIdx<<" layer: "<<maxPixIdx/nDir<<" maxPixCoherence: "<<maxPixCoherence<<endl;
+//      float theta = 90.f-TMath::RadToDeg()*onion.getPointing(maxPixIdx).theta;
+//      float phi   = TMath::RadToDeg()*onion.getPointing(maxPixIdx).phi;
+//
+//
+//      iterInBox = false;
+//      /*** Box 1 ***/
+//      ///if( theta > zenMin[0] && theta < zenMax[0] && phi > aziMin[0] && phi < aziMax[0] ) { inBox = true; iterInBox = true;}
+//
+//      /*** Box 2 ***/
+//      //if( type != 3){
+//      //if( (theta > zenMin[1] && theta < zenMax[1] && phi > aziMin[1] && phi < aziMax[1]) ){ inBox = true; iterInBox = true;}
+//      //}
+//
+//      for(int box=0; box<cutValues->nBoxes; box++){
+//
+//      // 0: D5BV, 1: D6BV, 2: D5BV Mirror, only for type 5
+//         if(box<2){
+//
+//            if( theta > cutValues->zenMin[box].val && theta < cutValues->zenMax[box].val && phi > cutValues->aziMin[box].val && phi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
+//
+//         } else {
+//
+//            if( type == 5 ){
+//                if( theta > cutValues->zenMin[box].val && theta < cutValues->zenMax[box].val && phi > cutValues->aziMin[box].val && phi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
+//            }
+//         }
+//      }
+//
+//      /*** Box 3 & 4 ***/
+//      //if ( type == 3 ){
+//      //   if( (theta > zenMin[2] && theta < zenMax[2] && phi > aziMin[2] && phi < aziMax[2])
+//      //     ||(theta > zenMin[3] && theta < zenMax[3] && phi > aziMin[3] && phi < aziMax[3])){ inBox = true; iterInBox = true;}
+//      //}
+//
+//      if(iterInBox){
+//         inBoxCount++;
+//         inBoxTheta += theta;
+//         inBoxPhi   += phi;
+//      }
+//
+//   }//end of iter
+//
+//   if (!inBox) passCalpulserCut = true;
+//
+//   if(inBoxCount > 0 ){
+//
+//      inBoxTheta /= (float)inBoxCount;
+//      inBoxPhi   /= (float)inBoxCount;
+//   }
+//
    /******* Noisy run cut ****************/
 
    /*
@@ -920,30 +941,31 @@ for(int i=4; i<argc; i++){
    }
    */
    int plusMinusRunNum = 0; //an event is considered in noisy period if its run number is +-1 run of a known (listed) noisy run
-   passNoisyRunCut = !(isNearNoisyRun(STATION, listOfRuns, runNum, plusMinusRunNum));
+   passNoisyRunCut = !(isNearNoisyRun(listOfRuns, runNum, plusMinusRunNum));
    //if(runNum >= 4795 && runNum <= 4800) passNoisyRunCut = false; //DP
    //if(runNum >= 3 && runNum <=60 && runNum != 50) passNoisyRunCut = false; //Corrupted wf
    //if(runNum == 4787 || runNum==4785 ) passNoisyRunCut = false; //DP
 
 
    /* Check if CW-tagged event can be recovered by surviving the impulsivity cut */
+   /*
    if ( isCW ){
 
       isCWCount += dummyData->weight;
-      double impCut = impulsivityCut[type-1];      
+      double impCut = impulsivityCut[type-1];
 
       std::fill(&impulsivity[0], &impulsivity[16], 0.);
 
       if((isVpolCW && isHpolCW) || isXpolCW){
 
-      nonZeroCount = 0; 
+      nonZeroCount = 0;
       double sum = 0.;
       for(int ch=0; ch<16; ch++){
          if(fabs( dummyData->impulsivity[ch] - 0 ) > 1e-9 ){
             nonZeroCount++;
             impulsivity[ch] = dummyData->impulsivity[ch];
             sum += impulsivity[ch];
-         }    
+         }
       }
 
       //int index[16];
@@ -962,14 +984,14 @@ for(int i=4; i<argc; i++){
 
       else if( isVpolCW && !isHpolCW){
 
-      nonZeroCount = 0; 
+      nonZeroCount = 0;
       double sum = 0.;
       for(int ch=0; ch<8; ch++){
          if(fabs( dummyData->impulsivity[ch] - 0 ) > 1e-9 ){
             nonZeroCount++;
             impulsivity[ch] = dummyData->impulsivity[ch];
             sum += impulsivity[ch];
-         }    
+         }
       }
 
       //int index[16];
@@ -988,14 +1010,14 @@ for(int i=4; i<argc; i++){
 
       else {
 
-      nonZeroCount = 0; 
+      nonZeroCount = 0;
       double sum = 0.;
       for(int ch=8; ch<16; ch++){
          if(fabs( dummyData->impulsivity[ch] - 0 ) > 1e-9 ){
             nonZeroCount++;
             impulsivity[ch] = dummyData->impulsivity[ch];
             sum += impulsivity[ch];
-         }    
+         }
       }
 
       //int index[16];
@@ -1007,49 +1029,53 @@ for(int i=4; i<argc; i++){
       //impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight);
       //outputFile<<avgImpulsivity<<",";
       //thermalCWEventCount_H += dummyData->weight;
-      
+
       if(dummyData->maxCountFreq_H > highPassFreq ) passHighPassFilter = true;
 
       }
       //cout<<"maxCountFreq_V: "<<dummyData->maxCountFreq_V<<" maxCountFreq_H: "<<dummyData->maxCountFreq_H<<" avgImp: "<<avgImpulsivity<<" impCut: "<<impCut<<endl;
-      if(avgImpulsivity > impCut){ 
+      if(avgImpulsivity > impCut){
          passImpulsivityCut = true;
          nRecoveredByImp += dummyData->weight;
       }
 
 
-      
+
 
    }
-
-   passCWCut = ( !isCW || (isCW && passHighPassFilter && passImpulsivityCut )) && !lowFreqDominance;
+   */
+   double impCut = cutValues->cwImpCut[type-1].val; //impulsivityCut[type-1];
+   //passCWCut = ( !isCW || (isCW && passHighPassFilter && passImpulsivityCut )) && !lowFreqDominance;
+   passCWCut = ( !isCW || (isCW && isRecoverableByImp(isVpolCW, isHpolCW, isXpolCW, dumyData, impCut, highPassFreq) )) && !lowFreqDominance;
    //passCWCut = !lowFreqDominance;
 
 
    /****** Check if pass thermal impulsivity cut ********/
-      std::fill(&impulsivity[0], &impulsivity[16], 0.); 
-      nonZeroCount = 0; 
+/*
+      std::fill(&impulsivity[0], &impulsivity[16], 0.);
+      nonZeroCount = 0;
       double sum = 0.;
       for(int ch=0; ch<8; ch++){
          if(fabs( dummyData->impulsivity[ch] - 0 ) > 1e-9 ){
             nonZeroCount++;
             impulsivity[ch] = dummyData->impulsivity[ch];
             sum += impulsivity[ch];
-         }    
+         }
       }
 
       int index[16];
       TMath::Sort(16, impulsivity, index);
       avgImpulsivity = sum / (double)nonZeroCount;
-      if(avgImpulsivity > postThermalAvgImpulsivityCut){ 
-         
-         //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<endl; 
+      if(avgImpulsivity > postThermalAvgImpulsivityCut){
+
+         //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<endl;
          passThermalImpulsivityCut = true;
 
-         
+
       }
-   
-   passThermalImpulsivityCut = true;
+*/
+   passThermalImpulsivityCut = !isBelowThermalImpulsivityCut(dummyData, postThermalAvgImpulsivityCut);
+   //passThermalImpulsivityCut = true;
    /***Check if have enough un-saturated channels to reconstruct ****/
    //if(dummyData->numSatChan  <= 3){ //Need at least 5 channels in reconstruction
      passNumSatChanCut = true;
@@ -1086,7 +1112,7 @@ for(int i=4; i<argc; i++){
    if (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut && passDeepPulserCut && passThermalCut && passThermalImpulsivityCut && passCalpulserCut)  snrHist[3]->Fill(dummyData->inWindowSNR, dummyData->weight);
    nPassCalpulserTimeCut += passCalpulserTimeCut * dummyData->weight;
    nCut4p5           += (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut && passDeepPulserCut && passThermalCut && passThermalImpulsivityCut && passCalpulserCut && passCalpulserTimeCut) * dummyData->weight;
-   //nPassNoisyRunCut   += passNoisyRunCut * dummyData->weight;   
+   //nPassNoisyRunCut   += passNoisyRunCut * dummyData->weight;
    //nCut5              += (/*passCorruptionCut &&*/ passThermalCut /*&& passSuE19aceCut*/ && passDeepPulserCut && passCalpulserCut && passNoisyRunCut) * dummyData->weight;
    nPassSurfaceCut    += passSurfaceCut * dummyData->weight;
    nCut6              += (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passThermalCut && passThermalImpulsivityCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut/*&& passNoisyRunCut*/ && passSurfaceCut) * dummyData->weight;
@@ -1094,7 +1120,7 @@ for(int i=4; i<argc; i++){
    nCut6p5            += (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passThermalCut && passThermalImpulsivityCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut/*&& passNoisyRunCut*/ && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
    if (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passThermalCut && passThermalImpulsivityCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut/*&& passNoisyRu     nCut*/ && passSurfaceCut && passSurfaceCut_2) snrHist[4]->Fill(dummyData->inWindowSNR, dummyData->weight);
    nPassNoisyRunCut   += passNoisyRunCut * dummyData->weight;
-   nCut7              +=  (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passThermalCut && passThermalImpulsivityCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passNoisyRunCut && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;   
+   nCut7              +=  (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passThermalCut && passThermalImpulsivityCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passNoisyRunCut && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
 
    if(passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut && passThermalCut /*&& passThermalImpulsivityCut*/ && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut/*&& passNoisyRunCut*/ && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut){
    //if(passCalpulserCut){
@@ -1108,7 +1134,7 @@ for(int i=4; i<argc; i++){
       cout<<"From recoData channel-by-channel maxFreqBin: "<<endl;
       cout<<"maxCountFreq_V: "<<maxCountFreqBin_V*dummyData->freqBinWidth_V<<" maxCountFreq_H: "<<maxCountFreqBin_H*dummyData->freqBinWidth_H<<endl;
       cout<<"freqBinWidth_V: "<<dummyData->freqBinWidth_V<<" freqBinWidth_H: "<<dummyData->freqBinWidth_H<<endl;
-      
+
       cout<<"maxFreqBin: "<<endl;
       for(int ch=0; ch<16; ch++) cout<<dummyData->maxFreqBin[ch]<<",";
       cout<<endl<<"maxFreq: "<<endl;
@@ -1116,7 +1142,7 @@ for(int i=4; i<argc; i++){
       cout<<endl;
       for(int ch=8; ch<16; ch++) cout<<dummyData->maxFreqBin[ch]*dummyData->freqBinWidth_H<<",";
       cout<<endl;
-      
+
       cout<<"recoZen: "<<90.f-dummyData->recoZen<<" azi: "<<dummyData->recoAzi<<endl;
       /*
       for(int iter=0; iter<numIter; iter++){
@@ -1130,12 +1156,12 @@ for(int i=4; i<argc; i++){
       //cout<<"maxCountFreq_V: "<<dummyData->maxCountFreq_V<<" maxCountFreq_H: "<<dummyData->maxCountFreq_H<<endl;
       impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight);
       //impulsivityHist_3rd->Fill(impulsivity[index[2]], dummyData->weight);
-      c_vs_snr_hist->Fill(dummyData->inWindowSNR_V, coherence, dummyData->weight); 
+      c_vs_snr_hist->Fill(dummyData->inWindowSNR_V, coherence, dummyData->weight);
 
       for(int ch=0; ch<8; ch++){
 
          double bipolarRatio;
-         double pos, neg; 
+         double pos, neg;
          pos = dummyData->posPowerPeak[ch];
          neg = fabs(dummyData->negPowerPeak[ch]);
 
@@ -1159,25 +1185,25 @@ for(int i=4; i<argc; i++){
 
       }
 
-      
+
 
       TMath::Sort(16, maxFreqArray, fIndex, kFALSE);
       //TMath::Sort(8, maxFreqArray_V, fIndex_V, kFALSE);
       //TMath::Sort(8, maxFreqArray_H, fIndex_H, kFALSE);
 
-      
+
       for(int ch=0; ch<16; ch++){
 
          orderedArray[ch] = maxFreqArray[fIndex[ch]];
          orderedArrayPolType[ch] = maxFreqArrayPolType[fIndex[ch]];
          cout<<orderedArray[ch]<<",";
-                     
+
       }
       cout<<endl;
 /*
       for(int ch=0; ch<8; ch++){
 
-         orderedArray[ch] = 
+         orderedArray[ch] =
 
       }
 */
@@ -1198,7 +1224,7 @@ for(int i=4; i<argc; i++){
                fftResGap = dummyData->freqBinWidth_H * (double)hResBin;
             }
             else{ //1V + 1H
-              //fftRes = 2. * dummyData->freqBinWidth_H; 
+              //fftRes = 2. * dummyData->freqBinWidth_H;
               //xResBin = int(fftRes / (dummyData->freqBinWidth_V + dummyData->freqBinWidth_H));
               //cout<<"xResBin: "<<xResBin<<" larger binWidth: "<<(dummyData->freqBinWidth_V>dummyData->freqBinWidth_H?dummyData->freqBinWidth_V:dummyData->freqBinWidth_H)<<endl;
               //cout<<"xResBin*(V+H): "<<(dummyData->freqBinWidth_V + dummyData->freqBinWidth_H) * (double)xResBin<<endl;
@@ -1210,7 +1236,7 @@ for(int i=4; i<argc; i++){
             //printf("fftResGap: %le diff: %le diff-fftResGap: %le\n", fftResGap, orderedArray[j]-orderedArray[i], orderedArray[j]-orderedArray[i]-fftResGap);
             if(orderedArray[i] > 1e-6 && orderedArray[j] > 1e-6){ //not zeros
 
-            if( (orderedArray[j] - orderedArray[i]) < /*fftResGap+1e-6*/fftRes) { 
+            if( (orderedArray[j] - orderedArray[i]) < /*fftResGap+1e-6*/fftRes) {
                cout<<"i: "<<i<<" j: "<<j<<" freq_i: "<<orderedArray[i]<<" freq_j: "<<orderedArray[j]<<endl;
                cwCount++;
                i = j;
@@ -1229,7 +1255,7 @@ for(int i=4; i<argc; i++){
    //c_vs_imp->Fill(avgImpulsivity, coherence, dummyData->weight);
 
    if(!lowFreqDominance &&/*passCWCut &&*/passThermalCut && passThermalImpulsivityCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) impulsivityHist_nMinusCW->Fill( avgImpulsivity, dummyData->weight);
-   if(passCWCut && /*passThermalCut && */ passThermalImpulsivityCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) c_vs_snr_hist_nMinusThermal->Fill(snr, coherence, dummyData->weight); 
+   if(passCWCut && /*passThermalCut && */ passThermalImpulsivityCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) c_vs_snr_hist_nMinusThermal->Fill(snr, coherence, dummyData->weight);
    if(passCWCut && passThermalCut &&/* passThermalImpulsivityCut &&*/ passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) impulsivityHist_nMinusImp->Fill( avgImpulsivity, dummyData->weight);
    if(passCWCut && passThermalCut && passThermalImpulsivityCut && passDeepPulserCut /*&& passCalpulserCut*/ && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) zen_azi_nMinusCal->Fill(inBoxPhi, inBoxTheta, dummyData->weight);
    if(passCWCut && passThermalCut && passThermalImpulsivityCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut /*&& passSurfaceCut && passSurfaceCut_2 */&& passNoisyRunCut ) zen_nMinusSurface->Fill((passSurfaceCut?zenMaj:90.f-dummyData->constantNZen));
@@ -1255,7 +1281,7 @@ for(int i=4; i<argc; i++){
 
       }
    }
-   
+
    if( /*passCWCut &&*/ passDeepPulserCut && passThermalCut && passCalpulserCut && passCalpulserTimeCut){
 
       constantNZenHist->Fill(90.f-dummyData->constantNZen, dummyData->weight);
@@ -1287,8 +1313,8 @@ for(int i=4; i<argc; i++){
    }//end of pass cut
 
 //   if(/*isCW &&*/ /*passThermalCut &&*/ passDeepPulserCut && passCalpulserCut && passSurfaceCut && passNoisyRunCut ){
-//      
-//      if( !isCW ) cerr<<"Not CW! run: "<<runNum<<" ev: "<<entry<<endl;   
+//
+//      if( !isCW ) cerr<<"Not CW! run: "<<runNum<<" ev: "<<entry<<endl;
 //
 //      coherence_snr_cw->Fill(dummyData->inWindowSNR_V, (dummyData->maxPixCoherence>dummyData->maxPixCoherence2?dummyData->maxPixCoherence:dummyData->maxPixCoherence2), dummyData->weight);
 //      snr_cw->Fill(dummyData->inWindowSNR_V, dummyData->weight);
@@ -1296,19 +1322,19 @@ for(int i=4; i<argc; i++){
 //      //for(int ch=0; ch<16; ch++){
 //      //   impulsivity[ch] = dummyData->impulsivity[ch];
 //      //}
-//      
+//
 //      std::fill(&impulsivity[0], &impulsivity[16], 0.);
 //
 //      if(isVpolCW && isHpolCW){
 //
-//      nonZeroCount = 0; 
+//      nonZeroCount = 0;
 //      double sum = 0.;
 //      for(int ch=0; ch<16; ch++){
 //         if(fabs( dummyData->impulsivity[ch] - 0 ) > 1e-9 ){
 //            nonZeroCount++;
 //            impulsivity[ch] = dummyData->impulsivity[ch];
 //            sum += impulsivity[ch];
-//         }    
+//         }
 //      }
 //
 //      int index[16];
@@ -1325,14 +1351,14 @@ for(int i=4; i<argc; i++){
 //
 //      else if( isVpolCW && !isHpolCW){
 //
-//      nonZeroCount = 0; 
+//      nonZeroCount = 0;
 //      double sum = 0.;
 //      for(int ch=0; ch<8; ch++){
 //         if(fabs( dummyData->impulsivity[ch] - 0 ) > 1e-9 ){
 //            nonZeroCount++;
 //            impulsivity[ch] = dummyData->impulsivity[ch];
 //            sum += impulsivity[ch];
-//         }    
+//         }
 //      }
 //
 //      int index[16];
@@ -1349,14 +1375,14 @@ for(int i=4; i<argc; i++){
 //
 //      else {
 //
-//      nonZeroCount = 0; 
+//      nonZeroCount = 0;
 //      double sum = 0.;
 //      for(int ch=8; ch<16; ch++){
 //         if(fabs( dummyData->impulsivity[ch] - 0 ) > 1e-9 ){
 //            nonZeroCount++;
 //            impulsivity[ch] = dummyData->impulsivity[ch];
 //            sum += impulsivity[ch];
-//         }    
+//         }
 //      }
 //
 //      int index[16];
@@ -1373,9 +1399,9 @@ for(int i=4; i<argc; i++){
 //
 //
 //      thermalCWEventCount += dummyData->weight;
-//      
+//
 //   }//if pass all other cuts except CW and thermal
-                        
+
 
    }//end of entry
 
@@ -1652,7 +1678,7 @@ float maxRadius = 0.f;
 for(int i=0; i<arraySize; i++){
    weightedRadius += value[i] * radii[i];
    totalValue += value[i];
-   if( value[i] > max ){ max = value[i]; maxRadius = radii[i]; } 
+   if( value[i] > max ){ max = value[i]; maxRadius = radii[i]; }
 
 }
 weightedRadius /= totalValue;
@@ -1676,7 +1702,7 @@ float getMean(const vector<float>& thetas){
    float sum = 0.f;
 
    for(int i=0; i<size; i++){
-  
+
    sum += thetas[i];
 
    }
@@ -1689,13 +1715,13 @@ float getMean(const vector<float>& thetas){
 float getRMS(const vector<float>& thetas){
 
 
-  
+
    float mean = getMean(thetas);
    float rms = 0.f;
-   int size = (int)thetas.size(); 
-   if(size <= 1){ cerr<<"Vector size: "<<size<<endl; return -1;}   
-  
-   for(int i=0; i<size; i++){   
+   int size = (int)thetas.size();
+   if(size <= 1){ cerr<<"Vector size: "<<size<<endl; return -1;}
+
+   for(int i=0; i<size; i++){
 
    rms += ((thetas[i] - mean) * (thetas[i] - mean));
 
@@ -1705,7 +1731,7 @@ float getRMS(const vector<float>& thetas){
 
    return rms;
 }
-
+/*
 bool isNearNoisyRun(string station, const vector<int>& noisyRuns, int runNum, int plusMinusRunNum){
 
 
@@ -1721,7 +1747,8 @@ bool isNearNoisyRun(string station, const vector<int>& noisyRuns, int runNum, in
    return isNoisy;
 
 }
-
+*/
+/*
 float getZenMaj(const vector<float>& iterZenVec, float zenRange){
 
 
@@ -1740,7 +1767,7 @@ float getZenMaj(const vector<float>& iterZenVec, float zenRange){
          if(fabs(iterZenVec[i]-iterZenVec[j]) < zenRange) cnt++;
 
       }//end of j
-      cntVec.push_back(cnt);   
+      cntVec.push_back(cnt);
       if(cnt>maxCnt){
 
          maxCnt = cnt;
@@ -1759,4 +1786,4 @@ float getZenMaj(const vector<float>& iterZenVec, float zenRange){
    zenMaj = (maxCnt>1?iterZenVec[maxCntIdx]:100.f);
    return zenMaj;
 }
-
+*/
