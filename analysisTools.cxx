@@ -435,7 +435,7 @@ bool isSurface(recoData *dummyData, double surfaceCut_1){
 
 }
 
-bool isIterSurface(recoData *dummyData, Healpix_Onion onion, recoSettings *settings, double zenRange, double surfaceCut_2){
+bool isIterSurface(double &zenMaj, recoData *dummyData, Healpix_Onion onion, recoSettings *settings, double zenRange, double surfaceCut_2){
 
    int nAnt = (string(settings->recoPolType)=="both"?16:8);
    int numIter = nAnt - settings->nchnlCut + 1;
@@ -466,7 +466,7 @@ bool isIterSurface(recoData *dummyData, Healpix_Onion onion, recoSettings *setti
    }//end of iter
 
    //float zenRange = 3.;
-   double zenMaj = getZenMaj(iterZenVec, zenRange);
+   zenMaj = getZenMaj(iterZenVec, zenRange);
 
    bool passSurfaceCut_2 = false;
    if(zenMaj <= 90 ){

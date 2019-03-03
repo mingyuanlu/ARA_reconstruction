@@ -530,7 +530,7 @@ for(int i=4; i<argc; i++){
    maxFreqBinVec_H.clear();
    maxFreqBinVec.clear();
 
-   isCW = isCW_coincidence(isVpolCW, isHpolCW, maxCountFreqBin_V, maxCountFreqBin_H, dummyData, cwBinThres)
+   isCW = isCW_coincidence(isVpolCW, isHpolCW, maxCountFreqBin_V, maxCountFreqBin_H, dummyData, cwBinThres);
 /*
    for(int i=0; i<8; i++){
       //cout<<"ch: "<<i<<" maxFreqBin: "<<dummyData->maxFreqBin[i]<<" maxFreq: "<<dummyData->maxFreqBin[i] * dummyData->freqBinWidth_V<<" maxFreqPower: "<<dummyData->maxFreqPower[i]<<" ";
@@ -610,7 +610,7 @@ for(int i=4; i<argc; i++){
 
 */
 
-   isCW = isCW_freqWindow(isVpolCW, isHpolCW, isXpolCW, dummyData, fftRes);
+   //isCW = isCW_freqWindow(isVpolCW, isHpolCW, isXpolCW, dummyData, fftRes);
 
 //      for(int ch=0; ch<16; ch++){
 //
@@ -737,7 +737,7 @@ for(int i=4; i<argc; i++){
 */
    /***** 2. Thermal cut ********************/
 
-   passThermalCut = !isThermal_boxCut(inBand, settings, dummyData, onion, cutValues, type);
+   passThermalCut = !isThermal_boxCut(inBand, settings, dummyData, onion,  cutValues->snrCut_inBand[type-1].val, cutValues->coherenceCut_inBand[type-1].val, cutValues->snrCut_outOfBand[type-1].val, cutValues->coherenceCut_outOfBand[type-1].val);
 /*
    r     = onion.getLayerRadius(dummyData->maxPixIdx2);
    theta = onion.getPointing(dummyData->maxPixIdx2).theta * TMath::RadToDeg();
@@ -776,7 +776,8 @@ for(int i=4; i<argc; i++){
    //}
 
    float zenRange = 3.;
-   passSurfaceCut_2 = !isIterSurface(dummyData, onion, settings, zenRange, surfaceCut_2);
+   double zenMaj;
+   passSurfaceCut_2 = !isIterSurface(zenMaj, dummyData, onion, settings, zenRange, surfaceCut_2);
 //   iterZenVec.clear();
 //   for(int iter=0; iter<numIter; iter++){
 //
@@ -1046,7 +1047,7 @@ for(int i=4; i<argc; i++){
    */
    double impCut = cutValues->cwImpCut[type-1].val; //impulsivityCut[type-1];
    //passCWCut = ( !isCW || (isCW && passHighPassFilter && passImpulsivityCut )) && !lowFreqDominance;
-   passCWCut = ( !isCW || (isCW && isRecoverableByImp(isVpolCW, isHpolCW, isXpolCW, dumyData, impCut, highPassFreq) )) && !lowFreqDominance;
+   passCWCut = ( !isCW || (isCW && isRecoverableByImp(isVpolCW, isHpolCW, isXpolCW, dummyData, impCut, highPassFreq) )) && !lowFreqDominance;
    //passCWCut = !lowFreqDominance;
 
 

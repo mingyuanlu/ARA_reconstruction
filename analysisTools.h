@@ -114,10 +114,11 @@ bool isCW_freqWindow(bool &isVpolCW, bool &isHpolCW, bool isXpolCW, recoData *du
 bool isLowFreqDominance(int& lowFreqCount_V, int& lowFreqCount_H, recoData *dummyData, double highPassFreq, int lowFreqCountThres);
 bool isThermal_boxCut(bool &inBand, recoSettings *settings, recoData *dummyData, Healpix_Onion onion, double snrCut_inBand, double coherenceCut_inBand, double snrCut_outOfBand, double coherenceCut_outOfBand);
 bool isSurface(recoData *dummyData, double surfaceCut_1);
-bool isIterSurface(recoData *dummyData, Healpix_Onion onion, recoSettings *settings, double zenRange, double surfaceCut_2);
+bool isIterSurface(double &zenMaj, recoData *dummyData, Healpix_Onion onion, recoSettings *settings, double zenRange, double surfaceCut_2);
 float getZenMaj(const vector<float>& iterZenVec, float zenRange);
 bool isNearNoisyRun(const vector<int>& noisyRuns, int runNum, int plusMinusRunNum);
 bool isDeepPulser(string STATION, recoData *dummyData, int runNum);
+bool isCalpulserTime(string STATION, recoData *dummyData);
 bool isCalpulser(float &inBoxTheta, float &inBoxPhi, string STATION, recoData *dummyData, Healpix_Onion onion, recoSettings *settings, int type);
 bool isRecoverableByImp(bool isVpolCW, bool isHpolCW, bool isXpolCW, recoData *dummyData, double impCut, double highPassFreq);
 bool isBelowThermalImpulsivityCut(recoData *dummyData, double postThermalAvgImpulsivityCut);
