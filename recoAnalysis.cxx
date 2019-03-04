@@ -1045,8 +1045,8 @@ for(int i=4; i<argc; i++){
 
    }
    */
-   double impCut = cutValues->cwImpCut[type-1].val; //impulsivityCut[type-1];
-   //impCut = 0.2202187;
+   //double impCut = cutValues->cwImpCut[type-1].val; //impulsivityCut[type-1];
+   double impCut = 0.2384656;
    //passCWCut = ( !isCW || (isCW && passHighPassFilter && passImpulsivityCut )) && !lowFreqDominance;
    passCWCut = ( !isCW || (isCW && isRecoverableByImp(isVpolCW, isHpolCW, isXpolCW, dummyData, impCut, highPassFreq) )) && !lowFreqDominance;
    //passCWCut = !lowFreqDominance;
