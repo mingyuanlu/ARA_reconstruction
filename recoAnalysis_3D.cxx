@@ -688,7 +688,7 @@ for(int entry=0; entry<Nentries; entry++){
       zen_snr_soft->Fill(dummyData->unmodSNR, 90.f-dummyData->recoZen);
       azi_snr_soft->Fill(dummyData->unmodSNR, dummyData->recoAzi);
       coherence_snr_soft->Fill(dummyData->unmodSNR, dummyData->maxPixCoherence);
-   }
+   }//end of if RF
 */
 //
 //   if(dummyData->maxPixCoherence > 5.f){
@@ -878,7 +878,7 @@ for(int entry=0; entry<Nentries; entry++){
 //   cvs->SaveAs("grGrowingThetaPhiRMS.C");
 //
 //   }
-//}
+}
 /*
    trueVertexGraph->SetPoint(0, dummyData->trueRadius*sin(dummyData->trueZen*TMath::DegToRad())*cos(dummyData->trueAzi*TMath::DegToRad()),
                                 dummyData->trueRadius*sin(dummyData->trueZen*TMath::DegToRad())*sin(dummyData->trueAzi*TMath::DegToRad()),
