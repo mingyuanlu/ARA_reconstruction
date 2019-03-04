@@ -737,8 +737,10 @@ for(int i=4; i<argc; i++){
 */
    /***** 2. Thermal cut ********************/
 
-   passThermalCut = !isThermal_boxCut(inBand, settings, dummyData, onion,  cutValues->snrCut_inBand[type-1].val, cutValues->coherenceCut_inBand[type-1].val, cutValues->snrCut_outOfBand[type-1].val, cutValues->coherenceCut_outOfBand[type-1].val);
-/*
+   //passThermalCut = !isThermal_boxCut(inBand, settings, dummyData, onion,  cutValues->snrCut_inBand[type-1].val, cutValues->coherenceCut_inBand[type-1].val, cutValues->snrCut_outOfBand[type-1].val, cutValues->coherenceCut_outOfBand[type-1].val);
+
+
+
    r     = onion.getLayerRadius(dummyData->maxPixIdx2);
    theta = onion.getPointing(dummyData->maxPixIdx2).theta * TMath::RadToDeg();
    phi   = onion.getPointing(dummyData->maxPixIdx2).phi   * TMath::RadToDeg();
@@ -763,10 +765,18 @@ for(int i=4; i<argc; i++){
    if(string(settings->recoPolType)=="vpol"){ snr = dummyData->inWindowSNR_V; }
    else if(string(settings->recoPolType)=="hpol"){ snr = dummyData->inWindowSNR_H; }
 
-   if( snr > snrCutValue || coherence > coherenceCutValue){
-      passThermalCut = true;
+   //if( snr > snrCutValue || coherence > coherenceCutValue){
+   if(inBand){
+      if( 0.003 * snr + 1.916 * coherence - 0.368 > -0.144889) passThermalCut = true;
+      else passThermalCut = false;
+   } else{
+      if( 0.007 * snr + 1.039 * coherence - 0.284 > -0.126811) passThermalCut = true;
+      else passThermalCut = false;
+
    }
-*/
+      //passThermalCut = true;
+   //}
+
    /***** 3. Surface cut ********************/
 
    passSurfaceCut = !isSurface(dummyData, surfaceCut_1);
