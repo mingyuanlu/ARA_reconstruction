@@ -169,7 +169,7 @@ void ARA02_cutValues::setValue(cutParameter& param, double _val, double _plus, d
 }
 
 
-bool isCW_coincidence(bool &isVpolCW, bool &isHpolCW, int &maxCountFreqBin_V, int maxCountFreqBin_H, recoData *dummyData, int cwBinThres){
+bool isCW_coincidence(bool &isVpolCW, bool &isHpolCW, int &maxCountFreqBin_V, int &maxCountFreqBin_H, recoData *dummyData, int cwBinThres){
 
    vector<int> maxFreqBinVec_V;
    vector<int> maxFreqBinVec_H;

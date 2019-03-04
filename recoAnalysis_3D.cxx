@@ -33,6 +33,7 @@
 #include "calibrationToolsVs3.h"
 #include "evProcessTools.h"
 #include "recoTools.h"
+#include "analysisTools.h"
 
 #include "Detector.h"
 #include "Trigger.h"
@@ -43,7 +44,7 @@
 using namespace std;
 
 float statisticalRadiusReco(int arraySize, const float * const radii, const float * const value, float trueRadius,
-                          TH1F * const statRReco_weight, TH1F * const statRReco_max, TH1F * const statRReco_eventStack); 
+                          TH1F * const statRReco_weight, TH1F * const statRReco_max, TH1F * const statRReco_eventStack);
 
 float getMean(const vector<float>& thetas);
 float getRMS(const vector<float>& thetas);
@@ -57,13 +58,13 @@ TChain *recoSettingsTree=new TChain("recoSettingsTree");
 TChain *dataTree=new TChain("dataTree");
 TChain *runInfoTree=new TChain("runInfoTree");
 
-for(int i=1; i<argc; i++){   
+for(int i=1; i<argc; i++){
 
    TFile fp( argv[i] );
 
    if( fp.IsZombie() ){ cerr<<"File "<<argv[i]<<" is zombie. Skipping..."<<endl; continue; }
    if( fp.TestBit(TFile::kRecovered) ){ cerr<<"File "<<argv[i]<<" is recovered file. Skipping..."<<endl; continue; }
-   
+
    recoSettingsTree->Add( argv[i] );
    dataTree->Add( argv[i] );
    runInfoTree->Add( argv[i] );
@@ -97,7 +98,7 @@ cout<<"nSideExp: "<<onion.nSideExp<<" nLayer: "<<onion.nLayer<<endl;
 recoData *dummyData = new recoData();
 //vector<int>   * topMaxPixIdx             = &dummyData->topMaxPixIdx;
 //vector<float> * topMaxPixCoherence       = &dummyData->topMaxPixCoherence;
-//vector<int>   * maxPixIdxEachLayer       = &dummyData->maxPixIdxEachLayer; 
+//vector<int>   * maxPixIdxEachLayer       = &dummyData->maxPixIdxEachLayer;
 //vector<float> * maxPixCoherenceEachLayer = &dummyData->maxPixCoherenceEachLayer;
 dataTree->SetBranchAddress("summary", &dummyData);
 
@@ -120,7 +121,7 @@ for(int run=0; run<runInfoTree->GetEntries(); run++){
    totalRunEventCount += runEventCount;
    totalTrigEventCount += trigEventCount;
    totalRecoEventCount += recoEventCount;
-    
+
    if(runEndTime <= runStartTime){ cerr<<"Run "<<run<<" livetime error. Skipping...\n"; continue; }
    else totalLiveTime += (runEndTime - runStartTime);
 
@@ -292,6 +293,8 @@ TH2F *coherence2_snr_rf   = new TH2F("coherence2_snr_rf","coherence2_snr_rf",400
 TH2F *coherence2_snr_cal  = new TH2F("coherence2_snr_cal","coherence2_snr_cal",400,0,40,1000,0,1);
 TH2F *coherence2_snr_soft = new TH2F("coherence2_snr_soft","coherence2_snr_soft",400,0,40,1000,0,1);
 
+TH1F *impulsivityHist = new TH1F("impulsivityHist","impulsivityHist", 1000, 0, 1);
+
 //TH2F *coherence_
 TH2F *bipolarRatio_dT = new TH2F("bipolarRatio_dT","bipolarRatio_dT",800,0,800,1000,0,1);
 TH2F *impulsivity_dT = new TH2F("impulsivity_dT","impulsivity_dT",800,0,800,1000,0,1);
@@ -379,9 +382,9 @@ TH1F *statRReco_eventStack = new TH1F("statRReco_eventStack","statRReco_eventSta
 
 //Define alpha as space angle between reco and true directionsw
 TProfile *dAlphaRProf = new TProfile("dAlphaRProf","Space Angle Difference Profile", 50, 0, 5000, 0, 180, "");
-TProfile *dZenRProf = new TProfile("dZenRProf","Zenith Reconsturction Profile", 50, 0, 5000, -180, 180, "");  
-TProfile *dAziRProf   = new TProfile("dAziRProf","Azimuth Reconsturction Profile", 50, 0, 5000, -360, 360, "");  
-TProfile *dRRProf     = new TProfile("dRRProf","Vertex Distance Reconsturction Profile", 50, 0, 5000, -5000, 5000, "");  
+TProfile *dZenRProf = new TProfile("dZenRProf","Zenith Reconsturction Profile", 50, 0, 5000, -180, 180, "");
+TProfile *dAziRProf   = new TProfile("dAziRProf","Azimuth Reconsturction Profile", 50, 0, 5000, -360, 360, "");
+TProfile *dRRProf     = new TProfile("dRRProf","Vertex Distance Reconsturction Profile", 50, 0, 5000, -5000, 5000, "");
 TH2F *dStatR_coherence=new TH2F("dStatR_coherence","dStatR_coherence",50,0,25,1000,-5000,5000);
 TH2F *dStatR_nchnl    =new TH2F("dStatR_nchnl","dStatR_nchnl",17,-0.5,16.5,1000,-5000,5000);
 TH2F *dStatR_trueR    =new TH2F("dStatR_trueR","dStatR_trueR",500,0,5000,1000,-5000,5000);
@@ -495,7 +498,7 @@ for(int entry=0; entry<Nentries; entry++){
    recoVertexGraph = new TPolyMarker3D(1,6);
 
    dRMSThetaVec = (float*)calloc(settings->topN, sizeof(float));
-   dRMSPhiVec = (float*)calloc(settings->topN, sizeof(float)); 
+   dRMSPhiVec = (float*)calloc(settings->topN, sizeof(float));
    grThetaRMS = new TGraph();
    grPhiRMS   = new TGraph();
    grGrowingThetaRMS = new TGraph();
@@ -540,19 +543,19 @@ for(int entry=0; entry<Nentries; entry++){
 //      recoLauAngle[i] = dummyData->recoLauAngle[i] /** TMath::RadToDeg()*/;
 //      trueRecAngle[i] = dummyData->trueRecAngle[i] /** TMath::RadToDeg()*/;
 //      trueLauAngle[i] = dummyData->trueLauAngle[i] /** TMath::RadToDeg()*/;
-//	
+//
 //      recoRecAngleHist[i]->Fill(recoRecAngle[i]*TMath::RadToDeg(), dummyData->weight);
-//      trueRecAngleHist[i]->Fill(trueRecAngle[i]*TMath::RadToDeg(), dummyData->weight);   
+//      trueRecAngleHist[i]->Fill(trueRecAngle[i]*TMath::RadToDeg(), dummyData->weight);
 //      dRecAngle[i]->Fill((recoRecAngle[i]-trueRecAngle[i])*TMath::RadToDeg());
 //      dLauAngle[i]->Fill((recoLauAngle[i]-trueLauAngle[i])*TMath::RadToDeg());
-//   
+//
 //   }
 //   }
    dZen->Fill(dummyData->recoZen - dummyData->trueZen);
    dAzi->Fill(dummyData->recoAzi - dummyData->trueAzi);
    dR->Fill(onion.getLayerRadius(dummyData->maxPixIdx) - dummyData->trueRadius);
    dZen_snr->Fill( dummyData->inWindowSNR_V, dummyData->recoZen - dummyData->trueZen);
-   dAzi_snr->Fill( dummyData->inWindowSNR_V, dummyData->recoAzi - dummyData->trueAzi); 
+   dAzi_snr->Fill( dummyData->inWindowSNR_V, dummyData->recoAzi - dummyData->trueAzi);
 //   if(dummyData->maxPixCoherence>0.12){
 //   dZen_weight->Fill(dummyData->recoZen - dummyData->trueZen, dummyData->weight);
 //   dAzi_weight->Fill(dummyData->recoAzi - dummyData->trueAzi, dummyData->weight);
@@ -571,12 +574,62 @@ for(int entry=0; entry<Nentries; entry++){
       azi_snr_rf->Fill(dummyData->unmodSNR, dummyData->recoAzi);
       coherence_snr_rf->Fill(dummyData->unmodSNR, dummyData->maxPixCoherence);
 
+      bool isVpolCW, isHpolCW;
+      int maxCountFreqBin_H, maxCountFreqBin_V;
+      int cwBinThres = 3;
+      int nonZeroCount = 0;
+      double avgImpulsivity = 0.;
 
+      if (isCW_coincidence(isVpolCW, isHpolCW, maxCountFreqBin_V, maxCountFreqBin_H, dummyData, cwBinThres)){
+
+         if (isVpolCW && isHpolCW){
+
+            for(int ch=0; ch<16; ch++){
+               if(dummyData->impulsivity[ch]>0){
+                  avgImpulsivity += dummyData->impulsivity[ch];
+                  nonZeroCount ++;
+               }
+            }
+
+            if(nonZeroCount>0)
+            avgImpulsivity /= (double)nonZeroCount;
+
+         } else if (isVpolCW){
+
+            for(int ch=0; ch<8; ch++){
+               if(dummyData->impulsivity[ch]>0){
+                  avgImpulsivity += dummyData->impulsivity[ch];
+                  nonZeroCount ++;
+               }
+            }
+
+            if(nonZeroCount>0)
+            avgImpulsivity /= (double)nonZeroCount;
+
+         } else {
+
+               for(int ch=8; ch<16; ch++){
+               if(dummyData->impulsivity[ch]>0){
+                  avgImpulsivity += dummyData->impulsivity[ch];
+                  nonZeroCount ++;
+               }
+            }
+
+            if(nonZeroCount>0)
+            avgImpulsivity /= (double)nonZeroCount;
+
+         }
+
+         impulsivityHist->Fill(avgImpulsivity, dummyData->weight);
+
+      }
+
+/*
       double impSum=0.;
       double impPassThresSum=0.;
       int nNonZero=0;
       int nPassThres=0;
-         
+
       for(int ch=0; ch<8; ch++){
 
       double bipolarRatio;
@@ -602,7 +655,7 @@ for(int entry=0; entry<Nentries; entry++){
          }
 
       }
-     
+
       if(fabs(dummyData->impulsivity[ch]-0)>1e-9){
          impSum += dummyData->impulsivity[ch];
          nNonZero++;
@@ -612,7 +665,7 @@ for(int entry=0; entry<Nentries; entry++){
 
       double impAvg          = impSum / (double)nNonZero;
       double impPassThresAvg = impPassThresSum / (double)nPassThres;
-      
+
       impAvgHist->Fill(impAvg, dummyData->weight);
       impPassThresHist->Fill(impPassThresAvg, dummyData->weight);
 
@@ -636,13 +689,13 @@ for(int entry=0; entry<Nentries; entry++){
       azi_snr_soft->Fill(dummyData->unmodSNR, dummyData->recoAzi);
       coherence_snr_soft->Fill(dummyData->unmodSNR, dummyData->maxPixCoherence);
    }
-
+*/
 //
 //   if(dummyData->maxPixCoherence > 5.f){
 //
 //   dZen_cut->Fill(dummyData->recoZen - dummyData->trueZen);
 //   dAzi_cut->Fill(dummyData->recoAzi - dummyData->trueAzi);
-//   dR_cut->Fill(onion.getLayerRadius(dummyData->maxPixIdx) - dummyData->trueRadius); 
+//   dR_cut->Fill(onion.getLayerRadius(dummyData->maxPixIdx) - dummyData->trueRadius);
 //   dZen_weight_cut->Fill(dummyData->recoZen - dummyData->trueZen, dummyData->weight);
 //   dAzi_weight_cut->Fill(dummyData->recoAzi - dummyData->trueAzi, dummyData->weight);
 //   dR_weight_cut->Fill(onion.getLayerRadius(dummyData->maxPixIdx) - dummyData->trueRadius, dummyData->weight);
@@ -666,7 +719,7 @@ for(int entry=0; entry<Nentries; entry++){
 //   dAzi_trueAzi->Fill(dummyData->trueAzi, dummyData->recoAzi - dummyData->trueAzi);
 //
 //   dZen_dAzi->Fill(dummyData->recoAzi - dummyData->trueAzi, dummyData->recoZen - dummyData->trueZen);
-//  
+//
 //   coherence_nchnl->Fill(nchnl, dummyData->maxPixCoherence);
 //   coherence_trueR->Fill(dummyData->trueRadius, dummyData->maxPixCoherence);
 //   nchnl_trueR->Fill(dummyData->trueRadius, nchnl);
@@ -693,7 +746,7 @@ for(int entry=0; entry<Nentries; entry++){
 //
 //
 //   for(int i=0; i</*dummyData*/settings->topN; i++){
-//   
+//
 //   //cout<<"topMaxPixIdx: "<<dummyData->topMaxPixIdx.at(i)<<endl;
 //   r     = onion.getLayerRadius(dummyData->topMaxPixIdx.at(i));
 //   theta = onion.getPointing(dummyData->topMaxPixIdx.at(i)).theta;
@@ -705,14 +758,14 @@ for(int entry=0; entry<Nentries; entry++){
 //   topMaxPixZen->Fill(theta*TMath::RadToDeg());
 //   topMaxPixAzi->Fill(phi  *TMath::RadToDeg());
 //
-//   //printf("i:%d r:%f theta:%f phi:%f\n",i,r,theta,phi);  
+//   //printf("i:%d r:%f theta:%f phi:%f\n",i,r,theta,phi);
 //
 //   //topMaxPixGraph->SetPoint(i, r*sin(theta)*cos(phi), r*sin(theta)*sin(phi), r*cos(theta));
 //
-//   //topMaxPixHist->Fill(r*sin(theta)*cos(phi), r*sin(theta)*sin(phi), r*cos(theta), topMaxPixCoherence->at(i)); 
+//   //topMaxPixHist->Fill(r*sin(theta)*cos(phi), r*sin(theta)*sin(phi), r*cos(theta), topMaxPixCoherence->at(i));
 //   /*
 //   if( entry == atoi(argv[2]) ){
-//   topMaxPixHist->Fill(r, getSpaceAngle(dummyData->trueZen*TMath::DegToRad(), dummyData->trueAzi*TMath::DegToRad(), theta, phi ) * TMath::RadToDeg(), topMaxPixCoherence->at(i)); 
+//   topMaxPixHist->Fill(r, getSpaceAngle(dummyData->trueZen*TMath::DegToRad(), dummyData->trueAzi*TMath::DegToRad(), theta, phi ) * TMath::RadToDeg(), topMaxPixCoherence->at(i));
 //   trueDistanceLine=TLine(dummyData->trueRadius, 0., dummyData->trueRadius, 10.);
 //   }*/
 //
@@ -731,7 +784,7 @@ for(int entry=0; entry<Nentries; entry++){
 //   float fullPhiRMS   = getRMS(phiVec);
 //
 //   //printf("Zen rms: (%f,%f)\tAzi rms: (%f,%f)\n",topMaxPixZen->GetRMS(),fullThetaRMS,topMaxPixAzi->GetRMS(),fullPhiRMS);
-// 
+//
 //   for(int i=0; i<settings->topN; i++){
 //
 //   vector<float> newThetaVec(thetaVec);
@@ -752,7 +805,7 @@ for(int entry=0; entry<Nentries; entry++){
 //   vector<float>().swap(newPhiVec);
 //
 //   }
-//  
+//
 //   TMath::Sort(settings->topN, dRMSThetaVec, thetaIdx, false); //sort in increasing order
 //   TMath::Sort(settings->topN, dRMSPhiVec,   phiIdx  , false);
 //
@@ -795,8 +848,8 @@ for(int entry=0; entry<Nentries; entry++){
 //
 //      growingThetaVec.push_back(thetaVec[thetaIdx[2+i]]);
 //      growingPhiVec.push_back(phiVec[phiIdx[2+i]]);
-//    
-//      rms = getRMS(growingThetaVec);  
+//
+//      rms = getRMS(growingThetaVec);
 //      grGrowingThetaRMS->SetPoint(i+1, i+3, rms);
 //      if(rms > rmsCut && thetaRatioDone == false){ thetaXing = i+3.f; thetaRatioHist->Fill((float)(i+3.f)/*/(float)recoSettings->topN*/); thetaRatioDone = true; }
 //      rms = getRMS(growingPhiVec);
@@ -811,7 +864,7 @@ for(int entry=0; entry<Nentries; entry++){
 //   //cvs = new TCanvas("cvs","cvs",800,800);
 //   cvs->Divide(1,2);
 //   if(entry==1){
-//   
+//
 //   cvs->cd(1);
 //   grThetaRMS->Draw("AL");
 //   cvs->cd(2);
@@ -835,7 +888,7 @@ for(int entry=0; entry<Nentries; entry++){
                                 dummyData->recoRadius*cos(dummyData->recoZen*TMath::DegToRad()));
    trueVertexGraph->SetMarkerColor(kRed);
    recoVertexGraph->SetMarkerColor(kOrange);
-   topMaxPixGraph->SetMarkerColor(kGray);   
+   topMaxPixGraph->SetMarkerColor(kGray);
 */
 /*
 TCanvas *cvs2 = new TCanvas("cvs2","cvs2",800,800);
@@ -854,7 +907,7 @@ if(entry==0){
    cvs2->SaveAs(filename);
 }
 */
-  
+
 //   snprintf(filename,sizeof(char)*200,"maxPixEachLayerZen_%d",entry);
 //   maxPixEachLayerZen=new TH1F(filename,filename,450,0,180);
 //   snprintf(filename,sizeof(char)*200,"maxPixEachLayerAzi_%d",entry);
@@ -868,7 +921,7 @@ if(entry==0){
 //   //cout<<"maxPixIdxEachLayer size: "<<maxPixIdxEachLayer->size()<<endl;
 //   r     = onion.getLayerRadius(dummyData->maxPixIdxEachLayer.at(i));
 //   theta = onion.getPointing(dummyData->maxPixIdxEachLayer.at(i)).theta * TMath::RadToDeg();
-//   phi   = onion.getPointing(dummyData->maxPixIdxEachLayer.at(i)).phi   * TMath::RadToDeg(); 
+//   phi   = onion.getPointing(dummyData->maxPixIdxEachLayer.at(i)).phi   * TMath::RadToDeg();
 //
 //   maxPixEachLayerZen->Fill(theta);
 //   maxPixEachLayerAzi->Fill(phi);
@@ -880,30 +933,30 @@ if(entry==0){
 
   if( i%5 == 0 ){
       coherence10[ i/5 ] = dummyData->maxPixCoherenceEachLayer.at(i);
-      pixIdx10[ i/5 ] = dummyData->maxPixIdxEachLayer.at(i); 
+      pixIdx10[ i/5 ] = dummyData->maxPixIdxEachLayer.at(i);
 
    }
 
    if( i%10 == 0 ){
       coherence5[ i/10 ] = dummyData->maxPixCoherenceEachLayer.at(i);
-      pixIdx5[ i/10 ] = dummyData->maxPixIdxEachLayer.at(i); 
+      pixIdx5[ i/10 ] = dummyData->maxPixIdxEachLayer.at(i);
 
    }
 */
 //   if( i == 0 ){
 //      coherence2[ 0 ] = dummyData->maxPixCoherenceEachLayer.at(i);
-//      pixIdx2[ 0 ] = dummyData->maxPixIdxEachLayer.at(i); 
+//      pixIdx2[ 0 ] = dummyData->maxPixIdxEachLayer.at(i);
 //   }
 //
 //   if( i == 30 ){
 //      coherence2[ 1 ] = dummyData->maxPixCoherenceEachLayer.at(i);
-//      pixIdx2[ 1 ] = dummyData->maxPixIdxEachLayer.at(i); 
+//      pixIdx2[ 1 ] = dummyData->maxPixIdxEachLayer.at(i);
 //   }
 //
 //
 //   //printf("r:%f theta:%f phi:%f\n",r,theta,phi);
 //
-//   //maxPixEachLayerGraph->SetPoint(i, r*sin(theta)*cos(phi), r*sin(theta)*sin(phi), r*cos(theta));   
+//   //maxPixEachLayerGraph->SetPoint(i, r*sin(theta)*cos(phi), r*sin(theta)*sin(phi), r*cos(theta));
 //
 //   //printf("%f\t", maxPixCoherenceEachLayer->at(i));
 //   }//end of nLayer
@@ -951,18 +1004,18 @@ if(entry==0){
 //   coherence2_maxPixEachLayerAziSpread->Fill(maxPixEachLayerAzi->GetRMS(), coherence2[idx2[0]]);
 //   coherence2_topMaxPixZenSpread->Fill(topMaxPixZen->GetRMS(), coherence2[idx2[0]]);
 //   coherence2_topMaxPixAziSpread->Fill(topMaxPixAzi->GetRMS(), coherence2[idx2[0]]);
-// 
+//
 //if(dummyData->eventTrigType == 0){
 //   coherence2_thetaRMSCutXing->Fill(thetaXing, coherence2[idx2[0]]);
 //   coherence2_phiRMSCutXing->Fill(phiXing, coherence2[idx2[0]]);
-//   topMaxPixZenSpread_thetaRMSCutXing->Fill(thetaXing, topMaxPixZen->GetRMS()); 
-//   topMaxPixAziSpread_phiRMSCutXing->Fill(phiXing, topMaxPixAzi->GetRMS()); 
+//   topMaxPixZenSpread_thetaRMSCutXing->Fill(thetaXing, topMaxPixZen->GetRMS());
+//   topMaxPixAziSpread_phiRMSCutXing->Fill(phiXing, topMaxPixAzi->GetRMS());
 //}
 /*
    //cout<<"idx25[0]: "<<idx25[0]<<" pixIdx25[idx25[0]]: "<<pixIdx25[idx25[0]]<<endl;
    r     = onion.getLayerRadius(pixIdx25[idx25[0]]);
    theta = TMath::RadToDeg()*onion.getPointing(pixIdx25[idx25[0]]).theta;
-   phi   = TMath::RadToDeg()*onion.getPointing(pixIdx25[idx25[0]]).phi; 
+   phi   = TMath::RadToDeg()*onion.getPointing(pixIdx25[idx25[0]]).phi;
    dZen_weight_nLayer25->Fill(theta-dummyData->trueZen,    dummyData->weight);
    dAzi_weight_nLayer25->Fill(phi  -dummyData->trueAzi,    dummyData->weight);
    dR_weight_nLayer25->Fill(  r    -dummyData->trueRadius, dummyData->weight);
@@ -974,10 +1027,10 @@ if(entry==0){
    dRecoR_dCoherence_weight_nLayer25->Fill(  r    -dummyData->recoRadius, coherence25[idx25[0]]-dummyData->maxPixCoherence, dummyData->weight);
 
 
-   //cout<<"idx10[0]: "<<idx10[0]<<" pixIdx10[idx10[0]]: "<<pixIdx10[idx10[0]]<<endl; 
+   //cout<<"idx10[0]: "<<idx10[0]<<" pixIdx10[idx10[0]]: "<<pixIdx10[idx10[0]]<<endl;
    r     = onion.getLayerRadius(pixIdx10[idx10[0]]);
    theta = TMath::RadToDeg()*onion.getPointing(pixIdx10[idx10[0]]).theta;
-   phi   = TMath::RadToDeg()*onion.getPointing(pixIdx10[idx10[0]]).phi; 
+   phi   = TMath::RadToDeg()*onion.getPointing(pixIdx10[idx10[0]]).phi;
    dZen_weight_nLayer10->Fill(theta-dummyData->trueZen,    dummyData->weight);
    dAzi_weight_nLayer10->Fill(phi  -dummyData->trueAzi,    dummyData->weight);
    dR_weight_nLayer10->Fill(  r    -dummyData->trueRadius, dummyData->weight);
@@ -992,7 +1045,7 @@ if(entry==0){
    //cout<<"idx5[0]: "<<idx5[0]<<" pixIdx5[idx5[0]]: "<<pixIdx5[idx5[0]]<<endl;
    r     = onion.getLayerRadius(pixIdx5[idx5[0]]);
    theta = TMath::RadToDeg()*onion.getPointing(pixIdx5[idx5[0]]).theta;
-   phi   = TMath::RadToDeg()*onion.getPointing(pixIdx5[idx5[0]]).phi; 
+   phi   = TMath::RadToDeg()*onion.getPointing(pixIdx5[idx5[0]]).phi;
    dZen_weight_nLayer5->Fill(theta-dummyData->trueZen,    dummyData->weight);
    dAzi_weight_nLayer5->Fill(phi  -dummyData->trueAzi,    dummyData->weight);
    dR_weight_nLayer5->Fill(  r    -dummyData->trueRadius, dummyData->weight);
@@ -1007,7 +1060,7 @@ if(entry==0){
    //cout<<"idx2[0]: "<<idx2[0]<<" pixIdx2[idx2[0]]: "<<pixIdx2[idx2[0]]<<endl;
 //   r     = onion.getLayerRadius(pixIdx2[idx2[0]]);
 //   theta = TMath::RadToDeg()*onion.getPointing(pixIdx2[idx2[0]]).theta;
-//   phi   = TMath::RadToDeg()*onion.getPointing(pixIdx2[idx2[0]]).phi; 
+//   phi   = TMath::RadToDeg()*onion.getPointing(pixIdx2[idx2[0]]).phi;
 //   dZen_weight_nLayer2->Fill(theta-dummyData->trueZen,    dummyData->weight);
 //   dAzi_weight_nLayer2->Fill(phi  -dummyData->trueAzi,    dummyData->weight);
 //   dR_weight_nLayer2->Fill(  r    -dummyData->trueRadius, dummyData->weight);
@@ -1021,7 +1074,7 @@ if(entry==0){
 //
 //   cout<<"maxPixIdx: "<<dummyData->maxPixIdx<<" maxPixCoherence: "<<dummyData->maxPixCoherence<<endl;
 
-//} 
+//}
    //cout<<endl;
    //maxPixEachLayerGraph->RemovePoint(0);
 /*
@@ -1032,10 +1085,10 @@ if(entry==0){
    snprintf(filename, sizeof(filename), "maxPixEachLayerGraph_1_%d.C", entry);
    cvs.SaveAs(filename);
 */
-/* 
+/*
   alpha = getSpaceAngle(dummyData->trueZen*TMath::DegToRad(), dummyData->trueAzi*TMath::DegToRad(),
                          onion.getPointing(dummyData->maxPixIdx).theta, onion.getPointing(dummyData->maxPixIdx).phi
-                        ) * TMath::RadToDeg(); 
+                        ) * TMath::RadToDeg();
 
    dAlpha_coherence->Fill(dummyData->maxPixCoherence, alpha);
    dAlpha_nchnl->Fill(nchnl, alpha);
@@ -1046,21 +1099,21 @@ if(entry==0){
    dAlpha_trueAzi->Fill(dummyData->trueAzi, alpha);
 
 
-   dAlphaRProf->Fill(dummyData->trueRadius, alpha); 
+   dAlphaRProf->Fill(dummyData->trueRadius, alpha);
    dZenRProf->Fill(dummyData->trueRadius,  dummyData->recoZen - dummyData->trueZen);
    dAziRProf->Fill(dummyData->trueRadius,  dummyData->recoAzi - dummyData->trueAzi);
-   //cout<<"recoRadius: "<<dummyData->recoRadius<<" maxPix layer radius: "<<onion.getLayerRadius(dummyData->maxPixIdx)<<endl;   
+   //cout<<"recoRadius: "<<dummyData->recoRadius<<" maxPix layer radius: "<<onion.getLayerRadius(dummyData->maxPixIdx)<<endl;
    dRRProf->Fill(dummyData->trueRadius, onion.getLayerRadius(dummyData->maxPixIdx) - dummyData->trueRadius);
 
    dZen_dR->Fill(onion.getLayerRadius(dummyData->maxPixIdx) - dummyData->trueRadius, dummyData->recoZen - dummyData->trueZen);
    dAzi_dR->Fill(onion.getLayerRadius(dummyData->maxPixIdx) - dummyData->trueRadius, dummyData->recoAzi - dummyData->trueAzi);
    dAlpha_dR->Fill(onion.getLayerRadius(dummyData->maxPixIdx) - dummyData->trueRadius, alpha);
-*/ 
+*/
 /*
-   printf("Entry: %d\nTrue Radius: %f Reco Radius: %f True Zen: %f Reco Zen: %f True Azi: %f Reco Azi: %f\n", 
+   printf("Entry: %d\nTrue Radius: %f Reco Radius: %f True Zen: %f Reco Zen: %f True Azi: %f Reco Azi: %f\n",
           entry, dummyData->trueRadius, dummyData->recoRadius,
           dummyData->trueZen, dummyData->recoZen, dummyData->trueAzi, dummyData->recoAzi);
-*/   
+*/
 /*
    dZen_coherence->Fill(dummyData->maxPixCoherence, dummyData->recoZen - dummyData->trueZen, dummyData->weight);
    dZen_nchnl->Fill(nchnl, dummyData->recoZen - dummyData->trueZen, dummyData->weight);
@@ -1082,9 +1135,9 @@ if(entry==0){
 */
 /*
    if(fabs(dummyData->recoZen - dummyData->trueZen) > 3 ){
-   
+
    thetaCnt++;
-   if( fabs(dummyData->recoAzi - dummyData->trueAzi) > 1 ) thetaPhiCnt++;   
+   if( fabs(dummyData->recoAzi - dummyData->trueAzi) > 1 ) thetaPhiCnt++;
 
    parCnt++;
    trueR_par->Fill(dummyData->trueRadius);
@@ -1110,8 +1163,8 @@ if(entry==0){
 float M;
 /*
 for(int pix=0; pix<dummyData->topN; pix++){
-   
-   // 1. Sum of M values on each layer 
+
+   // 1. Sum of M values on each layer
    value[onion.getLayerNumber(dummyData->topMaxPixIdx.at(pix))] += dummyData->topMaxPixCoherence.at(pix);
    //cout<<"topMaxPixCoherence: "<<topMaxPixCoherence->at(pix)<<endl;
    pixCount[onion.getLayerNumber(dummyData->topMaxPixIdx.at(pix))] += 1.f;
@@ -1128,9 +1181,9 @@ for(int layer=0; layer<onion.nLayer; layer++){
 
 }
 
-statRecoRadius = 
-statisticalRadiusReco(onion.nLayer, radii, value, dummyData->trueRadius, statRReco_weight, statRReco_max, statRReco_eventStack); 
-   //topMaxPixGraph = 0; 
+statRecoRadius =
+statisticalRadiusReco(onion.nLayer, radii, value, dummyData->trueRadius, statRReco_weight, statRReco_max, statRReco_eventStack);
+   //topMaxPixGraph = 0;
 
 dStatR_coherence->Fill(dummyData->maxPixCoherence, statRecoRadius - dummyData->trueRadius);
 dStatR_nchnl->Fill(nchnl, statRecoRadius - dummyData->trueRadius);
@@ -1348,7 +1401,7 @@ usedChan_par->Draw("same");
 //dR_weight->Draw();
 //dR_weight_cut->Draw();
 
-c1.SaveAs("recoAnalysis_1.C");
+//c1.SaveAs("recoAnalysis_1.C");
 
 c2.cd();
 //c2.Divide(1,3);
@@ -1363,7 +1416,7 @@ zen_azi_rf->Draw("colz");
 float IC1DeepPulserPosZen[1] = {-22.7};
 float IC22DeepPulserPosZen[1] = {-23.1};
 float IC1DeepPulserPosAzi[1] = {260.0};
-float IC22DeepPulserPosAzi[1] = {266.0}; 
+float IC22DeepPulserPosAzi[1] = {266.0};
 
 TGraph *deepPulserPosition_IC1 = new TGraph(1, IC1DeepPulserPosAzi, IC1DeepPulserPosZen);
 TGraph *deepPulserPosition_IC22 = new TGraph(1, IC22DeepPulserPosAzi, IC22DeepPulserPosZen);
@@ -1420,7 +1473,7 @@ topMaxPixGraph->Draw("same");
 //}
 
 
-c2.SaveAs("recoAnalysis_2.C");
+//c2.SaveAs("recoAnalysis_2.C");
 
 
 c3.cd();
@@ -1486,7 +1539,7 @@ c3.cd(6);
 azi_snr_soft->SetTitle("Reconstructed azimuth vs SNR (Soft);Signal-to-noise ratio [arb. unit];[#circ]");
 azi_snr_soft->Draw("colz");
 
-c3.SaveAs("recoAnalysis_3.2.C");
+//c3.SaveAs("recoAnalysis_3.2.C");
 
 
 //c4.Divide(2,2);
@@ -1539,16 +1592,16 @@ leg4->AddEntry(coherence_rf,"RF events","l");
 leg4->AddEntry(coherence_cal,"Cal events","l");
 leg4->AddEntry(coherence_soft,"Soft events","l");
 /*
-snprintf(legText,sizeof(legText),"RF overflow bin entry: %d",coherence_rf->GetBinContent(coherence_rf->GetNbinsX()+1)); 
+snprintf(legText,sizeof(legText),"RF overflow bin entry: %d",coherence_rf->GetBinContent(coherence_rf->GetNbinsX()+1));
 leg4->AddEntry((TObject*)0, legText, "");
-snprintf(legText,sizeof(legText),"Cal overflow bin entry: %d",coherence_cal->GetBinContent(coherence_cal->GetNbinsX()+1)); 
+snprintf(legText,sizeof(legText),"Cal overflow bin entry: %d",coherence_cal->GetBinContent(coherence_cal->GetNbinsX()+1));
 leg4->AddEntry((TObject*)0, legText, "");
-snprintf(legText,sizeof(legText),"Soft overflow bin entry: %d",coherence_soft->GetBinContent(coherence_soft->GetNbinsX()+1)); 
+snprintf(legText,sizeof(legText),"Soft overflow bin entry: %d",coherence_soft->GetBinContent(coherence_soft->GetNbinsX()+1));
 leg4->AddEntry((TObject*)0, legText, "");
 */
 //leg4->Draw();
 
-c4.SaveAs("recoAnalysis_4.C");
+//c4.SaveAs("recoAnalysis_4.C");
 
 c5.cd();
 //c5.Divide(2,2);
@@ -1583,7 +1636,7 @@ dZen_coherence->Draw("colz");
 c5.cd(4);
 dAzi_coherence->Draw("colz");
 */
-c5.SaveAs("recoAnalysis_5.C");
+//c5.SaveAs("recoAnalysis_5.C");
 
 //TCanvas c6("c6","c6",800,600);
 //c6.Divide(5,2);
@@ -2017,8 +2070,11 @@ c33.cd(3);
 //impulsivity_bipolarRatio->Draw("colz");
 impPassThresHist->Draw();
 
-c33.SaveAs("recoAnalysis_33.C");
+//c33.SaveAs("recoAnalysis_33.C");
 
+TCanvas c34("c34","c34",800,800);
+impulsivityHist->Draw();
+c34.SaveAs("recoAnalysis_34.C");
 
 printf("Nentries: %d\trfEventCount: %d\tcalEventCount: %d\tsoftEventCount: %d\n", Nentries, rfEventCount, calEventCount, softEventCount);
 
@@ -2048,7 +2104,7 @@ float maxRadius = 0.f;
 for(int i=0; i<arraySize; i++){
    weightedRadius += value[i] * radii[i];
    totalValue += value[i];
-   if( value[i] > max ){ max = value[i]; maxRadius = radii[i]; } 
+   if( value[i] > max ){ max = value[i]; maxRadius = radii[i]; }
 
 }
 weightedRadius /= totalValue;
@@ -2072,7 +2128,7 @@ float getMean(const vector<float>& thetas){
    float sum = 0.f;
 
    for(int i=0; i<size; i++){
-  
+
    sum += thetas[i];
 
    }
@@ -2085,13 +2141,13 @@ float getMean(const vector<float>& thetas){
 float getRMS(const vector<float>& thetas){
 
 
-  
+
    float mean = getMean(thetas);
    float rms = 0.f;
-   int size = (int)thetas.size(); 
-   if(size <= 1){ cerr<<"Vector size: "<<size<<endl; return -1;}   
-  
-   for(int i=0; i<size; i++){   
+   int size = (int)thetas.size();
+   if(size <= 1){ cerr<<"Vector size: "<<size<<endl; return -1;}
+
+   for(int i=0; i<size; i++){
 
    rms += ((thetas[i] - mean) * (thetas[i] - mean));
 
@@ -2101,6 +2157,3 @@ float getRMS(const vector<float>& thetas){
 
    return rms;
 }
-
-
-

@@ -109,7 +109,7 @@ public:
 
 };
 
-bool isCW_coincidence(bool &isVpolCW, bool &isHpolCW, int &maxCountFreqBin_V, int maxCountFreqBin_H, recoData *dummyData, int cwBinThres);
+bool isCW_coincidence(bool &isVpolCW, bool &isHpolCW, int &maxCountFreqBin_V, int &maxCountFreqBin_H, recoData *dummyData, int cwBinThres);
 bool isCW_freqWindow(bool &isVpolCW, bool &isHpolCW, bool isXpolCW, recoData *dummyData, double fftRes);
 bool isLowFreqDominance(int& lowFreqCount_V, int& lowFreqCount_H, recoData *dummyData, double highPassFreq, int lowFreqCountThres);
 bool isThermal_boxCut(bool &inBand, recoSettings *settings, recoData *dummyData, Healpix_Onion onion, double snrCut_inBand, double coherenceCut_inBand, double snrCut_outOfBand, double coherenceCut_outOfBand);
