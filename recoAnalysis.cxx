@@ -503,6 +503,7 @@ for(int i=4; i<argc; i++){
    //if(Nentries > 100) {  if(  entry % (Nentries/100) == 0  ){ cout<<"Progess: "<<entry / (Nentries/100) <<"%\n"; } }
    dataTree->GetEntry(entry);
    //cout<<"eventTrigType: "<<dummyData->eventTrigType<<endl;
+   if(dummyData->eventNumber != 82389) continue;
    if(dummyData->eventTrigType == 0) rfEventCount+=dummyData->weight;
    else if (dummyData->eventTrigType == 1) calEventCount+=dummyData->weight;
    else if (dummyData->eventTrigType == 2) softEventCount+=dummyData->weight;
@@ -802,7 +803,6 @@ for(int i=4; i<argc; i++){
 
          TMath::Sort(50, iterMaxPixCoherenceEachLayer, iterIndex);
          float iterZen = 90.f - onion.getPointing(iterMaxPixIdxEachLayer[iterIndex[0]]).theta * TMath::RadToDeg();
-        if(dummyData->eventNumber==82389) cout<<"iterZen: "<<iterZen<<endl;
          iterZenVec.push_back(iterZen);
 
       }//end of if
@@ -810,7 +810,7 @@ for(int i=4; i<argc; i++){
 
    zenRange = 3.;
    zenMaj = getZenMaj(iterZenVec, zenRange);
-cout<<"zenMaj: "<<zenMaj<<endl;
+   cout<<"zenMaj: "<<zenMaj<<endl;
 
    if(zenMaj <= 90 ){
       //iterMajorityZenHist->Fill(zenMaj,dummyData->weight);
