@@ -503,7 +503,7 @@ for(int i=4; i<argc; i++){
    //if(Nentries > 100) {  if(  entry % (Nentries/100) == 0  ){ cout<<"Progess: "<<entry / (Nentries/100) <<"%\n"; } }
    dataTree->GetEntry(entry);
    //cout<<"eventTrigType: "<<dummyData->eventTrigType<<endl;
-   if(dummyData->eventNumber != 82389) continue;
+   //if(dummyData->eventNumber != 82389) continue;
    if(dummyData->eventTrigType == 0) rfEventCount+=dummyData->weight;
    else if (dummyData->eventTrigType == 1) calEventCount+=dummyData->weight;
    else if (dummyData->eventTrigType == 2) softEventCount+=dummyData->weight;
