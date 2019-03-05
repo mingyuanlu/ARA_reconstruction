@@ -738,9 +738,9 @@ for(int i=5; i<argc; i++){
 */
    /***** 2. Thermal cut ********************/
 
-   //passThermalCut = !isThermal_boxCut(inBand, settings, dummyData, onion,  cutValues->snrCut_inBand[type-1].val, cutValues->coherenceCut_inBand[type-1].val, cutValues->snrCut_outOfBand[type-1].val, cutValues->coherenceCut_outOfBand[type-1].val);
+   passThermalCut = !isThermal_boxCut(inBand, settings, dummyData, onion,  cutValues->snrCut_inBand[type-1].val, cutValues->coherenceCut_inBand[type-1].val, cutValues->snrCut_outOfBand[type-1].val, cutValues->coherenceCut_outOfBand[type-1].val);
 
-
+/*
 
    r     = onion.getLayerRadius(dummyData->maxPixIdx2);
    theta = onion.getPointing(dummyData->maxPixIdx2).theta * TMath::RadToDeg();
@@ -777,7 +777,7 @@ for(int i=5; i<argc; i++){
    }
       //passThermalCut = true;
    //}
-
+*/
    /***** 3. Surface cut ********************/
 
    passSurfaceCut = !isSurface(dummyData, surfaceCut_1);
