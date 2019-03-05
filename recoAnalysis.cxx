@@ -808,8 +808,8 @@ for(int i=4; i<argc; i++){
       }//end of if
    }//end of iter
 
-   float zenRange = 3.;
-   double zenMaj = getZenMaj(iterZenVec, zenRange);
+   zenRange = 3.;
+   zenMaj = getZenMaj(iterZenVec, zenRange);
 cout<<"zenMaj: "<<zenMaj<<endl;
 
    if(zenMaj <= 90 ){
