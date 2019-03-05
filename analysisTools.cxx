@@ -750,6 +750,7 @@ bool isRecoverableByImp(bool isVpolCW, bool isHpolCW, bool isXpolCW, recoData *d
          passImpulsivityCut = true;
          //nRecoveredByImp += dummyData->weight;
       }
+      passHighPassFilter = true;
       cout<<"passImpulsivityCut: "<<passImpulsivityCut<<" passHighPassFilter: "<<passHighPassFilter<<" return: "<<(passImpulsivityCut && passHighPassFilter)<<endl;
       return passImpulsivityCut && passHighPassFilter;
 }
