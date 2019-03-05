@@ -1138,7 +1138,7 @@ for(int i=4; i<argc; i++){
    //if(passCalpulserCut){
       cout<<endl;
       cout<<"run: "<<runNum<<" event: "<<dummyData->eventNumber<<" unixtime: "<<dummyData->unixTime<<"snr: "<<snr<<" coherence: "<<coherence<<endl;
-      cout<<"inBand: "<<inBand<<" outOfBand: "<<outOfBand<<" Fisher: "<<(inBand?0.003:0.007)*snr+(inBand?1.916:1.039)*coherence+(inBand?-0.368:-0.284)<<endl;
+      cout<<"inBand: "<<inBand<<" Fisher: "<<(inBand?0.003:0.007)*snr+(inBand?1.916:1.039)*coherence+(inBand?-0.368:-0.284)<<endl;
       cout<<"constantNZen: "<<90.f-dummyData->constantNZen<<" zenMaj: "<<90.f-zenMaj<<endl;
       outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<endl;
       //outputFile<<avgImpulsivity<<",";
