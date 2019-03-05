@@ -753,14 +753,14 @@ bool isRecoverableByImp(bool isVpolCW, bool isHpolCW, bool isXpolCW, recoData *d
 }
 
 
-bool isBelowThermalImpulsivityCut(recoData *dummyData, double postThermalAvgImpulsivityCut){
+bool isBelowThermalImpulsivityCut(double& avgImpulsivity, recoData *dummyData, double postThermalAvgImpulsivityCut){
 
       double impulsivity[16];
       std::fill(&impulsivity[0], &impulsivity[16], 0.);
       int nonZeroCount = 0;
       double sum = 0.;
 
-      double avgImpulsivity = 0.;
+      avgImpulsivity = 0.;
 
       bool passThermalImpulsivityCut =  false;
 

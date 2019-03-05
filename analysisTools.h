@@ -121,5 +121,5 @@ bool isDeepPulser(string STATION, recoData *dummyData, int runNum);
 bool isCalpulserTime(string STATION, recoData *dummyData);
 bool isCalpulser(float &inBoxTheta, float &inBoxPhi, string STATION, recoData *dummyData, Healpix_Onion onion, recoSettings *settings, int type);
 bool isRecoverableByImp(bool isVpolCW, bool isHpolCW, bool isXpolCW, recoData *dummyData, double impCut, double highPassFreq);
-bool isBelowThermalImpulsivityCut(recoData *dummyData, double postThermalAvgImpulsivityCut);
+bool isBelowThermalImpulsivityCut(double &avgImpulsivity, recoData *dummyData, double postThermalAvgImpulsivityCut);
 #endif

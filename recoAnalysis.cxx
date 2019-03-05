@@ -789,40 +789,41 @@ for(int i=4; i<argc; i++){
    float zenRange = 3.;
    double zenMaj;
    passSurfaceCut_2 = !isIterSurface(zenMaj, dummyData, onion, settings, zenRange, surfaceCut_2);
-   cout<<"zenMaj in func: "<<zenMaj<<endl;
-   iterZenVec.clear();
-   for(int iter=0; iter<numIter; iter++){
-
-      if(8-5+iter >= 5){ // has >=5 chans in reco
-
-         for(int layer=0; layer<nLayer; layer++){
-
-            iterMaxPixIdxEachLayer[layer] = dummyData->iterMaxPixIdxEachLayer.at(iter*nLayer+layer);
-            iterMaxPixCoherenceEachLayer[layer] = dummyData->iterMaxPixCoherenceEachLayer.at(iter*nLayer+layer);
-
-         }
-
-         TMath::Sort(50, iterMaxPixCoherenceEachLayer, iterIndex);
-         float iterZen = 90.f - onion.getPointing(iterMaxPixIdxEachLayer[iterIndex[0]]).theta * TMath::RadToDeg();
-         cout<<"iterZen: "<<iterZen<<endl;
-         iterZenVec.push_back(iterZen);
-
-      }//end of if
-   }//end of iter
-
-   zenRange = 3.;
-   zenMaj = getZenMaj(iterZenVec, zenRange);
-   cout<<"zenMaj: "<<zenMaj<<endl;
-
-   if(zenMaj <= 90 ){
-      //iterMajorityZenHist->Fill(zenMaj,dummyData->weight);
-
-      if(zenMaj < /*SURFACE_CUT_2*/surfaceCut_2 ){
-         passSurfaceCut_2 = true;
-      }
-
-   } else passSurfaceCut_2 = true; //if no majority zenith can be found through iter reco, use solely the constantN zenith to check whether passed surface cut or not
-   //{  zenMaj = 90.f - onion.getPointing(iterMaxPixIdxEachLayer[3]).theta * TMath::RadToDeg(); }
+//
+//   cout<<"zenMaj in func: "<<zenMaj<<endl;
+//   iterZenVec.clear();
+//   for(int iter=0; iter<numIter; iter++){
+//
+//      if(8-5+iter >= 5){ // has >=5 chans in reco
+//
+//         for(int layer=0; layer<nLayer; layer++){
+//
+//            iterMaxPixIdxEachLayer[layer] = dummyData->iterMaxPixIdxEachLayer.at(iter*nLayer+layer);
+//            iterMaxPixCoherenceEachLayer[layer] = dummyData->iterMaxPixCoherenceEachLayer.at(iter*nLayer+layer);
+//
+//         }
+//
+//         TMath::Sort(50, iterMaxPixCoherenceEachLayer, iterIndex);
+//         float iterZen = 90.f - onion.getPointing(iterMaxPixIdxEachLayer[iterIndex[0]]).theta * TMath::RadToDeg();
+//         cout<<"iterZen: "<<iterZen<<endl;
+//         iterZenVec.push_back(iterZen);
+//
+//      }//end of if
+//   }//end of iter
+//
+//   zenRange = 3.;
+//   zenMaj = getZenMaj(iterZenVec, zenRange);
+//   cout<<"zenMaj: "<<zenMaj<<endl;
+//
+//   if(zenMaj <= 90 ){
+//      //iterMajorityZenHist->Fill(zenMaj,dummyData->weight);
+//
+//      if(zenMaj < /*SURFACE_CUT_2*/surfaceCut_2 ){
+//         passSurfaceCut_2 = true;
+//      }
+//
+//   } else passSurfaceCut_2 = true; //if no majority zenith can be found through iter reco, use solely the constantN zenith to check whether passed surface cut or not
+//   //{  zenMaj = 90.f - onion.getPointing(iterMaxPixIdxEachLayer[3]).theta * TMath::RadToDeg(); }
 
    /***** 4. Deep pulser time cut ***********/
    passDeepPulserCut = !isDeepPulser(STATION, dummyData, runNum);
@@ -1090,7 +1091,7 @@ for(int i=4; i<argc; i++){
 
       }
 */
-   passThermalImpulsivityCut = !isBelowThermalImpulsivityCut(dummyData, postThermalAvgImpulsivityCut);
+   passThermalImpulsivityCut = !isBelowThermalImpulsivityCut(avgImpulsivity, dummyData, postThermalAvgImpulsivityCut);
    //passThermalImpulsivityCut = true;
    /***Check if have enough un-saturated channels to reconstruct ****/
    //if(dummyData->numSatChan  <= 3){ //Need at least 5 channels in reconstruction
@@ -1143,7 +1144,7 @@ for(int i=4; i<argc; i++){
       cout<<endl;
       cout<<"run: "<<runNum<<" event: "<<dummyData->eventNumber<<" unixtime: "<<dummyData->unixTime<<"snr: "<<snr<<" coherence: "<<coherence<<endl;
       cout<<"inBand: "<<inBand<<" Fisher: "<<(inBand?0.003:0.007)*snr+(inBand?1.916:1.039)*coherence+(inBand?-0.368:-0.284)<<endl;
-      cout<<"constantNZen: "<<90.f-dummyData->constantNZen<<" zenMaj: "<<90.f-zenMaj<<endl;
+      cout<<"constantNZen: "<<90.f-dummyData->constantNZen<<" zenMaj: "<<zenMaj<<endl;
       outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<endl;
       //outputFile<<avgImpulsivity<<",";
       cout<<avgImpulsivity<<endl;
