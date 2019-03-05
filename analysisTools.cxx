@@ -441,7 +441,7 @@ bool isIterSurface(double &zenMaj, recoData *dummyData, Healpix_Onion onion, rec
    int numIter = nAnt - settings->nchnlCut + 1;
    int nLayer = settings->nLayer;
    vector<float> iterZenVec;
-   //iterZenVec.clear();
+   iterZenVec.clear();
 
    int iterIndex[nLayer];
    float iterMaxPixCoherenceEachLayer[nLayer];

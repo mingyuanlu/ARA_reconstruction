@@ -788,37 +788,39 @@ for(int i=4; i<argc; i++){
    float zenRange = 3.;
    double zenMaj;
    passSurfaceCut_2 = !isIterSurface(zenMaj, dummyData, onion, settings, zenRange, surfaceCut_2);
-//   iterZenVec.clear();
-//   for(int iter=0; iter<numIter; iter++){
-//
-//      if(8-5+iter >= 5){ // has >=5 chans in reco
-//
-//         for(int layer=0; layer<nLayer; layer++){
-//
-//            iterMaxPixIdxEachLayer[layer] = dummyData->iterMaxPixIdxEachLayer.at(iter*nLayer+layer);
-//            iterMaxPixCoherenceEachLayer[layer] = dummyData->iterMaxPixCoherenceEachLayer.at(iter*nLayer+layer);
-//
-//         }
-//
-//         TMath::Sort(50, iterMaxPixCoherenceEachLayer, iterIndex);
-//         float iterZen = 90.f - onion.getPointing(iterMaxPixIdxEachLayer[iterIndex[0]]).theta * TMath::RadToDeg();
-//         iterZenVec.push_back(iterZen);
-//
-//      }//end of if
-//   }//end of iter
-//
-//   float zenRange = 3.;
-//   double zenMaj = getZenMaj(iterZenVec, zenRange);
-//
-//   if(zenMaj <= 90 ){
-//      //iterMajorityZenHist->Fill(zenMaj,dummyData->weight);
-//
-//      if(zenMaj < /*SURFACE_CUT_2*/surfaceCut_2 ){
-//         passSurfaceCut_2 = true;
-//      }
-//
-//   } else passSurfaceCut_2 = true; //if no majority zenith can be found through iter reco, use solely the constantN zenith to check whether passed surface cut or not
-//   //{  zenMaj = 90.f - onion.getPointing(iterMaxPixIdxEachLayer[3]).theta * TMath::RadToDeg(); }
+   iterZenVec.clear();
+   for(int iter=0; iter<numIter; iter++){
+
+      if(8-5+iter >= 5){ // has >=5 chans in reco
+
+         for(int layer=0; layer<nLayer; layer++){
+
+            iterMaxPixIdxEachLayer[layer] = dummyData->iterMaxPixIdxEachLayer.at(iter*nLayer+layer);
+            iterMaxPixCoherenceEachLayer[layer] = dummyData->iterMaxPixCoherenceEachLayer.at(iter*nLayer+layer);
+
+         }
+
+         TMath::Sort(50, iterMaxPixCoherenceEachLayer, iterIndex);
+         float iterZen = 90.f - onion.getPointing(iterMaxPixIdxEachLayer[iterIndex[0]]).theta * TMath::RadToDeg();
+        if(dummyData->eventNumber==82389) cout<<"iterZen: "<<iterZen<<endl;
+         iterZenVec.push_back(iterZen);
+
+      }//end of if
+   }//end of iter
+
+   float zenRange = 3.;
+   double zenMaj = getZenMaj(iterZenVec, zenRange);
+cout<<"zenMaj: "<<zenMaj<<endl;
+
+   if(zenMaj <= 90 ){
+      //iterMajorityZenHist->Fill(zenMaj,dummyData->weight);
+
+      if(zenMaj < /*SURFACE_CUT_2*/surfaceCut_2 ){
+         passSurfaceCut_2 = true;
+      }
+
+   } else passSurfaceCut_2 = true; //if no majority zenith can be found through iter reco, use solely the constantN zenith to check whether passed surface cut or not
+   //{  zenMaj = 90.f - onion.getPointing(iterMaxPixIdxEachLayer[3]).theta * TMath::RadToDeg(); }
 
    /***** 4. Deep pulser time cut ***********/
    passDeepPulserCut = !isDeepPulser(STATION, dummyData, runNum);
