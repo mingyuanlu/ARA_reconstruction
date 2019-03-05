@@ -789,6 +789,7 @@ for(int i=4; i<argc; i++){
    float zenRange = 3.;
    double zenMaj;
    passSurfaceCut_2 = !isIterSurface(zenMaj, dummyData, onion, settings, zenRange, surfaceCut_2);
+   cout<<"zenMaj in func: "<<zenMaj<<endl;
    iterZenVec.clear();
    for(int iter=0; iter<numIter; iter++){
 
@@ -803,6 +804,7 @@ for(int i=4; i<argc; i++){
 
          TMath::Sort(50, iterMaxPixCoherenceEachLayer, iterIndex);
          float iterZen = 90.f - onion.getPointing(iterMaxPixIdxEachLayer[iterIndex[0]]).theta * TMath::RadToDeg();
+         cout<<"iterZen: "<<iterZen<<endl;
          iterZenVec.push_back(iterZen);
 
       }//end of if
