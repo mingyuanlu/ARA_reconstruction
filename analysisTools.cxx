@@ -743,7 +743,7 @@ bool isRecoverableByImp(bool isVpolCW, bool isHpolCW, bool isXpolCW, recoData *d
       if(dummyData->maxCountFreq_H > highPassFreq ) passHighPassFilter = true;
 
       }
-      //cout<<"maxCountFreq_V: "<<dummyData->maxCountFreq_V<<" maxCountFreq_H: "<<dummyData->maxCountFreq_H<<" avgImp: "<<avgImpulsivity<<" impCut: "<<impCut<<endl;
+      cout<<"maxCountFreq_V: "<<dummyData->maxCountFreq_V<<" maxCountFreq_H: "<<dummyData->maxCountFreq_H<<" avgImp: "<<avgImpulsivity<<" impCut: "<<impCut<<endl;
       if(avgImpulsivity > impCut){
          passImpulsivityCut = true;
          //nRecoveredByImp += dummyData->weight;
