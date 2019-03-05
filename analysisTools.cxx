@@ -666,6 +666,8 @@ bool isRecoverableByImp(bool isVpolCW, bool isHpolCW, bool isXpolCW, recoData *d
 
       int nonZeroCount;
 
+      cout<<"isVpolCW: "<<isVpolCW<<" isHpolCW: "<<isHpolCW<<" isXpolCW: "<<isXpolCW<<endl;
+
       if((isVpolCW && isHpolCW) || isXpolCW){
 
       nonZeroCount = 0;

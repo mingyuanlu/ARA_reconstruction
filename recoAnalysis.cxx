@@ -503,7 +503,7 @@ for(int i=4; i<argc; i++){
    //if(Nentries > 100) {  if(  entry % (Nentries/100) == 0  ){ cout<<"Progess: "<<entry / (Nentries/100) <<"%\n"; } }
    dataTree->GetEntry(entry);
    //cout<<"eventTrigType: "<<dummyData->eventTrigType<<endl;
-   //if(dummyData->eventNumber != 82389) continue;
+   if(dummyData->eventNumber != 127378) continue;
    if(dummyData->eventTrigType == 0) rfEventCount+=dummyData->weight;
    else if (dummyData->eventTrigType == 1) calEventCount+=dummyData->weight;
    else if (dummyData->eventTrigType == 2) softEventCount+=dummyData->weight;
@@ -1148,7 +1148,7 @@ for(int i=4; i<argc; i++){
       cout<<"avg imp: "<<avgImpulsivity<<endl;
       outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<endl;
       //outputFile<<avgImpulsivity<<",";
-      cout<<avgImpulsivity<<endl;
+      //cout<<avgImpulsivity<<endl;
       cout<<endl;
       cout<<"maxCountFreq_V: "<<dummyData->maxCountFreq_V<<" maxCountFreq_H: "<<dummyData->maxCountFreq_H<<endl;
       cout<<"From recoData channel-by-channel maxFreqBin: "<<endl;
