@@ -14953,7 +14953,7 @@ void computeSNR(recoSettings * settings, const vector<TGraph *>& cleanEvent, rec
 */
    TMath::Sort(16,unmodSNRArray,index);
    summary->setUnmodSNR(unmodSNRArray[index[2]]);
-   
+
 }
 
 /*
@@ -16436,4 +16436,196 @@ void getPosNegPowerPeakAndDeltaT(TGraph *wf, double *posPowerPeak, double *negPo
    delete negGr;
    delete posPwrGr;
    delete negPwrGr;
+}
+
+int getCWCount_iterFreqWindow(vector<TGraph *>& grFFT, double fftRes, int iterThres){
+
+   int peakBin[16] = {-1};
+   double fInt_V, fInt_H;
+   double f1,f2,p1,p2;
+   grFFT[0]->GetPoint(0,f1,p1);
+   grFFT[0]->GetPoint(1,f2,p2);
+   fInt_V = f2 - f1;
+   grFFT[8]->GetPoint(0,f1,p1);
+   grFFT[8]->GetPoint(1,f2,p2);
+   fInt_H = f2 - f1;
+
+   TGraph *gr[16];
+   vector<TGraph *> event;
+   event.assign(grFFT.begin(), grFFT.end());
+   cout<<"Initial event size: "<<event.size()<<endl;
+   cwCount = 0;
+   bool isVpolCW, isHpolCW, isXpolCW;
+   double cwFreq;
+   int cwBinThres = 3;
+
+   int iter=0;
+
+   while (iter<iterThres){
+
+      for(int ch=0; ch<16; ch++){
+         int peak;
+         double peakVal = FFTtools::getPeakVal(event[ch], &peak);
+         peakBin[ch] = peak;
+      }
+
+
+      isVpolCW = isHpolCW = isXpolCW = false;
+      bool isCW = isCW_freqWindow(cwFreq, isVpolCW, isHpolCW, isXpolCW, peakBin, fInt_V, fInt_H , fftRes, cwBinThres);
+
+      if(isCW){ cwCount++; }
+
+      //event.clear();
+      for(int ch=0; ch<16; ch++){
+
+         gr[ch] = truncateCWFreq(event[ch], cwFreq, fftRes);
+         delete event[ch];
+      }
+
+      event.clear();
+
+      for(int ch=0; ch<16; ch++){
+         event.push_back(gr[ch]);
+      }
+
+      iter++;
+   }//end of whi  le
+
+   //if (cwCount>0) return true;
+   //else return false;
+   return cwCount;
+}
+
+TGraph *truncateCWFreq(TGraph *gr, double cwFreq, double fftRes){
+
+   int nPoint = gr->GetN();
+   //double *x = gr->GetX();
+   //double *y = gr->GetY();
+   double f, p;
+   TGraph *grTrunc = new TGraph()
+
+   for(int i=0; i<nPoint; i++){
+      gr->GetPoint(i,f,p);
+      if( fabs(f-cwFrq)<fftRes/2.+1e-6 ) grTrunc->SetPoint(i,f,0);
+      else                            grTrunc->SetPoint(i,f,p);
+   }
+
+   return grTrunc;
+
+}
+
+bool isCW_freqWindow(double& cwFreq, bool &isVpolCW, bool &isHpolCW, bool& isXpolCW, int *peakBin, double freqBinWidth_V, double freqBinWidth_H, double fftRes, int cwBinThres){
+
+   bool isCW = false;
+
+   double maxFreqArray[16];
+   int maxFreqArrayPolType[16];
+   int fIndex[16];
+   double orderedArray[16];
+   int orderedArrayPolType[16];
+
+   for(int ch=0; ch<16; ch++){
+
+      //maxFreqBinVec.push_back(dummyData->maxFreqBin[ch]);
+      maxFreqArray[ch] = peakBin[ch] * (ch<8?freqBinWidth_V:freqBinWidth_H);
+      if(ch<8) maxFreqArrayPolType[ch] = 0;//maxFreqArray_V[ch] =  dummyData->maxFreqBin[ch] * dummyData->freqBinWidth_V;
+      else     maxFreqArrayPolType[ch] = 1;//maxFreqArray_H[ch] =  dummyData->maxFreqBin[ch] * dummyData->freqBinWidth_H;
+
+   }
+
+
+
+   TMath::Sort(16, maxFreqArray, fIndex, kFALSE);
+   //TMath::Sort(8, maxFreqArray_V, fIndex_V, kFALSE);
+   //TMath::Sort(8, maxFreqArray_H, fIndex_H, kFALSE);
+
+
+   for(int ch=0; ch<16; ch++){
+
+      orderedArray[ch] = maxFreqArray[fIndex[ch]];
+      orderedArrayPolType[ch] = maxFreqArrayPolType[fIndex[ch]];
+      //cout<<orderedArray[ch]<<",";
+
+   }
+   //cout<<endl;
+   /*
+   for(int ch=0; ch<8; ch++){
+
+   orderedArray[ch] =
+
+}
+*/
+   int cwCount=0;
+   int cwCount_V, cwCount_H, cwCount_X;
+   cwCount_V = cwCount_H = cwCount_X = 0;
+   int maxCWCount = 0;
+
+   for(int i=0; i<16; i++){
+      //for(int j=i+1; j<16; j++){
+      cwCount = 0;
+      double avgFreq = orderedArray[i];
+
+      for(int j=0; j<16; j++){
+
+         if( j!= i){
+
+            //cout<<"i: "<<i<<" j: "<<j<<endl;
+            double fftResGap;
+            if(orderedArrayPolType[i]+orderedArrayPolType[j] == 0){ //2 Vpol
+               //fftRes = 2. * dummyData->freqBinWidth_V;
+               int vResBin = int(fftRes / freqBinWidth_V)+1;
+               fftResGap = freqBinWidth_V * (double)vResBin;
+            }
+            else if(orderedArrayPolType[i]+orderedArrayPolType[j] == 2){ //2H
+               //fftRes = dummyData->freqBinWidth_V + dummyData->freqBinWidth_H;
+               int hResBin = int(fftRes / freqBinWidth_H)+1;
+               fftResGap = freqBinWidth_H * (double)hResBin;
+            }
+            else{ //1V + 1H
+               //fftRes = 2. * dummyData->freqBinWidth_H;
+               //xResBin = int(fftRes / (dummyData->freqBinWidth_V + dummyData->freqBinWidth_H));
+               //fftResGap = (dummyData->freqBinWidth_V + dummyData->freqBinWidth_H) * (double)xResBin + (dummyData->freqBinWidth_V>dummyData->freqBinWidth_H?dummyData->freqBinWidth_V:dummyData->freqBinWidth_H);
+               fftResGap = fftRes + (freqBinWidth_V>freqBinWidth_H?freqBinWidth_V:freqBinWidth_H);
+            }
+
+            //cout<<"poltype: "<<orderedArrayPolType[i]+orderedArrayPolType[j]<<" fftResGap: "<<fftResGap<<" orderedArray[i]: "<<orderedArray[i]<<" orderedArray[j]: "<<orderedArray[j]<<" diff: "<<orderedArray[j]-orderedArray[i]<<endl;
+            //printf("fftResGap: %le diff: %le diff-fftResGap: %le\n", fftResGap, orderedArray[j]-orderedArray[i], orderedArray[j]-orderedArray[i]-fftResGap);
+            if(orderedArray[i] > 1e-6 && orderedArray[j] > 1e-6){ //not zeros
+
+               if( fabs(orderedArray[j] - orderedArray[i]) < fftResGap+1e-6/*fftRes*/) {
+                  //cout<<"i: "<<i<<" j: "<<j<<" freq_i: "<<orderedArray[i]<<" freq_j: "<<orderedArray[j]<<endl;
+                  if(orderedArrayPolType[i]+orderedArrayPolType[j] == 0){ cwCount_V++; }
+                  else if (orderedArrayPolType[i]+orderedArrayPolType[j] == 2){ cwCount_H++; }
+                  else {cwCount_X++;}
+                  cwCount++;
+                  avgFreq += orderedArray[j];
+                  //i = j;
+               }
+
+            }
+
+
+         }//end if i != j
+
+         if(cwCount>maxCWCount){
+            maxCWCount = cwCount;
+            avgFreq /= (double)cwCount;
+         }
+
+      }//end of j
+   }//end of i
+
+
+
+   if(cwCount_V>=2) isVpolCW = true;
+   if(cwCount_H>=2) isHpolCW = true;
+   if(cwCount_X>=2) isXpolCW = true;
+   if(maxCWCount>=cwBinThres) isCW = true;//cout<<"CW EVENT!!!!!"<<endl;
+   else isCW=false;//cout<<"NOT CW!!!!!"<<endl;
+
+   if(isCW) cwFreq = avgFreq;
+   else cwFreq = -1; //if no CW found, return unphysical number
+
+   return isCW;
+
 }

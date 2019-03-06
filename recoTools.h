@@ -450,4 +450,7 @@ void getPosNegPowerPeakAndDeltaT(TGraph *wf, double *posPowerPeak, double *negPo
 void getChannelSlidingV2SNR(const vector<TGraph *>& cleanEvent, int nIntSamp_V, int nIntSamp_H, float *snrArray);
 void getChannelTotalPowerSNR(const vector<TGraph *>& cleanEvent, int nIntSamp_V, int nIntSamp_H, float *snrArray);
 void computeSNR(recoSettings * settings, const vector<TGraph *>& cleanEvent, recoData *summary);
+int getCWCount_iterFreqWindow(vector<TGraph *>& grFFT, double fftRes, int iterThres);
+TGraph *truncateCWFreq(TGraph *gr, double cwFreq, double fftRes);
+bool isCW_freqWindow(double& cwFreq, bool &isVpolCW, bool &isHpolCW, bool& isXpolCW, int *peakBin, double freqBinWidth_V, double freqBinWidth_H, double fftRes, int cwBinThres);
 #endif

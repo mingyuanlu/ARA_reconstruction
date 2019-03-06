@@ -261,7 +261,7 @@ bool isCW_coincidence(bool &isVpolCW, bool &isHpolCW, int &maxCountFreqBin_V, in
 
 }
 
-bool isCW_freqWindow(bool &isVpolCW, bool &isHpolCW, bool isXpolCW, recoData *dummyData, double fftRes){
+bool isCW_freqWindow(bool &isVpolCW, bool &isHpolCW, bool& isXpolCW, recoData *dummyData, double fftRes){
 
    bool isCW = false;
 
@@ -804,7 +804,27 @@ bool isBelowThermalImpulsivityCut(double& avgImpulsivity, recoData *dummyData, d
 
       return !passThermalImpulsivityCut;
 }
-//
+
+/*
+bool isCW_iterFreqWindow(vector<TGraph *>& cleanEvent, double fftRes, int iterThres){
+
+   int peakBin[16] = {-1};
+   double fInt_V, fInt_H;
+   double f1,f2,p1,p2;
+   cleanEvent[0]->GetPoint(0,f1,p1);
+   cleanEvent[0]->GetPoint(1,f2,p2);
+   fInt_V = f2 - f1;
+   cleanEvent[8]->GetPoint(0,f1,p1);
+   cleanEvent[8]->GetPoint(1,f2,p2);
+   fInt_H = f2 - f1;
+
+   double peakVal = FFTtools::getPeakVal(grFFT[ch], &maxFracBin);
+
+
+
+}
+*/
+
 //bool isCW_iterFreqWindow(bool& isVpolCW, bool& isHpolCW, bool& isXpolCW, recoData* dummyData, double fftRes, int iterThres){
 //
 //   bool isCW = false;
