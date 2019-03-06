@@ -1098,6 +1098,7 @@ for(int i=5; i<argc; i++){
      passNumSatChanCut = true;
    //}
 
+   passCWCut = true;
    //passThermalImpulsivityCut=1;
    //passNoisyRunCut = 1;
    //nPassNumSatChanCut += passNumSatChanCut * dummyData->weight;
