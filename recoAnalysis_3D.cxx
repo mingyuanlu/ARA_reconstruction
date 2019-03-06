@@ -581,7 +581,7 @@ for(int entry=0; entry<Nentries; entry++){
       double avgImpulsivity = 0.;
 
       if (isCW_coincidence(isVpolCW, isHpolCW, maxCountFreqBin_V, maxCountFreqBin_H, dummyData, cwBinThres)){
-
+/*
          if (isVpolCW && isHpolCW){
 
             for(int ch=0; ch<16; ch++){
@@ -619,6 +619,17 @@ for(int entry=0; entry<Nentries; entry++){
             avgImpulsivity /= (double)nonZeroCount;
 
          }
+*/
+
+         for(int ch=0; ch<8; ch++){
+            if(dummyData->impulsivity[ch]>0){
+               avgImpulsivity += dummyData->impulsivity[ch];
+               nonZeroCount ++;
+            }
+         }
+
+         if(nonZeroCount>0)
+         avgImpulsivity /= (double)nonZeroCount;
 
          impulsivityHist->Fill(avgImpulsivity, dummyData->weight);
 
