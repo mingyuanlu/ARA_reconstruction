@@ -93,6 +93,8 @@ using namespace std;
    std::fill(&slidingV2SNR[0], &slidingV2SNR[16], 0.f);
    std::fill(&totalPowerSNR[0], &totalPowerSNR[16], 0.f);
 
+   cwIterCount = 0;
+
    }
 
 
@@ -597,6 +599,11 @@ using namespace std;
 
    }
 
+
+   void recoData::setCWIterCount(int _cwIterCount){
+      cwIterCount = _cwIterCount;
+   }
+
    void recoData::duplicate(recoSettings *settings, recoData *old){
 
    int *_topMaxPixIdx         = (int*)calloc(old->topN, sizeof(int));
@@ -697,6 +704,7 @@ using namespace std;
       setSlidingV2SNRByChannel(ch, old->slidingV2SNR[ch]);
       setTotalPowerSNRByChannel(ch, old->totalPowerSNR[ch]);
    }
+   setCWIterCount(old->cwIterCount);
 /*
    weight = old->weight;
 
@@ -808,5 +816,6 @@ using namespace std;
    std::fill(&powerPeaksDeltaT[0], &powerPeaksDeltaT[16], 0.);
    std::fill(&slidingV2SNR[0], &slidingV2SNR[16], 0.f);
    std::fill(&totalPowerSNR[0], &totalPowerSNR[16], 0.f);
+   cwIterCount = 0;
 
    }

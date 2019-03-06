@@ -211,7 +211,11 @@ public:
    void setChannelSlidingV2SNR(float *_channelSlidingV2SNR);
    void setChannelTotalPowerSNR(float *_channelSlidingV2SNR);
 
-   ClassDef(recoData, 19);
+//ClassDef 20
+   int cwIterCount;
+   void setCWIterCount(int _cwIterCount);
+
+   ClassDef(recoData, 20);
 
 };
 
