@@ -480,7 +480,12 @@ float snrArray[16];
 int index[16];
 
 //TH1F *timeSeuqenceHist = new TH1F("timeSequenceHist","timeSequenceHist",3e4,0,1e4);
+TH1F *iterCWCountHist = new TH1F("iterCWCountHist","iterCWCountHist",11,-0.1,10.5);
 
+double fftRes;
+/*if(type<=3)*/ fftRes = 1/(379e-9)/1e6;
+//else        fftRes = 1/(499e-9)/1e6;
+//cout<<"fftRes: "<<fftRes<<endl;
 
 for(int entry=0; entry<Nentries; entry++){
 
@@ -505,6 +510,9 @@ for(int entry=0; entry<Nentries; entry++){
    grGrowingPhiRMS   = new TGraph();
    thetaIdx = (int*)calloc(settings->topN, sizeof(int));
    phiIdx   = (int*)calloc(settings->topN, sizeof(int));
+
+   bool isVpolCW, isHpolCW, isXpolCW;
+   isVpolCW = isHpolCW = isXpolCW = false;
 
    /* Now inspect why theta reco fails sometimes */
 
@@ -634,6 +642,12 @@ for(int entry=0; entry<Nentries; entry++){
          impulsivityHist->Fill(avgImpulsivity, dummyData->weight);
 
       }
+
+       isCW = isCW_freqWindow(isVpolCW, isHpolCW, isXpolCW, dummyData, fftRes);
+
+       if(isCW){
+          iterCWCountHist->Fill(dummyData->iterCWCount, dummyData->weight);
+       }
 
 /*
       double impSum=0.;
@@ -2085,9 +2099,15 @@ impPassThresHist->Draw();
 
 TCanvas c34("c34","c34",800,800);
 impulsivityHist->Draw();
-c34.SaveAs("recoAnalysis_34.C");
+//c34.SaveAs("recoAnalysis_34.C");
+
+TCanvas c35("c35","c35",800,800);
+iterCWCountHist->Draw();
+c35.SaveAs("recoAnalysis_35.C");
 
 printf("Nentries: %d\trfEventCount: %d\tcalEventCount: %d\tsoftEventCount: %d\n", Nentries, rfEventCount, calEventCount, softEventCount);
+
+
 
 //delete dummyData;
 delete runInfoTree;
