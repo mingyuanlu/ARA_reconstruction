@@ -16477,7 +16477,7 @@ int getCWCount_iterFreqWindow(vector<TGraph *>& grFFT, double fftRes, int iterTh
 
       isVpolCW = isHpolCW = isXpolCW = false;
       bool isCW = isCW_freqWindow(cwFreq, isVpolCW, isHpolCW, isXpolCW, peakBin, fInt_V, fInt_H , fftRes, cwBinThres);
-      cout<<"cwFreq: "<<cwFreq<<endl;
+      cout<<"isCW: "<<isCW<<" cwFreq: "<<cwFreq<<endl;
       if(isCW){
 
       cwCount++;
@@ -16492,6 +16492,7 @@ int getCWCount_iterFreqWindow(vector<TGraph *>& grFFT, double fftRes, int iterTh
          }
          delete event[ch];
       }
+      if(cwCount==1) cvs.SaveAs("grTrunc.C");
       //cout<<"16484\n";
       event.clear();
       //cout<<"16486\n";
@@ -16509,7 +16510,7 @@ int getCWCount_iterFreqWindow(vector<TGraph *>& grFFT, double fftRes, int iterTh
    //if (cwCount>0) return true;
    //else return false;
 
-   cvs.SaveAs("grTrunc.C");
+   //cvs.SaveAs("grTrunc.C");
    return cwCount;
 }
 
