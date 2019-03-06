@@ -16453,7 +16453,7 @@ int getCWCount_iterFreqWindow(vector<TGraph *>& grFFT, double fftRes, int iterTh
    TGraph *gr[16];
    vector<TGraph *> event;
    event.assign(grFFT.begin(), grFFT.end());
-   cout<<"Initial event size: "<<event.size()<<endl;
+   //cout<<"Initial event size: "<<event.size()<<endl;
    int cwCount = 0;
    bool isVpolCW, isHpolCW, isXpolCW;
    double cwFreq;
@@ -16462,7 +16462,7 @@ int getCWCount_iterFreqWindow(vector<TGraph *>& grFFT, double fftRes, int iterTh
    int iter=0;
 
    while (iter<iterThres){
-      cout<<"iter: "<<iter<<endl;
+      //cout<<"iter: "<<iter<<endl;
       for(int ch=0; ch<16; ch++){
          int peak;
          double peakVal = FFTtools::getPeakVal(event[ch], &peak);
