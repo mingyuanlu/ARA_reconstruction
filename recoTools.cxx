@@ -16454,7 +16454,7 @@ int getCWCount_iterFreqWindow(vector<TGraph *>& grFFT, double fftRes, int iterTh
    vector<TGraph *> event;
    event.assign(grFFT.begin(), grFFT.end());
    cout<<"Initial event size: "<<event.size()<<endl;
-   cwCount = 0;
+   int cwCount = 0;
    bool isVpolCW, isHpolCW, isXpolCW;
    double cwFreq;
    int cwBinThres = 3;
@@ -16502,7 +16502,7 @@ TGraph *truncateCWFreq(TGraph *gr, double cwFreq, double fftRes){
    //double *x = gr->GetX();
    //double *y = gr->GetY();
    double f, p;
-   TGraph *grTrunc = new TGraph()
+   TGraph *grTrunc = new TGraph();
 
    for(int i=0; i<nPoint; i++){
       gr->GetPoint(i,f,p);
@@ -16559,11 +16559,12 @@ bool isCW_freqWindow(double& cwFreq, bool &isVpolCW, bool &isHpolCW, bool& isXpo
    int cwCount_V, cwCount_H, cwCount_X;
    cwCount_V = cwCount_H = cwCount_X = 0;
    int maxCWCount = 0;
+   double avgFreq=0;
 
    for(int i=0; i<16; i++){
       //for(int j=i+1; j<16; j++){
       cwCount = 0;
-      double avgFreq = orderedArray[i];
+      avgFreq = orderedArray[i];
 
       for(int j=0; j<16; j++){
 
