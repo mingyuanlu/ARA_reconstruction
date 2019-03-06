@@ -16473,7 +16473,9 @@ int getCWCount_iterFreqWindow(vector<TGraph *>& grFFT, double fftRes, int iterTh
       isVpolCW = isHpolCW = isXpolCW = false;
       bool isCW = isCW_freqWindow(cwFreq, isVpolCW, isHpolCW, isXpolCW, peakBin, fInt_V, fInt_H , fftRes, cwBinThres);
       //cout<<"16475\n";
-      if(isCW){ cwCount++; }
+      if(isCW){
+
+      cwCount++;
 
       //event.clear();
       for(int ch=0; ch<16; ch++){
@@ -16487,8 +16489,12 @@ int getCWCount_iterFreqWindow(vector<TGraph *>& grFFT, double fftRes, int iterTh
       for(int ch=0; ch<16; ch++){
          event.push_back(gr[ch]);
       }
-      //cout<<"16490\n";
+
       iter++;
+
+      }//end of isCW
+      //cout<<"16490\n";
+      else break;
    }//end of whi  le
    //cout<<"16493\n";
    //if (cwCount>0) return true;
@@ -16559,7 +16565,8 @@ bool isCW_freqWindow(double& cwFreq, bool &isVpolCW, bool &isHpolCW, bool& isXpo
    int cwCount_V, cwCount_H, cwCount_X;
    cwCount_V = cwCount_H = cwCount_X = 0;
    int maxCWCount = 0;
-   double avgFreq=0;
+   double avgFreq = 0;
+   double maxCountAvgFreq=0;
 
    for(int i=0; i<16; i++){
       //for(int j=i+1; j<16; j++){
@@ -16610,7 +16617,7 @@ bool isCW_freqWindow(double& cwFreq, bool &isVpolCW, bool &isHpolCW, bool& isXpo
 
          if(cwCount>maxCWCount){
             maxCWCount = cwCount;
-            avgFreq /= (double)cwCount;
+            maxCountAvgFreq = avgFreq / (double)(cwCount+1);
          }
 
       }//end of j
@@ -16624,7 +16631,7 @@ bool isCW_freqWindow(double& cwFreq, bool &isVpolCW, bool &isHpolCW, bool& isXpo
    if(maxCWCount>=cwBinThres) isCW = true;//cout<<"CW EVENT!!!!!"<<endl;
    else isCW=false;//cout<<"NOT CW!!!!!"<<endl;
 
-   if(isCW) cwFreq = avgFreq;
+   if(isCW) cwFreq = maxCountAvgFreq;
    else cwFreq = -1; //if no CW found, return unphysical number
 
    return isCW;
