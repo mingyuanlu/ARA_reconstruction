@@ -16485,10 +16485,13 @@ int getCWCount_iterFreqWindow(vector<TGraph *>& grFFT, double fftRes, int iterTh
       //event.clear();
       for(int ch=0; ch<16; ch++){
 
+
          gr[ch] = truncateCWFreq(event[ch], cwFreq, fftRes);
          if(cwCount==1){
          cvs.cd(ch+1);
-         gr[ch]->Draw();
+         event[ch]->SetLineColor(kRed);
+         event[ch]->Draw("AL");
+         gr[ch]->Draw("Lsames");
          }
          delete event[ch];
       }
