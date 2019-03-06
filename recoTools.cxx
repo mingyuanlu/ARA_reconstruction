@@ -16481,7 +16481,7 @@ int getCWCount_iterFreqWindow(vector<TGraph *>& grFFT, double fftRes, int iterTh
          gr[ch] = truncateCWFreq(event[ch], cwFreq, fftRes);
          delete event[ch];
       }
-      cout<<"16484\n":
+      cout<<"16484\n";
       event.clear();
       cout<<"16486\n";
       for(int ch=0; ch<16; ch++){
