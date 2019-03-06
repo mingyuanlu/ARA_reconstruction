@@ -16506,7 +16506,7 @@ TGraph *truncateCWFreq(TGraph *gr, double cwFreq, double fftRes){
 
    for(int i=0; i<nPoint; i++){
       gr->GetPoint(i,f,p);
-      if( fabs(f-cwFrq)<fftRes/2.+1e-6 ) grTrunc->SetPoint(i,f,0);
+      if( fabs(f-cwFreq)<fftRes/2.+1e-6 ) grTrunc->SetPoint(i,f,0);
       else                            grTrunc->SetPoint(i,f,p);
    }
 
