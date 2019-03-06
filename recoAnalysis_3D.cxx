@@ -643,10 +643,10 @@ for(int entry=0; entry<Nentries; entry++){
 
       }
 
-       isCW = isCW_freqWindow(isVpolCW, isHpolCW, isXpolCW, dummyData, fftRes);
+       bool isCW = isCW_freqWindow(isVpolCW, isHpolCW, isXpolCW, dummyData, fftRes);
 
        if(isCW){
-          iterCWCountHist->Fill(dummyData->iterCWCount, dummyData->weight);
+          iterCWCountHist->Fill(dummyData->cwIterCount, dummyData->weight);
        }
 
 /*
