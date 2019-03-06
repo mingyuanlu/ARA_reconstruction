@@ -667,7 +667,7 @@ bool isRecoverableByImp(bool isVpolCW, bool isHpolCW, bool isXpolCW, recoData *d
       int nonZeroCount;
 
       //cout<<"isVpolCW: "<<isVpolCW<<" isHpolCW: "<<isHpolCW<<" isXpolCW: "<<isXpolCW<<endl;
-
+/*
       if((isVpolCW && isHpolCW) || isXpolCW){
 
       nonZeroCount = 0;
@@ -745,6 +745,21 @@ bool isRecoverableByImp(bool isVpolCW, bool isHpolCW, bool isXpolCW, recoData *d
       if(dummyData->maxCountFreq_H > highPassFreq ) passHighPassFilter = true;
 
       }
+*/
+
+   nonZeroCount = 0;
+   double sum = 0.;
+   for(int ch=0; ch<8; ch++){
+      if(fabs( dummyData->impulsivity[ch] - 0 ) > 1e-9 ){
+         nonZeroCount++;
+         impulsivity[ch] = dummyData->impulsivity[ch];
+         sum += impulsivity[ch];
+      }
+   }
+
+   //int index[16];
+   //TMath::Sort(16, impulsivity, index);
+   avgImpulsivity = sum / (double)nonZeroCount;
       //cout<<"maxCountFreq_V: "<<dummyData->maxCountFreq_V<<" maxCountFreq_H: "<<dummyData->maxCountFreq_H<<" avgImp: "<<avgImpulsivity<<" impCut: "<<impCut<<endl;
       if(avgImpulsivity > impCut){
          passImpulsivityCut = true;
@@ -789,3 +804,98 @@ bool isBelowThermalImpulsivityCut(double& avgImpulsivity, recoData *dummyData, d
 
       return !passThermalImpulsivityCut;
 }
+//
+//bool isCW_iterFreqWindow(bool& isVpolCW, bool& isHpolCW, bool& isXpolCW, recoData* dummyData, double fftRes, int iterThres){
+//
+//   bool isCW = false;
+//
+//   double maxFreqArray[16];
+//   int maxFreqArrayPolType[16];
+//   int fIndex[16];
+//   double orderedArray[16];
+//   int orderedArrayPolType[16];
+//
+//      for(int ch=0; ch<16; ch++){
+//
+//         //maxFreqBinVec.push_back(dummyData->maxFreqBin[ch]);
+//         maxFreqArray[ch] = dummyData->maxFreqBin[ch] * (ch<8?dummyData->freqBinWidth_V:dummyData->freqBinWidth_H);
+//         if(ch<8) maxFreqArrayPolType[ch] = 0;//maxFreqArray_V[ch] =  dummyData->maxFreqBin[ch] * dummyData->freqBinWidth_V;
+//         else     maxFreqArrayPolType[ch] = 1;//maxFreqArray_H[ch] =  dummyData->maxFreqBin[ch] * dummyData->freqBinWidth_H;
+//
+//      }
+//
+//
+//
+//      TMath::Sort(16, maxFreqArray, fIndex, kFALSE);
+//      //TMath::Sort(8, maxFreqArray_V, fIndex_V, kFALSE);
+//      //TMath::Sort(8, maxFreqArray_H, fIndex_H, kFALSE);
+//
+//
+//      for(int ch=0; ch<16; ch++){
+//
+//         orderedArray[ch] = maxFreqArray[fIndex[ch]];
+//         orderedArrayPolType[ch] = maxFreqArrayPolType[fIndex[ch]];
+//         //cout<<orderedArray[ch]<<",";
+//
+//      }
+//      //cout<<endl;
+///*
+//      for(int ch=0; ch<8; ch++){
+//
+//         orderedArray[ch] =
+//
+//      }
+//*/
+//      int cwCount=0;
+//      int cwCount_V, cwCount_H, cwCount_X;
+//      cwCount_V = cwCount_H = cwCount_X = 0;
+//
+//      for(int i=0; i<16; i++){
+//         for(int j=i+1; j<16; j++){
+//
+//            //cout<<"i: "<<i<<" j: "<<j<<endl;
+//            double fftResGap;
+//            if(orderedArrayPolType[i]+orderedArrayPolType[j] == 0){ //2 Vpol
+//               //fftRes = 2. * dummyData->freqBinWidth_V;
+//               int vResBin = int(fftRes / dummyData->freqBinWidth_V)+1;
+//               fftResGap = dummyData->freqBinWidth_V * (double)vResBin;
+//            }
+//            else if(orderedArrayPolType[i]+orderedArrayPolType[j] == 2){ //2H
+//               //fftRes = dummyData->freqBinWidth_V + dummyData->freqBinWidth_H;
+//               int hResBin = int(fftRes / dummyData->freqBinWidth_H)+1;
+//               fftResGap = dummyData->freqBinWidth_H * (double)hResBin;
+//            }
+//            else{ //1V + 1H
+//              //fftRes = 2. * dummyData->freqBinWidth_H;
+//              //xResBin = int(fftRes / (dummyData->freqBinWidth_V + dummyData->freqBinWidth_H));
+//              //fftResGap = (dummyData->freqBinWidth_V + dummyData->freqBinWidth_H) * (double)xResBin + (dummyData->freqBinWidth_V>dummyData->freqBinWidth_H?dummyData->freqBinWidth_V:dummyData->freqBinWidth_H);
+//              fftResGap = fftRes + (dummyData->freqBinWidth_V>dummyData->freqBinWidth_H?dummyData->freqBinWidth_V:dummyData->freqBinWidth_H);
+//            }
+//
+//            //cout<<"poltype: "<<orderedArrayPolType[i]+orderedArrayPolType[j]<<" fftResGap: "<<fftResGap<<" orderedArray[i]: "<<orderedArray[i]<<" orderedArray[j]: "<<orderedArray[j]<<" diff: "<<orderedArray[j]-orderedArray[i]<<endl;
+//            //printf("fftResGap: %le diff: %le diff-fftResGap: %le\n", fftResGap, orderedArray[j]-orderedArray[i], orderedArray[j]-orderedArray[i]-fftResGap);
+//            if(orderedArray[i] > 1e-6 && orderedArray[j] > 1e-6){ //not zeros
+//
+//            if( (orderedArray[j] - orderedArray[i]) < fftResGap+1e-6/*fftRes*/) {
+//               //cout<<"i: "<<i<<" j: "<<j<<" freq_i: "<<orderedArray[i]<<" freq_j: "<<orderedArray[j]<<endl;
+//               if(orderedArrayPolType[i]+orderedArrayPolType[j] == 0){ cwCount_V++; }
+//               else if (orderedArrayPolType[i]+orderedArrayPolType[j] == 2){ cwCount_H++; }
+//               else {cwCount_X++;}
+//               cwCount++;
+//               i = j;
+//            }
+//
+//            }
+//
+//         }
+//      }
+//
+//      if(cwCount_V>=2) isVpolCW = true;
+//      if(cwCount_H>=2) isHpolCW = true;
+//      if(cwCount_X>=2) isXpolCW = true;
+//      if(cwCount>=2) isCW = true;//cout<<"CW EVENT!!!!!"<<endl;
+//      else isCW=false;//cout<<"NOT CW!!!!!"<<endl;
+//
+//      return isCW;
+//
+//}
