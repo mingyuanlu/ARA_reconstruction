@@ -16493,7 +16493,7 @@ int getCWCount_iterFreqWindow(vector<TGraph *>& grFFT, double fftRes, int iterTh
          event[ch]->Draw("AL");
          gr[ch]->Draw("Lsames");
          }
-         delete event[ch];
+         //delete event[ch];
       }
       if(cwCount==1) cvs.SaveAs("grTrunc.C");
       //cout<<"16484\n";
