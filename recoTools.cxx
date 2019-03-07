@@ -16450,7 +16450,7 @@ int getCWCount_iterFreqWindow(vector<TGraph *>& grFFT, double fftRes, int iterTh
    grFFT[8]->GetPoint(1,f2,p2);
    fInt_H = f2 - f1;
 
-   cout<<"fInt_V: "<<fInt_V<<" fInt_H: "<<fInt_H<<" fftRes: "<<fftRes<<endl;
+   //cout<<"fInt_V: "<<fInt_V<<" fInt_H: "<<fInt_H<<" fftRes: "<<fftRes<<endl;
 
    TGraph *gr[16];
    vector<TGraph *> event;
@@ -16463,8 +16463,8 @@ int getCWCount_iterFreqWindow(vector<TGraph *>& grFFT, double fftRes, int iterTh
 
    int iter=0;
 
-   TCanvas cvs("cvs","cvs",800,800);
-   cvs.Divide(4,4);
+   //TCanvas cvs("cvs","cvs",800,800);
+   //cvs.Divide(4,4);
 
    while (iter<iterThres){
       //cout<<"iter: "<<iter<<endl;
@@ -16477,7 +16477,7 @@ int getCWCount_iterFreqWindow(vector<TGraph *>& grFFT, double fftRes, int iterTh
 
       isVpolCW = isHpolCW = isXpolCW = false;
       bool isCW = isCW_freqWindow(cwFreq, isVpolCW, isHpolCW, isXpolCW, peakBin, fInt_V, fInt_H , fftRes, cwBinThres);
-      cout<<"isCW: "<<isCW<<" cwFreq: "<<cwFreq<<endl;
+      //cout<<"isCW: "<<isCW<<" cwFreq: "<<cwFreq<<endl;
       if(isCW){
 
       cwCount++;
@@ -16487,15 +16487,15 @@ int getCWCount_iterFreqWindow(vector<TGraph *>& grFFT, double fftRes, int iterTh
 
 
          gr[ch] = truncateCWFreq(event[ch], cwFreq, fftRes);
-         if(cwCount==1){
-         cvs.cd(ch+1);
-         event[ch]->SetLineColor(kRed);
-         event[ch]->Draw("AL");
-         gr[ch]->Draw("Lsames");
-         }
-         //delete event[ch];
+         //if(cwCount==1){
+         //cvs.cd(ch+1);
+         //event[ch]->SetLineColor(kRed);
+         //event[ch]->Draw("AL");
+         //gr[ch]->Draw("Lsames");
+         //}
+         delete event[ch];
       }
-      if(cwCount==1) cvs.SaveAs("grTrunc.C");
+      //if(cwCount==1) cvs.SaveAs("grTrunc.C");
       //cout<<"16484\n";
       event.clear();
       //cout<<"16486\n";
