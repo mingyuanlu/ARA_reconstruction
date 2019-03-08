@@ -598,7 +598,7 @@ for(int entry=0; entry<Nentries; entry++){
       int nonZeroCount = 0;
       double avgImpulsivity = 0.;
 
-      //if (isCW_coincidence(isVpolCW, isHpolCW, maxCountFreqBin_V, maxCountFreqBin_H, dummyData, cwBinThres)){
+      if (isCW_coincidence(isVpolCW, isHpolCW, maxCountFreqBin_V, maxCountFreqBin_H, dummyData, cwBinThres)){
 /*
          if (isVpolCW && isHpolCW){
 
@@ -662,7 +662,7 @@ for(int entry=0; entry<Nentries; entry++){
           }
 
 
-      //}
+      }
 //
 //       bool isCW = isCW_freqWindow(isVpolCW, isHpolCW, isXpolCW, dummyData, fftRes);
 //
