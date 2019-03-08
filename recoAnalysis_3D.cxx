@@ -487,8 +487,8 @@ TH1F *iterCWCountHist = new TH1F("iterCWCountHist","iterCWCountHist",11,-0.1,10.
 TH1F *avgPowerRatioHist[16];
 
 for(int ch=0; ch<16; ch++){
-   sprintf(histname,"avgPowerRatioHist_%d",ch);
-   avgPowerRatioHist=new TH1F(histname,histname,1000,0,20000);
+   sprintf(histName,"avgPowerRatioHist_%d",ch);
+   avgPowerRatioHist=new TH1F(histName,histName,1000,0,20000);
 }
 
 double fftRes;
@@ -1285,14 +1285,14 @@ delete recoVertexGraph;
 cout<<"parCnt: "<<parCnt<<endl;
 printf("thetaCnt: %d phiCnt: %d thetaPhiCnt: %d\n",thetaCnt,phiCnt,thetaPhiCnt);
 
-//char histname[200];
+//char histName[200];
 TH1D *projY[10];
 
 for(int xbin=1; xbin<=10; xbin++){
 
-snprintf(histname,sizeof(histname),"hist_%d",xbin);
-//projY = new TH1D(histname, histname, 500, -5000, 5000);
-projY[xbin-1] = dR_trueR->ProjectionY(histname, xbin, xbin);
+snprintf(histName,sizeof(histName),"hist_%d",xbin);
+//projY = new TH1D(histName, histName, 500, -5000, 5000);
+projY[xbin-1] = dR_trueR->ProjectionY(histName, xbin, xbin);
 cout<<"xbin: "<<xbin<<" rms: "<<projY[xbin-1]->GetRMS()<<endl;
 }
 
