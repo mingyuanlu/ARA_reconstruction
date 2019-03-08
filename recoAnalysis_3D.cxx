@@ -658,7 +658,7 @@ for(int entry=0; entry<Nentries; entry++){
        bool isCW = isCW_freqWindow(isVpolCW, isHpolCW, isXpolCW, dummyData, fftRes);
 
        if(isCW){
-          iterCWCountHist->Fill(dummyData->cwIterCount, dummyData->weight);
+          //iterCWCountHist->Fill(dummyData->cwIterCount, dummyData->weight);
 
           coherence_snr_cw->Fill(dummyData->inWindowSNR_V, (dummyData->maxPixCoherence>dummyData->maxPixCoherence2?dummyData->maxPixCoherence:dummyData->maxPixCoherence2), dummyData->weight);
 
