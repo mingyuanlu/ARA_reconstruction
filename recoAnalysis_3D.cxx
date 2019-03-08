@@ -652,14 +652,6 @@ for(int entry=0; entry<Nentries; entry++){
          impulsivityHist->Fill(avgImpulsivity, dummyData->weight);
 
 
-
-      }
-
-       bool isCW = isCW_freqWindow(isVpolCW, isHpolCW, isXpolCW, dummyData, fftRes);
-
-       if(isCW){
-          //iterCWCountHist->Fill(dummyData->cwIterCount, dummyData->weight);
-
           coherence_snr_cw->Fill(dummyData->inWindowSNR_V, (dummyData->maxPixCoherence>dummyData->maxPixCoherence2?dummyData->maxPixCoherence:dummyData->maxPixCoherence2), dummyData->weight);
 
           for(int ch=0; ch<8; ch++){
@@ -669,7 +661,24 @@ for(int entry=0; entry<Nentries; entry++){
              }
           }
 
-       }
+
+      }
+//
+//       bool isCW = isCW_freqWindow(isVpolCW, isHpolCW, isXpolCW, dummyData, fftRes);
+//
+//       if(isCW){
+//          //iterCWCountHist->Fill(dummyData->cwIterCount, dummyData->weight);
+//
+//          coherence_snr_cw->Fill(dummyData->inWindowSNR_V, (dummyData->maxPixCoherence>dummyData->maxPixCoherence2?dummyData->maxPixCoherence:dummyData->maxPixCoherence2), dummyData->weight);
+//
+//          for(int ch=0; ch<8; ch++){
+//             if(dummyData->posPowerPeak[ch]>0){
+//                double avgPowerRatio = (dummyData->posPowerPeak[ch] - dummyData->negPowerPeak[ch]) / 2./*dummyData->posPowerPeak[ch]*/;
+//                avgPowerRatioHist[ch]->Fill(avgPowerRatio, dummyData->weight);
+//             }
+//          }
+//
+//       }
 
 
 
