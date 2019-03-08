@@ -488,7 +488,7 @@ TH1F *avgPowerRatioHist[16];
 
 for(int ch=0; ch<16; ch++){
    sprintf(histName,"avgPowerRatioHist_%d",ch);
-   avgPowerRatioHist=new TH1F(histName,histName,1000,0,20000);
+   avgPowerRatioHist[ch]=new TH1F(histName,histName,1000,0,20000);
 }
 
 double fftRes;
