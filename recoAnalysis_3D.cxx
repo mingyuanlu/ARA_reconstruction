@@ -288,6 +288,8 @@ TH2F *coherence_snr_rf   = new TH2F("coherence_snr_rf","coherence_snr_rf",400,0,
 TH2F *coherence_snr_cal  = new TH2F("coherence_snr_cal","coherence_snr_cal",400,0,40,1000,0,1);
 TH2F *coherence_snr_soft = new TH2F("coherence_snr_soft","coherence_snr_soft",400,0,40,1000,0,1);
 
+TH2F *coherence_snr_cw  = new TH2F("coherence_snr_cw","coherence_snr_cw",400,0,40,1000,0,1);
+
 TH2F *coherence2_snr_all  = new TH2F("coherence2_snr_all","coherence2_snr_all",400,0,40,1000,0,1);
 TH2F *coherence2_snr_rf   = new TH2F("coherence2_snr_rf","coherence2_snr_rf",400,0,40,1000,0,1);
 TH2F *coherence2_snr_cal  = new TH2F("coherence2_snr_cal","coherence2_snr_cal",400,0,40,1000,0,1);
@@ -482,6 +484,13 @@ int index[16];
 //TH1F *timeSeuqenceHist = new TH1F("timeSequenceHist","timeSequenceHist",3e4,0,1e4);
 TH1F *iterCWCountHist = new TH1F("iterCWCountHist","iterCWCountHist",11,-0.1,10.5);
 
+TH1F *avgPowerRatioHist[16];
+
+for(int ch=0; ch<16; ch++){
+   sprintf(histname,"avgPowerRatioHist_%d",ch);
+   avgPowerRatioHist=new TH1F(histname,histname,1000,0,20000);
+}
+
 double fftRes;
 /*if(type<=3)*/ fftRes = 1/(379e-9)/1e6;
 //else        fftRes = 1/(499e-9)/1e6;
@@ -573,6 +582,7 @@ for(int entry=0; entry<Nentries; entry++){
    azi_all->Fill(dummyData->recoAzi);
    coherence_snr_all->Fill(dummyData->unmodSNR, dummyData->maxPixCoherence);
    if(dummyData->eventTrigType == 0){ //RF
+
       zen_rf->Fill(90.f-dummyData->recoZen);
       azi_rf->Fill(dummyData->recoAzi);
       zen_azi_rf->Fill(dummyData->recoAzi, 90.f-dummyData->recoZen);
@@ -641,13 +651,28 @@ for(int entry=0; entry<Nentries; entry++){
 
          impulsivityHist->Fill(avgImpulsivity, dummyData->weight);
 
+
+
       }
 
        bool isCW = isCW_freqWindow(isVpolCW, isHpolCW, isXpolCW, dummyData, fftRes);
 
        if(isCW){
           iterCWCountHist->Fill(dummyData->cwIterCount, dummyData->weight);
+
+          coherence_snr_cw->Fill(dummyData->inWindowSNR_V, (dummyData->maxPixCoherence>dummyData->maxPixCoherence2?dummyData->maxPixCoherence:dummyData->maxPixCoherence2), dummyData->weight);
+
+          for(int ch=0; ch<8; ch++){
+             if(dummyData->posPowerPeak[ch]>0){
+                double avgPowerRatio = (dummyData->posPowerPeak[ch] - dummyData->negPowerPeak[ch]) / 2./*dummyData->posPowerPeak[ch]*/;
+                avgPowerRatioHist[ch]->Fill(avgPowerRatio, dummyData->weight);
+             }
+          }
+
        }
+
+
+
 
 /*
       double impSum=0.;
@@ -903,7 +928,7 @@ for(int entry=0; entry<Nentries; entry++){
 //   cvs->SaveAs("grGrowingThetaPhiRMS.C");
 //
 //   }
-}
+}//end of RF
 /*
    trueVertexGraph->SetPoint(0, dummyData->trueRadius*sin(dummyData->trueZen*TMath::DegToRad())*cos(dummyData->trueAzi*TMath::DegToRad()),
                                 dummyData->trueRadius*sin(dummyData->trueZen*TMath::DegToRad())*sin(dummyData->trueAzi*TMath::DegToRad()),
@@ -1260,7 +1285,7 @@ delete recoVertexGraph;
 cout<<"parCnt: "<<parCnt<<endl;
 printf("thetaCnt: %d phiCnt: %d thetaPhiCnt: %d\n",thetaCnt,phiCnt,thetaPhiCnt);
 
-char histname[200];
+//char histname[200];
 TH1D *projY[10];
 
 for(int xbin=1; xbin<=10; xbin++){
@@ -2104,6 +2129,18 @@ impulsivityHist->Draw();
 TCanvas c35("c35","c35",800,800);
 iterCWCountHist->Draw();
 c35.SaveAs("recoAnalysis_35.C");
+
+TCanvas c36("c36","c36",800,800);
+c36.Divide(4,4);
+for(int ch=0; ch<16; ch++){
+   c36.cd(ch+1);
+   avgPowerRatioHist[ch]->Draw();
+}
+c36.SaveAs("recoAnalysis_36.C");
+
+TCanvas c37("c37","c37",800,800);
+coherence_snr_cw->Draw("colz");
+c37.SaveAs("recoAnalysis_37.C");
 
 printf("Nentries: %d\trfEventCount: %d\tcalEventCount: %d\tsoftEventCount: %d\n", Nentries, rfEventCount, calEventCount, softEventCount);
 
