@@ -1333,96 +1333,112 @@ for(int i=5; i<argc; i++){
 
    }//end of pass cut
 
-//   if(/*isCW &&*/ /*passThermalCut &&*/ passDeepPulserCut && passCalpulserCut && passSurfaceCut && passNoisyRunCut ){
-//
-//      if( !isCW ) cerr<<"Not CW! run: "<<runNum<<" ev: "<<entry<<endl;
-//
-//      coherence_snr_cw->Fill(dummyData->inWindowSNR_V, (dummyData->maxPixCoherence>dummyData->maxPixCoherence2?dummyData->maxPixCoherence:dummyData->maxPixCoherence2), dummyData->weight);
-//      snr_cw->Fill(dummyData->inWindowSNR_V, dummyData->weight);
-//
-//      //for(int ch=0; ch<16; ch++){
-//      //   impulsivity[ch] = dummyData->impulsivity[ch];
-//      //}
-//
-//      std::fill(&impulsivity[0], &impulsivity[16], 0.);
-//
-//      if(isVpolCW && isHpolCW){
-//
-//      nonZeroCount = 0;
-//      double sum = 0.;
-//      for(int ch=0; ch<16; ch++){
-//         if(fabs( dummyData->impulsivity[ch] - 0 ) > 1e-9 ){
-//            nonZeroCount++;
-//            impulsivity[ch] = dummyData->impulsivity[ch];
-//            sum += impulsivity[ch];
-//         }
-//      }
-//
-//      int index[16];
-//      TMath::Sort(16, impulsivity, index);
-//      double avgImpulsivity = sum / (double)nonZeroCount;
-//
-//      impulsivityHist_max->Fill(impulsivity[index[0]], dummyData->weight);
-//      impulsivityHist_3rd->Fill(impulsivity[index[2]], dummyData->weight);
-//      impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight);
-//
-//      thermalCWEventCount_both += dummyData->weight;
-//
-//      }
-//
-//      else if( isVpolCW && !isHpolCW){
-//
-//      nonZeroCount = 0;
-//      double sum = 0.;
-//      for(int ch=0; ch<8; ch++){
-//         if(fabs( dummyData->impulsivity[ch] - 0 ) > 1e-9 ){
-//            nonZeroCount++;
-//            impulsivity[ch] = dummyData->impulsivity[ch];
-//            sum += impulsivity[ch];
-//         }
-//      }
-//
-//      int index[16];
-//      TMath::Sort(16, impulsivity, index);
-//      double avgImpulsivity = sum / (double)nonZeroCount;
-//
-//      impulsivityHist_max->Fill(impulsivity[index[0]], dummyData->weight);
-//      impulsivityHist_3rd->Fill(impulsivity[index[2]], dummyData->weight);
-//      impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight);
-//
-//      thermalCWEventCount_V += dummyData->weight;
-//
-//      }
-//
-//      else {
-//
-//      nonZeroCount = 0;
-//      double sum = 0.;
-//      for(int ch=8; ch<16; ch++){
-//         if(fabs( dummyData->impulsivity[ch] - 0 ) > 1e-9 ){
-//            nonZeroCount++;
-//            impulsivity[ch] = dummyData->impulsivity[ch];
-//            sum += impulsivity[ch];
-//         }
-//      }
-//
-//      int index[16];
-//      TMath::Sort(16, impulsivity, index);
-//      double avgImpulsivity = sum / (double)nonZeroCount;
-//
-//      impulsivityHist_max->Fill(impulsivity[index[0]], dummyData->weight);
-//      impulsivityHist_3rd->Fill(impulsivity[index[2]], dummyData->weight);
-//      impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight);
-//
-//      thermalCWEventCount_H += dummyData->weight;
-//
-//      }
-//
-//
-//      thermalCWEventCount += dummyData->weight;
-//
-//   }//if pass all other cuts except CW and thermal
+   if(/*isCW &&*/ passThermalCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ){
 
+      std::fill(&impulsivity[0], &impulsivity[16], 0.);
+      int nonZeroCount = 0;
+      double sum = 0.;
+      for(int ch=0; ch<8; ch++){
+         if(fabs( dummyData->impulsivity[ch] - 0 ) > 1e-9 ){
+            nonZeroCount++;
+            impulsivity[ch] = dummyData->impulsivity[ch];
+            sum += impulsivity[ch];
+         }
+      }
+
+      //int index[16];
+      //TMath::Sort(16, impulsivity, index);
+      avgImpulsivity = sum / (double)nonZeroCount;
+
+      impulsivityHist_nMinusCW->Fill(avgImpulsivity, dummyData->weight);
+
+      //if( !isCW ) cerr<<"Not CW! run: "<<runNum<<" ev: "<<entry<<endl;
+
+      //coherence_snr_cw->Fill(dummyData->inWindowSNR_V, (dummyData->maxPixCoherence>dummyData->maxPixCoherence2?dummyData->maxPixCoherence:dummyData->maxPixCoherence2), dummyData->weight);
+      //snr_cw->Fill(dummyData->inWindowSNR_V, dummyData->weight);
+
+      //for(int ch=0; ch<16; ch++){
+      //   impulsivity[ch] = dummyData->impulsivity[ch];
+      //}
+      /*
+      std::fill(&impulsivity[0], &impulsivity[16], 0.);
+
+      if(isVpolCW && isHpolCW){
+
+      nonZeroCount = 0;
+      double sum = 0.;
+      for(int ch=0; ch<16; ch++){
+         if(fabs( dummyData->impulsivity[ch] - 0 ) > 1e-9 ){
+            nonZeroCount++;
+            impulsivity[ch] = dummyData->impulsivity[ch];
+            sum += impulsivity[ch];
+         }
+      }
+
+      int index[16];
+      TMath::Sort(16, impulsivity, index);
+      double avgImpulsivity = sum / (double)nonZeroCount;
+
+      impulsivityHist_max->Fill(impulsivity[index[0]], dummyData->weight);
+      impulsivityHist_3rd->Fill(impulsivity[index[2]], dummyData->weight);
+      impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight);
+
+      thermalCWEventCount_both += dummyData->weight;
+
+      }
+
+      else if( isVpolCW && !isHpolCW){
+
+      nonZeroCount = 0;
+      double sum = 0.;
+      for(int ch=0; ch<8; ch++){
+         if(fabs( dummyData->impulsivity[ch] - 0 ) > 1e-9 ){
+            nonZeroCount++;
+            impulsivity[ch] = dummyData->impulsivity[ch];
+            sum += impulsivity[ch];
+         }
+      }
+
+      int index[16];
+      TMath::Sort(16, impulsivity, index);
+      double avgImpulsivity = sum / (double)nonZeroCount;
+
+      impulsivityHist_max->Fill(impulsivity[index[0]], dummyData->weight);
+      impulsivityHist_3rd->Fill(impulsivity[index[2]], dummyData->weight);
+      impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight);
+
+      thermalCWEventCount_V += dummyData->weight;
+
+      }
+
+      else {
+
+      nonZeroCount = 0;
+      double sum = 0.;
+      for(int ch=8; ch<16; ch++){
+         if(fabs( dummyData->impulsivity[ch] - 0 ) > 1e-9 ){
+            nonZeroCount++;
+            impulsivity[ch] = dummyData->impulsivity[ch];
+            sum += impulsivity[ch];
+         }
+      }
+
+      int index[16];
+      TMath::Sort(16, impulsivity, index);
+      double avgImpulsivity = sum / (double)nonZeroCount;
+
+      impulsivityHist_max->Fill(impulsivity[index[0]], dummyData->weight);
+      impulsivityHist_3rd->Fill(impulsivity[index[2]], dummyData->weight);
+      impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight);
+
+      thermalCWEventCount_H += dummyData->weight;
+
+      }
+
+
+      thermalCWEventCount += dummyData->weight;
+      */
+   }//if pass all other cuts except CW and thermal
 
    }//end of entry
 
@@ -1627,7 +1643,7 @@ c_vs_imp->SetTitle(";Impulsivity;Coherence");
 sprintf(filename, "%s_type%d_c_vs_imp.C", STATION.c_str(), type);
 c11.SaveAs(filename);
 */
-
+/*
 TCanvas c12("c12","c12",1200,800);
 c12.Divide(2,1);
 c12.cd(1);
@@ -1651,7 +1667,7 @@ snrlineoutband.Draw("same");
 coherencelineoutband.Draw("same");
 
 c12.SaveAs("recoAnalysis_12.C");
-
+*/
 /*
 TCanvas c13("c13","c13",1200,800);
 c13.Divide(3,1);
@@ -1678,6 +1694,13 @@ dFHist_H->Draw();
 
 c14.SaveAs("recoAnalysis_14.C");
 */
+
+TCanvas c6("c6","c6",800,800);
+impulsivityHist_nMinusCW->Draw();
+impulsivityHist_nMinusCW->SetTitle(";Impulsivity;Entry");
+sprintf(filename, "%s_type%d_nMinusCW_impulsivity.C", STATION.c_str(), type);
+c6.SaveAs(filename);
+
 return 0;
 }
 
