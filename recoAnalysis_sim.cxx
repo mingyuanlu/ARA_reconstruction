@@ -1698,7 +1698,7 @@ c14.SaveAs("recoAnalysis_14.C");
 TCanvas c6("c6","c6",800,800);
 impulsivityHist_nMinusCW->Draw();
 impulsivityHist_nMinusCW->SetTitle(";Impulsivity;Entry");
-sprintf(filename, "%s_type%d_nMinusCW_impulsivity.C", STATION.c_str(), type);
+sprintf(filename, "%s_type%d_E%s_nMinusCW_impulsivity.C", STATION.c_str(), type, ENERGY.c_str());
 c6.SaveAs(filename);
 
 return 0;
