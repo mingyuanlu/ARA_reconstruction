@@ -1355,6 +1355,23 @@ passThermalCut = !isThermal_boxCut(inBand, settings, dummyData, onion,  cutValue
 
       impulsivityHist_nMinusCW->Fill(avgImpulsivity, dummyData->weight);
 
+      if(avgImpulsivity > 0.4){
+               cout<<endl;
+               cout<<"run: "<<runNum<<" event: "<<dummyData->eventNumber<<" unixtime: "<<dummyData->unixTime<<"snr: "<<snr<<" coherence: "<<coherence<<endl;
+               cout<<"inBand: "<<inBand<<" Fisher: "<<(inBand?0.003:0.007)*snr+(inBand?1.916:1.039)*coherence+(inBand?-0.368:-0.284)<<endl;
+               cout<<"constantNZen: "<<90.f-dummyData->constantNZen<<" zenMaj: "<<zenMaj<<endl;
+               cout<<"avg imp: "<<avgImpulsivity<<endl;
+               outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<endl;
+               //outputFile<<avgImpulsivity<<",";
+               //cout<<avgImpulsivity<<endl;
+               cout<<endl;
+               cout<<"maxCountFreq_V: "<<dummyData->maxCountFreq_V<<" maxCountFreq_H: "<<dummyData->maxCountFreq_H<<endl;
+               cout<<"From recoData channel-by-channel maxFreqBin: "<<endl;
+               cout<<"maxCountFreq_V: "<<maxCountFreqBin_V*dummyData->freqBinWidth_V<<" maxCountFreq_H: "<<maxCountFreqBin_H*dummyData->freqBinWidth_H<<endl;
+               cout<<"freqBinWidth_V: "<<dummyData->freqBinWidth_V<<" freqBinWidth_H: "<<dummyData->freqBinWidth_H<<endl;
+
+      }
+
       //if( !isCW ) cerr<<"Not CW! run: "<<runNum<<" ev: "<<entry<<endl;
 
       //coherence_snr_cw->Fill(dummyData->inWindowSNR_V, (dummyData->maxPixCoherence>dummyData->maxPixCoherence2?dummyData->maxPixCoherence:dummyData->maxPixCoherence2), dummyData->weight);
