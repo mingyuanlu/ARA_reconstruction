@@ -593,6 +593,7 @@ for(int entry=0; entry<Nentries; entry++){
       coherence_snr_rf->Fill(dummyData->unmodSNR, dummyData->maxPixCoherence);
 
       bool isVpolCW, isHpolCW;
+      isVpolCW = isHpolCW = false;
       int maxCountFreqBin_H, maxCountFreqBin_V;
       int cwBinThres = 3;
       int nonZeroCount = 0;
