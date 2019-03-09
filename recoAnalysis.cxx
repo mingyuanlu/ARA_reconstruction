@@ -738,7 +738,7 @@ for(int i=4; i<argc; i++){
 */
    /***** 2. Thermal cut ********************/
 
-   passThermalCut = !isThermal_boxCut(inBand, settings, dummyData, onion,  cutValues->snrCut_inBand[type-1].val, cutValues->coherenceCut_inBand[type-1].val, cutValues->snrCut_outOfBand[type-1].val, cutValues->coherenceCut_outOfBand[type-1].val);
+passThermalCut = !isThermal_boxCut(inBand, settings, dummyData, onion,  cutValues->snrCut_inBand[type-1].val, cutValues->coherenceCut_inBand[type-1].val, cutValues->snrCut_outOfBand[type-1].val, cutValues->coherenceCut_outOfBand[type-1].val);
 
 
 /*
@@ -1538,7 +1538,7 @@ c34.cd(1);
 coherence_snr_cw->Draw("colz");
 c34.cd(2);
 snr_cw->Draw();
-c34.SaveAs(filename);
+//c34.SaveAs(filename);
 
 /*
 sprintf(filename, "%s_type%d_E18_impulsivity_cw.C", STATION.c_str(), type);
