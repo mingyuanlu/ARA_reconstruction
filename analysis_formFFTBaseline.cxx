@@ -924,7 +924,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          if(eventCount == 0) fftValues_H = (vector<double>*)malloc(8*freqCountLen_H*sizeof(vector<double>));
       }
       cout<<"926\n";
-      cout<<"size: "<<sizeof(fftValues_V)/sizeof(vector<double>)/8<<endl;
+      cout<<"fftValues_V size: "<<sizeof(fftValues_V)<<endl;
+      cout<<"vector<double> size: "<<sizeof(vector<double>)<<endl;
+      
       cout<<"freqCountLen_V: "<<freqCountLen_V<<endl;
       if(ch<8){
          for(int bin=0; bin<freqCountLen_V; bin++){
