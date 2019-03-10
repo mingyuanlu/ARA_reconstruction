@@ -643,6 +643,8 @@ int eventCount = 0;
 vector<double>* fftValues_V;
 vector<double>* fftValues_H;
 int fInt_V, fInt_H;
+//vector<double> vec_v;
+//vector<double> vec_h;
 
 //recordTime(tmr,3);
 time_t t_before_event_loop = time(NULL);
@@ -913,7 +915,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          freqCount_V = new int [freqCountLen_V];
          fill(&freqCount_V[0], &freqCount_V[freqCountLen_V], 0);
          freqBinWidth_V = evProcessTools::getFFTBinWidth(grFFT[ch]);
-         if(eventCount == 0) fftValues_V = (vector<double>*)malloc(8*freqCountLen_V*sizeof(vector<double>));
+         if(eventCount == 0) fftValues_V = new vector<double> [freqCountLen_V*8];
+         //if(eventCount == 0) fftValues_V = (vector<double>*)malloc(8*freqCountLen_V*sizeof(vector<double>));
          //fInt_V = freqBinWidth_V;
       }
       else if (ch==8){
@@ -921,19 +924,21 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          freqCount_H = new int [freqCountLen_H];
          fill(&freqCount_H[0], &freqCount_H[freqCountLen_H], 0);
          freqBinWidth_H = evProcessTools::getFFTBinWidth(grFFT[ch]);
-         if(eventCount == 0) fftValues_H = (vector<double>*)malloc(8*freqCountLen_H*sizeof(vector<double>));
+         if(eventCount == 0) fftValues_H = new vector<double> [freqCountLen_H*8];
+         //if(eventCount == 0) fftValues_H = (vector<double>*)malloc(8*freqCountLen_H*sizeof(vector<double>));
       }
       cout<<"926\n";
-      cout<<"fftValues_V size: "<<sizeof(fftValues_V)<<endl;
-      cout<<"vector<double> size: "<<sizeof(vector<double>)<<endl;
-      
-      cout<<"freqCountLen_V: "<<freqCountLen_V<<endl;
+      //cout<<"fftValues_V size: "<<sizeof(fftValues_V)<<endl;
+      //cout<<"vector<double> size: "<<sizeof(vector<double>)<<endl;
+
+      //cout<<"freqCountLen_V: "<<freqCountLen_V<<endl;
       if(ch<8){
          for(int bin=0; bin<freqCountLen_V; bin++){
             cout<<"929 bin:"<<bin<<"\n";
             grFFT[ch]->GetPoint(bin, f, p);
             cout<<"931\n";
             fftValues_V[ch*freqCountLen_V+bin].push_back(p);
+
             cout<<"933\n";
 
          }
