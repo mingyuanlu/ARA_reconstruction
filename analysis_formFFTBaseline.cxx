@@ -925,7 +925,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       }
 
       for(int bin=0; bin<grFFT[ch]->GetN(); bin++){
-         grFFT[ch]->GetBinContent(bin, f, p);
+         grFFT[ch]->GetPoint(bin, f, p);
          if(ch<8){
             fftValues_V[ch*freqCountLen_V+bin].push_back(p);
          } else {
@@ -1486,7 +1486,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       }
 
       for(int bin=0; bin<grFFT[ch]->GetN(); bin++){
-         grFFT[ch]->GetBinContent(bin, f, p);
+         grFFT[ch]->GetPoint(bin, f, p);
          if(ch<8){
             fftValues_V[ch*freqCountLen_V+bin].push_back(p);
          } else {
@@ -1938,7 +1938,7 @@ delete settings;
 free(mapDataHist);
 free(mapData);
 
-TH2F *fftValuesHist = TH2F("fftValuesHist","fftValuesHist",(int)(1000/freqBinWidth_V),0,1000,500,-100,100);
+TH2F *fftValuesHist =new TH2F("fftValuesHist","fftValuesHist",(int)(1000/freqBinWidth_V),0,1000,500,-100,100);
 for(int bin=0; bin<freqCountLen_V; bin++){
    for(int val=0; val<fftValues_V[bin].size(); val++){
       fftValuesHist->Fill(bin*freqBinWidth_V,fftValues_V[bin].at(val));
