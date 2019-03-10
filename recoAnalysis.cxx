@@ -1355,7 +1355,7 @@ passThermalCut = !isThermal_boxCut(inBand, settings, dummyData, onion,  cutValue
 
       impulsivityHist_nMinusCW->Fill(avgImpulsivity, dummyData->weight);
 
-      if(avgImpulsivity > 0.5){
+      if(avgImpulsivity > 0.4 && avgImpulsivity < 0.45){
                cout<<endl;
                cout<<"run: "<<runNum<<" event: "<<dummyData->eventNumber<<" unixtime: "<<dummyData->unixTime<<"snr: "<<snr<<" coherence: "<<coherence<<endl;
                cout<<"inBand: "<<inBand<<" Fisher: "<<(inBand?0.003:0.007)*snr+(inBand?1.916:1.039)*coherence+(inBand?-0.368:-0.284)<<endl;
