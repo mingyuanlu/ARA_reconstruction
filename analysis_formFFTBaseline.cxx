@@ -485,8 +485,8 @@ if( settings->skymapSearchMode == 0){ //No zoom search
 //                                               onion, recoDelays, recoDelays_V, recoDelays_H,
 //                                               recoRefracDelays, recoRefracDelays_V, recoRefracDelays_H);
 //
-   } else { cerr<<"Undefined iceModel parameter\n"; return -1; }
-   if( err<0 ){ cerr<<"Error computing reco delays\n"; return -1; }
+//   } else { cerr<<"Undefined iceModel parameter\n"; return -1; }
+//   if( err<0 ){ cerr<<"Error computing reco delays\n"; return -1; }
 
 } else {// zoom search mode
 
@@ -504,7 +504,7 @@ if( settings->skymapSearchMode == 0){ //No zoom search
 float *constantNDelays, *constantNDelays_V, *constantNDelays_H;
 Healpix_Onion *onion_temp;
 
-if( settings->constantNFilter > 0){
+//if( settings->constantNFilter > 0){
 //
 //   constantNDelays   = (float*)malloc(1*nDir*nAnt*sizeof(float));
 //   constantNDelays_V = (float*)malloc(1*nDir*(nAnt/2)*sizeof(float));
@@ -514,7 +514,7 @@ if( settings->constantNFilter > 0){
 //   err = computeRecoDelaysWithNoBoundConstantN(nAnt, -1.f*stationCenterDepth, antLocation,
 //                                               onion_temp, constantNDelays, constantNDelays_V, constantNDelays_H);
 //
-}
+//}
 
 
 //recordTime(tmr,2);
