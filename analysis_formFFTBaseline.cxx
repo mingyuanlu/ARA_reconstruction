@@ -924,11 +924,16 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          if(eventCount == 0) fftValues_H = (vector<double>*)malloc(8*freqCountLen_H*sizeof(vector<double>));
       }
 
-      for(int bin=0; bin<grFFT[ch]->GetN(); bin++){
-         grFFT[ch]->GetPoint(bin, f, p);
-         if(ch<8){
+      if(ch<8){
+         for(int bin=0; bin<freqCountLen_V; bin++){
+            grFFT[ch]->GetPoint(bin, f, p);
             fftValues_V[ch*freqCountLen_V+bin].push_back(p);
-         } else {
+         }
+      }
+       else {
+
+         for(int bin=0; bin<freqCountLen_H; bin++){
+            grFFT[ch]->GetPoint(bin, f, p);
             fftValues_H[(ch-8)*freqCountLen_H+bin].push_back(p);
          }
          //fftValues[ch][bin].push_back(p);
