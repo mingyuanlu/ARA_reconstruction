@@ -1091,8 +1091,9 @@ for(int i=5; i<argc; i++){
 
       }
 */
+   postThermalAvgImpulsivityCut = 0.261729;
    passThermalImpulsivityCut = !isBelowThermalImpulsivityCut(avgImpulsivity, dummyData, postThermalAvgImpulsivityCut);
-   passThermalImpulsivityCut = true;
+   //passThermalImpulsivityCut = true;
    /***Check if have enough un-saturated channels to reconstruct ****/
    //if(dummyData->numSatChan  <= 3){ //Need at least 5 channels in reconstruction
      passNumSatChanCut = true;
@@ -1461,7 +1462,7 @@ printf("totalRecoEventCount: %d\trfEventCount: %f\tcalEventCount: %f\tsoftEventC
 printf("nPassCWCut %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassCWCut, (float)nPassCWCut/(float)rfEventCount, nCut1p5, (float)nCut1p5/(float)rfEventCount);
 printf("nPassDeepPulserCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassDeepPulserCut, (float)nPassDeepPulserCut/(float)rfEventCount, nCut2, (float)nCut2/(float)rfEventCount);
 printf("nPassThermalCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassThermalCut, (float)nPassThermalCut/(float)rfEventCount, nCut3, (float)nCut3/(float)rfEventCount);
-//printf("nPassThermalImpulsivityCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassThermalImpulsivityCut, (float)nPassThermalImpulsivityCut/(float)rfEventCount, nCut3p5, (float)nCut3p5/(float)rfEventCount);
+printf("nPassThermalImpulsivityCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassThermalImpulsivityCut, (float)nPassThermalImpulsivityCut/(float)rfEventCount, nCut3p5, (float)nCut3p5/(float)rfEventCount);
 printf("nPassCalpulserCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassCalpulserCut, (float)nPassCalpulserCut/(float)rfEventCount, nCut4, (float)nCut4/(float)rfEventCount);
 printf("nPassCalpulserTimeCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassCalpulserTimeCut, (float)nPassCalpulserTimeCut/(float)rfEventCount, nCut4p5, (float)nCut4p5/(float)rfEventCount);
 //printf("nPassNoisyRunCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassNoisyRunCut, (float)nPassNoisyRunCut/(float)rfEventCount, nCut5, (float)nCut5/(float)rfEventCount);
@@ -1473,7 +1474,7 @@ cout<<"inBand_all: "<<inBand_all<<" inBand_pass: "<<inBand_pass<<" inBand_cut: "
 cout<<"outOfBand_all: "<<outOfBand_all<<" outOfBand_pass: "<<outOfBand_pass<<" outOfBand_cut: "<<outOfBand_all-outOfBand_pass<<endl;
 cout<<"pre-thermal: "<<inBand_all+outOfBand_all<<" post-thermal: "<<inBand_pass+outOfBand_pass<<" ratio: "<<(inBand_pass+outOfBand_pass)/(inBand_all+outOfBand_all)<<endl;
 outputFile<<ENERGY<<","<<totalWeightedTrigEventCount<<","<<totalWeightedTrigEventCount-totalWeightedOffsetBlockEventCount/*<<","<<totalTrigEventCount-totalOffsetBlockEventCount-totalImpulsivityFilteredEventCount*/<<","<<totalWeightedTrigEventCount-totalWeightedOffsetBlockEventCount-totalWeightedNchnlFilteredEventCount<<",";
-outputFile/*<<nCut0p5<<","*/<<nCut1p5<</*","<<nCut2<<*/","<<nCut3<</*","<<nCut3p5<<*//*","<<nCut4<<*/","<<nCut4<<","/*<<nCut6<<*/<<nCut6p5/*<<","<<nCut7*/<<endl;
+outputFile/*<<nCut0p5<<","*//*<<nCut1p5<<*//*","<<nCut2<<*/","<<nCut3<<","<<nCut3p5<</*","<<nCut4<<*/","<<nCut4<<","/*<<nCut6<<*/<<nCut6p5/*<<","<<nCut7*/<<endl;
 outputFile.close();
 
 //cout<<"passCWCut: "<<passCWCut<<endl;
@@ -1694,13 +1695,13 @@ dFHist_H->Draw();
 
 c14.SaveAs("recoAnalysis_14.C");
 */
-
+/*
 TCanvas c6("c6","c6",800,800);
 impulsivityHist_nMinusCW->Draw();
 impulsivityHist_nMinusCW->SetTitle(";Impulsivity;Entry");
 sprintf(filename, "%s_type%d_E%s_nMinusCW_impulsivity.C", STATION.c_str(), type, ENERGY.c_str());
 c6.SaveAs(filename);
-
+*/
 return 0;
 }
 
