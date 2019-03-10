@@ -928,8 +928,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          for(int bin=0; bin<freqCountLen_V; bin++){
             cout<<"929 bin:"<<bin<<"\n";
             grFFT[ch]->GetPoint(bin, f, p);
+            cout<<"931\n";
             fftValues_V[ch*freqCountLen_V+bin].push_back(p);
-            cout<<"932\n";
+            cout<<"933\n";
 
          }
       }
