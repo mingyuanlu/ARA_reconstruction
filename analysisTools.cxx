@@ -919,3 +919,28 @@ bool isCW_iterFreqWindow(vector<TGraph *>& cleanEvent, double fftRes, int iterTh
 //      return isCW;
 //
 //}
+
+
+double getPercentile(const vector<double> fftValues, const double percentile){
+
+  size_t size = fftValues.size();
+
+  if (size == 0)
+  {
+    return -1000;  // Undefined, really.
+  }
+  else
+  {
+    sort(fftValues.begin(), fftValues.end());
+    if (size % 4 == 0)
+    {
+      return (fftValues[size * percentile - 1] + fftValues[size * percentile]) / 2;
+    }
+    else
+    {
+      return fftValues[(int)(size * percentile)];
+    }
+  }
+
+
+}

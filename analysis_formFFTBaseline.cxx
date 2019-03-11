@@ -1495,21 +1495,33 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
          freqCount_V = new int [freqCountLen_V];
          fill(&freqCount_V[0], &freqCount_V[freqCountLen_V], 0);
          freqBinWidth_V = evProcessTools::getFFTBinWidth(grFFT[ch]);
-         if(eventCount == 0) fftValues_V = (vector<double>*)malloc(8*freqCountLen_V*sizeof(vector<double>));
+         if(eventCount == 0) fftValues_V = new vector<double> [freqCountLen_V*8];
+         //if(eventCount == 0) fftValues_V = (vector<double>*)malloc(8*freqCountLen_V*sizeof(vector<double>));
       }
       else if (ch==8){
          freqCountLen_H = grFFT[ch]->GetN();
          freqCount_H = new int [freqCountLen_H];
          fill(&freqCount_H[0], &freqCount_H[freqCountLen_H], 0);
          freqBinWidth_H = evProcessTools::getFFTBinWidth(grFFT[ch]);
-         if(eventCount == 0) fftValues_H = (vector<double>*)malloc(8*freqCountLen_H*sizeof(vector<double>));
+         if(eventCount == 0) fftValues_H = new vector<double> [freqCountLen_H*8];
+         //if(eventCount == 0) fftValues_H = (vector<double>*)malloc(8*freqCountLen_H*sizeof(vector<double>));
       }
 
-      for(int bin=0; bin<grFFT[ch]->GetN(); bin++){
-         grFFT[ch]->GetPoint(bin, f, p);
-         if(ch<8){
+      if(ch<8){
+         for(int bin=0; bin<freqCountLen_V; bin++){
+            //cout<<"929 bin:"<<bin<<"\n";
+            grFFT[ch]->GetPoint(bin, f, p);
+            //cout<<"931\n";
             fftValues_V[ch*freqCountLen_V+bin].push_back(p);
-         } else {
+
+            //cout<<"933\n";
+
+         }
+      }
+       else {
+
+         for(int bin=0; bin<freqCountLen_H; bin++){
+            grFFT[ch]->GetPoint(bin, f, p);
             fftValues_H[(ch-8)*freqCountLen_H+bin].push_back(p);
          }
          //fftValues[ch][bin].push_back(p);
@@ -1958,16 +1970,73 @@ delete settings;
 free(mapDataHist);
 free(mapData);
 
+//double median[16] = {-1000.};
+//double percentile_75[16] = {-1000.};
+//double percentile_25[16] = {-1000.};
+vector<double> tempVec;
+
+TGraph *gr_median[16];
+TGraph *gr_75[16];
+TGraph *gr_25[16];
+
+for(int ch=0; ch<8; ch++){
+
+   gr_median[ch] = new TGraph();
+   gr_75[ch]     = new TGraph();
+   gr_25[ch]     = new TGraph();
+   for(int bin=0; bin<freqCountLen_V; bin++){
+      tempVec.assign(fftValues_V[ch*freqCountLen_V+bin].begin(), fftValues_V[ch*freqCountLen_V+bin].end());
+      //median[ch] = getPercentile(tempVec, 0.5);
+      //percentile_75[ch] = getPercentile(tempVec, 0.75);
+      //percentile_25[ch] = getPercentile(tempVec, 0.25);
+      gr_median[ch]->SetPoint(bin, bin*freqBinWidth_V, getPercentile(tempVec, 0.5));
+      gr_75[ch]->SetPoint(bin, bin*freqBinWidth_V, getPercentile(tempVec, 0.75));
+      gr_25[ch]->SetPoint(bin, bin*freqBinWidth_V, getPercentile(tempVec, 0.25));
+      //cout<<"ch: "<<ch<<" 25%: "<<percentile_25[ch]<<" 50%: "<<median[ch]<<" 75%: "<<percentile_75[ch]<<endl;
+      tempVec.clear();
+   }
+}
+
+for(int ch=8; ch<16; ch++){
+
+   gr_median[ch] = new TGraph();
+   gr_75[ch]     = new TGraph();
+   gr_25[ch]     = new TGraph();
+   for(int bin=0; bin<freqCountLen_H; bin++){
+      tempVec.assign(fftValues_H[ch*freqCountLen_H+bin].begin(), fftValues_H[ch*freqCountLen_H+bin].end());
+      //median[ch] = getPercentile(tempVec, 0.5);
+      //percentile_75[ch] = getPercentile(tempVec, 0.75);
+      //percentile_25[ch] = getPercentile(tempVec, 0.25);
+      gr_median[ch]->SetPoint(bin, bin*freqBinWidth_H, getPercentile(tempVec, 0.5));
+      gr_75[ch]->SetPoint(bin, bin*freqBinWidth_H, getPercentile(tempVec, 0.75));
+      gr_25[ch]->SetPoint(bin, bin*freqBinWidth_H, getPercentile(tempVec, 0.25));
+      //cout<<"ch: "<<ch<<" 25%: "<<percentile_25[ch]<<" 50%: "<<median[ch]<<" 75%: "<<percentile_75[ch]<<endl;
+      tempVec.clear();
+   }
+}
+
+/*
 TH2F *fftValuesHist =new TH2F("fftValuesHist","fftValuesHist",(int)(1000/freqBinWidth_V),0,1000,500,-100,100);
 for(int bin=0; bin<freqCountLen_V; bin++){
    for(int val=0; val<fftValues_V[bin].size(); val++){
       fftValuesHist->Fill(bin*freqBinWidth_V,fftValues_V[bin].at(val));
    }
 }
+*/
 
 TCanvas c1("c1","c1",800,800);
-fftValuesHist->Draw("colz");
-c1.SaveAs("fftValuesHist.C");
+//fftValuesHist->Draw("colz");
+c1.Divide(4,4);
+for(int ch=0; ch<16; ch++){
+   c1.cd(ch+1);
+   gr_median[ch]->Draw("AL");
+   gr_75[ch]->SetLineColor(kRed);
+   gr_75[ch]->Draw("Lsame");
+   gr_25[ch]->SetLineColor(kBlue);
+   gr_25[ch]->Draw("Lsame");
+}
+c1.SaveAs("fftValuesMedian.C");
+//c1.SaveAs("fftValuesHist.C");
 
 //recordTime(tmr,5);
 time_t t_program_end = time(NULL);
