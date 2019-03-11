@@ -122,5 +122,5 @@ bool isCalpulserTime(string STATION, recoData *dummyData);
 bool isCalpulser(float &inBoxTheta, float &inBoxPhi, string STATION, recoData *dummyData, Healpix_Onion onion, recoSettings *settings, int type);
 bool isRecoverableByImp(bool isVpolCW, bool isHpolCW, bool isXpolCW, recoData *dummyData, double impCut, double highPassFreq);
 bool isBelowThermalImpulsivityCut(double &avgImpulsivity, recoData *dummyData, double postThermalAvgImpulsivityCut);
-double getPercentile(const vector<double> fftValues, const double percentile);
+double getPercentile(vector<double> fftValues, const double percentile);
 #endif
