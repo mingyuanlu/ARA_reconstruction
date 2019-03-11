@@ -185,7 +185,7 @@ for(int ch=0; ch<16; ch++){
 
    if(ch==0){
       for(int bin=0; bin<gr_median[ch]->GetN(); bin++){
-         gr_median[ch]->GetPoint(bin,f,p)
+         gr_median[ch]->GetPoint(bin,f,p);
          cout<<"bin: "<<bin<<" f: "<<f<<" p: "<<p<<endl;
       }
    }
