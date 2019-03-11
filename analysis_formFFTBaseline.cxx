@@ -1999,13 +1999,14 @@ cout<<"1984\n";
       cout<<"1999\n";
    }
 }
-
+cout<<"2002\n";
 for(int ch=8; ch<16; ch++){
-
+cout<<"2004\n";
    gr_median[ch] = new TGraph();
    gr_75[ch]     = new TGraph();
    gr_25[ch]     = new TGraph();
    for(int bin=0; bin<freqCountLen_H; bin++){
+      cout<<"2009\n";
       tempVec.assign(fftValues_H[ch*freqCountLen_H+bin].begin(), fftValues_H[ch*freqCountLen_H+bin].end());
       //median[ch] = getPercentile(tempVec, 0.5);
       //percentile_75[ch] = getPercentile(tempVec, 0.75);
@@ -2015,9 +2016,10 @@ for(int ch=8; ch<16; ch++){
       gr_25[ch]->SetPoint(bin, bin*freqBinWidth_H, getPercentile(tempVec, 0.25));
       //cout<<"ch: "<<ch<<" 25%: "<<percentile_25[ch]<<" 50%: "<<median[ch]<<" 75%: "<<percentile_75[ch]<<endl;
       tempVec.clear();
+      cout<<"2019\n";
    }
 }
-
+cout<<"2022\n";
 /*
 TH2F *fftValuesHist =new TH2F("fftValuesHist","fftValuesHist",(int)(1000/freqBinWidth_V),0,1000,500,-100,100);
 for(int bin=0; bin<freqCountLen_V; bin++){
