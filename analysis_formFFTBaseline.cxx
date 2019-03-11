@@ -1981,11 +1981,12 @@ TGraph *gr_75[16];
 TGraph *gr_25[16];
 
 for(int ch=0; ch<8; ch++){
-
+cout<<"1984\n";
    gr_median[ch] = new TGraph();
    gr_75[ch]     = new TGraph();
    gr_25[ch]     = new TGraph();
    for(int bin=0; bin<freqCountLen_V; bin++){
+      cout<<"1989\n";
       tempVec.assign(fftValues_V[ch*freqCountLen_V+bin].begin(), fftValues_V[ch*freqCountLen_V+bin].end());
       //median[ch] = getPercentile(tempVec, 0.5);
       //percentile_75[ch] = getPercentile(tempVec, 0.75);
@@ -1995,6 +1996,7 @@ for(int ch=0; ch<8; ch++){
       gr_25[ch]->SetPoint(bin, bin*freqBinWidth_V, getPercentile(tempVec, 0.25));
       //cout<<"ch: "<<ch<<" 25%: "<<percentile_25[ch]<<" 50%: "<<median[ch]<<" 75%: "<<percentile_75[ch]<<endl;
       tempVec.clear();
+      cout<<"1999\n";
    }
 }
 
