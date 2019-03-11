@@ -967,7 +967,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       delete grCDF[ch];
       delete grCumuSum[ch];
       //delete grCumuSumCDF[ch];
-      delete grFFT_temp[ch]
+      delete grFFT_temp[ch];
       //delete grFFT[ch];
       cvs.cd(ch+1);
       grFFT[ch]->Draw("AL");
