@@ -2031,7 +2031,7 @@ for(int ch=8; ch<16; ch++){
    gr_75[ch]->Write();
    gr_25[ch]->Write();
 }
-
+outputFile->Write();
 outputFile->Close();
 
 /*
