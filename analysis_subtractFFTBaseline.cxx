@@ -573,9 +573,13 @@ if( err<0 ){
    //TGraph *grHilbert[16];
    TGraph *grMean[16];
    TGraph *grFFT[16];
+   TGraph *grFFT_temp[16];
    TGraph *grCDF[16];
    TGraph *grCumuSum[16];
    TGraph *grCumuSumCDF[16];
+
+   TCanvas cvs("cvs","cvs",800,800);
+   cvs.Divide(4,4);
 
 
 if(settings->dataType == 1){
@@ -932,7 +936,12 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       summary->setPowerPeaksByChannel(ch, posPowerPeak, negPowerPeak, powerPeaksDeltaT);
 
       /* Get max freq bin */
-      grFFT[ch] = FFTtools::makePowerSpectrumMilliVoltsNanoSecondsdB(grWinPad[ch]);
+      grFFT_temp[ch] = FFTtools::makePowerSpectrumMilliVoltsNanoSecondsdB(grWinPad[ch]);
+
+      /* Get baseline-subtracted FFT */
+      grFFT[ch] = FFTtools::subtractGraphs(grFFT_temp[ch], gr_median[ch]);
+      if(grFFT[ch]==NULL){ cerr<<"Inconsistent FFT Npoints. ch: "<<ch<<" grFFT_temp: "<<grFFT_temp[ch]->GetN()<<" gr_median: "<<gr_median[ch]->GetN()<<endl; return -1; }
+
 
       if(ch==0){
          freqCountLen_V = grFFT[ch]->GetN();
@@ -958,9 +967,14 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       delete grCDF[ch];
       delete grCumuSum[ch];
       //delete grCumuSumCDF[ch];
-      delete grFFT[ch];
+      delete grFFT_temp[ch]
+      //delete grFFT[ch];
+      cvs.cd(ch+1);
+      grFFT[ch]->Draw("AL");
 
    }
+
+   cvs.SaveAs("grSubFFT.C");
 
    summary->setFreqBinWidth(freqBinWidth_V, freqBinWidth_H);
 
@@ -1479,7 +1493,11 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       summary->setPowerPeaksByChannel(ch, posPowerPeak, negPowerPeak, powerPeaksDeltaT);
 
       /* Get max freq bin */
-      grFFT[ch] = FFTtools::makePowerSpectrumMilliVoltsNanoSecondsdB(grWinPad[ch]);
+      grFFT_temp[ch] = FFTtools::makePowerSpectrumMilliVoltsNanoSecondsdB(grWinPad[ch]);
+
+      /* Get baseline-subtracted FFT */
+      grFFT[ch] = FFTtools::subtractGraphs(grFFT_temp[ch], gr_median[ch]);
+      if(grFFT[ch]==NULL){ cerr<<"Inconsistent FFT Npoints. ch: "<<ch<<" grFFT_temp: "<<grFFT_temp[ch]->GetN()<<" gr_median: "<<gr_median[ch]->GetN()<<endl; return -1; }
 
       if(ch==0){
          freqCountLen_V = grFFT[ch]->GetN();
@@ -1505,6 +1523,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       delete grCDF[ch];
       delete grCumuSum[ch];
       //delete grCumuSumCDF[ch];
+      delete grFFT_temp[ch];
       delete grFFT[ch];
 
    }
