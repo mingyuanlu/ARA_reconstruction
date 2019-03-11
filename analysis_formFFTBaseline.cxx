@@ -139,7 +139,7 @@ if( !settings->readRecoSetupFile( recoSetupFile_fullPath )){
 
 } else {
    cout<<"Obtained new reoSetupFile\n";
-   outputFile = new TFile((outputDir+"recoOut."+recoSetupFile+".run"+runNum+".root").c_str(),"RECREATE","recoOut");
+   outputFile = new TFile((outputDir+"fftPedestal."+recoSetupFile+".run"+runNum+".root").c_str(),"RECREATE","fftPedestal");
    fitsFile_tmp = outputDir + "recoSkymap." + recoSetupFile + ".run" + runNum/* + ".fits"*/;
 }
 char fitsFile[200];
@@ -1943,8 +1943,8 @@ cout<<"mistaggedSoftEventCount: "<<mistaggedSoftEventCount<<" offsetBlockEventCo
 
 runInfoTree->Fill();
 
-outputFile->Write();
-outputFile->Close();
+//outputFile->Write();
+//outputFile->Close();
 
 clfftTeardown();
 err = tearDown(&clEnv);
@@ -1979,14 +1979,19 @@ vector<double> tempVec;
 TGraph *gr_median[16];
 TGraph *gr_75[16];
 TGraph *gr_25[16];
+char grName[200];
 
 for(int ch=0; ch<8; ch++){
-cout<<"1984\n";
+   sprintf(grName,"gr_median_%d",ch);
    gr_median[ch] = new TGraph();
+   gr_median[ch]->SetName(grName); gr_median[ch]->SetTitle(grName);
+   sprintf(grName,"gr_75_%d",ch);
    gr_75[ch]     = new TGraph();
+   gr_75[ch]->SetName(grName); gr_75[ch]->SetTitle(grName);
+   sprintf(grName,"gr_25_%d",ch);
    gr_25[ch]     = new TGraph();
+   gr_25[ch]->SetName(grName); gr_25[ch]->SetTitle(grName);
    for(int bin=0; bin<freqCountLen_V; bin++){
-      cout<<"1989\n";
       tempVec.assign(fftValues_V[ch*freqCountLen_V+bin].begin(), fftValues_V[ch*freqCountLen_V+bin].end());
       //median[ch] = getPercentile(tempVec, 0.5);
       //percentile_75[ch] = getPercentile(tempVec, 0.75);
@@ -1996,17 +2001,22 @@ cout<<"1984\n";
       gr_25[ch]->SetPoint(bin, bin*freqBinWidth_V, getPercentile(tempVec, 0.25));
       //cout<<"ch: "<<ch<<" 25%: "<<percentile_25[ch]<<" 50%: "<<median[ch]<<" 75%: "<<percentile_75[ch]<<endl;
       tempVec.clear();
-      cout<<"1999\n";
    }
+   gr_median[ch]->Write();
+   gr_75[ch]->Write();
+   gr_25[ch]->Write();
 }
-cout<<"2002\n";
 for(int ch=8; ch<16; ch++){
-cout<<"2004\n";
+   sprintf(grName,"gr_median_%d",ch);
    gr_median[ch] = new TGraph();
+   gr_median[ch]->SetName(grName); gr_median[ch]->SetTitle(grName);
+   sprintf(grName,"gr_75_%d",ch);
    gr_75[ch]     = new TGraph();
+   gr_75[ch]->SetName(grName); gr_75[ch]->SetTitle(grName);
+   sprintf(grName,"gr_25_%d",ch);
    gr_25[ch]     = new TGraph();
+   gr_25[ch]->SetName(grName); gr_25[ch]->SetTitle(grName);
    for(int bin=0; bin<freqCountLen_H; bin++){
-      cout<<"2009\n";
       tempVec.assign(fftValues_H[(ch-8)*freqCountLen_H+bin].begin(), fftValues_H[(ch-8)*freqCountLen_H+bin].end());
       //median[ch] = getPercentile(tempVec, 0.5);
       //percentile_75[ch] = getPercentile(tempVec, 0.75);
@@ -2016,10 +2026,14 @@ cout<<"2004\n";
       gr_25[ch]->SetPoint(bin, bin*freqBinWidth_H, getPercentile(tempVec, 0.25));
       //cout<<"ch: "<<ch<<" 25%: "<<percentile_25[ch]<<" 50%: "<<median[ch]<<" 75%: "<<percentile_75[ch]<<endl;
       tempVec.clear();
-      cout<<"2019\n";
    }
+   gr_median[ch]->Write();
+   gr_75[ch]->Write();
+   gr_25[ch]->Write();
 }
-cout<<"2022\n";
+
+outputFile->Close();
+
 /*
 TH2F *fftValuesHist =new TH2F("fftValuesHist","fftValuesHist",(int)(1000/freqBinWidth_V),0,1000,500,-100,100);
 for(int bin=0; bin<freqCountLen_V; bin++){
@@ -2028,7 +2042,7 @@ for(int bin=0; bin<freqCountLen_V; bin++){
    }
 }
 */
-
+/*
 TCanvas c1("c1","c1",800,800);
 //fftValuesHist->Draw("colz");
 c1.Divide(4,4);
@@ -2042,7 +2056,7 @@ for(int ch=0; ch<16; ch++){
 }
 c1.SaveAs("fftValuesMedian.C");
 //c1.SaveAs("fftValuesHist.C");
-
+*/
 //recordTime(tmr,5);
 time_t t_program_end = time(NULL);
 clock_t c_program_end = clock();
