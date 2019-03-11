@@ -2007,7 +2007,7 @@ cout<<"2004\n";
    gr_25[ch]     = new TGraph();
    for(int bin=0; bin<freqCountLen_H; bin++){
       cout<<"2009\n";
-      tempVec.assign(fftValues_H[ch*freqCountLen_H+bin].begin(), fftValues_H[ch*freqCountLen_H+bin].end());
+      tempVec.assign(fftValues_H[(ch-8)*freqCountLen_H+bin].begin(), fftValues_H[(ch-8)*freqCountLen_H+bin].end());
       //median[ch] = getPercentile(tempVec, 0.5);
       //percentile_75[ch] = getPercentile(tempVec, 0.75);
       //percentile_25[ch] = getPercentile(tempVec, 0.25);
