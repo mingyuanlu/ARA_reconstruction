@@ -173,7 +173,7 @@ TH2F *recoTrueAziDist = new TH2F("recoTrueAziDist", "recoTrueAziDist", 360, 0, 3
  */
 
 string fftBaselineFileStr = string( argv[4] );
-TFile fftBaselineFile = new TFile(fftBaselineFileStr.c_str());
+TFile *fftBaselineFile = new TFile(fftBaselineFileStr.c_str());
 TGraph *gr_median[16];
 TGraph *gr_75[16];
 TGraph *gr_25[16];
