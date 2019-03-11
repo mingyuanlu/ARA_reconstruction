@@ -952,8 +952,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          //fftValues[ch][bin].push_back(p);
       }
 
-      eventCount++;
-      cout<<"eventCount: "<<eventCount<<endl;
+
       maxFrac = FFTtools::getPeakVal(grFFT[ch], &maxFracBin);
       //cout<<"ch: "<<ch<<" macFrac: "<<maxFrac<<" maxFracBin: "<<maxFracBin<<endl;
       summary->setMaxFreqBinByChannel(ch, maxFracBin, maxFrac);
@@ -969,6 +968,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    }
 
+   eventCount++;
+   cout<<"eventCount: "<<eventCount<<endl;
+   
    summary->setFreqBinWidth(freqBinWidth_V, freqBinWidth_H);
 
    computeSNR(settings, unpaddedEvent, summary);
