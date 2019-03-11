@@ -930,7 +930,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       //cout<<"926\n";
       //cout<<"fftValues_V size: "<<sizeof(fftValues_V)<<endl;
       //cout<<"vector<double> size: "<<sizeof(vector<double>)<<endl;
-      cout<<"ch: "<<ch<<endl;
+      //cout<<"ch: "<<ch<<endl;
       //cout<<"freqCountLen_V: "<<freqCountLen_V<<endl;
       if(ch<8){
          for(int bin=0; bin<freqCountLen_V; bin++){
@@ -969,8 +969,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    }
 
    eventCount++;
-   cout<<"eventCount: "<<eventCount<<endl;
-   
+   //out<<"eventCount: "<<eventCount<<endl;
+
    summary->setFreqBinWidth(freqBinWidth_V, freqBinWidth_H);
 
    computeSNR(settings, unpaddedEvent, summary);
