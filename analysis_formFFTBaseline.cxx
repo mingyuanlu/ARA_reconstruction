@@ -1982,7 +1982,7 @@ if( !settings->readRecoSetupFile( recoSetupFile_fullPath )){
 
 } else {
    cout<<"Obtained new reoSetupFile\n";
-   outputFile = new TFile((outputDir+"fftPedestal."+recoSetupFile+".run"+runNum+".root").c_str(),"RECREATE","fftPedestal");
+   outputFile = new TFile((outputDir+"fftBaseline."+recoSetupFile+".run"+runNum+".root").c_str(),"RECREATE","fftBaseline");
    fitsFile_tmp = outputDir + "recoSkymap." + recoSetupFile + ".run" + runNum/* + ".fits"*/;
 }
 
