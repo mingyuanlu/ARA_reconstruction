@@ -927,19 +927,19 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          if(eventCount == 0) fftValues_H = new vector<double> [freqCountLen_H*8];
          //if(eventCount == 0) fftValues_H = (vector<double>*)malloc(8*freqCountLen_H*sizeof(vector<double>));
       }
-      cout<<"926\n";
+      //cout<<"926\n";
       //cout<<"fftValues_V size: "<<sizeof(fftValues_V)<<endl;
       //cout<<"vector<double> size: "<<sizeof(vector<double>)<<endl;
-
+      cout<<"ch: "<<ch<<endl;
       //cout<<"freqCountLen_V: "<<freqCountLen_V<<endl;
       if(ch<8){
          for(int bin=0; bin<freqCountLen_V; bin++){
-            cout<<"929 bin:"<<bin<<"\n";
+            //cout<<"929 bin:"<<bin<<"\n";
             grFFT[ch]->GetPoint(bin, f, p);
-            cout<<"931\n";
+            //cout<<"931\n";
             fftValues_V[ch*freqCountLen_V+bin].push_back(p);
 
-            cout<<"933\n";
+            //cout<<"933\n";
 
          }
       }
@@ -953,7 +953,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       }
 
       eventCount++;
-
+      cout<<"eventCount: "<<eventCount<<endl;
       maxFrac = FFTtools::getPeakVal(grFFT[ch], &maxFracBin);
       //cout<<"ch: "<<ch<<" macFrac: "<<maxFrac<<" maxFracBin: "<<maxFracBin<<endl;
       summary->setMaxFreqBinByChannel(ch, maxFracBin, maxFrac);
