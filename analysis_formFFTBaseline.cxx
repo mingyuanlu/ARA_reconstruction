@@ -139,7 +139,7 @@ if( !settings->readRecoSetupFile( recoSetupFile_fullPath )){
 
 } else {
    cout<<"Obtained new reoSetupFile\n";
-   outputFile = new TFile((outputDir+"fftPedestal."+recoSetupFile+".run"+runNum+".root").c_str(),"RECREATE","fftPedestal");
+   //outputFile = new TFile((outputDir+"fftPedestal."+recoSetupFile+".run"+runNum+".root").c_str(),"RECREATE","fftPedestal");
    fitsFile_tmp = outputDir + "recoSkymap." + recoSetupFile + ".run" + runNum/* + ".fits"*/;
 }
 char fitsFile[200];
@@ -1967,9 +1967,24 @@ delete summary;
 //   free(constantNDelays_V);
 //   free(constantNDelays_H);
 //}
-delete settings;
+//delete settings;
 free(mapDataHist);
 free(mapData);
+
+if( !settings->readRecoSetupFile( recoSetupFile_fullPath )){
+
+   cerr<<"Error reading the recoSetupFile or invalid parameters !! Aborting now...\n";
+   return -1;
+   //cerr<<"Will use default reco setup file\n";
+   //settings->readRecoSetupFile("recoSetupFile_default.txt");
+   //outputFile = new TFile(("recoOut.recoSetupFile_default.txt.run"+runNum+".root").c_str(),"RECREATE","recoOut");
+   //fitsFile_tmp = "recoSkymap.recoSetupFile_default.txt.run" + runNum/* + ".fits"*/;
+
+} else {
+   cout<<"Obtained new reoSetupFile\n";
+   outputFile = new TFile((outputDir+"fftPedestal."+recoSetupFile+".run"+runNum+".root").c_str(),"RECREATE","fftPedestal");
+   fitsFile_tmp = outputDir + "recoSkymap." + recoSetupFile + ".run" + runNum/* + ".fits"*/;
+}
 
 //double median[16] = {-1000.};
 //double percentile_75[16] = {-1000.};
@@ -2031,9 +2046,10 @@ for(int ch=8; ch<16; ch++){
    gr_75[ch]->Write();
    gr_25[ch]->Write();
 }
-outputFile->Write();
+//outputFile->Write();
 outputFile->Close();
 
+delete settings;
 /*
 TH2F *fftValuesHist =new TH2F("fftValuesHist","fftValuesHist",(int)(1000/freqBinWidth_V),0,1000,500,-100,100);
 for(int bin=0; bin<freqCountLen_V; bin++){
