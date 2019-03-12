@@ -16669,11 +16669,11 @@ TGraph *subtractDBGraphs(TGraph *gr1, TGraph *gr2){
       else p1 = 0;
       if( p2 > -1000 ) p2 = pow(10., p2/10.);
       else p2 = 0;
-      if( (p1-p2)>0.)
-         gr3->SetPoint(i,f1,10.*TMath::Log10(p1-p2));
-      else
-         gr3->SetPoint(i,f1,-1000);
-
+      //if( (p1-p2)>0.)
+      //   gr3->SetPoint(i,f1,10.*TMath::Log10(p1-p2));
+      //else
+      //   gr3->SetPoint(i,f1,-1000);
+      gr3->SetPoint(i,f1,p1-p2);
 
    }
 
