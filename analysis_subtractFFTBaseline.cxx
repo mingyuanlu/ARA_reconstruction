@@ -939,7 +939,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       grFFT_temp[ch] = FFTtools::makePowerSpectrumMilliVoltsNanoSecondsdB(grWinPad[ch]);
 
       /* Get baseline-subtracted FFT */
-      grFFT[ch] = FFTtools::subtractGraphs(grFFT_temp[ch], gr_median[ch]);
+      //grFFT[ch] = FFTtools::subtractGraphs(grFFT_temp[ch], gr_median[ch]);
+      grFFT[ch] = subtractDBGraphs(grFFT_temp[ch], gr_median[ch]);
       if(grFFT[ch]==NULL){ cerr<<"Inconsistent FFT Npoints. ch: "<<ch<<" grFFT_temp: "<<grFFT_temp[ch]->GetN()<<" gr_median: "<<gr_median[ch]->GetN()<<endl; return -1; }
 
 
@@ -1496,7 +1497,8 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       grFFT_temp[ch] = FFTtools::makePowerSpectrumMilliVoltsNanoSecondsdB(grWinPad[ch]);
 
       /* Get baseline-subtracted FFT */
-      grFFT[ch] = FFTtools::subtractGraphs(grFFT_temp[ch], gr_median[ch]);
+      //grFFT[ch] = FFTtools::subtractGraphs(grFFT_temp[ch], gr_median[ch]);
+      grFFT[ch] = subtractDBGraphs(grFFT_temp[ch], gr_median[ch]);
       if(grFFT[ch]==NULL){ cerr<<"Inconsistent FFT Npoints. ch: "<<ch<<" grFFT_temp: "<<grFFT_temp[ch]->GetN()<<" gr_median: "<<gr_median[ch]->GetN()<<endl; return -1; }
 
       if(ch==0){

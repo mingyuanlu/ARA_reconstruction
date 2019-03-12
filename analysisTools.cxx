@@ -944,3 +944,30 @@ double getPercentile(vector<double> fftValues, const double percentile){
 
 
 }
+
+TGraph *subtractDBGraphs(TGraph *gr1, TGraph *gr2){
+
+   TGraph *gr3 = new TGraph();
+   double f1,f2,p1,p2;
+
+   if(gr1->GetN() != gr2->GetN()){
+      return NULL;
+   }
+
+   for(int i=0; i<gr1->GetN(); i++){
+      gr1->GetPoint(i,f1,p1);
+      gr2->GetPoint(i,f2,p2);
+      if( p1 > -1000 ) p1 = pow(10., p1/10.);
+      else p1 = 0;
+      if( p2 > -1000 ) p2 = pow)10., p2/10.);
+      else p2 = 0;
+      if( (p1-p2)>0.)
+         gr3->SetPoint(i,f1,10.*TMath::Log10(p1-p2));
+      else
+         gr3->SetPoint(i,f1,-1000);
+
+
+   }
+
+   return gr3;
+}
