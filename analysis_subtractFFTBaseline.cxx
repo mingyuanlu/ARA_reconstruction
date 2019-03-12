@@ -970,12 +970,12 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       //delete grCumuSumCDF[ch];
       delete grFFT_temp[ch];
       delete grFFT[ch];
-      //cvs.cd(ch+1);
-      //grFFT[ch]->Draw("AL");
+      cvs.cd(ch+1);
+      grFFT[ch]->Draw("AL");
 
    }
 
-   ///cvs.SaveAs("grSubFFT.C");
+   cvs.SaveAs("grSubFFT.C");
 
    summary->setFreqBinWidth(freqBinWidth_V, freqBinWidth_H);
 
