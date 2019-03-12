@@ -453,4 +453,5 @@ void computeSNR(recoSettings * settings, const vector<TGraph *>& cleanEvent, rec
 int getCWCount_iterFreqWindow(vector<TGraph *>& grFFT, double fftRes, int iterThres);
 TGraph *truncateCWFreq(TGraph *gr, double cwFreq, double fftRes);
 bool isCW_freqWindow(double& cwFreq, bool &isVpolCW, bool &isHpolCW, bool& isXpolCW, int *peakBin, double freqBinWidth_V, double freqBinWidth_H, double fftRes, int cwBinThres);
+TGraph *subtractDBGraphs(TGraph *gr1, TGraph *gr2);
 #endif
