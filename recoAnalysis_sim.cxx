@@ -1378,6 +1378,7 @@ for(int i=5; i<argc; i++){
       avgThetaXingHist->Fill(avgThetaXingPix, dummyData->weight);
       avgPhiXingHist->Fill(avgPhiXingPix, dummyData->weight);
 
+      angThres=0.5;
       double inRangeThetaFrac = getZenithInRangeFraction(dummyData, settings, onion, angThres);
       double inRangePhiFrac   = getAzimuthInRangeFraction(dummyData, settings, onion, angThres);
       inRangeThetaFracHist->Fill(inRangeThetaFrac, dummyData->weight);
@@ -1763,7 +1764,7 @@ avgPhiXingHist_cumu->Draw();
 c16.SaveAs("recoAnalysis_16.C");
 */
 
-sprintf(filename,"%s_type%d_E%s_nMinusCWThermalImp_inRangeThetaPhiFraction.C",STATION.c_str(),type,ENERGY.c_str());
+sprintf(filename,"%s_type%d_E%s_nMinusCWThermalImp_inRangeThetaPhiFraction_angThres0.5.C",STATION.c_str(),type,ENERGY.c_str());
 TCanvas c17("c17","c17",1200,800);
 c17.Divide(3,1);
 c17.cd(1);
