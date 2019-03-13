@@ -496,6 +496,13 @@ double fftRes;
 //else        fftRes = 1/(499e-9)/1e6;
 //cout<<"fftRes: "<<fftRes<<endl;
 
+vector<double> iterZen;
+vector<double> iterAzi;
+TH1F *thetaXingHist = new TH1F("thetaXingHist","thetaXingHist",settings->topN+1,0.5,settings->topN+0.5);
+TH1F *phiXingHist = new TH1F("phiXingHist","phiXingHist",settings->topN+1,0.5,setings->topN+0.5);
+TH1F *avgThetaXingHist = new TH1F("avgThetaXingHist","avgThetaXingHist",settings->topN+1,0.5,settings->topN+0.5);
+TH1F *avgPhiXingHist = new TH1F("avgPhiXingHist","avgPhiXingHist",settings->topN+1,0.5,settings->topN+0.5);
+
 for(int entry=0; entry<Nentries; entry++){
 
    if(Nentries > 100) {  if(  entry % (Nentries/100) == 0  ){ cout<<"Progess: "<<entry / (Nentries/100) <<"%\n"; } }
@@ -682,6 +689,69 @@ for(int entry=0; entry<Nentries; entry++){
 //       }
 
 
+double avgTheta = 0.;
+double avgPhi  = 0.;
+int pixCount = 0;
+double angThres = 1.;
+bool isThetaOut, isPhiOut;
+isThetaOut = isPhiOut = false;
+bool isAvgThetaOut, isAvgPhiOut;
+isAvgThetaOut = isAvgPhiOut = false;
+
+for(int pix=0; pix<settings->topN; pix++){
+
+   pixCount++;
+
+   if(dummuDaya->topMaxPixCoherence.at(pix)>dummyData->topMaxPixCoherence2.at(pix)){
+      theta = onion.getPointing(dummyData->topMaxPixIdx.at(pix)).theta * TMath::RadToDeg();
+      phi   = onion.getPointing(dummyData->topMaxPixIdx.at(pix)).phi   * TMath::RadToDeg();
+
+   } else {
+      theta = onion.getPointing(dummyData->topMaxPixIdx2.at(pix)).theta * TMath::RadToDeg();
+      phi   = onion.getPointing(dummyData->topMaxPixIdx2.at(pix)).phi   * TMath::RadToDeg();
+   }
+
+   avgTheta = avgTheta * (pixCount-1) + theta;
+   avgPhi   = avgPhi   * (pixCount-1) + phi;
+   avgTheta /= (double)pixCount;
+   avgPhi   /= (double)pixCount;
+
+   if(!isThetaOut){
+      if(fabs(theta-dummyData->recoZen)>angThres){
+         isThetaOut = true;
+         thetaXingHist->Fill(pixCount);
+      }
+   }
+
+   if(!isAvgThetaOut){
+      if(fabs(avgTheta-dummyData->recoZen)>angThres){
+         isAvgThetaOut = true;
+         avgThetaXingHist->Fill(pixCount);
+      }
+   }
+
+   if(!isPhiOut){
+      if(fabs(phi-dummyData->recoAzi)>angThres){
+         isPhiOut = true;
+         phiXingHist->Fill(pixCount);
+      }
+   }
+
+   if(!isAvgPhiOut){
+      if(fabs(avgPhi-dummyData->recoAzi)>angThres){
+         isAvgPhiOut = true;
+         avgPhiXingHist->Fill(pixCount);
+      }
+   }
+
+
+}//end of pix
+
+   //If the quantity is never "out", fill the overflow bin pixCount topN+1
+   if( !isThetaOut ) thetaXingHist->Fill(settings->topN+1);
+   if( !isPhiOut )   phiXingHist->Fill(settings->topN+1);
+   if( !isAvgThetaOut ) avgThetaXingHist->Fill(settings->topN+1);
+   if( !isAvgPhiOut ) avgPhiXingHist->Fill(settings->topN+1);
 
 
 /*
@@ -2138,7 +2208,7 @@ impulsivityHist->Draw();
 
 TCanvas c35("c35","c35",800,800);
 iterCWCountHist->Draw();
-c35.SaveAs("recoAnalysis_35.C");
+//c35.SaveAs("recoAnalysis_35.C");
 
 TCanvas c36("c36","c36",800,800);
 c36.Divide(4,4);
@@ -2146,11 +2216,23 @@ for(int ch=0; ch<16; ch++){
    c36.cd(ch+1);
    avgPowerRatioHist[ch]->Draw();
 }
-c36.SaveAs("recoAnalysis_36.C");
+//c36.SaveAs("recoAnalysis_36.C");
 
 TCanvas c37("c37","c37",800,800);
 coherence_snr_cw->Draw("colz");
-c37.SaveAs("recoAnalysis_37.C");
+//c37.SaveAs("recoAnalysis_37.C");
+
+TCanvas c38("c38","c38",800,800);
+c38.Divide(2,2);
+c38.cd(1);
+thetaXingHist->Draw();
+c38.cd(2);
+phiXingHist->Draw();
+c38.cd(3);
+avgThetaXingHist->Draw();
+c38.cd(4);
+avgPhiXingHist->Draw();
+c38.SaveAs("recoAnalysis_38.C");
 
 printf("Nentries: %d\trfEventCount: %d\tcalEventCount: %d\tsoftEventCount: %d\n", Nentries, rfEventCount, calEventCount, softEventCount);
 
