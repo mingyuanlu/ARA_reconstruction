@@ -1091,7 +1091,7 @@ void getAvgAngXingPixels(int& avgThetaPixCount, int& avgPhiPixCount, recoData* d
 TH1F *getCumulative(TH1F *hist){
 
    double integral, sum;
-   TH1F *hist_cumu = hist->Clone();
+   TH1F *hist_cumu = (TH1F*)hist->Clone();
 
    int nbins = hist->GetNbinsX();
    integral = hist->Integral();
