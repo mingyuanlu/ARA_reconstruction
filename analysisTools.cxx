@@ -1110,6 +1110,7 @@ double getZenithInRangeFraction(recoData* dummyData, recoSettings* settings, Hea
 
       int inRangePixCount = 0;
       bool use1stRay = (dummyData->maxPixCoherence>dummyData->maxPixCoherence2);
+      double theta, phi;
 
       for(int pix=0; pix<settings->topN; pix++){
 
@@ -1136,6 +1137,8 @@ double getAzimuthInRangeFraction(recoData* dummyData, recoSettings* settings, He
 
       int inRangePixCount = 0;
       bool use1stRay = (dummyData->maxPixCoherence>dummyData->maxPixCoherence2);
+      double theta, phi;
+
 
       for(int pix=0; pix<settings->topN; pix++){
 
