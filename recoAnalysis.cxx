@@ -1354,17 +1354,17 @@ passThermalCut = !isThermal_boxCut(inBand, settings, dummyData, onion,  cutValue
    double  angThres = 1.;
    if(passThermalCut && passDeepPulserCut && passSurfaceCut && passSurfaceCut_2 && passCalpulserCut && passCalpulserTimeCut && passNoisyRunCut && !lowFreqDominance /*&& passCWCut*/){
 
-      getAngXingPixels(thetaXingPix, phiXingPix, dummyData, settings, onion, angThres);
-      getAvgAngXingPixels(avgThetaXingPix, avgPhiXingPix, dummyData, settings, onion, angThres);
+      //getAngXingPixels(thetaXingPix, phiXingPix, dummyData, settings, onion, angThres);
+      //getAvgAngXingPixels(avgThetaXingPix, avgPhiXingPix, dummyData, settings, onion, angThres);
 
-      if(avgPhiXingPix>500){
-         cout<<"avgPhiXingPix: "<<avgPhiXingPix<<" runNum: "<<runNum<<" event: "<<dummyData->eventNumber<<endl;
-      }
+      //if(avgPhiXingPix>500){
+      //   cout<<"avgPhiXingPix: "<<avgPhiXingPix<<" runNum: "<<runNum<<" event: "<<dummyData->eventNumber<<endl;
+      //}
 
-      thetaXingHist->Fill(thetaXingPix, dummyData->weight);
-      phiXingHist->Fill(phiXingPix, dummyData->weight);
-      avgThetaXingHist->Fill(avgThetaXingPix, dummyData->weight);
-      avgPhiXingHist->Fill(avgPhiXingPix, dummyData->weight);
+      //thetaXingHist->Fill(thetaXingPix, dummyData->weight);
+      //phiXingHist->Fill(phiXingPix, dummyData->weight);
+      //avgThetaXingHist->Fill(avgThetaXingPix, dummyData->weight);
+      //avgPhiXingHist->Fill(avgPhiXingPix, dummyData->weight);
 
       double inRangeThetaFrac = getZenithInRangeFraction(dummyData, settings, onion, angThres);
       double inRangePhiFrac   = getAzimuthInRangeFraction(dummyData, settings, onion, angThres);
