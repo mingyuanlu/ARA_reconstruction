@@ -503,6 +503,11 @@ TH1F *phiXingHist = new TH1F("phiXingHist","phiXingHist",settings->topN+1,0.5,se
 TH1F *avgThetaXingHist = new TH1F("avgThetaXingHist","avgThetaXingHist",settings->topN+1,0.5,settings->topN+0.5+1);
 TH1F *avgPhiXingHist = new TH1F("avgPhiXingHist","avgPhiXingHist",settings->topN+1,0.5,settings->topN+0.5+1);
 
+TH1F *thetaXingHist_cumu = new TH1F("thetaXingHist_cumu","thetaXingHist_cumu",settings->topN+1,0.5,settings->topN+0.5+1);
+TH1F *phiXingHist_cumu = new TH1F("phiXingHist_cumu","phiXingHist_cumu",settings->topN+1,0.5,settings->topN+0.5+1);
+TH1F *avgThetaXingHist_cumu = new TH1F("avgThetaXingHist_cumu","avgThetaXingHist_cumu",settings->topN+1,0.5,settings->topN+0.5+1);
+TH1F *avgPhiXingHist_cumu = new TH1F("avgPhiXingHist_cumu","avgPhiXingHist_cumu",settings->topN+1,0.5,settings->topN+0.5+1);
+
 for(int entry=0; entry<Nentries; entry++){
 
    if(Nentries > 100) {  if(  entry % (Nentries/100) == 0  ){ cout<<"Progess: "<<entry / (Nentries/100) <<"%\n"; } }
@@ -2236,6 +2241,8 @@ avgThetaXingHist->Draw();
 c38.cd(4);
 avgPhiXingHist->Draw();
 c38.SaveAs("recoAnalysis_38.C");
+
+thetaXingHist_cumu = thetaXingHist->GetCumulative(kFALSE);
 
 printf("Nentries: %d\trfEventCount: %d\tcalEventCount: %d\tsoftEventCount: %d\n", Nentries, rfEventCount, calEventCount, softEventCount);
 
