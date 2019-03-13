@@ -1070,8 +1070,8 @@ passThermalCut = !isThermal_boxCut(inBand, settings, dummyData, onion,  cutValue
    double impCut = cutValues->cwImpCut[type-1].val; //impulsivityCut[type-1];
    impCut = 0.2579306/*0.2384656*/;
    //passCWCut = ( !isCW || (isCW && passHighPassFilter && passImpulsivityCut )) && !lowFreqDominance;
-   //passCWCut = ( !isCW || (isCW && isRecoverableByImp(isVpolCW, isHpolCW, isXpolCW, dummyData, impCut, highPassFreq) )) && !lowFreqDominance;
-   passCWCut = !lowFreqDominance;
+   passCWCut = ( !isCW || (isCW && isRecoverableByImp(isVpolCW, isHpolCW, isXpolCW, dummyData, impCut, highPassFreq) )) && !lowFreqDominance;
+   //passCWCut = !lowFreqDominance;
 
 
    /****** Check if pass thermal impulsivity cut ********/
@@ -1348,7 +1348,7 @@ passThermalCut = !isThermal_boxCut(inBand, settings, dummyData, onion,  cutValue
 
    int thetaXingPix, phiXingPix, avgThetaXingPix, avgPhiXingPix;
    double  angThres = 1.;
-   if(passThermalCut && passDeepPulserCut && passSurfaceCut && passSurfaceCut_2 && passCalpulserCut && passCalpulserTimeCut && passNoisyRunCut/* && !lowFreqDominance*/){
+   if(passThermalCut && passDeepPulserCut && passSurfaceCut && passSurfaceCut_2 && passCalpulserCut && passCalpulserTimeCut && passNoisyRunCut/* && !lowFreqDominance*/ && passCWCut){
 
       getAngXingPixels(thetaXingPix, phiXingPix, dummyData, settings, onion, angThres);
       getAvgAngXingPixels(avgThetaXingPix, avgPhiXingPix, dummyData, settings, onion, angThres);
