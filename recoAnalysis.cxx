@@ -1353,6 +1353,10 @@ passThermalCut = !isThermal_boxCut(inBand, settings, dummyData, onion,  cutValue
       getAngXingPixels(thetaXingPix, phiXingPix, dummyData, settings, onion, angThres);
       getAvgAngXingPixels(avgThetaXingPix, avgPhiXingPix, dummyData, settings, onion, angThres);
 
+      if(avgPhiXingPix>500){
+         cout<<"avgPhiXingPix: "<<avgPhiXingPix<<" runNum: "<<runNum<<" event: "<<dummyData->eventNumber<<endl;
+      }
+
       thetaXingHist->Fill(thetaXingPix, dummyData->weight);
       phiXingHist->Fill(phiXingPix, dummyData->weight);
       avgThetaXingHist->Fill(avgThetaXingPix, dummyData->weight);
