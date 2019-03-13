@@ -1347,7 +1347,7 @@ for(int i=5; i<argc; i++){
    int thetaXingPix, phiXingPix, avgThetaXingPix, avgPhiXingPix;
    double  angThres = 1.;
 
-   if(/*isCW &&*/ passThermalCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut && passCWCut /*&& !lowFreqDominance*/){
+   if(/*isCW &&*/ passThermalCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut /*&& passCWCut */&& !lowFreqDominance){
 
       std::fill(&impulsivity[0], &impulsivity[16], 0.);
       int nonZeroCount = 0;
@@ -1763,7 +1763,7 @@ avgPhiXingHist_cumu->Draw();
 c16.SaveAs("recoAnalysis_16.C");
 */
 
-sprintf(filename,"%s_type%d_E%s_nMinusThermalImp_inRangeThetaPhiFraction.C",STATION.c_str(),type,ENERGY.c_str());
+sprintf(filename,"%s_type%d_E%s_nMinusCWThermalImp_inRangeThetaPhiFraction.C",STATION.c_str(),type,ENERGY.c_str());
 TCanvas c17("c17","c17",1200,800);
 c17.Divide(3,1);
 c17.cd(1);
