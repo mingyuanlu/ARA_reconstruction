@@ -123,6 +123,7 @@ bool isCalpulser(float &inBoxTheta, float &inBoxPhi, string STATION, recoData *d
 bool isRecoverableByImp(bool isVpolCW, bool isHpolCW, bool isXpolCW, recoData *dummyData, double impCut, double highPassFreq);
 bool isBelowThermalImpulsivityCut(double &avgImpulsivity, recoData *dummyData, double postThermalAvgImpulsivityCut);
 double getPercentile(vector<double> fftValues, const double percentile);
+void getAngXingPixels(int& thetaPixCount, int& phiPixCount, recoData* dummyData, recoSettings* settings, Healpix_Onion onion, const double angThres);
 void getAvgAngXingPixels(int& avgThetaPixCount, int& avgPhiPixCount, recoData* dummyData, recoSettings* settings, Healpix_Onion onion, const double angThres);
 TH1F *getCumulative(TH1F *hist);
 #endif
