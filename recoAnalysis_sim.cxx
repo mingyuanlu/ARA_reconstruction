@@ -1734,7 +1734,7 @@ c15.cd(3);
 avgThetaXingHist->Draw();
 c15.cd(4);
 avgPhiXingHist->Draw();
-c15.SaveAs("recoAnalysis_15");
+c15.SaveAs("recoAnalysis_15.C");
 
 
 TH1F *thetaXingHist_cumu = getCumulative(thetaXingHist);
@@ -1752,7 +1752,7 @@ c16.cd(3);
 avgThetaXingHist_cumu->Draw();
 c16.cd(4);
 avgPhiXingHist_cumu->Draw();
-c16.SaveAs("recoAnalysis_16");
+c16.SaveAs("recoAnalysis_16.C");
 
 
 return 0;
