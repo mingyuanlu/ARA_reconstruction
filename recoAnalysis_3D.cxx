@@ -702,7 +702,7 @@ for(int pix=0; pix<settings->topN; pix++){
 
    pixCount++;
 
-   if(dummyDaya->topMaxPixCoherence.at(pix)>dummyData->topMaxPixCoherence2.at(pix)){
+   if(dummyData->topMaxPixCoherence.at(pix)>dummyData->topMaxPixCoherence2.at(pix)){
       theta = onion.getPointing(dummyData->topMaxPixIdx.at(pix)).theta * TMath::RadToDeg();
       phi   = onion.getPointing(dummyData->topMaxPixIdx.at(pix)).phi   * TMath::RadToDeg();
 
