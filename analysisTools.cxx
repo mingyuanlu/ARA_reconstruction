@@ -944,3 +944,163 @@ double getPercentile(vector<double> fftValues, const double percentile){
 
 
 }
+
+void getAngXingPixels(int& thetaPixCount, int& phiPixCount, recoData* dummyData, recoSettings* settings, Healpix_Onion onion, const double angThres){
+
+   //double avgTheta = 0.;
+   //double avgPhi  = 0.;
+   int pixCount = 0;
+   //double angThres = 1.;
+   bool isThetaOut, isPhiOut;
+   isThetaOut = isPhiOut = false;
+   //bool isAvgThetaOut, isAvgPhiOut;
+   //isAvgThetaOut = isAvgPhiOut = false;
+   double theta, phi;
+
+   bool use1stRay = (dummyData->maxPixCoherence>dummyData->maxPixCoherence2);
+
+   for(int pix=0; pix<settings->topN; pix++){
+
+      pixCount++;
+
+      //if(dummyData->topMaxPixCoherence.at(pix)>dummyData->topMaxPixCoherence2.at(pix)){
+      if(use1stRay){
+         theta = onion.getPointing(dummyData->topMaxPixIdx.at(pix)).theta * TMath::RadToDeg();
+         phi   = onion.getPointing(dummyData->topMaxPixIdx.at(pix)).phi   * TMath::RadToDeg();
+
+      } else {
+         theta = onion.getPointing(dummyData->topMaxPixIdx2.at(pix)).theta * TMath::RadToDeg();
+         phi   = onion.getPointing(dummyData->topMaxPixIdx2.at(pix)).phi   * TMath::RadToDeg();
+      }
+
+      //avgTheta = avgTheta * (pixCount-1) + theta;
+      //avgPhi   = avgPhi   * (pixCount-1) + phi;
+      //avgTheta /= (double)pixCount;
+      //avgPhi   /= (double)pixCount;
+
+      if(!isThetaOut){
+         if(fabs(theta-dummyData->recoZen)>angThres){
+            isThetaOut = true;
+            //thetaXingHist->Fill(pixCount);
+            thetaPixCount = pixCount;
+         }
+      }
+      /*
+      if(!isAvgThetaOut){
+         if(fabs(avgTheta-dummyData->recoZen)>angThres){
+            isAvgThetaOut = true;
+            avgThetaXingHist->Fill(pixCount);
+         }
+      }
+      */
+      if(!isPhiOut){
+         if(fabs(phi-dummyData->recoAzi)>angThres){
+            isPhiOut = true;
+            //phiXingHist->Fill(pixCount);
+            phiPixCount = pixCount;
+         }
+      }
+      /*
+      if(!isAvgPhiOut){
+         if(fabs(avgPhi-dummyData->recoAzi)>angThres){
+            isAvgPhiOut = true;
+            avgPhiXingHist->Fill(pixCount);
+         }
+      }
+      */
+   }//end of pix
+
+   if (!isThetaOut) thetaPixCount = settings->topN+1;
+   if (!isPhiOut)   phiPixCount   = settings->topN+1;
+}
+
+void getAvgAngXingPixels(int& avgThetaPixCount, int& avgPhiPixCount, recoData* dummyData, recoSettings* settings, Healpix_Onion onion, const double angThres){
+
+   double avgTheta = 0.;
+   double avgPhi  = 0.;
+   int pixCount = 0;
+   //double angThres = 1.;
+   //bool isThetaOut, isPhiOut;
+   //isThetaOut = isPhiOut = false;
+   bool isAvgThetaOut, isAvgPhiOut;
+   isAvgThetaOut = isAvgPhiOut = false;
+   double theta, phi;
+
+   bool use1stRay = (dummyData->maxPixCoherence>dummyData->maxPixCoherence2);
+
+   for(int pix=0; pix<settings->topN; pix++){
+
+      pixCount++;
+
+      //if(dummyData->topMaxPixCoherence.at(pix)>dummyData->topMaxPixCoherence2.at(pix)){
+      if(use1stRay){
+         theta = onion.getPointing(dummyData->topMaxPixIdx.at(pix)).theta * TMath::RadToDeg();
+         phi   = onion.getPointing(dummyData->topMaxPixIdx.at(pix)).phi   * TMath::RadToDeg();
+
+      } else {
+         theta = onion.getPointing(dummyData->topMaxPixIdx2.at(pix)).theta * TMath::RadToDeg();
+         phi   = onion.getPointing(dummyData->topMaxPixIdx2.at(pix)).phi   * TMath::RadToDeg();
+      }
+
+      avgTheta = avgTheta * (pixCount-1) + theta;
+      avgPhi   = avgPhi   * (pixCount-1) + phi;
+      avgTheta /= (double)pixCount;
+      avgPhi   /= (double)pixCount;
+      /*
+      if(!isThetaOut){
+         if(fabs(theta-dummyData->recoZen)>angThres){
+            isThetaOut = true;
+            //thetaXingHist->Fill(pixCount);
+            thetaPixCount = pixCount;
+         }
+      }
+      */
+
+      if(!isAvgThetaOut){
+         if(fabs(avgTheta-dummyData->recoZen)>angThres){
+            isAvgThetaOut = true;
+            //avgThetaXingHist->Fill(pixCount);
+            avgThetaPixCount = pixCount;
+         }
+      }
+      /*
+      if(!isPhiOut){
+         if(fabs(phi-dummyData->recoAzi)>angThres){
+            isPhiOut = true;
+            //phiXingHist->Fill(pixCount);
+            phiPixCount = pixCount;
+         }
+      }
+      */
+
+      if(!isAvgPhiOut){
+         if(fabs(avgPhi-dummyData->recoAzi)>angThres){
+            isAvgPhiOut = true;
+            //avgPhiXingHist->Fill(pixCount);
+            avgPhiPixCount = pixCount;
+         }
+      }
+
+
+   }//end of pix
+
+   if (!isAvgThetaOut) avgThetaPixCount = settings->topN+1;
+   if (!isAvgPhiOut)   avgPhiPixCount   = settings->topN+1;
+}
+
+TH1F *getCumulative(TH1F *hist){
+
+   double integral, sum;
+   TH1F *hist_cumu = hist->Clone();
+
+   int nbins = hist->GetNbinsX();
+   integral = hist->Integral();
+   if(integral==0) return NULL;
+
+   for(int bin=1; bin<=nbins; bin++){
+      sum = hist->Integral(bin,nbins);
+      hist_cumu->SetBinContent(bin,sum/integral);
+   }
+
+   return hist_cumu;
+}

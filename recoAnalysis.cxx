@@ -499,6 +499,11 @@ for(int i=4; i<argc; i++){
    double orderedArray[16];
    int orderedArrayPolType[16];
 
+   TH1F *thetaXingHist = new TH1F("thetaXingHist","thetaXingHist",settings->topN+1,0.5,settings->topN+0.5+1);
+   TH1F *phiXingHist = new TH1F("phiXingHist","phiXingHist",settings->topN+1,0.5,settings->topN+0.5+1);
+   TH1F *avgThetaXingHist = new TH1F("avgThetaXingHist","avgThetaXingHist",settings->topN+1,0.5,settings->topN+0.5+1);
+   TH1F *avgPhiXingHist = new TH1F("avgPhiXingHist","avgPhiXingHist",settings->topN+1,0.5,settings->topN+0.5+1);
+
    for(int entry=0; entry<Nentries; entry++){
    //if(Nentries > 100) {  if(  entry % (Nentries/100) == 0  ){ cout<<"Progess: "<<entry / (Nentries/100) <<"%\n"; } }
    dataTree->GetEntry(entry);
@@ -531,7 +536,7 @@ for(int i=4; i<argc; i++){
    maxFreqBinVec_H.clear();
    maxFreqBinVec.clear();
 
-   //isCW = isCW_coincidence(isVpolCW, isHpolCW, maxCountFreqBin_V, maxCountFreqBin_H, dummyData, cwBinThres);
+   isCW = isCW_coincidence(isVpolCW, isHpolCW, maxCountFreqBin_V, maxCountFreqBin_H, dummyData, cwBinThres);
 /*
    for(int i=0; i<8; i++){
       //cout<<"ch: "<<i<<" maxFreqBin: "<<dummyData->maxFreqBin[i]<<" maxFreq: "<<dummyData->maxFreqBin[i] * dummyData->freqBinWidth_V<<" maxFreqPower: "<<dummyData->maxFreqPower[i]<<" ";
@@ -611,7 +616,7 @@ for(int i=4; i<argc; i++){
 
 */
 
-  isCW = isCW_freqWindow(isVpolCW, isHpolCW, isXpolCW, dummyData, fftRes);
+  //isCW = isCW_freqWindow(isVpolCW, isHpolCW, isXpolCW, dummyData, fftRes);
 
 //      for(int ch=0; ch<16; ch++){
 //
@@ -1339,6 +1344,20 @@ passThermalCut = !isThermal_boxCut(inBand, settings, dummyData, onion,  cutValue
       coherence_snr_cw->Fill(dummyData->inWindowSNR_V, (dummyData->maxPixCoherence>dummyData->maxPixCoherence2?dummyData->maxPixCoherence:dummyData->maxPixCoherence2), dummyData->weight);
    }
 
+   int thetaXingPix, phiXingPix, avgThetaXingPix, avgPhiXingPix;
+   double  angThres = 1.;
+   if(passThermalCut && passDeepPulserCut && passSurfaceCut && passSurfaceCut_2 && passCalpulserCut && passCalpulserTimeCut && passNoisyRunCut){
+
+      getAngXingPixels(thetaXingPix, phiXingPix, dummyData, settings, onion, angThres);
+      getAvgAngXingPixels(avgThetaXingPix, avgPhiXingPix, dummyData, settings, onion, angThres);
+
+      thetaXingHist->Fill(thetaXingPix, dummyData->weight);
+      phiXingHist->Fill(phiXingPix, dummyData->weight);
+      avgThetaXingHist->Fill(avgThetaXingPix, dummyData->weight);
+      avgPhiXingHist->Fill(avgPhiXingPix, dummyData->weight);
+
+   }
+
 //   if(/*isCW &&*/ passThermalCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ){
 //
 //      std::fill(&impulsivity[0], &impulsivity[16], 0.);
@@ -1718,6 +1737,38 @@ dFHist_H->Draw();
 
 c14.SaveAs("recoAnalysis_14.C");
 */
+
+TCanvas c15("c15","c15",800,800);
+c15.Divide(2,2);
+c15.cd(1);
+thetaXingHist->Draw();
+c15.cd(2);
+phiXingHist->Draw();
+c15.cd(3);
+avgThetaXingHist->Draw();
+c15.cd(4);
+avgPhiXingHist->Draw();
+c15.SaveAs("recoAnalysis_15");
+
+
+TH1F *thetaXingHist_cumu = getCumulative(thetaXingHist);
+TH1F *phiXingHist_cumu   = getCumulative(phiXingHist);
+TH1F *avgThetaXingHist_cumu = getCumulative(avgThetaXingHist);
+TH1F *avgPhiXingHist_cumu   = getCumulative(avgPhiXingHist);
+
+TCanvas c16("c16","c16",800,800);
+c16.Divide(2,2);
+c16.cd(1);
+thetaXingHist_cumu->Draw();
+c16.cd(2);
+phiXingHist_cumu->Draw();
+c16.cd(3);
+avgThetaXingHist_cumu->Draw();
+c16.cd(4);
+avgPhiXingHist_cumu->Draw();
+c16.SaveAs("recoAnalysis_16");
+
+
 return 0;
 }
 
