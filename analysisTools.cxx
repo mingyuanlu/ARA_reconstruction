@@ -1104,3 +1104,55 @@ TH1F *getCumulative(TH1F *hist){
 
    return hist_cumu;
 }
+
+double getZenithInRangeFraction(recoData* dummyData, recoSettings* settings, Healpix_Onion onion, const double angThres){
+
+
+      int inRangePixCount = 0;
+      bool use1stRay = (dummyData->maxPixCoherence>dummyData->maxPixCoherence2);
+
+      for(int pix=0; pix<settings->topN; pix++){
+
+         //pixCount++;
+
+         //if(dummyData->topMaxPixCoherence.at(pix)>dummyData->topMaxPixCoherence2.at(pix)){
+         if(use1stRay){
+            theta = onion.getPointing(dummyData->topMaxPixIdx.at(pix)).theta * TMath::RadToDeg();
+            phi   = onion.getPointing(dummyData->topMaxPixIdx.at(pix)).phi   * TMath::RadToDeg();
+
+         } else {
+            theta = onion.getPointing(dummyData->topMaxPixIdx2.at(pix)).theta * TMath::RadToDeg();
+            phi   = onion.getPointing(dummyData->topMaxPixIdx2.at(pix)).phi   * TMath::RadToDeg();
+         }
+
+         if(fabs(theta-dummyData->recoZen)<angThres) inRangePixCount++;
+   }
+
+   return (double)inRangePixCount/(double)settings->topN;
+}
+
+double getAzimuthInRangeFraction(recoData* dummyData, recoSettings* settings, Healpix_Onion onion, const double angThres){
+
+
+      int inRangePixCount = 0;
+      bool use1stRay = (dummyData->maxPixCoherence>dummyData->maxPixCoherence2);
+
+      for(int pix=0; pix<settings->topN; pix++){
+
+         //pixCount++;
+
+         //if(dummyData->topMaxPixCoherence.at(pix)>dummyData->topMaxPixCoherence2.at(pix)){
+         if(use1stRay){
+            theta = onion.getPointing(dummyData->topMaxPixIdx.at(pix)).theta * TMath::RadToDeg();
+            phi   = onion.getPointing(dummyData->topMaxPixIdx.at(pix)).phi   * TMath::RadToDeg();
+
+         } else {
+            theta = onion.getPointing(dummyData->topMaxPixIdx2.at(pix)).theta * TMath::RadToDeg();
+            phi   = onion.getPointing(dummyData->topMaxPixIdx2.at(pix)).phi   * TMath::RadToDeg();
+         }
+
+         if(fabs(phi-dummyData->recoAzi)<angThres) inRangePixCount++;
+   }
+
+   return (double)inRangePixCount/(double)settings->topN;
+}

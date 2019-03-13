@@ -452,6 +452,10 @@ TH1F *phiXingHist = new TH1F("phiXingHist","phiXingHist",500+1,0.5,500+0.5+1);
 TH1F *avgThetaXingHist = new TH1F("avgThetaXingHist","avgThetaXingHist",500+1,0.5,500+0.5+1);
 TH1F *avgPhiXingHist = new TH1F("avgPhiXingHist","avgPhiXingHist",500+1,0.5,500+0.5+1);
 
+TH1F *inRangeThetaFracHist = new TH1F("inRangeThetaFracHist","inRangeThetaFracHist",100,0,1);
+TH1F *inRangePhiFracHist = new TH1F("inRangePhiFracHist","inRangePhiFracHist",100,0,1);
+TH2F *inRangeThetaPhiFracHist = new TH2F("inRangeThetaPhiFracHist","inRangeThetaPhiFracHist",100,0,1,100,0,1);
+
 //for(int entry=0; entry<Nentries; entry++){
 for(int i=4; i<argc; i++){
 
@@ -1348,7 +1352,7 @@ passThermalCut = !isThermal_boxCut(inBand, settings, dummyData, onion,  cutValue
 
    int thetaXingPix, phiXingPix, avgThetaXingPix, avgPhiXingPix;
    double  angThres = 1.;
-   if(passThermalCut && passDeepPulserCut && passSurfaceCut && passSurfaceCut_2 && passCalpulserCut && passCalpulserTimeCut && passNoisyRunCut/* && !lowFreqDominance*/ && passCWCut){
+   if(passThermalCut && passDeepPulserCut && passSurfaceCut && passSurfaceCut_2 && passCalpulserCut && passCalpulserTimeCut && passNoisyRunCut && !lowFreqDominance /*&& passCWCut*/){
 
       getAngXingPixels(thetaXingPix, phiXingPix, dummyData, settings, onion, angThres);
       getAvgAngXingPixels(avgThetaXingPix, avgPhiXingPix, dummyData, settings, onion, angThres);
@@ -1361,6 +1365,12 @@ passThermalCut = !isThermal_boxCut(inBand, settings, dummyData, onion,  cutValue
       phiXingHist->Fill(phiXingPix, dummyData->weight);
       avgThetaXingHist->Fill(avgThetaXingPix, dummyData->weight);
       avgPhiXingHist->Fill(avgPhiXingPix, dummyData->weight);
+
+      double inRangeThetaFrac = getZenithInRangeFraction(dummyData, settings, onion, angThres);
+      double inRangePhiFrac   = getAzimuthInRangeFraction(dummyData, settings, onion, angThres);
+      inRangeThetaFracHist->Fill(inRangeThetaFrac, dummyData->weight);
+      inRangePhiFracHist->Fill(inRangePhiFrac, dummyData->weight);
+      inRangeThetaPhiFracHist->Fill(inRangePhiFrac, inRangeThetaFrac, dummyData->weight);
 
    }
 
@@ -1773,6 +1783,16 @@ avgThetaXingHist_cumu->Draw();
 c16.cd(4);
 avgPhiXingHist_cumu->Draw();
 c16.SaveAs("recoAnalysis_16.C");
+
+TCanvas c17("c17","c17",1200,800);
+c17.Divide(3,1);
+c17.cd(1);
+inRangeThetaFracHist->Draw();
+c17.cd(2);
+inRangePhiFracHist->Draw();
+c17.cd(3);
+inRangeThetaPhiFracHist->Draw("colz");
+c17.SaveAs("recoAnalysis_17.C");
 
 
 return 0;
