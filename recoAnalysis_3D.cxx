@@ -606,7 +606,7 @@ for(int entry=0; entry<Nentries; entry++){
       int nonZeroCount = 0;
       double avgImpulsivity = 0.;
 
-      if (isCW_coincidence(isVpolCW, isHpolCW, maxCountFreqBin_V, maxCountFreqBin_H, dummyData, cwBinThres)){
+//      if (isCW_coincidence(isVpolCW, isHpolCW, maxCountFreqBin_V, maxCountFreqBin_H, dummyData, cwBinThres)){
 /*
          if (isVpolCW && isHpolCW){
 
@@ -647,30 +647,30 @@ for(int entry=0; entry<Nentries; entry++){
          }
 */
 
-         for(int ch=0; ch<8; ch++){
-            if(dummyData->impulsivity[ch]>0){
-               avgImpulsivity += dummyData->impulsivity[ch];
-               nonZeroCount ++;
-            }
-         }
-
-         if(nonZeroCount>0)
-         avgImpulsivity /= (double)nonZeroCount;
-
-         impulsivityHist->Fill(avgImpulsivity, dummyData->weight);
-
-
-          coherence_snr_cw->Fill(dummyData->inWindowSNR_V, (dummyData->maxPixCoherence>dummyData->maxPixCoherence2?dummyData->maxPixCoherence:dummyData->maxPixCoherence2), dummyData->weight);
-
-          for(int ch=0; ch<8; ch++){
-             if(dummyData->posPowerPeak[ch]>0){
-                double avgPowerRatio = (dummyData->posPowerPeak[ch] - dummyData->negPowerPeak[ch]) / 2./*dummyData->posPowerPeak[ch]*/;
-                avgPowerRatioHist[ch]->Fill(avgPowerRatio, dummyData->weight);
-             }
-          }
-
-
-      }
+//         for(int ch=0; ch<8; ch++){
+//            if(dummyData->impulsivity[ch]>0){
+//               avgImpulsivity += dummyData->impulsivity[ch];
+//               nonZeroCount ++;
+//            }
+//         }
+//
+//         if(nonZeroCount>0)
+//         avgImpulsivity /= (double)nonZeroCount;
+//
+//         impulsivityHist->Fill(avgImpulsivity, dummyData->weight);
+//
+//
+//          coherence_snr_cw->Fill(dummyData->inWindowSNR_V, (dummyData->maxPixCoherence>dummyData->maxPixCoherence2?dummyData->maxPixCoherence:dummyData->maxPixCoherence2), dummyData->weight);
+//
+//          for(int ch=0; ch<8; ch++){
+//             if(dummyData->posPowerPeak[ch]>0){
+//                double avgPowerRatio = (dummyData->posPowerPeak[ch] - dummyData->negPowerPeak[ch]) / 2./*dummyData->posPowerPeak[ch]*/;
+//                avgPowerRatioHist[ch]->Fill(avgPowerRatio, dummyData->weight);
+//             }
+//          }
+//
+//
+//      }
 //
 //       bool isCW = isCW_freqWindow(isVpolCW, isHpolCW, isXpolCW, dummyData, fftRes);
 //
@@ -688,7 +688,6 @@ for(int entry=0; entry<Nentries; entry++){
 //
 //       }
 
-
 double avgTheta = 0.;
 double avgPhi  = 0.;
 int pixCount = 0;
@@ -697,6 +696,9 @@ bool isThetaOut, isPhiOut;
 isThetaOut = isPhiOut = false;
 bool isAvgThetaOut, isAvgPhiOut;
 isAvgThetaOut = isAvgPhiOut = false;
+
+if (isCW_coincidence(isVpolCW, isHpolCW, maxCountFreqBin_V, maxCountFreqBin_H, dummyData, cwBinThres)){
+
 
 for(int pix=0; pix<settings->topN; pix++){
 
@@ -754,6 +756,7 @@ for(int pix=0; pix<settings->topN; pix++){
    if( !isAvgPhiOut ) avgPhiXingHist->Fill(settings->topN+1);
 
 
+}
 /*
       double impSum=0.;
       double impPassThresSum=0.;
