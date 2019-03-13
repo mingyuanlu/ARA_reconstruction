@@ -1071,7 +1071,7 @@ for(int i=5; i<argc; i++){
    }
    */
    double impCut = cutValues->cwImpCut[type-1].val; //impulsivityCut[type-1];
-   impCut = /*0.*/0.2384656;
+   impCut = 0.2579306/*0.*//*0.2384656*/;
    //passCWCut = ( !isCW || (isCW && passHighPassFilter && passImpulsivityCut )) && !lowFreqDominance;
    passCWCut = ( !isCW || (isCW && isRecoverableByImp(isVpolCW, isHpolCW, isXpolCW, dummyData, impCut, highPassFreq) )) && !lowFreqDominance;
    //passCWCut = !lowFreqDominance;
@@ -1109,7 +1109,7 @@ for(int i=5; i<argc; i++){
      passNumSatChanCut = true;
    //}
 
-   passCWCut = true;
+   //passCWCut = true;
    //passThermalImpulsivityCut=1;
    //passNoisyRunCut = 1;
    //nPassNumSatChanCut += passNumSatChanCut * dummyData->weight;
@@ -1347,7 +1347,7 @@ for(int i=5; i<argc; i++){
    int thetaXingPix, phiXingPix, avgThetaXingPix, avgPhiXingPix;
    double  angThres = 1.;
 
-   if(/*isCW &&*/ passThermalCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut && !lowFreqDominance){
+   if(/*isCW &&*/ passThermalCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut && passCWCut /*&& !lowFreqDominance*/){
 
       std::fill(&impulsivity[0], &impulsivity[16], 0.);
       int nonZeroCount = 0;
@@ -1731,7 +1731,7 @@ impulsivityHist_nMinusCW->SetTitle(";Impulsivity;Entry");
 sprintf(filename, "%s_type%d_E%s_nMinusCW_impulsivity.C", STATION.c_str(), type, ENERGY.c_str());
 c6.SaveAs(filename);
 */
-
+/*
 TCanvas c15("c15","c15",800,800);
 c15.Divide(2,2);
 c15.cd(1);
@@ -1761,7 +1761,9 @@ avgThetaXingHist_cumu->Draw();
 c16.cd(4);
 avgPhiXingHist_cumu->Draw();
 c16.SaveAs("recoAnalysis_16.C");
+*/
 
+sprintf(filename,"%s_type%s_E%s_nMinusThermalImp_inRangeThetaPhiFraction.C",STATION.c_str(),type,ENERGY.c_str());
 TCanvas c17("c17","c17",1200,800);
 c17.Divide(3,1);
 c17.cd(1);
