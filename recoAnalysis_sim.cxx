@@ -1763,7 +1763,7 @@ avgPhiXingHist_cumu->Draw();
 c16.SaveAs("recoAnalysis_16.C");
 */
 
-sprintf(filename,"%s_type%s_E%s_nMinusThermalImp_inRangeThetaPhiFraction.C",STATION.c_str(),type,ENERGY.c_str());
+sprintf(filename,"%s_type%d_E%s_nMinusThermalImp_inRangeThetaPhiFraction.C",STATION.c_str(),type,ENERGY.c_str());
 TCanvas c17("c17","c17",1200,800);
 c17.Divide(3,1);
 c17.cd(1);
