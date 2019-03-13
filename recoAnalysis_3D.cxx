@@ -499,7 +499,7 @@ double fftRes;
 vector<double> iterZen;
 vector<double> iterAzi;
 TH1F *thetaXingHist = new TH1F("thetaXingHist","thetaXingHist",settings->topN+1,0.5,settings->topN+0.5);
-TH1F *phiXingHist = new TH1F("phiXingHist","phiXingHist",settings->topN+1,0.5,setings->topN+0.5);
+TH1F *phiXingHist = new TH1F("phiXingHist","phiXingHist",settings->topN+1,0.5,settings->topN+0.5);
 TH1F *avgThetaXingHist = new TH1F("avgThetaXingHist","avgThetaXingHist",settings->topN+1,0.5,settings->topN+0.5);
 TH1F *avgPhiXingHist = new TH1F("avgPhiXingHist","avgPhiXingHist",settings->topN+1,0.5,settings->topN+0.5);
 
@@ -702,7 +702,7 @@ for(int pix=0; pix<settings->topN; pix++){
 
    pixCount++;
 
-   if(dummuDaya->topMaxPixCoherence.at(pix)>dummyData->topMaxPixCoherence2.at(pix)){
+   if(dummyDaya->topMaxPixCoherence.at(pix)>dummyData->topMaxPixCoherence2.at(pix)){
       theta = onion.getPointing(dummyData->topMaxPixIdx.at(pix)).theta * TMath::RadToDeg();
       phi   = onion.getPointing(dummyData->topMaxPixIdx.at(pix)).phi   * TMath::RadToDeg();
 
