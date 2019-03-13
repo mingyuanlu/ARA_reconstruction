@@ -2242,7 +2242,8 @@ c38.cd(4);
 avgPhiXingHist->Draw();
 c38.SaveAs("recoAnalysis_38.C");
 
-thetaXingHist_cumu = thetaXingHist->GetCumulative(kFALSE);
+//thetaXingHist_cumu = thetaXingHist->GetCumulative(kFALSE);
+
 
 printf("Nentries: %d\trfEventCount: %d\tcalEventCount: %d\tsoftEventCount: %d\n", Nentries, rfEventCount, calEventCount, softEventCount);
 
