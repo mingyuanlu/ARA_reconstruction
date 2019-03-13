@@ -183,7 +183,7 @@ bool isCW_coincidence(bool &isVpolCW, bool &isHpolCW, int &maxCountFreqBin_V, in
       //cout<<"ch: "<<i<<" maxFreqBin: "<<dummyData->maxFreqBin[i]<<" maxFreq: "<<dummyData->maxFreqBin[i] * dummyData->freqBinWidth_V<<" maxFreqPower: "<<dummyData->maxFreqPower[i]<<" ";
       maxFreqBinVec_V.push_back(dummyData->maxFreqBin[i]);
    }
-   cout<<endl;
+   //cout<<endl;
    for(int i=8; i<16; i++){
       //cout<<"ch: "<<i<<" maxFreqBin: "<<dummyData->maxFreqBin[i]<<" maxFreq: "<<dummyData->maxFreqBin[i] * dummyData->freqBinWidth_H<<" maxFreqPower: "<<dummyData->maxFreqPower[i]<<" ";
       maxFreqBinVec_H.push_back(dummyData->maxFreqBin[i]);
