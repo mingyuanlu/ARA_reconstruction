@@ -1348,7 +1348,7 @@ passThermalCut = !isThermal_boxCut(inBand, settings, dummyData, onion,  cutValue
 
    int thetaXingPix, phiXingPix, avgThetaXingPix, avgPhiXingPix;
    double  angThres = 1.;
-   if(passThermalCut && passDeepPulserCut && passSurfaceCut && passSurfaceCut_2 && passCalpulserCut && passCalpulserTimeCut && passNoisyRunCut){
+   if(passThermalCut && passDeepPulserCut && passSurfaceCut && passSurfaceCut_2 && passCalpulserCut && passCalpulserTimeCut && passNoisyRunCut && !lowFreqDominance){
 
       getAngXingPixels(thetaXingPix, phiXingPix, dummyData, settings, onion, angThres);
       getAvgAngXingPixels(avgThetaXingPix, avgPhiXingPix, dummyData, settings, onion, angThres);
