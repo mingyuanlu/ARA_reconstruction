@@ -447,6 +447,13 @@ cout<<"fftRes: "<<fftRes<<endl;
 
 int vResBin, hResBin, xResBin;
 
+
+TH1F *thetaXingHist = new TH1F("thetaXingHist","thetaXingHist",500+1,0.5,500+0.5+1);
+TH1F *phiXingHist = new TH1F("phiXingHist","phiXingHist",500+1,0.5,500+0.5+1);
+TH1F *avgThetaXingHist = new TH1F("avgThetaXingHist","avgThetaXingHist",500+1,0.5,500+0.5+1);
+TH1F *avgPhiXingHist = new TH1F("avgPhiXingHist","avgPhiXingHist",500+1,0.5,500+0.5+1);
+
+
 //for(int entry=0; entry<Nentries; entry++){
 for(int i=5; i<argc; i++){
 
@@ -498,12 +505,6 @@ for(int i=5; i<argc; i++){
    int fIndex[16];
    double orderedArray[16];
    int orderedArrayPolType[16];
-
-   TH1F *thetaXingHist = new TH1F("thetaXingHist","thetaXingHist",settings->topN+1,0.5,settings->topN+0.5+1);
-   TH1F *phiXingHist = new TH1F("phiXingHist","phiXingHist",settings->topN+1,0.5,settings->topN+0.5+1);
-   TH1F *avgThetaXingHist = new TH1F("avgThetaXingHist","avgThetaXingHist",settings->topN+1,0.5,settings->topN+0.5+1);
-   TH1F *avgPhiXingHist = new TH1F("avgPhiXingHist","avgPhiXingHist",settings->topN+1,0.5,settings->topN+0.5+1);
-
 
    for(int entry=0; entry<Nentries; entry++){
    //if(Nentries > 100) {  if(  entry % (Nentries/100) == 0  ){ cout<<"Progess: "<<entry / (Nentries/100) <<"%\n"; } }
