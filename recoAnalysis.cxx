@@ -1832,6 +1832,8 @@ c18.cd(1);
 _snrHist->Draw();
 c18.cd(2);
 _snrCumuHist = getCumulative(_snrHist);
+_snrCumuHist->SetTitle("_snrCumuHist");
+_snrCumuHist->SetName("_snrCumuHist");
 _snrCumuHist->Draw();
 c18.SaveAs(filename);
 
