@@ -522,6 +522,18 @@ for(int i=4; i<argc; i++){
    dataTree->GetEntry(entry);
    //cout<<"eventTrigType: "<<dummyData->eventTrigType<<endl;
    //if(dummyData->eventNumber != 127378) continue;
+
+   //Exclude the offset-block events and block-gap events
+   if(runNum==2889 && dummyData->eventNumber==108253) continue;
+   if(runNum==2759 && dummyData->eventNumber==8625) continue;
+   if(runNum==4838 && dummyData->eventNumber==15842) continue;
+   if(runNum==6842 && dummyData->eventNumber==324) continue;
+   //block-gap
+   if(runNum==4429 && dummyData->eventNumber==34200) continue;
+   
+
+
+
    if(dummyData->eventTrigType == 0) rfEventCount+=dummyData->weight;
    else if (dummyData->eventTrigType == 1) calEventCount+=dummyData->weight;
    else if (dummyData->eventTrigType == 2) softEventCount+=dummyData->weight;
