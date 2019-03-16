@@ -530,7 +530,7 @@ for(int i=4; i<argc; i++){
    if(runNum==6842 && dummyData->eventNumber==324) continue;
    //block-gap
    if(runNum==4429 && dummyData->eventNumber==34200) continue;
-   
+
 
 
 
@@ -1399,7 +1399,7 @@ for(int i=4; i<argc; i++){
 //   }
 //
 
-   if(/*isCW &&*/ passThermalCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ){
+   if(/*isCW &&*/ passThermalCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut && !lowFreqDominance ){
 
 
       _snrHist->Fill(snr, dummyData->weight);
