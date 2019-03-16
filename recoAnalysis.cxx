@@ -1797,7 +1797,7 @@ c16.cd(4);
 avgPhiXingHist_cumu->Draw();
 c16.SaveAs("recoAnalysis_16.C");
 */
-
+/*
 sprintf(filename,"%s_type%d_nMinusThermalImp_inRangeThetaPhiFraction_angThres0.5.C",STATION.c_str(),type);
 TCanvas c17("c17","c17",1200,800);
 c17.Divide(3,1);
@@ -1808,6 +1808,7 @@ inRangePhiFracHist->Draw();
 c17.cd(3);
 inRangeThetaPhiFracHist->Draw("colz");
 c17.SaveAs(filename);
+*/
 
 sprintf(filename,"%s_type%d_coherenceThermalCut_snr.C",STATION.c_str(),type);
 TCanvas c18("c18","c18",1200,800);
