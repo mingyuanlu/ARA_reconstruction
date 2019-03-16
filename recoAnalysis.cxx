@@ -359,6 +359,9 @@ for(int c=0; c<5; c++){
 }
 */
 
+double coherenceCut_inBand[5] = {0.108008, 0.108996,  0.108338, 0.099024, 0.097075};
+double coherenceCut_outOfBand[5] = {0.103715, 0.107195, 0.103552, 0.094714, 0.095006};
+
 TH1F *impulsivityHist_nMinusCW = new TH1F("impulsivityHist_nMinusCW","impulsivityHist_nMinusCW",1000, -2, 2);
 TH2F *c_vs_snr_hist_nMinusThermal = new TH2F("c_vs_snr_hist_nMinusThermal","c_vs_snr_hist_nMinusThermal",400,0,40,1000,0,1);
 TH1F *impulsivityHist_nMinusImp = new TH1F("impulsivityHist_nMinusImp","impulsivityHist_nMinusImp",1000, -2, 2);
@@ -784,11 +787,11 @@ for(int i=4; i<argc; i++){
    //if( snr > snrCutValue || coherence > coherenceCutValue){
    if(inBand){
       //if( 0.003 * snr + 1.916 * coherence - 0.368 > -0.144889) passThermalCut = true;
-      if(coherence > 0.108008) passThermalCut = true;
+      if(coherence > coherenceCut_inBand[type-1]/*0.108008*/) passThermalCut = true;
       else passThermalCut = false;
    } else{
       //if( 0.007 * snr + 1.039 * coherence - 0.284 > -0.126811) passThermalCut = true;
-      if(coherence > 0.103715) passThermalCut = true;
+      if(coherence > coherenceCut_outOfBand[type-1]/*0.103715*/) passThermalCut = true;
       else passThermalCut = false;
 
    }
