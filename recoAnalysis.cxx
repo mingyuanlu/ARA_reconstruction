@@ -390,8 +390,8 @@ double isCWCount = 0;
 TH2F *coherence_snr_cw = new TH2F("coherence_snr_cw","coherence_snr_cw",400,0,40,1000,0,1);
 TH1F *snr_cw = new TH1F("snr_cw","snr_cw",400,0,40);
 
-TH1F *snrHist = new TH1F("snrHist","snrHist",400,0,40);
-TH1F *snrCumuHist;
+TH1F *_snrHist = new TH1F("_snrHist","_snrHist",400,0,40);
+TH1F *_snrCumuHist;
 
 TH1F *impulsivityHist_max = new TH1F("impulsivityHist_max","impulsivityHist_max",1000, -2, 2);
 
@@ -1387,7 +1387,7 @@ for(int i=4; i<argc; i++){
    if(/*isCW &&*/ passThermalCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ){
 
 
-      snrHist->Fill(snr, dummyData->weight);
+      _snrHist->Fill(snr, dummyData->weight);
 //
 //      std::fill(&impulsivity[0], &impulsivity[16], 0.);
 //      int nonZeroCount = 0;
@@ -1813,10 +1813,10 @@ sprintf(filename,"%s_type%d_coherenceThermalCut_snr.C",STATION.c_str(),type);
 TCanvas c18("c18","c18",1200,800);
 c18.Divide(2,1);
 c18.cd(1);
-snrHist->Draw();
+_snrHist->Draw();
 c18.cd(2);
-snrCumuHist = getCumulative(snrHist);
-snrCumuHist->Draw();
+_snrCumuHist = getCumulative(_snrHist);
+_snrCumuHist->Draw();
 c18.SaveAs(filename);
 
 
