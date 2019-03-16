@@ -1401,7 +1401,7 @@ for(int i=4; i<argc; i++){
 
    if(/*isCW &&*/ passThermalCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut && !lowFreqDominance ){
 
-
+      cout<<"run: "<<runNum<<" event: "<<dummyData->eventNumber<<" SNR: "<<snr<<endl;
       _snrHist->Fill(snr, dummyData->weight);
 //
 //      std::fill(&impulsivity[0], &impulsivity[16], 0.);
@@ -1826,15 +1826,15 @@ c17.SaveAs(filename);
 */
 
 sprintf(filename,"%s_type%d_coherenceThermalCut_snr.C",STATION.c_str(),type);
-TCanvas c18("c18","c18",800/*1200*/,800);
-//c18.Divide(2,1);
-//c18.cd(1);
+TCanvas c18("c18","c18",/*800*/1200,800);
+c18.Divide(2,1);
+c18.cd(1);
 _snrHist->Draw();
-//c18.cd(2);
-//_snrCumuHist = getCumulative(_snrHist);
-//_snrCumuHist->SetTitle("_snrCumuHist");
-//_snrCumuHist->SetName("_snrCumuHist");
-//_snrCumuHist->Draw();
+c18.cd(2);
+_snrCumuHist = getCumulative(_snrHist);
+_snrCumuHist->SetTitle("_snrCumuHist");
+_snrCumuHist->SetName("_snrCumuHist");
+_snrCumuHist->Draw();
 c18.SaveAs(filename);
 
 
