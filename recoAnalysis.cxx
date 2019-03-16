@@ -722,7 +722,7 @@ for(int i=4; i<argc; i++){
 
 
    bool lowFreqDominance = false;
-   int lowFreqCountThres = 5;
+   int lowFreqCountThres = 4;
    int lowFreqCount_V, lowFreqCount_H;
    lowFreqCount_V = lowFreqCount_H = 0;
 
