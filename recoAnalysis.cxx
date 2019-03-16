@@ -794,7 +794,7 @@ for(int i=4; i<argc; i++){
    }
       //passThermalCut = true;
    //}
-*/
+
    /***** 3. Surface cut ********************/
 
    passSurfaceCut = !isSurface(dummyData, surfaceCut_1);
