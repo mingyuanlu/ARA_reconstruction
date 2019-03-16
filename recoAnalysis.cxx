@@ -1403,6 +1403,7 @@ for(int i=4; i<argc; i++){
 
       cout<<"run: "<<runNum<<" event: "<<dummyData->eventNumber<<" SNR: "<<snr<<endl;
       _snrHist->Fill(snr, dummyData->weight);
+      outputFile<<snr<<",";
 //
 //      std::fill(&impulsivity[0], &impulsivity[16], 0.);
 //      int nonZeroCount = 0;
