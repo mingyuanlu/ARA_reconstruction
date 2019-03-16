@@ -1826,15 +1826,15 @@ c17.SaveAs(filename);
 */
 
 sprintf(filename,"%s_type%d_coherenceThermalCut_snr.C",STATION.c_str(),type);
-TCanvas c18("c18","c18",1200,800);
-c18.Divide(2,1);
-c18.cd(1);
+TCanvas c18("c18","c18",800/*1200*/,800);
+//c18.Divide(2,1);
+//c18.cd(1);
 _snrHist->Draw();
-c18.cd(2);
-_snrCumuHist = getCumulative(_snrHist);
-_snrCumuHist->SetTitle("_snrCumuHist");
-_snrCumuHist->SetName("_snrCumuHist");
-_snrCumuHist->Draw();
+//c18.cd(2);
+//_snrCumuHist = getCumulative(_snrHist);
+//_snrCumuHist->SetTitle("_snrCumuHist");
+//_snrCumuHist->SetName("_snrCumuHist");
+//_snrCumuHist->Draw();
 c18.SaveAs(filename);
 
 
