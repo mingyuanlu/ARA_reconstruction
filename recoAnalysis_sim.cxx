@@ -362,10 +362,14 @@ for(int c=0; c<5; c++){
 }
 */
 
-double coherenceCut_inBand[5] = {0.108008, 0.108996,  0.108338, 0.099024, 0.097075};
-double coherenceCut_outOfBand[5] = {0.103715, 0.107195, 0.103552, 0.094714, 0.095006};
+//double coherenceCut_inBand[5] = {0.108008, 0.108996,  0.108338, 0.099024, 0.097075};
+//double coherenceCut_outOfBand[5] = {0.103715, 0.107195, 0.103552, 0.094714, 0.095006};
+double coherenceCut_inBand[5] = {0.10800825822688973, 0.10932663315269384, 0.10838951766838757, 0.09902432045234812, 0.09707451485364714};
+double coherenceCut_outOfBand[5] = {0.10371485739304964, 0.10727052346393086, 0.10355164968621144, 0.09471396819592758, 0.09505296821439854};
 
-double snrCut[5] = {7.603017232977032,  8.23245102065904,  7.724885855976288,  8.016287951854366, 9.13553213761174};
+//double snrCut[5] = {7.603017232977032,  8.23245102065904,  7.724885855976288,  8.016287951854366, 9.13553213761174};
+//double snrCut[5] = {7.603815004511399, 8.328126752203419, 7.718046701397855, 8.016287951854366, 8.817297373211487};
+double snrCut[5] = {8.065051326524221, 8.937513009286487,  8.377493977106527, 8.551617773166683, 9.624490817371045};
 
 TH1F *impulsivityHist_nMinusCW = new TH1F("impulsivityHist_nMinusCW","impulsivityHist_nMinusCW",1000, -2, 2);
 TH2F *c_vs_snr_hist_nMinusThermal = new TH2F("c_vs_snr_hist_nMinusThermal","c_vs_snr_hist_nMinusThermal",400,0,40,1000,0,1);
@@ -430,8 +434,8 @@ int iterMaxPixIdxEachLayer[50];
 
 
 char histName[200];
-TH1F *snrHist[5];
-for(int i=0; i<5; i++){
+TH1F *snrHist[6];
+for(int i=0; i<6; i++){
    sprintf(histName, "hist_%d", i);
    snrHist[i] = new TH1F(histName, histName, 1000, 0, 50);
 }
@@ -1135,19 +1139,20 @@ for(int i=5; i<argc; i++){
    //nPassImpulsivityCut+= passImpulsivityCut *dummyData->weight;
    //nCut1              += (passHighPassFilter && passImpulsivityCut) * dummyData->weight;
    //nPassHighPassFilter+= passHighPassFilter * dummyData->weight;
-   snrHist[0]->Fill(dummyData->inWindowSNR, dummyData->weight);
+   snrHist[0]->Fill(dummyData->inWindowSNR_V, dummyData->weight);
    nPassCWCut         += passCWCut * dummyData->weight;
    nCut1p5            += (passNumSatChanCut && passCWCut) * dummyData->weight;
-   if (passNumSatChanCut && passCWCut) snrHist[1]->Fill(dummyData->inWindowSNR, dummyData->weight);
+   if (passNumSatChanCut && passCWCut) snrHist[1]->Fill(dummyData->inWindowSNR_V, dummyData->weight);
    nPassDeepPulserCut += passDeepPulserCut * dummyData->weight;
    nCut2              += (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut && passThermalCut && passSuE19aceCut &&*/ passDeepPulserCut) * dummyData->weight;
    nPassThermalCut    += passThermalCut * dummyData->weight;
    nCut3              += (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passDeepPulserCut && passThermalCut) * dummyData->weight;
-   if (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passDeepPulserCut && passThermalCut) snrHist[2]->Fill(dummyData->inWindowSNR, dummyData->weight);
+   if (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passDeepPulserCut && passThermalCut) snrHist[2]->Fill(dummyData->inWindowSNR_V, dummyData->weight);
    nPassThermalImpulsivityCut += passThermalImpulsivityCut * dummyData->weight;
    nPassSNRCut +=  passSNRCut * dummyData->weight;
    //nCut3p5            += (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passDeepPulserCut && passThermalCut && passThermalImpulsivityCut) * dummyData->weight;
    nCut3p5            += (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passDeepPulserCut && passThermalCut && passSNRCut) * dummyData->weight;
+   if(passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passDeepPulserCut && passThermalCut && passSNRCut) snrHist[3]->Fill(dummyData->inWindowSNR_V, dummyData->weight);
    //nPassSuE19aceCut    += passSuE19aceCut * dummyData->weight;
    //nCut3              += (passCorruptionCut && passThermalCut && passSuE19aceCut) * dummyData->weight;
    //nPassDeepPulserCut += passDeepPulserCut * dummyData->weight;
@@ -1155,7 +1160,7 @@ for(int i=5; i<argc; i++){
    //if((passCorruptionCut && passThermalCut /*&& passSuE19aceCut*/ && passDeepPulserCut)){ outputFile<<dummyData->unixTime<<","<<dummyData->eventNumber<<endl; }
    nPassCalpulserCut += passCalpulserCut * dummyData->weight;
    nCut4             += (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut && passDeepPulserCut && passThermalCut && passThermalImpulsivityCut && passCalpulserCut && passSNRCut) * dummyData->weight;
-   if (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut && passDeepPulserCut && passThermalCut && passThermalImpulsivityCut && passCalpulserCut && passSNRCut)  snrHist[3]->Fill(dummyData->inWindowSNR, dummyData->weight);
+   if (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut && passDeepPulserCut && passThermalCut && passThermalImpulsivityCut && passCalpulserCut && passSNRCut)  snrHist[4]->Fill(dummyData->inWindowSNR, dummyData->weight);
    nPassCalpulserTimeCut += passCalpulserTimeCut * dummyData->weight;
    nCut4p5           += (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut && passDeepPulserCut && passThermalCut && passThermalImpulsivityCut && passCalpulserCut && passSNRCut && passCalpulserTimeCut) * dummyData->weight;
    //nPassNoisyRunCut   += passNoisyRunCut * dummyData->weight;
@@ -1164,7 +1169,7 @@ for(int i=5; i<argc; i++){
    nCut6              += (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passThermalCut && passThermalImpulsivityCut && passDeepPulserCut && passSNRCut && passCalpulserCut && passCalpulserTimeCut/*&& passNoisyRunCut*/ && passSurfaceCut) * dummyData->weight;
    nPassSurfaceCut_2  += passSurfaceCut_2 * dummyData->weight;
    nCut6p5            += (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut/*&& passNoisyRunCut*/ && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
-   if (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut/*&& passNoisyRu     nCut*/ && passSurfaceCut && passSurfaceCut_2) snrHist[4]->Fill(dummyData->inWindowSNR, dummyData->weight);
+   if (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut/*&& passNoisyRu     nCut*/ && passSurfaceCut && passSurfaceCut_2) snrHist[5]->Fill(dummyData->inWindowSNR, dummyData->weight);
    nPassNoisyRunCut   += passNoisyRunCut * dummyData->weight;
    nCut7              +=  (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passThermalCut &&  passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passNoisyRunCut && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
 //
@@ -1640,21 +1645,22 @@ iterMajorityZenHist->SetTitle("Iter. Majority Reco:Reco Zenith [#circ];Entry");
 sprintf(filename, "%s_type%d_vnchnl3NoMasking_noMaskSat_snrMode1_ch6Fit2Corr_constantNZen_iterMajorityZenHist.C", STATION.c_str(), type);
 c5.SaveAs(filename);
 */
-/*
+
 snrHist[0]->SetLineColor(kBlue);
 snrHist[1]->SetLineColor(kRed);
 snrHist[2]->SetLineColor(kTeal);
 snrHist[3]->SetLineColor(kOrange);
 snrHist[4]->SetLineColor(kMagenta);
+snrHist[5]->SetLineColor(kCyan);
 snrHist[0]->Draw();
-for(int i=1; i<5; i++) snrHist[i]->Draw("same");
+for(int i=1; i<6; i++) snrHist[i]->Draw("same");
 sprintf(filename, "%s_type%d_signalEffiencyVsSNR.C", STATION.c_str(), type);
 c5.SaveAs(filename);
 sprintf(filename, "%s_type%d_signalEffiencyVsSNR.root", STATION.c_str(), type);
 TFile ff(filename, "RECREATE");
-for(int i=0; i<5; i++) snrHist[i]->Write();
+for(int i=0; i<6; i++) snrHist[i]->Write();
 ff.Close();
-*/
+
 /*
 TCanvas c6("c6","c6",800,800);
 impulsivityHist_nMinusCW->Draw();
