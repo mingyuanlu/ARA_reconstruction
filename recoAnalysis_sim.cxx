@@ -1645,7 +1645,7 @@ iterMajorityZenHist->SetTitle("Iter. Majority Reco:Reco Zenith [#circ];Entry");
 sprintf(filename, "%s_type%d_vnchnl3NoMasking_noMaskSat_snrMode1_ch6Fit2Corr_constantNZen_iterMajorityZenHist.C", STATION.c_str(), type);
 c5.SaveAs(filename);
 */
-
+/*
 TCanvas c5("c5","c5",1200,800);
 snrHist[0]->SetLineColor(kBlue);
 snrHist[1]->SetLineColor(kRed);
@@ -1661,7 +1661,7 @@ sprintf(filename, "%s_type%d_signalEffiencyVsSNR.root", STATION.c_str(), type);
 TFile ff(filename, "RECREATE");
 for(int i=0; i<6; i++) snrHist[i]->Write();
 ff.Close();
-
+*/
 /*
 TCanvas c6("c6","c6",800,800);
 impulsivityHist_nMinusCW->Draw();
