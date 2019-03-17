@@ -1646,6 +1646,7 @@ sprintf(filename, "%s_type%d_vnchnl3NoMasking_noMaskSat_snrMode1_ch6Fit2Corr_con
 c5.SaveAs(filename);
 */
 
+TCanvas c5("c5","c5",1200,800);
 snrHist[0]->SetLineColor(kBlue);
 snrHist[1]->SetLineColor(kRed);
 snrHist[2]->SetLineColor(kTeal);
