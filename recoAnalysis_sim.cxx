@@ -433,7 +433,7 @@ int iterIndex[50];
 float iterMaxPixCoherenceEachLayer[50];
 int iterMaxPixIdxEachLayer[50];
 
-TH1F *snrHist_all=new TH1F("hist_all", "hist_all", 1000, 0, 50);
+TH1F *snrHist_all=new TH1F("hist_offsetBlock", "hist_offsetBlock", 1000, 0, 50);
 
 char histName[200];
 TH1F *snrHist[6];
@@ -1661,12 +1661,13 @@ snrHist[0]->Draw();
 for(int i=1; i<6; i++) snrHist[i]->Draw("same");
 sprintf(filename, "%s_type%d_signalEffiencyVsSNR.C", STATION.c_str(), type);
 c5.SaveAs(filename);
-
-sprintf(filename, "%s_type%d_signalEffiencyVsSNR.root", STATION.c_str(), type);
-TFile ff(filename, "RECREATE");
-for(int i=0; i<6; i++) snrHist[i]->Write();
-ff.Close();
 */
+sprintf(filename, "%s_type%d_signalEffiencyVsSNR.root", STATION.c_str(), type);
+TFile ff(filename, "update");
+//for(int i=0; i<6; i++) snrHist[i]->Write();
+snrHist_all->Write();
+ff.Close();
+
 /*
 TCanvas c6("c6","c6",800,800);
 impulsivityHist_nMinusCW->Draw();
