@@ -1470,9 +1470,9 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    if(nOffsetBlockString>1){
       offsetBlockAlert = 1;
       offsetBlockEventCount += 1;
+      weightedOffsetBlockEventCount += weight;
       unpaddedEvent.clear();
       cleanEvent.clear();
-      delete realAtriEvPtr;
       for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; }
       continue;
    //   }
