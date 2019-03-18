@@ -234,7 +234,7 @@ utime_runStart = utime_runEnd = 0;
  int nChanBelowThres_H[4];
  int nChanBelowThres_Thres;
  double timeRange;
- vector<double> maxTimeVec[4];
+ vector<double> maxTimeVec[4][2];
 
 /*
  * Variables used in nchnlFilter > 0 case
@@ -842,7 +842,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    for(int s=0; s<4; s++){
       nChanBelowThres_V[s]=0;
       nChanBelowThres_H[s]=0;
-      maxTimeVec[s].clear();
+      for(int pol=0; pol<2; pol++)
+         maxTimeVec[s][pol].clear();
    }
 
    for(int ch=0; ch<16; ch++){
@@ -866,7 +867,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    if(-1.*fabs(meanMax[ch])<(ch<8?threshold_V:threshold_H)){
       if(ch<8) nChanBelowThres_V[ch%4] += 1;
       else     nChanBelowThres_H[ch%4] += 1;
-      maxTimeVec[ch%4].push_back(maxTime[ch]);
+      maxTimeVec[ch%4][ch<8?0:1].push_back(maxTime[ch]);
    }
 
    delete gr_v[ch];
@@ -874,22 +875,27 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    /* Check for offset block */
    /* Criteria: at least 2 offset block strings. An offset block string is defined as having offset blocks in both Vpols and at least 1
-    *  Hpol, and their offset time is within timeRangeCut
+    *  Hpol, and their offset time is within timeRangeCut for Vpol & Hpol resoectively.
     */
 
    //nChanBelowThres_Thres = (dropARA02D4BH?15:(dropARA03D4?12:16));
    int nOffsetBlockString = 0;
    for(int s=0; s<4; s++){
       if (nChanBelowThres_V[s]==2){
-         if(nChanBelowThres_H[s]>0){
-            timeRange = *max_element(maxTimeVec[s].begin(), maxTimeVec[s].end())
-                      - *min_element(maxTimeVec[s].begin(), maxTimeVec[s].end());
-            if(timeRange < timeRangeCut){
-               nOffsetBlockString++;
+         timeRange = *max_element(maxTimeVec[s][0].begin(), maxTimeVec[s][0].end())
+                   - *min_element(maxTimeVec[s][0].begin(), maxTimeVec[s][0].end());
+         if(timeRange < timeRangeCut){
+            if(nChanBelowThres_H[s]>0){
+               timeRange = *max_element(maxTimeVec[s][1].begin(), maxTimeVec[s][1].end())
+                         - *min_element(maxTimeVec[s][1].begin(), maxTimeVec[s][1].end());
+               if(timeRange < timeRangeCut){
+                  nOffsetBlockString++;   
+               }
             }
          }
       }
    }
+
    //if( nChanBelowThres >= nChanBelowThres_Thres ){
    //   timeRange = *max_element(maxTimeVec.begin(), maxTimeVec.end()) - *min_element(maxTimeVec.begin(), maxTimeVec.end());
       //cout<<"max element: "<<*max_element(maxTimeVec.begin(), maxTimeVec.end())<<" min element: "<<*min_element(maxTimeVec.begin(), maxTimeVec.end())<<" timeRange: "<<timeRange<<endl;
@@ -1418,7 +1424,8 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    for(int s=0; s<4; s++){
       nChanBelowThres_V[s]=0;
       nChanBelowThres_H[s]=0;
-      maxTimeVec[s].clear();
+      for(int pol=0; pol<2; pol++)
+         maxTimeVec[s][pol].clear();
    }
 
    for(int ch=0; ch<16; ch++){
@@ -1439,7 +1446,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    if(-1.*fabs(meanMax[ch])<(ch<8?threshold_V:threshold_H)){
       if(ch<8) nChanBelowThres_V[ch%4] += 1;
       else     nChanBelowThres_H[ch%4] += 1;
-      maxTimeVec[ch%4].push_back(maxTime[ch]);
+      maxTimeVec[ch%4][ch<8?0:1].push_back(maxTime[ch]);
    }
 
    delete gr_v[ch];
@@ -1454,15 +1461,20 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    int nOffsetBlockString = 0;
    for(int s=0; s<4; s++){
       if (nChanBelowThres_V[s]==2){
-         if(nChanBelowThres_H[s]>0){
-            timeRange = *max_element(maxTimeVec[s].begin(), maxTimeVec[s].end())
-                      - *min_element(maxTimeVec[s].begin(), maxTimeVec[s].end());
-            if(timeRange < timeRangeCut){
-               nOffsetBlockString++;
+         timeRange = *max_element(maxTimeVec[s][0].begin(), maxTimeVec[s][0].end())
+                   - *min_element(maxTimeVec[s][0].begin(), maxTimeVec[s][0].end());
+         if(timeRange < timeRangeCut){
+            if(nChanBelowThres_H[s]>0){
+               timeRange = *max_element(maxTimeVec[s][1].begin(), maxTimeVec[s][1].end())
+                         - *min_element(maxTimeVec[s][1].begin(), maxTimeVec[s][1].end());
+               if(timeRange < timeRangeCut){
+                  nOffsetBlockString++;
+               }
             }
          }
       }
    }
+
    //if( nChanBelowThres >= nChanBelowThres_Thres ){
    //   timeRange = *max_element(maxTimeVec.begin(), maxTimeVec.end()) - *min_element(maxTimeVec.begin(), maxTimeVec.end());
       //cout<<"max element: "<<*max_element(maxTimeVec.begin(), maxTimeVec.end())<<" min element: "<<*min_element(maxTimeVec.begin(), maxTimeVec.end())<<" timeRange: "<<timeRange<<endl;
