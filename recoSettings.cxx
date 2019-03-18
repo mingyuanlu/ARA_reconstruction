@@ -85,7 +85,7 @@ void recoSettings::initialize(){
 
   offsetBlock_threshold_V = -20.;
   offsetBlock_threshold_H = -12.;
-  offsetBlock_timeRangeCut = 40;
+  offsetBlock_timeRangeCut = 10/*40*/;
 
   cwFilter = 0;
   minCWCoincidence = 3;
