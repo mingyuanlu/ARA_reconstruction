@@ -57,6 +57,9 @@ using namespace std;
 #define deepPulserString22StartTimeStamp_2017 39803400
 #define deepPulserString22EndTimeStamp_2017 39809200
 
+#define numDDA 4 //Number of DDAs in an ARA station
+#define IRS2NumBlocks 512 //Number of blocks in an IRS2 chip
+
 //void invertGraph(TGraph *gr);
 int calibrateGeometryAndDelays(const RawAraStationEvent *rawAtriEvPtr,
                                 double (&posDelayArray)[4][4], double *pulserCorr,

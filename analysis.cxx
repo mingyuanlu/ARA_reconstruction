@@ -255,6 +255,9 @@ int freqCountLen_V, freqCountLen_H;
 int *freqCount_V, *freqCount_H;
 double freqBinWidth_V, freqBinWidth_H;
 
+/*
+ * Constants used
+
 /* End of conditional variables pre-declaration */
 
 int runEventCount, trigEventCount, recoEventCount;
@@ -269,6 +272,7 @@ int nchnlFilteredEventCount, cwFilteredEventCount, impulsivityFilteredEventCount
 nchnlFilteredEventCount = cwFilteredEventCount = impulsivityFilteredEventCount = 0;
 int corruptFirst3EventCount = 0;
 int corruptD1EventCount = 0;
+int blockGapEventCount = 0;
 double weightedTrigEventCount = 0.;
 double weightedRecoEventCount = 0.;
 double weightedOffsetBlockEventCount = 0.;
@@ -299,6 +303,7 @@ runInfoTree->Branch("weightedOffsetBlockEventCount", &weightedOffsetBlockEventCo
 runInfoTree->Branch("weightedNchnlFilteredEventCount", &weightedNchnlFilteredEventCount);
 runInfoTree->Branch("weightedCWFilteredEventCount", &weightedCWFilteredEventCount);
 runInfoTree->Branch("weightedImpulsivityFilteredEventCount", &weightedImpulsivityFilteredEventCount);
+runInfoTree->Branch("blockGapEventCount", &blockGapEventCount);
 
 if(settings->dataType == 1)//real events
 {
@@ -680,6 +685,15 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       if(triggerCode[2] != 1) continue;
    } else { cerr<<"Undefined trigger type!!\n"; continue; }
 
+   /* Check block gap */
+   int lenBlockVec = rawAtriEvPtr->blockVec.size();
+   if(rawAtriEvPtr->blockVec[lenBlockVec-1].getBlock() != (rawAtriEvPtr->blockVec[0].getBlock() + lenBlockVec/numDDA -1 ) ){
+      if( IRS2NumBlocks-rawAtriEvPtr->blockVec[0].getBlock() + rawAtriEvPtr->blockVec[lenBlockVec-1].getBlock() != lenBlockVec/numDDA-1){
+         //Is block gap event
+         blockGapEventCount+=1;
+         continue;
+      }
+   }
 
 
    UsefulAtriStationEvent *realAtriEvPtr = new UsefulAtriStationEvent( rawAtriEvPtr, AraCalType::kLatestCalib);
@@ -1913,7 +1927,7 @@ time_t t_after_event_loop = time(NULL);
 clock_t c_after_event_loop = clock();
 
 cout<<"runEventCount: "<<runEventCount<<" recoEventCount: "<<recoEventCount<<" trigEventCount: "<<trigEventCount<<endl;
-cout<<"cutWaveEventCount: "<<cutWaveEventCount<<" nonIncreasingSampleTimeEventCount: "<<nonIncreasingSampleTimeEventCount<<" cutWaveAndNonIncreasingEventCount: "<<cutWaveAndNonIncreasingEventCount<<" corruptD1EventCount: "<<corruptD1EventCount<<" corruptFirst3EventCount: "<<corruptFirst3EventCount<<endl;
+cout<<"cutWaveEventCount: "<<cutWaveEventCount<<" nonIncreasingSampleTimeEventCount: "<<nonIncreasingSampleTimeEventCount<<" cutWaveAndNonIncreasingEventCount: "<<cutWaveAndNonIncreasingEventCount<<" corruptD1EventCount: "<<corruptD1EventCount<<" corruptFirst3EventCount: "<<corruptFirst3EventCount<<" blockGapEventCount: "<<blockGapEventCount<<endl;
 cout<<"mistaggedSoftEventCount: "<<mistaggedSoftEventCount<<" offsetBlockEventCount: "<<offsetBlockEventCount<<" nchnlFilteredEventCount: "<<nchnlFilteredEventCount<<" cwFilteredEventCount: "<<cwFilteredEventCount<<" impulsivityFilteredEventCount: "<<impulsivityFilteredEventCount<<endl;
 
 runInfoTree->Fill();
