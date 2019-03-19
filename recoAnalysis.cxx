@@ -805,27 +805,34 @@ for(int i=4; i<argc; i++){
 
    }
 
-   if (zen_bestHypo < ZEN_BAND_MAX && zen_bestHypo > ZEN_BAND_MIN){ snrCutValue = cutValues->snrCut_inBand[type-1].val;    coherenceCutValue = cutValues->coherenceCut_inBand[type-1].val; inBand = true; }
-   else                                                           { snrCutValue = cutValues->snrCut_outOfBand[type-1].val; coherenceCutValue = cutValues->coherenceCut_outOfBand[type-1].val; inBand = false;}
+   //if (zen_bestHypo < ZEN_BAND_MAX && zen_bestHypo > ZEN_BAND_MIN){ snrCutValue = cutValues->snrCut_inBand[type-1].val;    coherenceCutValue = cutValues->coherenceCut_inBand[type-1].val; inBand = true; }
+   //else                                                           { snrCutValue = cutValues->snrCut_outOfBand[type-1].val; coherenceCutValue = cutValues->coherenceCut_outOfBand[type-1].val; inBand = false;}
+
+   if (zen_bestHypo < ZEN_BAND_MAX && zen_bestHypo > ZEN_BAND_MIN){ coherenceCutValue = cutValues->coherenceCut_inBand[type-1].val; inBand = true; }
+   else                                                           { coherenceCutValue = cutValues->coherenceCut_outOfBand[type-1].val; inBand = false;}
 
    if(string(settings->recoPolType)=="vpol"){ snr = dummyData->inWindowSNR_V; }
    else if(string(settings->recoPolType)=="hpol"){ snr = dummyData->inWindowSNR_H; }
 
    //if( snr > snrCutValue || coherence > coherenceCutValue){
-   if(inBand){
-      //if( 0.003 * snr + 1.916 * coherence - 0.368 > -0.144889) passThermalCut = true;
-      if(coherence > coherenceCut_inBand[type-1]/*0.108008*/) passThermalCut = true;
-      else passThermalCut = false;
-   } else{
-      //if( 0.007 * snr + 1.039 * coherence - 0.284 > -0.126811) passThermalCut = true;
-      if(coherence > coherenceCut_outOfBand[type-1]/*0.103715*/) passThermalCut = true;
-      else passThermalCut = false;
 
-   }
+   //if(inBand){
+      //if( 0.003 * snr + 1.916 * coherence - 0.368 > -0.144889) passThermalCut = true;
+   //   if(coherence > coherenceCut_inBand[type-1]/*0.108008*/) passThermalCut = true;
+   //   else passThermalCut = false;
+   //} else{
+      //if( 0.007 * snr + 1.039 * coherence - 0.284 > -0.126811) passThermalCut = true;
+   //   if(coherence > coherenceCut_outOfBand[type-1]/*0.103715*/) passThermalCut = true;
+   //   else passThermalCut = false;
+
+   //}
+   if(coherence > coherenceCutValue) passThermalCut = true;
+   else passThermalCut = false;
       //passThermalCut = true;
    //}
 
-   if(snr > snrCut[type-1]){
+   snrCutValue = cutValues->snrCut[type-1].val;
+   if(snr > snrCutValue){
       passSNRCut = true;
    }
 
