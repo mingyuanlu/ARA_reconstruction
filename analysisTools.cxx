@@ -114,17 +114,17 @@ void ARA02_cutValues::initialize(){
 */
 
    //Cut values from sliding V^2 SNR n-chan & 1D coherence thermal cut & 1D SNR cut
-   setValue(coherence_inBand[0],0.10800825822688973,0,0);
-   setValue(coherence_inBand[1],0.10932663315269384,0,0);
-   setValue(coherence_inBand[2],0.10838951766838757,0,0);
-   setValue(coherence_inBand[3],0.09902432045234812,0,0);
-   setValue(coherence_inBand[4],0.09707451485364714,0,0);
+   setValue(coherenceCut_inBand[0],0.10800825822688973,0,0);
+   setValue(coherenceCut_inBand[1],0.10932663315269384,0,0);
+   setValue(coherenceCut_inBand[2],0.10838951766838757,0,0);
+   setValue(coherenceCut_inBand[3],0.09902432045234812,0,0);
+   setValue(coherenceCut_inBand[4],0.09707451485364714,0,0);
 
-   setValue(coherence_outOfBand[0],0.10371485739304964,0,0);
-   setValue(coherence_outOfBand[1],0.10727052346393086,0,0);
-   setValue(coherence_outOfBand[2],0.10355164968621144,0,0);
-   setValue(coherence_outOfBand[3],0.09471396819592758,0,0);
-   setValue(coherence_outOfBand[4],0.09505296821439854,0,0);
+   setValue(coherenceCut_outOfBand[0],0.10371485739304964,0,0);
+   setValue(coherenceCut_outOfBand[1],0.10727052346393086,0,0);
+   setValue(coherenceCut_outOfBand[2],0.10355164968621144,0,0);
+   setValue(coherenceCut_outOfBand[3],0.09471396819592758,0,0);
+   setValue(coherenceCut_outOfBand[4],0.09505296821439854,0,0);
 
    //SNR cut after 1D coherence thermal cut. This cut is applied to inBand & outOfBand events
    setValue(snrCut[0],8.065051326524221,0,0);
