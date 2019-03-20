@@ -1745,6 +1745,7 @@ TCanvas c7("c7","c7",800,800);
 //impulsivityHist_nMinusImp->Draw();
 //impulsivityHist_nMinusImp->SetTitle(";Impulsivity;Entry");
 snr_nMinusSNR->SetTitle(";SNR;Entry");
+snr_nMinusSNR->Draw();
 sprintf(filename, "%s_type%d_nMinusSNR_snr.C", STATION.c_str(), type);
 c7.SaveAs(filename);
 
