@@ -1348,7 +1348,7 @@ for(int i=4; i<argc; i++){
    {
       snr_nMinusSNR->Fill(snr, dummyData->weight);
       // cout<<"snr: "<<snr<<endl;
-      outputFile<<snr<<",";
+      //outputFile<<snr<<",";
    }
    if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut /*&& passCalpulserCut*/ && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) zen_azi_nMinusCal->Fill(inBoxPhi, inBoxTheta, dummyData->weight);
    if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut /*&& passSurfaceCut && passSurfaceCut_2 */&& passNoisyRunCut ) zen_nMinusSurface->Fill((passSurfaceCut?zenMaj:90.f-dummyData->constantNZen));
@@ -1437,11 +1437,11 @@ for(int i=4; i<argc; i++){
 //   }
 //
 
-//   if(/*isCW &&*/ passThermalCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut && !lowFreqDominance ){
+   if(/*isCW &&*/ passThermalCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 /*&& passNoisyRunCut*/ && !lowFreqDominance ){
 
 //      cout<<"run: "<<runNum<<" event: "<<dummyData->eventNumber<<" SNR: "<<snr<<endl;
 //      _snrHist->Fill(snr, dummyData->weight);
-//      outputFile<<snr<<",";
+      outputFile<<snr<<",";
 //
 //      std::fill(&impulsivity[0], &impulsivity[16], 0.);
 //      int nonZeroCount = 0;
@@ -1563,7 +1563,7 @@ for(int i=4; i<argc; i++){
 
       thermalCWEventCount += dummyData->weight;
       */
-//   }//if pass all other cuts except CW and thermal
+   }//if pass all other cuts except CW and thermal
 
 
    }//end of entry
@@ -1740,7 +1740,7 @@ TCanvas c6("c6","c6",800,800);
 coherence_nMinusThermal->SetTitle(";Coherence;Entry");
 coherence_nMinusThermal->Draw();
 sprintf(filename, "%s_type%d_nMinusThermal_coherence.C", STATION.c_str(), type);
-c6.SaveAs(filename);
+//c6.SaveAs(filename);
 
 TCanvas c7("c7","c7",800,800);
 //impulsivityHist_nMinusImp->Draw();
@@ -1748,13 +1748,13 @@ TCanvas c7("c7","c7",800,800);
 snr_nMinusSNR->SetTitle(";SNR;Entry");
 snr_nMinusSNR->Draw();
 sprintf(filename, "%s_type%d_nMinusSNR_snr.C", STATION.c_str(), type);
-c7.SaveAs(filename);
+//c7.SaveAs(filename);
 
 TCanvas c8("c8","c8",800,800);
 zen_nMinusSurface->Draw();
 zen_nMinusSurface->SetTitle(";Receipt Angle [#circ];Entry");
 sprintf(filename, "%s_type%d_nMinusSurface_zen.C", STATION.c_str(), type);
-c8.SaveAs(filename);
+//c8.SaveAs(filename);
 /*
 TCanvas c9("c9","c9",800,800);
 c_vs_snr_hist_nMinusThermal->Draw("colz");
@@ -1766,7 +1766,7 @@ TCanvas c10("c10","c10",800,800);
 zen_azi_nMinusCal->Draw("colz");
 zen_azi_nMinusCal->SetTitle(";Azimuth [#circ];Zenith [#circ]");
 sprintf(filename, "%s_type%d_nMinusCal_zen_azi.C", STATION.c_str(), type);
-c10.SaveAs(filename);
+//c10.SaveAs(filename);
 /*
 TCanvas c11("c11","c11",800,800);
 c_vs_imp->Draw("colz");
