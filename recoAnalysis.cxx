@@ -257,7 +257,8 @@ ifstream list;
 //list.open("ARA02_vnchnl3NoMasking_noMaskSat_impCut_surfaceEvents_noisyRuns.txt");
 //list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_surfaceEvents_noisyRuns.txt");
 //list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_2SurfaceCut_surfaceEvents_noisyRuns.txt");
-list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_snrMode1_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
+//list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_snrMode1_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
+list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
 vector<int> listOfRuns;
 //vector<int> listOfEvents;
 string line;
@@ -1341,7 +1342,7 @@ for(int i=4; i<argc; i++){
    if(passCWCut && /*passThermalCut && */ passSNRCut && passThermalImpulsivityCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) //c_vs_snr_hist_nMinusThermal->Fill(snr, coherence, dummyData->weight);
       {
          coherence_nMinusThermal->Fill(coherence, dummyData->weight);
-         //if(!inBand) outputFile<<coherence<<",";
+         if(!inBand) outputFile<<coherence<<",";
       }
 
    if(passCWCut && passThermalCut &&/* passThermalImpulsivityCut &&*/ passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) //impulsivityHist_nMinusImp->Fill( avgImpulsivity, dummyData->weight);
@@ -1688,7 +1689,7 @@ impulsivityHist_avg->Write();
 fout.Close();
 */
 
-
+/*
 TCanvas c4("c4","c4",800,800);
 surfaceRunHist->Draw();
 sprintf(filename,"surfaceRunHist_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_%s_type%d.C", STATION.c_str(), type);
@@ -1700,6 +1701,7 @@ for(int bin=1; bin<=surfaceRunHist->GetNbinsX(); bin++){
    if(surfaceRunHist->GetBinContent(bin)>1) noisyRunFile<<surfaceRunHist->GetBinCenter(bin)<<endl;
 }
 noisyRunFile.close();
+*/
 /*
 
 TCanvas c5("c5","c5",1200,800);
