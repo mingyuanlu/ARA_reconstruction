@@ -127,11 +127,11 @@ void ARA02_cutValues::initialize(){
    setValue(coherenceCut_outOfBand[4],0.09505296821439854,0,0);
 
    //SNR cut after 1D coherence thermal cut. This cut is applied to inBand & outOfBand events
-   setValue(snrCut[0],8.065051326524221,0,0);
+   setValue(snrCut[0],8.414422261800883,0,0);
    setValue(snrCut[1],8.937513009286487,0,0);
    setValue(snrCut[2],8.377493977106527,0,0);
-   setValue(snrCut[3],8.551617773166683,0,0);
-   setValue(snrCut[4],9.624490817371045,0,0);
+   setValue(snrCut[3],8.574324074772582,0,0);
+   setValue(snrCut[4],9.722923507324271,0,0);
 
 
    //setValue(impCut, 0.25563478, 0.00124038, -0.00124038);
