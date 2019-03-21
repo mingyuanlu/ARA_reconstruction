@@ -833,7 +833,7 @@ for(int i=4; i<argc; i++){
    //}
 
    snrCutValue = cutValues->snrCut[type-1].val;
-   cout<<"snrCutValue: "<<snrCutValue<<endl;
+   //cout<<"snrCutValue: "<<snrCutValue<<endl;
    if(snr > snrCutValue){
       passSNRCut = true;
    }
