@@ -1350,9 +1350,12 @@ for(int i=4; i<argc; i++){
    {
       snr_nMinusSNR->Fill(snr, dummyData->weight);
       // cout<<"snr: "<<snr<<endl;
-      outputFile<<snr<<",";
+      //outputFile<<snr<<",";
    }
-   if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut /*&& passCalpulserCut*/ && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) zen_azi_nMinusCal->Fill(inBoxPhi, inBoxTheta, dummyData->weight);
+   if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut /*&& passCalpulserCut*/ && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) {
+      zen_azi_nMinusCal->Fill(inBoxPhi, inBoxTheta, dummyData->weight);
+      outputFile<<inBoxTheta<<",";
+   }
    if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut /*&& passSurfaceCut && passSurfaceCut_2 */&& passNoisyRunCut ) zen_nMinusSurface->Fill((passSurfaceCut?zenMaj:90.f-dummyData->constantNZen));
 
    //if(passDeepPulserCut && passThermalCut && passCalpulserCut && passSurfaceCut) runHist->Fill(runNum);
@@ -1768,8 +1771,8 @@ c9.SaveAs(filename);
 TCanvas c10("c10","c10",800,800);
 zen_azi_nMinusCal->Draw("colz");
 zen_azi_nMinusCal->SetTitle(";Azimuth [#circ];Zenith [#circ]");
-sprintf(filename, "%s_type%d_nMinusCal_zen_azi.C", STATION.c_str(), type);
-//c10.SaveAs(filename);
+sprintf(filename, "%s_type%d_snrMode1_nMinusCal_zen_azi.C", STATION.c_str(), type);
+c10.SaveAs(filename);
 /*
 TCanvas c11("c11","c11",800,800);
 c_vs_imp->Draw("colz");
