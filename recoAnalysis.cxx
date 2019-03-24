@@ -1354,7 +1354,7 @@ for(int i=4; i<argc; i++){
    }
    if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut /*&& passCalpulserCut*/ && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) {
       zen_azi_nMinusCal->Fill(inBoxPhi, inBoxTheta, dummyData->weight);
-      outputFile<<inBoxTheta<<",";
+      outputFile<<inBoxPhi<<",";
    }
    if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut /*&& passSurfaceCut && passSurfaceCut_2 */&& passNoisyRunCut ) zen_nMinusSurface->Fill((passSurfaceCut?zenMaj:90.f-dummyData->constantNZen));
 
