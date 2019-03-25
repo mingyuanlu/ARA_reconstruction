@@ -1762,8 +1762,8 @@ sprintf(filename, "%s_type%d_nMinusSNR_snr.C", STATION.c_str(), type);
 TCanvas c8("c8","c8",800,800);
 zen_nMinusSurface->Draw();
 zen_nMinusSurface->SetTitle(";Receipt Angle [#circ];Entry");
-sprintf(filename, "%s_type%d_nMinusSurface_zen.C", STATION.c_str(), type);
-//c8.SaveAs(filename);
+sprintf(filename, "%s_type%d_snrMode1_nMinusSurface_zen.C", STATION.c_str(), type);
+c8.SaveAs(filename);
 /*
 TCanvas c9("c9","c9",800,800);
 c_vs_snr_hist_nMinusThermal->Draw("colz");
@@ -1775,7 +1775,7 @@ TCanvas c10("c10","c10",800,800);
 zen_azi_nMinusCal->Draw("colz");
 zen_azi_nMinusCal->SetTitle(";Azimuth [#circ];Zenith [#circ]");
 sprintf(filename, "%s_type%d_snrMode1_nMinusCal_zen_azi.C", STATION.c_str(), type);
-c10.SaveAs(filename);
+//c10.SaveAs(filename);
 /*
 TCanvas c11("c11","c11",800,800);
 c_vs_imp->Draw("colz");
