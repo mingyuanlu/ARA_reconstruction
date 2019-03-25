@@ -1768,7 +1768,7 @@ TCanvas c8("c8","c8",800,800);
 //zen_nMinusSurface->Draw();
 //zen_nMinusSurface->SetTitle(";Receipt Angle [#circ];Entry");
 zen_azi_nMinusSurface->Draw("colz");
-zen_azi_nMinusSurface->SetTitle(";Reco Azimuth [#circ];Receipt Angle [#circ]")
+zen_azi_nMinusSurface->SetTitle(";Reco Azimuth [#circ];Receipt Angle [#circ]");
 sprintf(filename, "%s_type%d_snrMode1_nMinusSurface_zen_azi.C", STATION.c_str(), type);
 c8.SaveAs(filename);
 /*
