@@ -378,6 +378,7 @@ TH2F *c_vs_snr_hist_nMinusThermal = new TH2F("c_vs_snr_hist_nMinusThermal","c_vs
 TH1F *impulsivityHist_nMinusImp = new TH1F("impulsivityHist_nMinusImp","impulsivityHist_nMinusImp",1000, -2, 2);
 TH2F *zen_azi_nMinusCal = new TH2F("zen_azi_nMinusCal", "zen_azi_nMinusCal", 360/0.4, 0, 360, 180/0.4, -90, 90);
 TH1F *zen_nMinusSurface = new TH1F("zen_nMinusSurface", "zen_nMinusSurface", 180/0.4, -90, 90);
+TH2F *zen_azi_nMinusSurface = new TH1F("zen_azi_nMinusSurface", "zen_azi_nMinusSurface", 360/0.4, 0, 360, 180/0.4, -90, 90);
 
 TH1F *coherence_nMinusThermal = new TH1F("coherence_nMinusThermal","coherence_nMinusThermal",1000,0,1);
 TH1F *snr_nMinusSNR = new TH1F("snr_nMinusSNR","snr_nMinusSNR",400,0,40);
@@ -1356,7 +1357,11 @@ for(int i=4; i<argc; i++){
       zen_azi_nMinusCal->Fill(inBoxPhi, inBoxTheta, dummyData->weight);
       //outputFile<<inBoxPhi<<",";
    }
-   if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut /*&& passSurfaceCut && passSurfaceCut_2 */&& passNoisyRunCut ){  zen_nMinusSurface->Fill((passSurfaceCut?zenMaj:90.f-dummyData->constantNZen));
+   if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut /*&& passSurfaceCut && passSurfaceCut_2 */&& passNoisyRunCut )
+   {
+   zen_nMinusSurface->Fill((passSurfaceCut?zenMaj:90.f-dummyData->constantNZen));
+   zen_azi_nMinusSurface->Fill(dummyData->constantNAzi, (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen), dummyData->weight);
+
    outputFile<<(passSurfaceCut?zenMaj:90.f-dummyData->constantNZen)<<",";
    }
 
@@ -1760,9 +1765,11 @@ sprintf(filename, "%s_type%d_nMinusSNR_snr.C", STATION.c_str(), type);
 //c7.SaveAs(filename);
 
 TCanvas c8("c8","c8",800,800);
-zen_nMinusSurface->Draw();
-zen_nMinusSurface->SetTitle(";Receipt Angle [#circ];Entry");
-sprintf(filename, "%s_type%d_snrMode1_nMinusSurface_zen.C", STATION.c_str(), type);
+//zen_nMinusSurface->Draw();
+//zen_nMinusSurface->SetTitle(";Receipt Angle [#circ];Entry");
+zen_azi_nMinusSurface->Draw("colz");
+zen_azi_nMinusSurface->SetTitle(";Reco Azimuth [#circ];Receipt Angle [#circ]")
+sprintf(filename, "%s_type%d_snrMode1_nMinusSurface_zen_azi.C", STATION.c_str(), type);
 c8.SaveAs(filename);
 /*
 TCanvas c9("c9","c9",800,800);
