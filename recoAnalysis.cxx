@@ -1361,8 +1361,13 @@ for(int i=4; i<argc; i++){
    {
    zen_nMinusSurface->Fill((passSurfaceCut?zenMaj:90.f-dummyData->constantNZen));
    zen_azi_nMinusSurface->Fill(dummyData->constantNAzi, (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen), dummyData->weight);
+   double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
+   if(theta_temp > 52 && theta_temp < 57 && dummyData->constantNAzi > 235 && dummyData->constantNAzi < 245){
+      outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
+   }
 
-   outputFile<<(passSurfaceCut?zenMaj:90.f-dummyData->constantNZen)<<",";
+
+   //outputFile<<(passSurfaceCut?zenMaj:90.f-dummyData->constantNZen)<<",";
    }
 
 
@@ -1770,7 +1775,7 @@ TCanvas c8("c8","c8",800,800);
 zen_azi_nMinusSurface->Draw("colz");
 zen_azi_nMinusSurface->SetTitle(";Reco Azimuth [#circ];Receipt Angle [#circ]");
 sprintf(filename, "%s_type%d_snrMode1_nMinusSurface_zen_azi.C", STATION.c_str(), type);
-c8.SaveAs(filename);
+//c8.SaveAs(filename);
 /*
 TCanvas c9("c9","c9",800,800);
 c_vs_snr_hist_nMinusThermal->Draw("colz");
