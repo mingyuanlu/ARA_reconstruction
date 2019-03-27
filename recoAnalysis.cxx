@@ -380,6 +380,9 @@ TH2F *zen_azi_nMinusCal = new TH2F("zen_azi_nMinusCal", "zen_azi_nMinusCal", 360
 TH1F *zen_nMinusSurface = new TH1F("zen_nMinusSurface", "zen_nMinusSurface", 180/0.4, -90, 90);
 TH2F *zen_azi_nMinusSurface = new TH2F("zen_azi_nMinusSurface", "zen_azi_nMinusSurface", 360/0.4, 0, 360, 180/0.4, -90, 90);
 
+TH1F *zen_nMinusSurface_noSPSEvents = new TH1F("zen_nMinusSurface_noSPSEvents", "zen_nMinusSurface_noSPSEvents", 180/0.4, -90, 90);
+TH1F *sinzen_nMinusSurface_noSPSEvents = new TH1F("sinzen_nMinusSurface_noSPSEvents", "sinzen_nMinusSurface_noSPSEvents", 500, -1, 1);
+
 TH1F *coherence_nMinusThermal = new TH1F("coherence_nMinusThermal","coherence_nMinusThermal",1000,0,1);
 TH1F *snr_nMinusSNR = new TH1F("snr_nMinusSNR","snr_nMinusSNR",400,0,40);
 
@@ -1365,7 +1368,9 @@ for(int i=4; i<argc; i++){
    if(theta_temp > 52 && theta_temp < 57 && dummyData->constantNAzi > 235 && dummyData->constantNAzi < 245){
       //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
    } else {
-      outputFile<<theta_temp<<",";
+      zen_nMinusSurface_noSPSEvents->Fill(theta_temp, dummyData->weight);
+      sinzen_nMinusSurface_noSPSEvents->Fill(sin(theta_temp), dummyData->weight);
+      //outputFile<<theta_temp<<",";
    }
 
 
@@ -1774,17 +1779,23 @@ sprintf(filename, "%s_type%d_nMinusSNR_snr.C", STATION.c_str(), type);
 TCanvas c8("c8","c8",800,800);
 //zen_nMinusSurface->Draw();
 //zen_nMinusSurface->SetTitle(";Receipt Angle [#circ];Entry");
-zen_azi_nMinusSurface->Draw("colz");
-zen_azi_nMinusSurface->SetTitle(";Reco Azimuth [#circ];Receipt Angle [#circ]");
-sprintf(filename, "%s_type%d_snrMode1_nMinusSurface_zen_azi.C", STATION.c_str(), type);
-//c8.SaveAs(filename);
-/*
+//zen_azi_nMinusSurface->Draw("colz");
+//zen_azi_nMinusSurface->SetTitle(";Reco Azimuth [#circ];Receipt Angle [#circ]");
+//sprintf(filename, "%s_type%d_snrMode1_nMinusSurface_zen_azi.C", STATION.c_str(), type);
+zen_nMinusSurface_noSPSEvents->Draw();
+zen_nMinusSurface_noSPSEvents->SetTitle(";Reco Zenith[#circ];Entry");
+sprintf(filename, "%s_type%d_snrMode1_nMinusSurface_zen_noSPSEvents.C", STATION.c_str(), type);
+c8.SaveAs(filename);
+
 TCanvas c9("c9","c9",800,800);
-c_vs_snr_hist_nMinusThermal->Draw("colz");
-c_vs_snr_hist_nMinusThermal->SetTitle(";SNR;Coherence");
-sprintf(filename, "%s_type%d_nMinusThermal_c_vs_snr.C", STATION.c_str(), type);
+//c_vs_snr_hist_nMinusThermal->Draw("colz");
+//c_vs_snr_hist_nMinusThermal->SetTitle(";SNR;Coherence");
+//sprintf(filename, "%s_type%d_nMinusThermal_c_vs_snr.C", STATION.c_str(), type);
+sinzen_nMinusSurface_noSPSEvents->Draw();
+sinzen_nMinusSurface_noSPSEvents->SetTitle(";sin(Reco Zenith);Entry");
+sprintf(filename, "%s_type%d_snrMode1_nMinusSurface_sinzen_noSPSEvents.C", STATION.c_str(), type);
 c9.SaveAs(filename);
-*/
+
 TCanvas c10("c10","c10",800,800);
 zen_azi_nMinusCal->Draw("colz");
 zen_azi_nMinusCal->SetTitle(";Azimuth [#circ];Zenith [#circ]");
