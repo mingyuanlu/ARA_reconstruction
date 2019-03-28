@@ -1838,7 +1838,7 @@ sinzen_nMinusNoisyRunSurface_noSPSEvents->Write();
 fp.Close();
 
 
-TFile fp("ARA02_allTypes_snrMode1_nMinusSNRSurface_zen_sinzen_noSPSEvents.root", "update");
+fp.Open("ARA02_allTypes_snrMode1_nMinusSNRSurface_zen_sinzen_noSPSEvents.root", "update");
 sprintf(filename, "zen_type%d", type);
 zen_nMinusSNRSurface_noSPSEvents->SetName(filename);
 zen_nMinusSNRSurface_noSPSEvents->Write();
