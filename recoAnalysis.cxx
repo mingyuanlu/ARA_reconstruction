@@ -383,6 +383,12 @@ TH2F *zen_azi_nMinusSurface = new TH2F("zen_azi_nMinusSurface", "zen_azi_nMinusS
 TH1F *zen_nMinusSurface_noSPSEvents = new TH1F("zen_nMinusSurface_noSPSEvents", "zen_nMinusSurface_noSPSEvents", 180/0.4, -90, 90);
 TH1F *sinzen_nMinusSurface_noSPSEvents = new TH1F("sinzen_nMinusSurface_noSPSEvents", "sinzen_nMinusSurface_noSPSEvents", 500, -1, 1);
 
+TH1F *zen_nMinusNoisyRunSurface_noSPSEvents = new TH1F("zen_nMinusNoisyRunSurface_noSPSEvents", "zen_nMinusNoisyRunSurface_noSPSEvents", 180/0.4, -90, 90);
+TH1F *sinzen_nMinusNoisyRunSurface_noSPSEvents = new TH1F("sinzen_nMinusNoisyRunSurface_noSPSEvents", "sinzen_nMinusNoisyRunSurface_noSPSEvents", 500, -1, 1);
+
+TH1F *zen_nMinusSNRSurface_noSPSEvents = new TH1F("zen_nMinusSNRSurface_noSPSEvents", "zen_nMinusSNRSurface_noSPSEvents", 180/0.4, -90, 90);
+TH1F *sinzen_nMinusSNRSurface_noSPSEvents = new TH1F("sinzen_nMinusSNRSurface_noSPSEvents", "sinzen_nMinusSNRSurface_noSPSEvents", 500, -1, 1);
+
 TH1F *coherence_nMinusThermal = new TH1F("coherence_nMinusThermal","coherence_nMinusThermal",1000,0,1);
 TH1F *snr_nMinusSNR = new TH1F("snr_nMinusSNR","snr_nMinusSNR",400,0,40);
 
@@ -1378,6 +1384,32 @@ for(int i=4; i<argc; i++){
    }
 
 
+   if(passCWCut && passThermalCut && passThermalImpulsivityCut /*&& passSNRCut*/ && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut /*&& passSurfaceCut && passSurfaceCut_2 *//*&& passNoisyRunCut*/ )
+   {
+   //zen_nMinusSurface->Fill((passSurfaceCut?zenMaj:90.f-dummyData->constantNZen));
+   //zen_azi_nMinusSurface->Fill(dummyData->constantNAzi, (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen), dummyData->weight);
+   double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
+   if(theta_temp > 52 && theta_temp < 57 && dummyData->constantNAzi > 235 && dummyData->constantNAzi < 245){
+      //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
+   } else {
+
+      if(passSNRCut){
+         zen_nMinusNoisyRunSurface_noSPSEvents->Fill(theta_temp, dummyData->weight);
+         sinzen_nMinusNoisyRunSurface_noSPSEvents->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+      }
+
+      if(passNoisyRunCut){
+         zen_nMinusSNRSurface_noSPSEvents->Fill(theta_temp, dummyData->weight);
+         sinzen_nMinusSNRSurface_noSPSEvents->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+      }
+
+      //outputFile<<theta_temp<<",";
+   }
+
+
+   //outputFile<<(passSurfaceCut?zenMaj:90.f-dummyData->constantNZen)<<",";
+   }
+
    //if(passDeepPulserCut && passThermalCut && passCalpulserCut && passSurfaceCut) runHist->Fill(runNum);
    if( /*passNumSatChanCut && *//*passCWCut*/!lowFreqDominance && passDeepPulserCut && passThermalCut && passSNRCut && /*passThermalImpulsivityCut &&*/ passCalpulserCut && passCalpulserTimeCut && (!passSurfaceCut || !passSurfaceCut_2)) surfaceRunHist->Fill(runNum);
    //if( /*passNumSatChanCut &&*/ /*passCWCut &&*/ passDeepPulserCut && passThermalCut && passSurfaceCut && passSurfaceCut_2){ impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight); outputFile<<avgImpulsivity<<","; }
@@ -1785,7 +1817,7 @@ TCanvas c8("c8","c8",800,800);
 zen_nMinusSurface_noSPSEvents->Draw();
 zen_nMinusSurface_noSPSEvents->SetTitle(";Reco Zenith[#circ];Entry");
 sprintf(filename, "%s_type%d_snrMode1_nMinusSurface_zen_noSPSEvents.C", STATION.c_str(), type);
-c8.SaveAs(filename);
+//c8.SaveAs(filename);
 
 TCanvas c9("c9","c9",800,800);
 //c_vs_snr_hist_nMinusThermal->Draw("colz");
@@ -1794,7 +1826,27 @@ TCanvas c9("c9","c9",800,800);
 sinzen_nMinusSurface_noSPSEvents->Draw();
 sinzen_nMinusSurface_noSPSEvents->SetTitle(";sin(Reco Zenith);Entry");
 sprintf(filename, "%s_type%d_snrMode1_nMinusSurface_sinzen_noSPSEvents.C", STATION.c_str(), type);
-c9.SaveAs(filename);
+//c9.SaveAs(filename);
+
+TFile fp("ARA02_allTypes_snrMode1_nMinusNoisyRunSurface_zen_sinzen_noSPSEvents.root", "update");
+sprintf(filename, "zen_type%d", type);
+zen_nMinusNoisyRunSurface_noSPSEvents->SetName(filename);
+zen_nMinusNoisyRunSurface_noSPSEvents->Write();
+sprintf(filename,"sinzen_%d", type);
+sinzen_nMinusNoisyRunSurface_noSPSEvents->SetName(filename);
+sinzen_nMinusNoisyRunSurface_noSPSEvents->Write();
+fp.Close();
+
+
+TFile fp("ARA02_allTypes_snrMode1_nMinusSNRSurface_zen_sinzen_noSPSEvents.root", "update");
+sprintf(filename, "zen_type%d", type);
+zen_nMinusSNRSurface_noSPSEvents->SetName(filename);
+zen_nMinusSNRSurface_noSPSEvents->Write();
+sprintf(filename,"sinzen_%d", type);
+sinzen_nMinusSNRSurface_noSPSEvents->SetName(filename);
+sinzen_nMinusSNRSurface_noSPSEvents->Write();
+fp.Close();
+
 
 TCanvas c10("c10","c10",800,800);
 zen_azi_nMinusCal->Draw("colz");
