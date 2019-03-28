@@ -1396,7 +1396,7 @@ for(int i=4; i<argc; i++){
       //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
    } else {
 
-      zen_nMinusNoisyRunSNRSurface_noSPSEvents->(theta_temp, dummyData->weight);
+      zen_nMinusNoisyRunSNRSurface_noSPSEvents->Fill(theta_temp, dummyData->weight);
       sinzen_nMinusNoisyRunSNRSurface_noSPSEvents->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
 
       if(passSNRCut){
