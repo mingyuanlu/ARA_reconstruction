@@ -399,6 +399,8 @@ TH2F *c_vs_snr_hist = new TH2F("c_vs_snr_hist","c_vs_snr_hist",400,0,40,1000,0,1
 
 TH2F *c_vs_imp = new TH2F("c_vs_imp", "c_vs_imp", 1000, 0, 1, 1000, 0, 1);
 
+TH3F *coherenceSNRZenHist = new TH3F("coherenceSNRZenHist","coherenceSNRZenHist", 1000, 0, 1, 400, 0, 40, 500, -1, 1);
+
 double snrCutValue, coherenceCutValue;
 float coherence, snr;
 
@@ -1416,6 +1418,14 @@ for(int i=4; i<argc; i++){
    //outputFile<<(passSurfaceCut?zenMaj:90.f-dummyData->constantNZen)<<",";
    }
 
+   if(passCWCut /*&& passThermalCut*/ && passThermalImpulsivityCut /*&& passSNRCut*/ && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut /*&& passSurfaceCut && passSurfaceCut_2 *//*&& passNoisyRunCut*/ ){
+
+      double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
+      coherenceSNRZenHist->Fill(coherence, snr, sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+
+
+   }
+
    //if(passDeepPulserCut && passThermalCut && passCalpulserCut && passSurfaceCut) runHist->Fill(runNum);
    if( /*passNumSatChanCut && *//*passCWCut*/!lowFreqDominance && passDeepPulserCut && passThermalCut && passSNRCut && /*passThermalImpulsivityCut &&*/ passCalpulserCut && passCalpulserTimeCut && (!passSurfaceCut || !passSurfaceCut_2)) surfaceRunHist->Fill(runNum);
    //if( /*passNumSatChanCut &&*/ /*passCWCut &&*/ passDeepPulserCut && passThermalCut && passSurfaceCut && passSurfaceCut_2){ impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight); outputFile<<avgImpulsivity<<","; }
@@ -1829,10 +1839,15 @@ TCanvas c9("c9","c9",800,800);
 //c_vs_snr_hist_nMinusThermal->Draw("colz");
 //c_vs_snr_hist_nMinusThermal->SetTitle(";SNR;Coherence");
 //sprintf(filename, "%s_type%d_nMinusThermal_c_vs_snr.C", STATION.c_str(), type);
-sinzen_nMinusSurface_noSPSEvents->Draw();
-sinzen_nMinusSurface_noSPSEvents->SetTitle(";sin(Reco Zenith);Entry");
-sprintf(filename, "%s_type%d_snrMode1_nMinusSurface_sinzen_noSPSEvents.C", STATION.c_str(), type);
+//sinzen_nMinusSurface_noSPSEvents->Draw();
+//sinzen_nMinusSurface_noSPSEvents->SetTitle(";sin(Reco Zenith);Entry");
+//sprintf(filename, "%s_type%d_snrMode1_nMinusSurface_sinzen_noSPSEvents.C", STATION.c_str(), type);
 //c9.SaveAs(filename);
+
+sprintf(filename, "%s_type%d_snrMode1_coherenceSNRZenHist.C", STATION.c_str(), type);
+coherenceSNRZenHist->Draw();
+c9.SaveAs(filename);
+
 /*
 TFile fp("ARA02_allTypes_snrMode1_nMinusNoisyRunSurface_zen_sinzen_noSPSEvents.root", "update");
 sprintf(filename, "zen_type%d", type);
@@ -1853,7 +1868,7 @@ sinzen_nMinusSNRSurface_noSPSEvents->SetName(filename);
 sinzen_nMinusSNRSurface_noSPSEvents->Write();
 fp.Close();
 */
-
+/*
 TFile fp("ARA02_allTypes_snrMode1_nMinusNoisyRunSNRSurface_zen_sinzen_noSPSEvents.root", "update");
 sprintf(filename, "zen_type%d", type);
 zen_nMinusNoisyRunSNRSurface_noSPSEvents->SetName(filename);
@@ -1862,6 +1877,8 @@ sprintf(filename,"sinzen_%d", type);
 sinzen_nMinusNoisyRunSNRSurface_noSPSEvents->SetName(filename);
 sinzen_nMinusNoisyRunSNRSurface_noSPSEvents->Write();
 fp.Close();
+*/
+
 
 TCanvas c10("c10","c10",800,800);
 zen_azi_nMinusCal->Draw("colz");
