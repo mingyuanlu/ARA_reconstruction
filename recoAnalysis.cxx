@@ -400,6 +400,9 @@ TH2F *c_vs_snr_hist = new TH2F("c_vs_snr_hist","c_vs_snr_hist",400,0,40,1000,0,1
 TH2F *c_vs_imp = new TH2F("c_vs_imp", "c_vs_imp", 1000, 0, 1, 1000, 0, 1);
 
 TH3F *coherenceSNRZenHist = new TH3F("coherenceSNRZenHist","coherenceSNRZenHist", 1000, 0, 1, 400, 0, 40, 500, -1, 1);
+TH2F *coherenceSNR = new TH2F("coherenceSNR","coherenceSNR", 400,0,40,1000,0,1);
+TH2F *zenCoherence = new TH2F("zenCoherence","zenCoherence",1000,0,1,500,-1,1);
+TH2F *zenSNR = new TH2F("zenSNR","zenSNR",400,0,40,500,-1,1);
 
 double snrCutValue, coherenceCutValue;
 float coherence, snr;
@@ -1422,7 +1425,9 @@ for(int i=4; i<argc; i++){
 
       double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
       coherenceSNRZenHist->Fill(coherence, snr, sin(TMath::DegToRad()*theta_temp), dummyData->weight);
-
+      coherenceSNR->Fill(snr, coherence, dummyData->weight);
+      zenCoherence->Fill(coherence, sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+      zenSNR->Fill(snr, sin(TMath::DegToRad()*theta_temp), dummyData->weight);
 
    }
 
@@ -1845,8 +1850,20 @@ TCanvas c9("c9","c9",800,800);
 //c9.SaveAs(filename);
 
 sprintf(filename, "%s_type%d_snrMode1_coherenceSNRZenHist.C", STATION.c_str(), type);
-coherenceSNRZenHist->Draw();
-c9.SaveAs(filename);
+//coherenceSNRZenHist->Draw();
+//c9.SaveAs(filename);
+
+TCanvas c19("c19","c19",1200,800);
+c19.Divide(3,1);
+c19.cd(1);
+coherenceSNR->Draw("colz");
+c19.cd(2);
+zenCoherence->Draw("colz");
+c19.cd(3);
+zenSNR->Draw("colz");
+sprintf(filename, "%s_type%d_snrMode1_coherence_SNR_ZenHist.C", STATION.c_str(), type);
+c19.SaveAs(filename);
+
 
 /*
 TFile fp("ARA02_allTypes_snrMode1_nMinusNoisyRunSurface_zen_sinzen_noSPSEvents.root", "update");
