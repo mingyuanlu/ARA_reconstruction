@@ -1771,14 +1771,15 @@ TCanvas c4("c4","c4",800,800);
 surfaceRunHist->Draw();
 sprintf(filename,"surfaceRunHist_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_%s_type%d.C", STATION.c_str(), type);
 c4.SaveAs(filename);
-
-sprintf(filename, "%s_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt", STATION.c_str());
+*/
+sprintf(filename, "%s_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEventRuns.txt", STATION.c_str());
 ofstream noisyRunFile(filename, ofstream::out|ofstream::app);
 for(int bin=1; bin<=surfaceRunHist->GetNbinsX(); bin++){
-   if(surfaceRunHist->GetBinContent(bin)>1) noisyRunFile<<surfaceRunHist->GetBinCenter(bin)<<endl;
+   //if(surfaceRunHist->GetBinContent(bin)>1) noisyRunFile<<surfaceRunHist->GetBinCenter(bin)<<endl;
+   if(surfaceRunHist->GetBinContent(bin)>0) noisyRunFile<<surfaceRunHist->GetBinCenter(bin)<<","<<surfaceRunHist->GetBinContent(bin)<<endl;
 }
 noisyRunFile.close();
-*/
+
 /*
 
 TCanvas c5("c5","c5",1200,800);
@@ -1862,7 +1863,7 @@ zenCoherence->Draw("colz");
 c19.cd(3);
 zenSNR->Draw("colz");
 sprintf(filename, "%s_type%d_snrMode1_coherence_SNR_ZenHist.C", STATION.c_str(), type);
-c19.SaveAs(filename);
+//c19.SaveAs(filename);
 
 
 /*
