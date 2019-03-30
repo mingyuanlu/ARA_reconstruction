@@ -276,8 +276,10 @@ if (list.is_open() ){
       */
 
       getline(list, line, ',');
+      if (line=="") break;
       run = stoi(line);
       getline(list, line, '\n');
+      if (line="") break;
       event = stoi(line);
       //getline(list, line, '\n');
       if(event >= 5){
