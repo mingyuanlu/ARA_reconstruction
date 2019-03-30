@@ -258,8 +258,8 @@ ifstream list;
 //list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_surfaceEvents_noisyRuns.txt");
 //list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_2SurfaceCut_surfaceEvents_noisyRuns.txt");
 //list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_snrMode1_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
-//list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
-list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEventRuns.txt");
+list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
+//list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEventRuns.txt");
 vector<int> listOfRuns;
 //vector<int> listOfEvents;
 string line;
@@ -269,12 +269,12 @@ char line_char[200];
 if (list.is_open() ){
 
    while (list.good()){
-      /*
+
       getline(list, line, '\n');
       if (line == "") break;
       run = stoi(line);
-      */
 
+      /*
       getline(list, line, ',');
       if (line=="") break;
       run = stoi(line);
@@ -282,11 +282,12 @@ if (list.is_open() ){
       if (line=="") break;
       event = stoi(line);
       //getline(list, line, '\n');
-      if(event >= 10){
-         //cout<<"run: "<<run/*<<" event: "<<event*/<<endl;
-         cout<<"run: "<<run<<" event: "<<event<<endl;
+      */
+      //if(event >= 10){
+         cout<<"run: "<<run/*<<" event: "<<event*/<<endl;
+         //cout<<"run: "<<run<<" event: "<<event<<endl;
          listOfRuns.push_back(run);
-      }
+      //}
       //listOfEvents.push_back(event);
    }
 }
@@ -861,7 +862,8 @@ for(int i=4; i<argc; i++){
       //passThermalCut = true;
    //}
 
-   snrCutValue = cutValues->snrCut[type-1].val;
+   double scalingeFactor = 0.95;
+   snrCutValue = scalingeFactor * cutValues->snrCut[type-1].val;
    //cout<<"snrCutValue: "<<snrCutValue<<endl;
    if(snr > snrCutValue){
       passSNRCut = true;
