@@ -279,7 +279,7 @@ if (list.is_open() ){
       if (line=="") break;
       run = stoi(line);
       getline(list, line, '\n');
-      if (line="") break;
+      if (line=="") break;
       event = stoi(line);
       //getline(list, line, '\n');
       if(event >= 5){
