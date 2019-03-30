@@ -282,7 +282,7 @@ if (list.is_open() ){
       if (line=="") break;
       event = stoi(line);
       //getline(list, line, '\n');
-      if(event >= 5){
+      if(event >= 10){
          //cout<<"run: "<<run/*<<" event: "<<event*/<<endl;
          cout<<"run: "<<run<<" event: "<<event<<endl;
          listOfRuns.push_back(run);
