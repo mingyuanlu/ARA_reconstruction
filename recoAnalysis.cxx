@@ -258,7 +258,8 @@ ifstream list;
 //list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_surfaceEvents_noisyRuns.txt");
 //list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_2SurfaceCut_surfaceEvents_noisyRuns.txt");
 //list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_snrMode1_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
-list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
+//list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
+list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEventRuns.txt");
 vector<int> listOfRuns;
 //vector<int> listOfEvents;
 string line;
@@ -268,14 +269,22 @@ char line_char[200];
 if (list.is_open() ){
 
    while (list.good()){
+      /*
       getline(list, line, '\n');
       if (line == "") break;
       run = stoi(line);
-      //getline(list, line, ',');
-      //event = stoi(line);
+      */
+
+      getline(list, line, ',');
+      run = stoi(line);
+      getline(list, line, '\n');
+      event = stoi(line);
       //getline(list, line, '\n');
-      cout<<"run: "<<run/*<<" event: "<<event*/<<endl;
-      listOfRuns.push_back(run);
+      if(event >= 5){
+         //cout<<"run: "<<run/*<<" event: "<<event*/<<endl;
+         cout<<"run: "<<run<<" event: "<<event<<endl;
+         listOfRuns.push_back(run);
+      }
       //listOfEvents.push_back(event);
    }
 }
@@ -1384,7 +1393,7 @@ for(int i=4; i<argc; i++){
    } else {
       zen_nMinusSurface_noSPSEvents->Fill(theta_temp, dummyData->weight);
       sinzen_nMinusSurface_noSPSEvents->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
-      //outputFile<<theta_temp<<",";
+      outputFile<<theta_temp<<",";
    }
 
 
@@ -1772,6 +1781,7 @@ surfaceRunHist->Draw();
 sprintf(filename,"surfaceRunHist_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_%s_type%d.C", STATION.c_str(), type);
 c4.SaveAs(filename);
 */
+/*
 sprintf(filename, "%s_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEventRuns.txt", STATION.c_str());
 ofstream noisyRunFile(filename, ofstream::out|ofstream::app);
 for(int bin=1; bin<=surfaceRunHist->GetNbinsX(); bin++){
@@ -1779,7 +1789,7 @@ for(int bin=1; bin<=surfaceRunHist->GetNbinsX(); bin++){
    if(surfaceRunHist->GetBinContent(bin)>0) noisyRunFile<<surfaceRunHist->GetBinCenter(bin)<<","<<surfaceRunHist->GetBinContent(bin)<<endl;
 }
 noisyRunFile.close();
-
+*/
 /*
 
 TCanvas c5("c5","c5",1200,800);
