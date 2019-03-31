@@ -283,7 +283,7 @@ if (list.is_open() ){
       event = stoi(line);
       //getline(list, line, '\n');
 
-      if(event >= 17){
+      if(event >= 18){
          //cout<<"run: "<<run/*<<" event: "<<event*/<<endl;
          cout<<"run: "<<run<<" event: "<<event<<endl;
          listOfRuns.push_back(run);
