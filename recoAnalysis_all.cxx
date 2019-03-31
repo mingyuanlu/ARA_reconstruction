@@ -401,6 +401,9 @@ TH1F *sinzen_nMinusSurface_noSPSEvents = new TH1F("sinzen_nMinusSurface_noSPSEve
 TH1F *zen_nMinusNoisyRunSurface_noSPSEvents = new TH1F("zen_nMinusNoisyRunSurface_noSPSEvents", "zen_nMinusNoisyRunSurface_noSPSEvents", 180/0.4, -90, 90);
 TH1F *sinzen_nMinusNoisyRunSurface_noSPSEvents = new TH1F("sinzen_nMinusNoisyRunSurface_noSPSEvents", "sinzen_nMinusNoisyRunSurface_noSPSEvents", 500, -1, 1);
 
+TH1F *zen_nMinusNoisyRunSurface = new TH1F("zen_nMinusNoisyRunSurface", "zen_nMinusNoisyRunSurface", 180/0.4, -90, 90);
+TH1F *sinzen_nMinusNoisyRunSurface = new TH1F("sinzen_nMinusNoisyRunSurface", "sinzen_nMinusNoisyRunSurface", 500, -1, 1);
+
 TH1F *zen_nMinusSNRSurface_noSPSEvents = new TH1F("zen_nMinusSNRSurface_noSPSEvents", "zen_nMinusSNRSurface_noSPSEvents", 180/0.4, -90, 90);
 TH1F *sinzen_nMinusSNRSurface_noSPSEvents = new TH1F("sinzen_nMinusSNRSurface_noSPSEvents", "sinzen_nMinusSNRSurface_noSPSEvents", 500, -1, 1);
 
@@ -1433,6 +1436,11 @@ for(int i=3; i<argc; i++){
       sinzen_nMinusSNRSurface->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
    }
 
+   if(passSNRCut){
+      zen_nMinusNoisyRunSurface->Fill(theta_temp, dummyData->weight);
+      sinzen_nMinusNoisyRunSurface->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+   }
+
    if(theta_temp > 52 && theta_temp < 57 && dummyData->constantNAzi > 235 && dummyData->constantNAzi < 245){
       //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
    } else {
@@ -1915,6 +1923,14 @@ fp.Close();
 */
 
 TCanvas c20("c20","c20",1200,800);
+c20.Divide(2,1);
+c20.cd(1);
+zen_nMinusNoisyRunSurface->Draw();
+c20.cd(2);
+sinzen_nMinusNoisyRunSurface->Draw();
+sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunSurface_zen_sinzen.C", STATION.c_str());
+c20.SaveAs(filename);
+/*
 c20.Divide(4,1);
 c20.cd(1);
 //fp.Open("ARA02_allTypes_snrMode1_nMinusSNRSurface_zen_sinzen_noSPSEvents.root", "update");
@@ -1934,6 +1950,7 @@ sinzen_nMinusNoisyRunSNRSurface->Draw();
 //fp.Close();
 sprintf(filename,"%s_allTypes_snrMode1_nMinusSNRSurface_nMinusNoisyRunSNRSurface_zen_sinzen.C", STATION.c_str());
 c20.SaveAs(filename);
+*/
 
 /*
 TFile fp("ARA02_allTypes_snrMode1_nMinusNoisyRunSNRSurface_zen_sinzen_noSPSEvents.root", "update");
