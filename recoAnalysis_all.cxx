@@ -68,7 +68,7 @@ gROOT->ProcessLine("#include <vector>");
 
 
 string STATION = string(argv[1]);
-//int type = atoi(argv[2]);
+int type;// = atoi(argv[2]);
 cout<<"STATION: "<<STATION/*<<" type: "<<type*/<<endl;
 //string ENERGY = string(argv[3]);
 
@@ -512,7 +512,7 @@ for(int i=3; i<argc; i++){
 
    string fin(argv[i]);
    int runNum = atoi(  fin.substr(fin.find("run")+3, fin.find(".root")-fin.find("run")-2).c_str() );
-   int type = getRunType(STATION, runNum);
+   type = getRunType(STATION, runNum);
 
    if(type<=3) fftRes = 1/(379e-9)/1e6;
    else        fftRes = 1/(499e-9)/1e6;
