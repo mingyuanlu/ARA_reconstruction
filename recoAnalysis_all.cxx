@@ -1395,13 +1395,13 @@ for(int i=3; i<argc; i++){
    zen_nMinusSurface->Fill((passSurfaceCut?zenMaj:90.f-dummyData->constantNZen));
    zen_azi_nMinusSurface->Fill(dummyData->constantNAzi, (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen), dummyData->weight);
    double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
-   if(theta_temp > 52 && theta_temp < 57 && dummyData->constantNAzi > 235 && dummyData->constantNAzi < 245){
+   //if(theta_temp > 52 && theta_temp < 57 && dummyData->constantNAzi > 235 && dummyData->constantNAzi < 245){
       //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
-   } else {
+   //} else {
       zen_nMinusSurface_noSPSEvents->Fill(theta_temp, dummyData->weight);
       sinzen_nMinusSurface_noSPSEvents->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
       outputFile<<theta_temp<<",";
-   }
+   //}
 
 
    //outputFile<<(passSurfaceCut?zenMaj:90.f-dummyData->constantNZen)<<",";
