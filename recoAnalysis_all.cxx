@@ -411,6 +411,9 @@ TH1F *zen_nMinusNoisyRunSNRSurface_noSPSEvents = new TH1F("zen_nMinusNoisyRunSNR
 TH1F *sinzen_nMinusNoisyRunSNRSurface_noSPSEvents = new TH1F("sinzen_nMinusNoisyRunSNRSurface_noSPSEvents", "sinzen_nMinusNoisyRunSNRSurface_noSPSEvents", 500, -1, 1);
 
 
+TH1F *zen_nMinusNoisyRunSNRSurface = new TH1F("zen_nMinusNoisyRunSNRSurface", "zen_nMinusNoisyRunSNRSurface", 180/0.4, -90, 90);
+TH1F *sinzen_nMinusNoisyRunSNRSurface = new TH1F("sinzen_nMinusNoisyRunSNRSurface", "sinzen_nMinusNoisyRunSNRSurface", 500, -1, 1);
+
 TH1F *coherence_nMinusThermal = new TH1F("coherence_nMinusThermal","coherence_nMinusThermal",1000,0,1);
 TH1F *snr_nMinusSNR = new TH1F("snr_nMinusSNR","snr_nMinusSNR",400,0,40);
 
@@ -1422,6 +1425,9 @@ for(int i=3; i<argc; i++){
    //double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
    double theta_temp = 90.f-dummyData->constantNZen;
 
+   zen_nMinusNoisyRunSNRSurface->Fill(theta_temp, dummyData->weight);
+   sinzen_nMinusNoisyRunSNRSurface->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+
    if(passNoisyRunCut){
       zen_nMinusSNRSurface->Fill(theta_temp, dummyData->weight);
       sinzen_nMinusSNRSurface->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
@@ -1909,7 +1915,7 @@ fp.Close();
 */
 
 TCanvas c20("c20","c20",1200,800);
-c20.Divide(2,1);
+c20.Divide(4,1);
 c20.cd(1);
 //fp.Open("ARA02_allTypes_snrMode1_nMinusSNRSurface_zen_sinzen_noSPSEvents.root", "update");
 //sprintf(filename, "zen_type%d", type);
@@ -1921,8 +1927,12 @@ c20.cd(2);
 //sinzen_nMinusSNRSurface_noSPSEvents->SetName(filename);
 //sinzen_nMinusSNRSurface_noSPSEvents->Write();
 sinzen_nMinusSNRSurface->Draw();
+c20.cd(3);
+zen_nMinusNoisyRunSNRSurface->Draw();
+c20.cd(4);
+sinzen_nMinusNoisyRunSNRSurface->Draw();
 //fp.Close();
-sprintf(filename,"%s_allTypes_snrMode1_nMinusSNRSurface_zen_sinzen.C", STATION.c_str());
+sprintf(filename,"%s_allTypes_snrMode1_nMinusSNRSurface_nMinusNoisyRunSNRSurface_zen_sinzen.C", STATION.c_str());
 c20.SaveAs(filename);
 
 /*
