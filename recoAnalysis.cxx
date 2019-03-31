@@ -862,7 +862,7 @@ for(int i=4; i<argc; i++){
       //passThermalCut = true;
    //}
 
-   double scalingFactor = 0.8;
+   double scalingFactor = 0.6;
    snrCutValue = scalingFactor * cutValues->snrCut[type-1].val;
    //cout<<"snrCutValue: "<<snrCutValue<<endl;
    if(snr > snrCutValue){
