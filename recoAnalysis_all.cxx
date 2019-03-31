@@ -258,8 +258,8 @@ ifstream list;
 //list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_surfaceEvents_noisyRuns.txt");
 //list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_2SurfaceCut_surfaceEvents_noisyRuns.txt");
 //list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_snrMode1_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
-//list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
-list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEventRuns.txt");
+list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
+//list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEventRuns.txt");
 vector<int> listOfRuns;
 //vector<int> listOfEvents;
 string line;
@@ -269,12 +269,12 @@ char line_char[200];
 if (list.is_open() ){
 
    while (list.good()){
-      /*
+
       getline(list, line, '\n');
       if (line == "") break;
       run = stoi(line);
-      */
 
+/*
       getline(list, line, ',');
       if (line=="") break;
       run = stoi(line);
@@ -282,12 +282,12 @@ if (list.is_open() ){
       if (line=="") break;
       event = stoi(line);
       //getline(list, line, '\n');
-
-      if(event >= 22 ){
-         //cout<<"run: "<<run/*<<" event: "<<event*/<<endl;
-         cout<<"run: "<<run<<" event: "<<event<<endl;
+*/
+      //if(event >= 22 ){
+         cout<<"run: "<<run/*<<" event: "<<event*/<<endl;
+         //cout<<"run: "<<run<<" event: "<<event<<endl;
          listOfRuns.push_back(run);
-      }
+      //}
       //listOfEvents.push_back(event);
    }
 }
@@ -392,6 +392,9 @@ TH2F *zen_azi_nMinusCal = new TH2F("zen_azi_nMinusCal", "zen_azi_nMinusCal", 360
 TH1F *zen_nMinusSurface = new TH1F("zen_nMinusSurface", "zen_nMinusSurface", 180/0.4, -90, 90);
 TH2F *zen_azi_nMinusSurface = new TH2F("zen_azi_nMinusSurface", "zen_azi_nMinusSurface", 360/0.4, 0, 360, 180/0.4, -90, 90);
 
+TH1F *sinzen_nMinusSurface = new TH1F("zen_nMinusSurface", "zen_nMinusSurface", 180/0.4, -90, 90);
+TH2F *sinzen_azi_nMinusSurface = new TH2F("zen_azi_nMinusSurface", "zen_azi_nMinusSurface", 360/0.4, 0, 360, 180/0.4, -90, 90);
+
 TH1F *zen_nMinusSurface_noSPSEvents = new TH1F("zen_nMinusSurface_noSPSEvents", "zen_nMinusSurface_noSPSEvents", 180/0.4, -90, 90);
 TH1F *sinzen_nMinusSurface_noSPSEvents = new TH1F("sinzen_nMinusSurface_noSPSEvents", "sinzen_nMinusSurface_noSPSEvents", 500, -1, 1);
 
@@ -401,8 +404,12 @@ TH1F *sinzen_nMinusNoisyRunSurface_noSPSEvents = new TH1F("sinzen_nMinusNoisyRun
 TH1F *zen_nMinusSNRSurface_noSPSEvents = new TH1F("zen_nMinusSNRSurface_noSPSEvents", "zen_nMinusSNRSurface_noSPSEvents", 180/0.4, -90, 90);
 TH1F *sinzen_nMinusSNRSurface_noSPSEvents = new TH1F("sinzen_nMinusSNRSurface_noSPSEvents", "sinzen_nMinusSNRSurface_noSPSEvents", 500, -1, 1);
 
+TH1F *zen_nMinusSNRSurface = new TH1F("zen_nMinusSNRSurface", "zen_nMinusSNRSurface", 180/0.4, -90, 90);
+TH1F *sinzen_nMinusSNRSurface = new TH1F("sinzen_nMinusSNRSurface", "sinzen_nMinusSNRSurface", 500, -1, 1);
+
 TH1F *zen_nMinusNoisyRunSNRSurface_noSPSEvents = new TH1F("zen_nMinusNoisyRunSNRSurface_noSPSEvents", "zen_nMinusNoisyRunSNRSurface_noSPSEvents", 180/0.4, -90, 90);
 TH1F *sinzen_nMinusNoisyRunSNRSurface_noSPSEvents = new TH1F("sinzen_nMinusNoisyRunSNRSurface_noSPSEvents", "sinzen_nMinusNoisyRunSNRSurface_noSPSEvents", 500, -1, 1);
+
 
 TH1F *coherence_nMinusThermal = new TH1F("coherence_nMinusThermal","coherence_nMinusThermal",1000,0,1);
 TH1F *snr_nMinusSNR = new TH1F("snr_nMinusSNR","snr_nMinusSNR",400,0,40);
@@ -1400,7 +1407,7 @@ for(int i=3; i<argc; i++){
    //} else {
       zen_nMinusSurface_noSPSEvents->Fill(theta_temp, dummyData->weight);
       sinzen_nMinusSurface_noSPSEvents->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
-      outputFile<<theta_temp<<",";
+      //outputFile<<theta_temp<<",";
    //}
 
 
@@ -1412,7 +1419,14 @@ for(int i=3; i<argc; i++){
    {
    //zen_nMinusSurface->Fill((passSurfaceCut?zenMaj:90.f-dummyData->constantNZen));
    //zen_azi_nMinusSurface->Fill(dummyData->constantNAzi, (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen), dummyData->weight);
-   double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
+   //double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
+   double theta_temp = 90.f-dummyData->constantNZen;
+
+   if(passNoisyRunCut){
+      zen_nMinusSNRSurface->Fill(theta_temp, dummyData->weight);
+      sinzen_nMinusSNRSurface->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+   }
+
    if(theta_temp > 52 && theta_temp < 57 && dummyData->constantNAzi > 235 && dummyData->constantNAzi < 245){
       //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
    } else {
@@ -1892,17 +1906,25 @@ sprintf(filename,"sinzen_%d", type);
 sinzen_nMinusNoisyRunSurface_noSPSEvents->SetName(filename);
 sinzen_nMinusNoisyRunSurface_noSPSEvents->Write();
 fp.Close();
-
-
-fp.Open("ARA02_allTypes_snrMode1_nMinusSNRSurface_zen_sinzen_noSPSEvents.root", "update");
-sprintf(filename, "zen_type%d", type);
-zen_nMinusSNRSurface_noSPSEvents->SetName(filename);
-zen_nMinusSNRSurface_noSPSEvents->Write();
-sprintf(filename,"sinzen_%d", type);
-sinzen_nMinusSNRSurface_noSPSEvents->SetName(filename);
-sinzen_nMinusSNRSurface_noSPSEvents->Write();
-fp.Close();
 */
+
+TCanvas c20("c20","c20",1200,800);
+c20.Divide(2,1);
+c20.cd(1);
+//fp.Open("ARA02_allTypes_snrMode1_nMinusSNRSurface_zen_sinzen_noSPSEvents.root", "update");
+//sprintf(filename, "zen_type%d", type);
+//zen_nMinusSNRSurface_noSPSEvents->SetName(filename);
+//zen_nMinusSNRSurface_noSPSEvents->Write();
+zen_nMinusSNRSurface->Draw();
+c20.cd(2);
+//sprintf(filename,"sinzen_%d", type);
+//sinzen_nMinusSNRSurface_noSPSEvents->SetName(filename);
+//sinzen_nMinusSNRSurface_noSPSEvents->Write();
+sinzen_nMinusSNRSurface->Draw();
+//fp.Close();
+sprintf(filename,"%s_allTypes_snrMode1_nMinusSNRSurface_zen_sinzen.C", STATION.c_str());
+c20.SaveAs(filename);
+
 /*
 TFile fp("ARA02_allTypes_snrMode1_nMinusNoisyRunSNRSurface_zen_sinzen_noSPSEvents.root", "update");
 sprintf(filename, "zen_type%d", type);
