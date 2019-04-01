@@ -507,6 +507,14 @@ TH1F *inRangeThetaFracHist = new TH1F("inRangeThetaFracHist","inRangeThetaFracHi
 TH1F *inRangePhiFracHist = new TH1F("inRangePhiFracHist","inRangePhiFracHist",100,0,1);
 TH2F *inRangeThetaPhiFracHist = new TH2F("inRangeThetaPhiFracHist","inRangeThetaPhiFracHist",100,0,1,100,0,1);
 
+TH1F *coherence_snr_nMinusCoherenceSNR = new TH1F("coherence_snr_nMinusCoherenceSNR","coherence_snr_nMinusCoherenceSNR",400,0,1.2,1000,0,1);
+double snr_mean, c_mean;
+snr_mean = c_mean = 0.;
+double snr_scaling = 40;
+int count = 0;
+vector<double> snr_vec;
+vector<double> c_vec;
+
 //for(int entry=0; entry<Nentries; entry++){
 for(int i=4; i<argc; i++){
 
@@ -558,8 +566,6 @@ for(int i=4; i<argc; i++){
    int fIndex[16];
    double orderedArray[16];
    int orderedArrayPolType[16];
-
-
 
    for(int entry=0; entry<Nentries; entry++){
    //if(Nentries > 100) {  if(  entry % (Nentries/100) == 0  ){ cout<<"Progess: "<<entry / (Nentries/100) <<"%\n"; } }
@@ -1383,6 +1389,23 @@ for(int i=4; i<argc; i++){
       // cout<<"snr: "<<snr<<endl;
       //outputFile<<snr<<",";
    }
+
+
+   if(passCWCut &&/* passThermalCut &&*//* passThermalImpulsivityCut &&*/ passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) //impulsivityHist_nMinusImp->Fill( avgImpulsivity, dummyData->weight);
+   {
+      //snr_nMinusSNR->Fill(snr, dummyData->weight);
+      // cout<<"snr: "<<snr<<endl;
+      //outputFile<<snr<<",";
+      //snr_mean += snr / snr_scaling;
+      //c_mean   += coherence;
+      count += 1;
+      snr_vec.push_back(snr/snr_scaling);
+      c_vec.push_back(coherence);
+      coherence_snr_nMinusCoherenceSNR->Fill(snr/snr_scaling, coherence, dummyData->weight);
+
+   }
+
+
    if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut /*&& passCalpulserCut*/ && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) {
       zen_azi_nMinusCal->Fill(inBoxPhi, inBoxTheta, dummyData->weight);
       //outputFile<<inBoxPhi<<",";
@@ -1664,6 +1687,44 @@ delete recoSettingsTree;
 fp1.Close();
 
 }//end of file
+
+cout<<"snr_vec size: "<<snr_vec.size()<<" c_vec size: "<<c_vec.size()<<" count: "<<count<<endl;
+
+//Compute the covariance matrix of c-snr 2D data
+for(int i=0; i<(int)snr_vec.size(); i++){
+   snr_mean += snr_vec[i];
+   c_mean   += c_vec[i];
+}
+
+snr_mean /= (double)snr_vec.size();
+c_mean   /= (double)c_vec.size();
+cout<<"snr_mean: "<<snr_mean<<" c_mean: "<<c_mean<<endl;
+
+double cov[4] = {0.};
+
+for(int i=0; i<(int)snr_vec.size(); i++){
+   cov[0] += (snr_vec[i] - snr_mean) * (snr_vec[i] - snr_mean);
+   cov[1] += (snr_vec[i] - snr_mean) * (c_vec[i] - c_mean);
+   cov[3] += (c_vec[i] - c_mean) * (c_vec[i] - c_mean);
+}
+
+cov[0] /= (double)snr_vec.size();
+cov[1] /= (double)snr_vec.size();
+cov[3] /= (double)c_vec.size();
+cov[2] = cov[1];
+
+TMatrixDSym covMatrix = new TMatrixDSym(2, cov);
+covMatrix->Print();
+TMatrixDSymEigen *eigen = new TMatrixDSymEigen(*covMatrix);
+TVectorD eigenVal    = eigen->GetEigenValues();
+TMatrixD eigenMatrix = eigen->GetEigenVectors();
+eigenVal->Print();
+eigenMatrix->Print();
+double x0=0.1;
+double y0=0.1;
+double d=1.;
+TLine pca1(x0,y0,x0+d*eigenMatrix[0][0],y0+d*eigenMatrix[1][0]);
+TLine pca2(x0,y0,x0+d*eigenMatrix[0][1],y0+d*eigenMatrix[1][1]);
 
 outputFile.close();
 
@@ -2031,6 +2092,14 @@ c17.SaveAs(filename);
 //_snrCumuHist->Draw();
 //c18.SaveAs(filename);
 
+TCanvas c20("c20","c20",800,800);
+coherence_snr_nMinusCoherenceSNR->Draw("colz");
+pca1.SetLineColor(kRed);
+pca2.SetLineColor(kBlue);
+pca1.Draw("same");
+pca2.Draw("same");
+sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_pca.C", STATION.c_str(), type);
+c20.SaveAs(filename);
 
 return 0;
 }
