@@ -30,7 +30,7 @@
 #include "TLine.h"
 #include "TLegend.h"
 #include "TMatrixDSymEigen.h"
-#include "MatrixD.h"
+#include "TMatrixD.h"
 #include "TVectorD.h"
 #include "TMatrixDSym.h"
 
