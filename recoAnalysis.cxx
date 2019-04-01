@@ -2124,7 +2124,7 @@ pca1.SetLineColor(kRed);
 pca2.SetLineColor(kBlue);
 pca1.Draw("same");
 pca2.Draw("same");
-sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_pca.C", STATION.c_str(), type);
+sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_pca_outOfBand.C", STATION.c_str(), type);
 c20.SaveAs(filename);
 
 return 0;
