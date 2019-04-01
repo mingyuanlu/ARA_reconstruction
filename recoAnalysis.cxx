@@ -1752,7 +1752,7 @@ sigma_snr /= (double)((int)snr_vec.size()/*-1*/);
 sigma_c   /= (double)((int)c_vec.size()/*-1*/);
 sigma_snr = sqrt(sigma_snr);
 sigma_c   = sqrt(sigma_c);
-cout<<"sigma_snr: "<<sigma_snr<<" sigma_c: "<<sigma_c<<end;
+cout<<"sigma_snr: "<<sigma_snr<<" sigma_c: "<<sigma_c<<endl;
 
 double cov[4] = {0.};
 
