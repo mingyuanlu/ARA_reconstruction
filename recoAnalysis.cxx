@@ -2190,6 +2190,8 @@ cutPoint->Draw("psame");
 //sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_pca_outOfBand.C", STATION.c_str(), type);
 sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_c_snr_outOfBand.C", STATION.c_str(), type);
 c20.SaveAs(filename);
+sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_c_snr_outOfBand.pdf", STATION.c_str(), type);
+c20.SaveAs(filename);
 
 
 TCanvas c21("c21","c21",1200,800);
@@ -2220,6 +2222,8 @@ snrLine.Draw("same");
 cohLine.Draw("same");
 sprintf(filename,"%s_type%d_snrMode1_nMinusCuts_c_snr_outOfBand.C", STATION.c_str(), type);
 c21.SaveAs(filename);
+sprintf(filename,"%s_type%d_snrMode1_nMinusCuts_c_snr_outOfBand.pdf", STATION.c_str(), type);
+c21.SaveAs(filename);
 
 TCanvas c22("c22","c22",800,800);
 zen_azi_nMinusSurface->Draw();
@@ -2230,6 +2234,8 @@ TLine surfLine(0,cutValues->surfaceCut_constantN.val,360,cutValues->surfaceCut_c
 surfLine.Draw("same");
 zen_azi_nMinusSurface->SetTitle(";Reco Azimuth [#circ];Reco Zenith [#circ]");
 sprintf(filename,"%s_type%d_snrMode1_nMinusSurfaceCal_zen_azi.C", STATION.c_str(), type);
+c22.SaveAs(filename);
+sprintf(filename,"%s_type%d_snrMode1_nMinusSurfaceCal_zen_azi.pdf", STATION.c_str(), type);
 c22.SaveAs(filename);
 
 return 0;
