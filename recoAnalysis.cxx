@@ -1397,6 +1397,7 @@ for(int i=4; i<argc; i++){
 
    if(passCWCut &&/* passThermalCut &&*//* passThermalImpulsivityCut &&*/ passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) //impulsivityHist_nMinusImp->Fill( avgImpulsivity, dummyData->weight);
    {
+      if(!inBand){
       //snr_nMinusSNR->Fill(snr, dummyData->weight);
       // cout<<"snr: "<<snr<<endl;
       //outputFile<<snr<<",";
@@ -1406,7 +1407,7 @@ for(int i=4; i<argc; i++){
       snr_vec.push_back(snr/snr_scaling);
       c_vec.push_back(coherence);
       coherence_snr_nMinusCoherenceSNR->Fill(snr/snr_scaling, coherence, dummyData->weight);
-
+      }
    }
 
 
@@ -1724,12 +1725,32 @@ TVectorD eigenVal    = eigen->GetEigenValues();
 TMatrixD eigenMatrix = eigen->GetEigenVectors();
 eigenVal.Print();
 eigenMatrix.Print();
-double x0=0.1;
+double x0=0.15;
 double y0=0.1;
 double d=1.;
+
 //double eigenVec[2][2] = {{eigenMatr},{}};
-TLine pca1(x0,y0,x0+d*eigenMatrix(0,0),y0+d*eigenMatrix(1,0));
-TLine pca2(x0,y0,x0+d*eigenMatrix(0,1),y0+d*eigenMatrix(1,1));
+// line: alpha*x + beta*y + c = 0
+// across cut point
+double p0[2] = {cutValues->snrCut[type-1].val/snr_scaling, cutValues->coherenceCut_outOfBand[type-1].val};
+
+//pca 1
+double alpha = eigenMatrix(0,0);
+double beta  = eigenMatrix(1,0);
+double c = -(alpha*p0[0]+beta*p0[1]);
+double x = -c / alpha;
+double y = -c / beta;
+TLine pca1(0,y,x,0);
+
+//pca 2
+alpha = eigenMatrix(0,1);
+beta  = eigenMatrix(1,1);
+c = -(alpha*p0[0]+beta*p0[1]);
+x = -c / alpha;
+y = -c / beta;
+TLine pca2(0,y,x,0);
+//TLine pca1(x0,y0,x0+d*eigenMatrix(0,0),y0+d*eigenMatrix(1,0));
+//TLine pca2(x0,y0,x0+d*eigenMatrix(0,1),y0+d*eigenMatrix(1,1));
 
 outputFile.close();
 
