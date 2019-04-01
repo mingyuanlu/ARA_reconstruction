@@ -1727,8 +1727,9 @@ eigenMatrix->Print();
 double x0=0.1;
 double y0=0.1;
 double d=1.;
-TLine pca1(x0,y0,x0+d*eigenMatrix[0][0],y0+d*eigenMatrix[1][0]);
-TLine pca2(x0,y0,x0+d*eigenMatrix[0][1],y0+d*eigenMatrix[1][1]);
+//double eigenVec[2][2] = {{eigenMatr},{}};
+TLine pca1(x0,y0,x0+d*eigenMatrix(0,0),y0+d*eigenMatrix(1,0));
+TLine pca2(x0,y0,x0+d*eigenMatrix(0,1),y0+d*eigenMatrix(1,1));
 
 outputFile.close();
 
