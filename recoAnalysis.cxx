@@ -1399,7 +1399,7 @@ for(int i=4; i<argc; i++){
       {
          coherence_nMinusThermal->Fill(coherence, dummyData->weight);
          //if(inBand) outputFile<<coherence<<",";
-         if(!inBand){
+         if(inBand){
                //coherence_snr_nMinusCoherence->Fill(snr, coherence, dummyData->weight);
                coherence_snr_nMinusCoherence->SetPoint(pcount_nMinusCoherence, snr, coherence);
                pcount_nMinusCoherence++;
@@ -1411,7 +1411,7 @@ for(int i=4; i<argc; i++){
       snr_nMinusSNR->Fill(snr, dummyData->weight);
       // cout<<"snr: "<<snr<<endl;
       //outputFile<<snr<<",";
-      if(!inBand){
+      if(inBand){
          //coherence_snr_nMinusSNR->Fill(snr, coherence, dummyData->weight);
          coherence_snr_nMinusSNR->SetPoint(pcount_nMinusSNR, snr, coherence);
          pcount_nMinusSNR++;
@@ -1421,7 +1421,7 @@ for(int i=4; i<argc; i++){
 
    if(passCWCut &&/* passThermalCut &&*//* passThermalImpulsivityCut &&*/ passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) //impulsivityHist_nMinusImp->Fill( avgImpulsivity, dummyData->weight);
    {
-      if(!inBand){
+      if(inBand){
       //snr_nMinusSNR->Fill(snr, dummyData->weight);
       // cout<<"snr: "<<snr<<endl;
       //outputFile<<snr<<",";
@@ -1438,7 +1438,7 @@ for(int i=4; i<argc; i++){
    if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut /*&& passCalpulserCut*/ && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) {
       zen_azi_nMinusCal->Fill(inBoxPhi, inBoxTheta, dummyData->weight);
       //outputFile<<inBoxPhi<<",";
-      if(!inBand){
+      if(inBand){
          //coherence_snr_nMinusCal->Fill(snr, coherence, dummyData->weight);
          coherence_snr_nMinusCal->SetPoint(pcount_nMinusCal ,snr, coherence);
          pcount_nMinusCal++;
@@ -1450,7 +1450,7 @@ for(int i=4; i<argc; i++){
    zen_azi_nMinusSurface->Fill(dummyData->constantNAzi, (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen), dummyData->weight);
    double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
 
-   if(!inBand){
+   if(inBand){
       //coherence_snr_nMinusSurface->Fill(snr, coherence, dummyData->weight);
       coherence_snr_nMinusSurface->SetPoint(pcount_nMinusSurface, snr, coherence);
       pcount_nMinusSurface++;
@@ -1791,7 +1791,7 @@ double d=1.;
 //double eigenVec[2][2] = {{eigenMatr},{}};
 // line: alpha*x + beta*y + c = 0
 // across cut point
-double p0[2] = {cutValues->snrCut[type-1].val/snr_scaling, cutValues->coherenceCut_outOfBand[type-1].val};
+double p0[2] = {cutValues->snrCut[type-1].val/snr_scaling, cutValues->coherenceCut_inBand[type-1].val};
 TGraph *cutPoint = new TGraph();
 cutPoint->SetPoint(0,p0[0],p0[1]);
 //pca 1
@@ -2190,9 +2190,9 @@ cutPoint->SetMarkerStyle(4);
 //cutPoint->SetMarkerSize(3);
 cutPoint->Draw("psame");
 //sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_pca_outOfBand.C", STATION.c_str(), type);
-sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_c_snr_outOfBand.C", STATION.c_str(), type);
+sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_c_snr_inBand.C", STATION.c_str(), type);
 c20.SaveAs(filename);
-sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_c_snr_outOfBand.pdf", STATION.c_str(), type);
+sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_c_snr_inBand.pdf", STATION.c_str(), type);
 c20.SaveAs(filename);
 
 
@@ -2209,7 +2209,7 @@ coherence_snr_nMinusCoherence->SetMarkerStyle(8);
 coherence_snr_nMinusSNR->SetMarkerStyle(5);
 coherence_snr_nMinusSNR->Draw("psame");
 TLine snrLine(cutValues->snrCut[type-1].val,0,cutValues->snrCut[type-1].val,1);
-TLine cohLine(0,cutValues->coherenceCut_outOfBand[type-1].val,40,cutValues->coherenceCut_outOfBand[type-1].val);
+TLine cohLine(0,cutValues->coherenceCut_inBand[type-1].val,40,cutValues->coherenceCut_inBand[type-1].val);
 snrLine.Draw("same");
 cohLine.Draw("same");
 c21.cd(2);
@@ -2224,9 +2224,9 @@ coherence_snr_nMinusCal->SetMarkerStyle(2);
 coherence_snr_nMinusCal->Draw("psame");
 snrLine.Draw("same");
 cohLine.Draw("same");
-sprintf(filename,"%s_type%d_snrMode1_nMinusCuts_c_snr_outOfBand.C", STATION.c_str(), type);
+sprintf(filename,"%s_type%d_snrMode1_nMinusCuts_c_snr_inBand.C", STATION.c_str(), type);
 c21.SaveAs(filename);
-sprintf(filename,"%s_type%d_snrMode1_nMinusCuts_c_snr_outOfBand.pdf", STATION.c_str(), type);
+sprintf(filename,"%s_type%d_snrMode1_nMinusCuts_c_snr_inBand.pdf", STATION.c_str(), type);
 c21.SaveAs(filename);
 
 TCanvas c22("c22","c22",800,800);
