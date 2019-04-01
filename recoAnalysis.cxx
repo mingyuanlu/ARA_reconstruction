@@ -2221,7 +2221,7 @@ zen_azi_nMinusSurface->Draw();
 zen_azi_nMinusCal->Draw("same");
 zen_azi_nMinusSurface->SetMarkerStyle(8);
 zen_azi_nMinusCal->SetMarkerStyle(4);
-TLine surfLine(0,cutValues->surfaceCut_1.val,360,cutValues->surfaceCut_1.val);
+TLine surfLine(0,cutValues->surfaceCut_constantN.val,360,cutValues->surfaceCut_constantN.val);
 surfLine.Draw("same");
 zen_azi_nMinusSurface->SetTitle(";Reco Azimuth [#circ];Reco Zenith [#circ]");
 sprintf(filename,"%s_type%d_snrMode1_nMinusSurfaceCal_zen_azi.C", STATION.c_str(), type);
