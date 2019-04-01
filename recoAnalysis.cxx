@@ -29,6 +29,10 @@
 #include "TStyle.h"
 #include "TLine.h"
 #include "TLegend.h"
+#include "TMatrixDSymEigen.h"
+#include "MatrixD.h"
+#include "TVectorD.h"
+#include "TMatrixDSym.h"
 
 #include "calibrationTools.h"
 #include "calibrationToolsVs3.h"
