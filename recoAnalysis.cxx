@@ -524,6 +524,7 @@ vector<double> c_vec;
 //TH2F *coherence_snr_nMinusCal = new TH2F("coherence_snr_nMinusCal","coherence_snr_nMinusCal",400,0,40,1000,0,1);
 //TH2F *coherence_snr_nMinusSurface = new TH2F("coherence_snr_nMinusSurface","coherence_snr_nMinusSurface",400,0,40,1000,0,1);
 
+TH2F *frame = new TH2F("frame","frame",400,0,40,1000,0,1)
 TGraph *coherence_snr_nMinusCoherence = new TGraph();
 TGraph *coherence_snr_nMinusSNR = new TGraph();
 TGraph *coherence_snr_nMinusCal = new TGraph();
@@ -2192,8 +2193,9 @@ c20.SaveAs(filename);
 TCanvas c21("c21","c21",1200,800);
 c21.Divide(2,1);
 c21.cd(1);
-coherence_snr_nMinusCoherence->Draw("PA");
-coherence_snr_nMinusCoherence->SetTitle(";SNR;Coherence");
+frame->Draw();
+coherence_snr_nMinusCoherence->Draw("Psame");
+frame->SetTitle(";SNR;Coherence");
 coherence_snr_nMinusCoherence->GetXaxis()->SetRangeUser(0,40);
 coherence_snr_nMinusCoherence->GetYaxis()->SetRangeUser(0,1);
 coherence_snr_nMinusCoherence->SetMarkerStyle(8);
@@ -2204,8 +2206,9 @@ TLine cohLine(0,cutValues->coherenceCut_outOfBand[type-1].val,40,cutValues->cohe
 snrLine.Draw("same");
 cohLine.Draw("same");
 c21.cd(2);
-coherence_snr_nMinusSurface->Draw("PA");
-coherence_snr_nMinusSurface->SetTitle(";SNR;Coherence");
+frame->Draw();
+coherence_snr_nMinusSurface->Draw("Psame");
+frame->SetTitle(";SNR;Coherence");
 coherence_snr_nMinusSurface->GetXaxis()->SetRangeUser(0,40);
 coherence_snr_nMinusSurface->GetYaxis()->SetRangeUser(0,1);
 coherence_snr_nMinusSurface->SetMarkerStyle(4);
