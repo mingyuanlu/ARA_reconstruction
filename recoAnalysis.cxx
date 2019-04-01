@@ -511,10 +511,11 @@ TH1F *inRangeThetaFracHist = new TH1F("inRangeThetaFracHist","inRangeThetaFracHi
 TH1F *inRangePhiFracHist = new TH1F("inRangePhiFracHist","inRangePhiFracHist",100,0,1);
 TH2F *inRangeThetaPhiFracHist = new TH2F("inRangeThetaPhiFracHist","inRangeThetaPhiFracHist",100,0,1,100,0,1);
 
-TH2F *coherence_snr_nMinusCoherenceSNR = new TH2F("coherence_snr_nMinusCoherenceSNR","coherence_snr_nMinusCoherenceSNR",400,0,1.2,1000,0,1);
+//TH2F *coherence_snr_nMinusCoherenceSNR = new TH2F("coherence_snr_nMinusCoherenceSNR","coherence_snr_nMinusCoherenceSNR",400,0,1.2,1000,0,1);
+TH2F *coherence_snr_nMinusCoherenceSNR = new TH2F("coherence_snr_nMinusCoherenceSNR","coherence_snr_nMinusCoherenceSNR",400,0,40,1000,0,1);
 double snr_mean, c_mean;
 snr_mean = c_mean = 0.;
-double snr_scaling = 40;
+double snr_scaling = 1./*40*/;
 int count = 0;
 vector<double> snr_vec;
 vector<double> c_vec;
@@ -2176,19 +2177,20 @@ c17.SaveAs(filename);
 //_snrCumuHist->SetName("_snrCumuHist");
 //_snrCumuHist->Draw();
 //c18.SaveAs(filename);
-/*
+
 TCanvas c20("c20","c20",800,800);
 coherence_snr_nMinusCoherenceSNR->Draw("colz");
 pca1.SetLineColor(kRed);
 pca2.SetLineColor(kBlue);
-pca1.Draw("same");
-pca2.Draw("same");
+//pca1.Draw("same");
+//pca2.Draw("same");
 cutPoint->SetMarkerStyle(4);
 //cutPoint->SetMarkerSize(3);
 cutPoint->Draw("psame");
-sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_pca_outOfBand.C", STATION.c_str(), type);
+//sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_pca_outOfBand.C", STATION.c_str(), type);
+sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_c_snr_outOfBand.C", STATION.c_str(), type);
 c20.SaveAs(filename);
-*/
+
 
 TCanvas c21("c21","c21",1200,800);
 c21.Divide(2,1);
