@@ -2192,7 +2192,7 @@ c20.SaveAs(filename);
 TCanvas c21("c21","c21",1200,800);
 c21.Divide(2,1);
 c21.cd(1);
-coherence_snr_nMinusCoherence->Draw("p");
+coherence_snr_nMinusCoherence->Draw("PA");
 coherence_snr_nMinusCoherence->SetTitle(";SNR;Coherence");
 coherence_snr_nMinusCoherence->SetMarkerStyle(8);
 coherence_snr_nMinusSNR->SetMarkerStyle(5);
@@ -2202,7 +2202,7 @@ TLine cohLine(0,cutValues->coherenceCut_outOfBand[type-1].val,40,cutValues->cohe
 snrLine.Draw("same");
 cohLine.Draw("same");
 c21.cd(2);
-coherence_snr_nMinusSurface->Draw("p");
+coherence_snr_nMinusSurface->Draw("PA");
 coherence_snr_nMinusSurface->SetTitle(";SNR;Coherence");
 coherence_snr_nMinusSurface->SetMarkerStyle(4);
 coherence_snr_nMinusCal->SetMarkerStyle(2);
@@ -2213,8 +2213,8 @@ sprintf(filename,"%s_type%d_snrMode1_nMinusCuts_c_snr_outOfBand.C", STATION.c_st
 c21.SaveAs(filename);
 
 TCanvas c22("c22","c22",800,800);
-zen_azi_nMinusSurface->Draw("p");
-zen_azi_nMinusCal->Draw("psame");
+zen_azi_nMinusSurface->Draw();
+zen_azi_nMinusCal->Draw("same");
 zen_azi_nMinusSurface->SetMarkerStyle(8);
 zen_azi_nMinusCal->SetMarkerStyle(4);
 zen_azi_nMinusSurface->SetTitle(";Reco Azimuth [#circ];Reco Zenith [#circ]");
