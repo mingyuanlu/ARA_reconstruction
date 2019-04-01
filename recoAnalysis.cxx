@@ -1717,7 +1717,7 @@ cov[1] /= (double)snr_vec.size();
 cov[3] /= (double)c_vec.size();
 cov[2] = cov[1];
 
-TMatrixDSym covMatrix = new TMatrixDSym(2, cov);
+TMatrixDSym *covMatrix = new TMatrixDSym(2, cov);
 covMatrix->Print();
 TMatrixDSymEigen *eigen = new TMatrixDSymEigen(*covMatrix);
 TVectorD eigenVal    = eigen->GetEigenValues();
