@@ -2223,7 +2223,7 @@ TCanvas c22("c22","c22",800,800);
 zen_azi_nMinusSurface->Draw();
 zen_azi_nMinusCal->Draw("same");
 zen_azi_nMinusSurface->SetMarkerStyle(8);
-zen_azi_nMinusCal->SetMarkerStyle(4);
+zen_azi_nMinusCal->SetMarkerStyle(5);
 TLine surfLine(0,cutValues->surfaceCut_constantN.val,360,cutValues->surfaceCut_constantN.val);
 surfLine.Draw("same");
 zen_azi_nMinusSurface->SetTitle(";Reco Azimuth [#circ];Reco Zenith [#circ]");
