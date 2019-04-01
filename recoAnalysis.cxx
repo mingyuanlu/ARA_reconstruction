@@ -1438,7 +1438,7 @@ for(int i=4; i<argc; i++){
       //outputFile<<inBoxPhi<<",";
       if(!inBand){
          //coherence_snr_nMinusCal->Fill(snr, coherence, dummyData->weight);
-         coherence_snr_nMinusCal->Fill(pcount_nMinusCal ,snr, coherence);
+         coherence_snr_nMinusCal->SetPoint(pcount_nMinusCal ,snr, coherence);
          pcount_nMinusCal++;
       }
    }
@@ -1450,7 +1450,7 @@ for(int i=4; i<argc; i++){
 
    if(!inBand){
       //coherence_snr_nMinusSurface->Fill(snr, coherence, dummyData->weight);
-      coherence_snr_nMinusSurface->Fill(pcount_nMinusSurface, snr, coherence);
+      coherence_snr_nMinusSurface->SetPoint(pcount_nMinusSurface, snr, coherence);
       pcount_nMinusSurface++;
    }
 
@@ -1739,11 +1739,11 @@ snr_mean /= (double)snr_vec.size();
 c_mean   /= (double)c_vec.size();
 cout<<"snr_mean: "<<snr_mean<<" c_mean: "<<c_mean<<endl;
 
-double snr_sigma, c_sigma;
-snr_sigma = c_sigma = 0.;
+double sigma_snr, sigma_c;
+sigma_snr = sigma_c = 0.;
 for(int i=0; i<(int)snr_vec.size(); i++){
-   snr_sigma += snr_vec[i] * snr_vec[i];
-   c_sigma   += c_vec[i] * c_vec[i];
+   sigma_snr += snr_vec[i] * snr_vec[i];
+   sigma_c   += c_vec[i] * c_vec[i];
 }
 
 sigma_snr -= (double)((int)snr_vec.size()*snr_mean*snr_mean);
