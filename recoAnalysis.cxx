@@ -1733,7 +1733,8 @@ double d=1.;
 // line: alpha*x + beta*y + c = 0
 // across cut point
 double p0[2] = {cutValues->snrCut[type-1].val/snr_scaling, cutValues->coherenceCut_outOfBand[type-1].val};
-TGraph *cutPoint = new TGraph(1, {p0[0]}, {p0[1]});
+TGraph *cutPoint = new TGraph();
+cutPoint->SetPoint(0,p0[0],p0[1]);
 //pca 1
 double alpha = eigenMatrix(0,0);
 double beta  = eigenMatrix(1,0);
