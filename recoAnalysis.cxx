@@ -519,6 +519,18 @@ int count = 0;
 vector<double> snr_vec;
 vector<double> c_vec;
 
+//TH2F *coherence_snr_nMinusCoherence = new TH2F("coherence_snr_nMinusCoherence","coherence_snr_nMinusCoherence",400,0,40,1000,0,1);
+//TH2F *coherence_snr_nMinusSNR = new TH2F("coherence_snr_nMinusSNR","coherence_snr_nMinusSNR",400,0,40,1000,0,1);
+//TH2F *coherence_snr_nMinusCal = new TH2F("coherence_snr_nMinusCal","coherence_snr_nMinusCal",400,0,40,1000,0,1);
+//TH2F *coherence_snr_nMinusSurface = new TH2F("coherence_snr_nMinusSurface","coherence_snr_nMinusSurface",400,0,40,1000,0,1);
+
+TGraph *coherence_snr_nMinusCoherence = new TGraph();
+TGraph *coherence_snr_nMinusSNR = new TGraph();
+TGraph *coherence_snr_nMinusCal = new TGraph();
+TGraph *coherence_snr_nMinusSurface = new TGraph();
+int pcount_nMinusCal, pcount_nMinusSNR, pcount_nMinusCoherence, pcount_nMinusSurface;
+pcount_nMinusCal = pcount_nMinusSNR = pcount_nMinusCoherence = pcount_nMinusSurface = 0;
+
 //for(int entry=0; entry<Nentries; entry++){
 for(int i=4; i<argc; i++){
 
@@ -1385,6 +1397,11 @@ for(int i=4; i<argc; i++){
       {
          coherence_nMinusThermal->Fill(coherence, dummyData->weight);
          //if(inBand) outputFile<<coherence<<",";
+         if(!inBand){
+               //coherence_snr_nMinusCoherence->Fill(snr, coherence, dummyData->weight);
+               coherence_snr_nMinusCoherence->SetPoint(pcount_nMinusCoherence, snr, coherence);
+               pcount_nMinusCoherence++;
+         }
       }
 
    if(passCWCut && passThermalCut &&/* passThermalImpulsivityCut &&*/ passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) //impulsivityHist_nMinusImp->Fill( avgImpulsivity, dummyData->weight);
@@ -1392,6 +1409,11 @@ for(int i=4; i<argc; i++){
       snr_nMinusSNR->Fill(snr, dummyData->weight);
       // cout<<"snr: "<<snr<<endl;
       //outputFile<<snr<<",";
+      if(!inBand){
+         //coherence_snr_nMinusSNR->Fill(snr, coherence, dummyData->weight);
+         coherence_snr_nMinusSNR->SetPoint(pcount_nMinusSNR, snr, coherence);
+         pcount_nMinusSNR++;
+      }
    }
 
 
@@ -1414,12 +1436,24 @@ for(int i=4; i<argc; i++){
    if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut /*&& passCalpulserCut*/ && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) {
       zen_azi_nMinusCal->Fill(inBoxPhi, inBoxTheta, dummyData->weight);
       //outputFile<<inBoxPhi<<",";
+      if(!inBand){
+         //coherence_snr_nMinusCal->Fill(snr, coherence, dummyData->weight);
+         coherence_snr_nMinusCal->Fill(pcount_nMinusCal ,snr, coherence);
+         pcount_nMinusCal++;
+      }
    }
    if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut /*&& passSurfaceCut && passSurfaceCut_2 */&& passNoisyRunCut )
    {
    zen_nMinusSurface->Fill((passSurfaceCut?zenMaj:90.f-dummyData->constantNZen));
    zen_azi_nMinusSurface->Fill(dummyData->constantNAzi, (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen), dummyData->weight);
    double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
+
+   if(!inBand){
+      //coherence_snr_nMinusSurface->Fill(snr, coherence, dummyData->weight);
+      coherence_snr_nMinusSurface->Fill(pcount_nMinusSurface, snr, coherence);
+      pcount_nMinusSurface++;
+   }
+
    if(theta_temp > 52 && theta_temp < 57 && dummyData->constantNAzi > 235 && dummyData->constantNAzi < 245){
       //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
    } else {
@@ -1705,6 +1739,21 @@ snr_mean /= (double)snr_vec.size();
 c_mean   /= (double)c_vec.size();
 cout<<"snr_mean: "<<snr_mean<<" c_mean: "<<c_mean<<endl;
 
+double snr_sigma, c_sigma;
+snr_sigma = c_sigma = 0.;
+for(int i=0; i<(int)snr_vec.size(); i++){
+   snr_sigma += snr_vec[i] * snr_vec[i];
+   c_sigma   += c_vec[i] * c_vec[i];
+}
+
+sigma_snr -= (double)((int)snr_vec.size()*snr_mean*snr_mean);
+sigma_c   -= (double)((int)c_vec.size()*c_mean*c_mean);
+sigma_snr /= (double)((int)snr_vec.size()/*-1*/);
+sigma_c   /= (double)((int)c_vec.size()/*-1*/);
+sigma_snr = sqrt(sigma_snr);
+sigma_c   = sqrt(sigma_c);
+cout<<"sigma_snr: "<<sigma_snr<<" sigma_c: "<<sigma_c<<end;
+
 double cov[4] = {0.};
 
 for(int i=0; i<(int)snr_vec.size(); i++){
@@ -1717,6 +1766,14 @@ cov[0] /= (double)snr_vec.size();
 cov[1] /= (double)snr_vec.size();
 cov[3] /= (double)c_vec.size();
 cov[2] = cov[1];
+
+double corr[4] = {0.};
+corr[0] = cov[0] / (sigma_snr * sigma_snr);
+corr[1] = cov[1] / (sigma_snr * sigma_c);
+corr[2] = cov[2] / (sigma_snr * sigma_c);
+corr[3] = cov[3] / (sigma_c * sigma_c);
+TMatrixDSym *corrMatrix = new TMatrixDSym(2, corr);
+corrMatrix->Print();
 
 TMatrixDSym *covMatrix = new TMatrixDSym(2, cov);
 covMatrix->Print();
@@ -2118,7 +2175,7 @@ c17.SaveAs(filename);
 //_snrCumuHist->SetName("_snrCumuHist");
 //_snrCumuHist->Draw();
 //c18.SaveAs(filename);
-
+/*
 TCanvas c20("c20","c20",800,800);
 coherence_snr_nMinusCoherenceSNR->Draw("colz");
 pca1.SetLineColor(kRed);
@@ -2130,6 +2187,39 @@ cutPoint->SetMarkerStyle(4);
 cutPoint->Draw("psame");
 sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_pca_outOfBand.C", STATION.c_str(), type);
 c20.SaveAs(filename);
+*/
+
+TCanvas c21("c21","c21",1200,800);
+c21.Divide(2,1);
+c21.cd(1);
+coherence_snr_nMinusCoherence->Draw("p");
+coherence_snr_nMinusCoherence->SetTitle(";SNR;Coherence");
+coherence_snr_nMinusCoherence->SetMarkerStyle(8);
+coherence_snr_nMinusSNR->SetMarkerStyle(5);
+coherence_snr_nMinusSNR->Draw("psame");
+TLine snrLine(cutValues->snrCut[type-1].val,0,cutValues->snrCut[type-1].val,1);
+TLine cohLine(0,cutValues->coherenceCut_outOfBand[type-1].val,40,cutValues->coherenceCut_outOfBand[type-1].val);
+snrLine.Draw("same");
+cohLine.Draw("same");
+c21.cd(2);
+coherence_snr_nMinusSurface->Draw("p");
+coherence_snr_nMinusSurface->SetTitle(";SNR;Coherence");
+coherence_snr_nMinusSurface->SetMarkerStyle(4);
+coherence_snr_nMinusCal->SetMarkerStyle(2);
+coherence_snr_nMinusCal->Draw("psame");
+snrLine.Draw("same");
+cohLine.Draw("same");
+sprintf(filename,"%s_type%d_snrMode1_nMinusCuts_c_snr_outOfBand.C", STATION.c_str(), type);
+c21.SaveAs(filename);
+
+TCanvas c22("c22","c22",800,800);
+zen_azi_nMinusSurface->Draw("p");
+zen_azi_nMinusCal->Draw("psame");
+zen_azi_nMinusSurface->SetMarkerStyle(8);
+zen_azi_nMinusCal->SetMarkerStyle(4);
+zen_azi_nMinusSurface->SetTitle(";Reco Azimuth [#circ];Reco Zenith [#circ]");
+sprintf(filename,"%s_type%d_snrMode1_nMinusSurfaceCal_zen_azi.C", STATION.c_str(), type);
+c22.SaveAs(filename);
 
 return 0;
 }
