@@ -1420,7 +1420,7 @@ for(int i=4; i<argc; i++){
    } else {
       zen_nMinusSurface_noSPSEvents->Fill(theta_temp, dummyData->weight);
       sinzen_nMinusSurface_noSPSEvents->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
-      outputFile<<theta_temp<<",";
+      //outputFile<<theta_temp<<",";
    }
 
 
