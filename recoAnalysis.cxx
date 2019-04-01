@@ -1733,7 +1733,7 @@ double d=1.;
 // line: alpha*x + beta*y + c = 0
 // across cut point
 double p0[2] = {cutValues->snrCut[type-1].val/snr_scaling, cutValues->coherenceCut_outOfBand[type-1].val};
-
+TGraph *cutPoint = new TGraph(1, {p0[0]}, {p0[1]});
 //pca 1
 double alpha = eigenMatrix(0,0);
 double beta  = eigenMatrix(1,0);
@@ -2124,6 +2124,7 @@ pca1.SetLineColor(kRed);
 pca2.SetLineColor(kBlue);
 pca1.Draw("same");
 pca2.Draw("same");
+cutPoint->Draw("p0same");
 sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_pca_outOfBand.C", STATION.c_str(), type);
 c20.SaveAs(filename);
 
