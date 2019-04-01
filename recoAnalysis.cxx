@@ -524,7 +524,7 @@ vector<double> c_vec;
 //TH2F *coherence_snr_nMinusCal = new TH2F("coherence_snr_nMinusCal","coherence_snr_nMinusCal",400,0,40,1000,0,1);
 //TH2F *coherence_snr_nMinusSurface = new TH2F("coherence_snr_nMinusSurface","coherence_snr_nMinusSurface",400,0,40,1000,0,1);
 
-TH2F *frame = new TH2F("frame","frame",400,0,40,1000,0,1)
+TH2F *frame = new TH2F("frame","frame",400,0,40,1000,0,1);
 TGraph *coherence_snr_nMinusCoherence = new TGraph();
 TGraph *coherence_snr_nMinusSNR = new TGraph();
 TGraph *coherence_snr_nMinusCal = new TGraph();
