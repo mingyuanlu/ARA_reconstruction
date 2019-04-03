@@ -1664,8 +1664,8 @@ c5.SaveAs(filename);
 
 sprintf(filename, "%s_type%d_signalEffiencyVsSNR.root", STATION.c_str(), type);
 TFile ff(filename, "recreate");
-//for(int i=0; i<6; i++) snrHist[i]->Write();
-snrHist_all->Write();
+for(int i=0; i<6; i++) snrHist[i]->Write();
+//snrHist_all->Write();
 ff.Close();
 
 /*
