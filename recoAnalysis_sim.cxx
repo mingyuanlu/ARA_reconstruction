@@ -638,7 +638,7 @@ for(int i=5; i<argc; i++){
 
 */
 
-  isCW = isCW_freqWindow(isVpolCW, isHpolCW, isXpolCW, dummyData, fftRes);
+  //isCW = isCW_freqWindow(isVpolCW, isHpolCW, isXpolCW, dummyData, fftRes);
 
 //      for(int ch=0; ch<16; ch++){
 //
@@ -1665,13 +1665,20 @@ snrHist[3]->SetLineColor(kOrange);
 snrHist[4]->SetLineColor(kMagenta);
 snrHist[5]->SetLineColor(kCyan);
 snrHist[0]->Draw();
+sprintf(filename, "%s Config %d;SNR;Signal Efficiency From Trigger", STATION.c_str(), type);
+snrHist[0]->SetTitle(filename);
 for(int i=1; i<6; i++) snrHist[i]->Draw("same");
-sprintf(filename, "%s_type%d_signalEffiencyVsSNR.C", STATION.c_str(), type);
+sprintf(filename, "%s_type%d_snrMode1_postCutTunedThermalCut_signalEffiencyVsSNR.C", STATION.c_str(), type);
 c5.SaveAs(filename);
 
 sprintf(filename, "%s_type%d_signalEffiencyVsSNR.root", STATION.c_str(), type);
-TFile ff(filename, "recreate");
-for(int i=0; i<6; i++) snrHist[i]->Write();
+TFile ff(filename, "update");
+for(int i=0; i<6; i++) {
+   //snrHist[i]->Write();
+   sprintf(filename, "hist_%d_tunedThermalCut", i);
+   snrHist[i]->SetName(filename);
+   snrHist[i]->Write();
+}
 //snrHist_all->Write();
 ff.Close();
 
