@@ -398,7 +398,7 @@ TH2F *sinzen_azi_nMinusSurface = new TH2F("zen_azi_nMinusSurface", "zen_azi_nMin
 TH1F *zen_nMinusSurface_noSPSEvents = new TH1F("zen_nMinusSurface_noSPSEvents", "zen_nMinusSurface_noSPSEvents", 180/0.4, -90, 90);
 TH1F *sinzen_nMinusSurface_noSPSEvents = new TH1F("sinzen_nMinusSurface_noSPSEvents", "sinzen_nMinusSurface_noSPSEvents", 500, -1, 1);
 
-TH1F *zen_nMinusSurface_SPSEvents = new TH1F("zen_nMinusSurface_SPSEvents", "zen_nMinusSurface_SPSEvents", 180/0.2, -90, 90);
+TH1F *zen_nMinusSurface_SPSEvents = new TH1F("zen_nMinusSurface_SPSEvents", "zen_nMinusSurface_SPSEvents", 180/0.2   , -90, 90);
 TH1F *sinzen_nMinusSurface_SPSEvents = new TH1F("sinzen_nMinusSurface_SPSEvents", "sinzen_nMinusSurface_SPSEvents", 500, -1, 1);
 
 TH1F *zen_nMinusNoisyRunSurface_noSPSEvents = new TH1F("zen_nMinusNoisyRunSurface_noSPSEvents", "zen_nMinusNoisyRunSurface_noSPSEvents", 180/0.4, -90, 90);
@@ -1422,7 +1422,7 @@ for(int i=3; i<argc; i++){
       sinzen_nMinusSurface_noSPSEvents->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
       //outputFile<<theta_temp<<",";
    }
-
+   outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<","<<(passSurfaceCut?zenMaj:90.f-dummyData->constantNZen)<<endl;
 
    //outputFile<<(passSurfaceCut?zenMaj:90.f-dummyData->constantNZen)<<",";
    }
