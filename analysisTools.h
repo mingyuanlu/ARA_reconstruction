@@ -87,6 +87,7 @@ public:
    cutParameter snrCut_inBand[5];
    cutParameter coherenceCut_outOfBand[5];
    cutParameter snrCut_outOfBand[5];
+   cutParameter snrCut[5];
 
    //Impulsivity cut
    cutParameter impCut;

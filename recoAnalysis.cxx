@@ -29,6 +29,10 @@
 #include "TStyle.h"
 #include "TLine.h"
 #include "TLegend.h"
+#include "TMatrixDSymEigen.h"
+#include "TMatrixD.h"
+#include "TVectorD.h"
+#include "TMatrixDSym.h"
 
 #include "calibrationTools.h"
 #include "calibrationToolsVs3.h"
@@ -257,7 +261,9 @@ ifstream list;
 //list.open("ARA02_vnchnl3NoMasking_noMaskSat_impCut_surfaceEvents_noisyRuns.txt");
 //list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_surfaceEvents_noisyRuns.txt");
 //list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_2SurfaceCut_surfaceEvents_noisyRuns.txt");
-list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_snrMode1_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
+//list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_snrMode1_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
+list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
+//list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEventRuns.txt");
 vector<int> listOfRuns;
 //vector<int> listOfEvents;
 string line;
@@ -267,14 +273,25 @@ char line_char[200];
 if (list.is_open() ){
 
    while (list.good()){
+
       getline(list, line, '\n');
       if (line == "") break;
       run = stoi(line);
-      //getline(list, line, ',');
-      //event = stoi(line);
+
+      /*
+      getline(list, line, ',');
+      if (line=="") break;
+      run = stoi(line);
+      getline(list, line, '\n');
+      if (line=="") break;
+      event = stoi(line);
       //getline(list, line, '\n');
-      cout<<"run: "<<run/*<<" event: "<<event*/<<endl;
-      listOfRuns.push_back(run);
+      */
+      //if(event >= 10){
+         cout<<"run: "<<run/*<<" event: "<<event*/<<endl;
+         //cout<<"run: "<<run<<" event: "<<event<<endl;
+         listOfRuns.push_back(run);
+      //}
       //listOfEvents.push_back(event);
    }
 }
@@ -377,10 +394,31 @@ TH2F *c_vs_snr_hist_nMinusThermal = new TH2F("c_vs_snr_hist_nMinusThermal","c_vs
 TH1F *impulsivityHist_nMinusImp = new TH1F("impulsivityHist_nMinusImp","impulsivityHist_nMinusImp",1000, -2, 2);
 TH2F *zen_azi_nMinusCal = new TH2F("zen_azi_nMinusCal", "zen_azi_nMinusCal", 360/0.4, 0, 360, 180/0.4, -90, 90);
 TH1F *zen_nMinusSurface = new TH1F("zen_nMinusSurface", "zen_nMinusSurface", 180/0.4, -90, 90);
+TH2F *zen_azi_nMinusSurface = new TH2F("zen_azi_nMinusSurface", "zen_azi_nMinusSurface", 360/0.4, 0, 360, 180/0.4, -90, 90);
+
+TH1F *zen_nMinusSurface_noSPSEvents = new TH1F("zen_nMinusSurface_noSPSEvents", "zen_nMinusSurface_noSPSEvents", 180/0.4, -90, 90);
+TH1F *sinzen_nMinusSurface_noSPSEvents = new TH1F("sinzen_nMinusSurface_noSPSEvents", "sinzen_nMinusSurface_noSPSEvents", 500, -1, 1);
+
+TH1F *zen_nMinusNoisyRunSurface_noSPSEvents = new TH1F("zen_nMinusNoisyRunSurface_noSPSEvents", "zen_nMinusNoisyRunSurface_noSPSEvents", 180/0.4, -90, 90);
+TH1F *sinzen_nMinusNoisyRunSurface_noSPSEvents = new TH1F("sinzen_nMinusNoisyRunSurface_noSPSEvents", "sinzen_nMinusNoisyRunSurface_noSPSEvents", 500, -1, 1);
+
+TH1F *zen_nMinusSNRSurface_noSPSEvents = new TH1F("zen_nMinusSNRSurface_noSPSEvents", "zen_nMinusSNRSurface_noSPSEvents", 180/0.4, -90, 90);
+TH1F *sinzen_nMinusSNRSurface_noSPSEvents = new TH1F("sinzen_nMinusSNRSurface_noSPSEvents", "sinzen_nMinusSNRSurface_noSPSEvents", 500, -1, 1);
+
+TH1F *zen_nMinusNoisyRunSNRSurface_noSPSEvents = new TH1F("zen_nMinusNoisyRunSNRSurface_noSPSEvents", "zen_nMinusNoisyRunSNRSurface_noSPSEvents", 180/0.4, -90, 90);
+TH1F *sinzen_nMinusNoisyRunSNRSurface_noSPSEvents = new TH1F("sinzen_nMinusNoisyRunSNRSurface_noSPSEvents", "sinzen_nMinusNoisyRunSNRSurface_noSPSEvents", 500, -1, 1);
+
+TH1F *coherence_nMinusThermal = new TH1F("coherence_nMinusThermal","coherence_nMinusThermal",1000,0,1);
+TH1F *snr_nMinusSNR = new TH1F("snr_nMinusSNR","snr_nMinusSNR",400,0,40);
 
 TH2F *c_vs_snr_hist = new TH2F("c_vs_snr_hist","c_vs_snr_hist",400,0,40,1000,0,1);
 
 TH2F *c_vs_imp = new TH2F("c_vs_imp", "c_vs_imp", 1000, 0, 1, 1000, 0, 1);
+
+TH3F *coherenceSNRZenHist = new TH3F("coherenceSNRZenHist","coherenceSNRZenHist", 1000, 0, 1, 400, 0, 40, 500, -1, 1);
+TH2F *coherenceSNR = new TH2F("coherenceSNR","coherenceSNR", 400,0,40,1000,0,1);
+TH2F *zenCoherence = new TH2F("zenCoherence","zenCoherence",1000,0,1,500,-1,1);
+TH2F *zenSNR = new TH2F("zenSNR","zenSNR",400,0,40,500,-1,1);
 
 double snrCutValue, coherenceCutValue;
 float coherence, snr;
@@ -473,6 +511,28 @@ TH1F *inRangeThetaFracHist = new TH1F("inRangeThetaFracHist","inRangeThetaFracHi
 TH1F *inRangePhiFracHist = new TH1F("inRangePhiFracHist","inRangePhiFracHist",100,0,1);
 TH2F *inRangeThetaPhiFracHist = new TH2F("inRangeThetaPhiFracHist","inRangeThetaPhiFracHist",100,0,1,100,0,1);
 
+//TH2F *coherence_snr_nMinusCoherenceSNR = new TH2F("coherence_snr_nMinusCoherenceSNR","coherence_snr_nMinusCoherenceSNR",400,0,1.2,1000,0,1);
+TH2F *coherence_snr_nMinusCoherenceSNR = new TH2F("coherence_snr_nMinusCoherenceSNR","coherence_snr_nMinusCoherenceSNR",400,0,40,1000,0,1);
+double snr_mean, c_mean;
+snr_mean = c_mean = 0.;
+double snr_scaling = 1./*40*/;
+int count = 0;
+vector<double> snr_vec;
+vector<double> c_vec;
+
+//TH2F *coherence_snr_nMinusCoherence = new TH2F("coherence_snr_nMinusCoherence","coherence_snr_nMinusCoherence",400,0,40,1000,0,1);
+//TH2F *coherence_snr_nMinusSNR = new TH2F("coherence_snr_nMinusSNR","coherence_snr_nMinusSNR",400,0,40,1000,0,1);
+//TH2F *coherence_snr_nMinusCal = new TH2F("coherence_snr_nMinusCal","coherence_snr_nMinusCal",400,0,40,1000,0,1);
+//TH2F *coherence_snr_nMinusSurface = new TH2F("coherence_snr_nMinusSurface","coherence_snr_nMinusSurface",400,0,40,1000,0,1);
+
+TH2F *frame = new TH2F("frame","frame",400,0,40,1000,0,1);
+TGraph *coherence_snr_nMinusCoherence = new TGraph();
+TGraph *coherence_snr_nMinusSNR = new TGraph();
+TGraph *coherence_snr_nMinusCal = new TGraph();
+TGraph *coherence_snr_nMinusSurface = new TGraph();
+int pcount_nMinusCal, pcount_nMinusSNR, pcount_nMinusCoherence, pcount_nMinusSurface;
+pcount_nMinusCal = pcount_nMinusSNR = pcount_nMinusCoherence = pcount_nMinusSurface = 0;
+
 //for(int entry=0; entry<Nentries; entry++){
 for(int i=4; i<argc; i++){
 
@@ -524,8 +584,6 @@ for(int i=4; i<argc; i++){
    int fIndex[16];
    double orderedArray[16];
    int orderedArrayPolType[16];
-
-
 
    for(int entry=0; entry<Nentries; entry++){
    //if(Nentries > 100) {  if(  entry % (Nentries/100) == 0  ){ cout<<"Progess: "<<entry / (Nentries/100) <<"%\n"; } }
@@ -802,27 +860,36 @@ for(int i=4; i<argc; i++){
 
    }
 
-   if (zen_bestHypo < ZEN_BAND_MAX && zen_bestHypo > ZEN_BAND_MIN){ snrCutValue = cutValues->snrCut_inBand[type-1].val;    coherenceCutValue = cutValues->coherenceCut_inBand[type-1].val; inBand = true; }
-   else                                                           { snrCutValue = cutValues->snrCut_outOfBand[type-1].val; coherenceCutValue = cutValues->coherenceCut_outOfBand[type-1].val; inBand = false;}
+   //if (zen_bestHypo < ZEN_BAND_MAX && zen_bestHypo > ZEN_BAND_MIN){ snrCutValue = cutValues->snrCut_inBand[type-1].val;    coherenceCutValue = cutValues->coherenceCut_inBand[type-1].val; inBand = true; }
+   //else                                                           { snrCutValue = cutValues->snrCut_outOfBand[type-1].val; coherenceCutValue = cutValues->coherenceCut_outOfBand[type-1].val; inBand = false;}
+
+   if (zen_bestHypo < ZEN_BAND_MAX && zen_bestHypo > ZEN_BAND_MIN){ coherenceCutValue = cutValues->coherenceCut_inBand[type-1].val; inBand = true; }
+   else                                                           { coherenceCutValue = cutValues->coherenceCut_outOfBand[type-1].val; inBand = false;}
 
    if(string(settings->recoPolType)=="vpol"){ snr = dummyData->inWindowSNR_V; }
    else if(string(settings->recoPolType)=="hpol"){ snr = dummyData->inWindowSNR_H; }
 
    //if( snr > snrCutValue || coherence > coherenceCutValue){
-   if(inBand){
-      //if( 0.003 * snr + 1.916 * coherence - 0.368 > -0.144889) passThermalCut = true;
-      if(coherence > coherenceCut_inBand[type-1]/*0.108008*/) passThermalCut = true;
-      else passThermalCut = false;
-   } else{
-      //if( 0.007 * snr + 1.039 * coherence - 0.284 > -0.126811) passThermalCut = true;
-      if(coherence > coherenceCut_outOfBand[type-1]/*0.103715*/) passThermalCut = true;
-      else passThermalCut = false;
 
-   }
+   //if(inBand){
+      //if( 0.003 * snr + 1.916 * coherence - 0.368 > -0.144889) passThermalCut = true;
+   //   if(coherence > coherenceCut_inBand[type-1]/*0.108008*/) passThermalCut = true;
+   //   else passThermalCut = false;
+   //} else{
+      //if( 0.007 * snr + 1.039 * coherence - 0.284 > -0.126811) passThermalCut = true;
+   //   if(coherence > coherenceCut_outOfBand[type-1]/*0.103715*/) passThermalCut = true;
+   //   else passThermalCut = false;
+
+   //}
+   if(coherence > coherenceCutValue) passThermalCut = true;
+   else passThermalCut = false;
       //passThermalCut = true;
    //}
 
-   if(snr > snrCut[type-1]){
+   double scalingFactor = 1.;
+   snrCutValue = scalingFactor * cutValues->snrCut[type-1].val;
+   //cout<<"snrCutValue: "<<snrCutValue<<endl;
+   if(snr > snrCutValue){
       passSNRCut = true;
    }
 
@@ -1326,16 +1393,124 @@ for(int i=4; i<argc; i++){
 //
 //   //c_vs_imp->Fill(avgImpulsivity, coherence, dummyData->weight);
 //
-//   //if(!lowFreqDominance &&/*passCWCut &&*/passThermalCut && passThermalImpulsivityCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) impulsivityHist_nMinusCW->Fill( avgImpulsivity, dummyData->weight);
-//
-//   if(passCWCut && /*passThermalCut && */ passThermalImpulsivityCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) c_vs_snr_hist_nMinusThermal->Fill(snr, coherence, dummyData->weight);
-//   if(passCWCut && passThermalCut &&/* passThermalImpulsivityCut &&*/ passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) impulsivityHist_nMinusImp->Fill( avgImpulsivity, dummyData->weight);
-//   if(passCWCut && passThermalCut && passThermalImpulsivityCut && passDeepPulserCut /*&& passCalpulserCut*/ && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) zen_azi_nMinusCal->Fill(inBoxPhi, inBoxTheta, dummyData->weight);
-//   if(passCWCut && passThermalCut && passThermalImpulsivityCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut /*&& passSurfaceCut && passSurfaceCut_2 */&& passNoisyRunCut ) zen_nMinusSurface->Fill((passSurfaceCut?zenMaj:90.f-dummyData->constantNZen));
-//
-//   //if(passDeepPulserCut && passThermalCut && passCalpulserCut && passSurfaceCut) runHist->Fill(runNum);
-//   if( /*passNumSatChanCut && */passCWCut /*!lowFreqDominance*/ && passDeepPulserCut && passThermalCut && /*passThermalImpulsivityCut &&*/ passCalpulserCut && passCalpulserTimeCut && (!passSurfaceCut || !passSurfaceCut_2)) surfaceRunHist->Fill(runNum);
-//   //if( /*passNumSatChanCut &&*/ /*passCWCut &&*/ passDeepPulserCut && passThermalCut && passSurfaceCut && passSurfaceCut_2){ impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight); outputFile<<avgImpulsivity<<","; }
+   //if(!lowFreqDominance &&/*passCWCut &&*/passThermalCut && passThermalImpulsivityCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) impulsivityHist_nMinusCW->Fill( avgImpulsivity, dummyData->weight);
+
+   if(passCWCut && /*passThermalCut && */ passSNRCut && passThermalImpulsivityCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) //c_vs_snr_hist_nMinusThermal->Fill(snr, coherence, dummyData->weight);
+      {
+         coherence_nMinusThermal->Fill(coherence, dummyData->weight);
+         //if(inBand) outputFile<<coherence<<",";
+         if(inBand){
+               //coherence_snr_nMinusCoherence->Fill(snr, coherence, dummyData->weight);
+               coherence_snr_nMinusCoherence->SetPoint(pcount_nMinusCoherence, snr, coherence);
+               pcount_nMinusCoherence++;
+         }
+      }
+
+   if(passCWCut && passThermalCut &&/* passThermalImpulsivityCut &&*/ passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) //impulsivityHist_nMinusImp->Fill( avgImpulsivity, dummyData->weight);
+   {
+      snr_nMinusSNR->Fill(snr, dummyData->weight);
+      // cout<<"snr: "<<snr<<endl;
+      //outputFile<<snr<<",";
+      if(inBand){
+         //coherence_snr_nMinusSNR->Fill(snr, coherence, dummyData->weight);
+         coherence_snr_nMinusSNR->SetPoint(pcount_nMinusSNR, snr, coherence);
+         pcount_nMinusSNR++;
+      }
+   }
+
+
+   if(passCWCut &&/* passThermalCut &&*//* passThermalImpulsivityCut &&*/ passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) //impulsivityHist_nMinusImp->Fill( avgImpulsivity, dummyData->weight);
+   {
+      if(inBand){
+      //snr_nMinusSNR->Fill(snr, dummyData->weight);
+      // cout<<"snr: "<<snr<<endl;
+      //outputFile<<snr<<",";
+      //snr_mean += snr / snr_scaling;
+      //c_mean   += coherence;
+      count += 1;
+      snr_vec.push_back(snr/snr_scaling);
+      c_vec.push_back(coherence);
+      coherence_snr_nMinusCoherenceSNR->Fill(snr/snr_scaling, coherence, dummyData->weight);
+      }
+   }
+
+
+   if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut /*&& passCalpulserCut*/ && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) {
+      zen_azi_nMinusCal->Fill(inBoxPhi, inBoxTheta, dummyData->weight);
+      //outputFile<<inBoxPhi<<",";
+      if(inBand){
+         //coherence_snr_nMinusCal->Fill(snr, coherence, dummyData->weight);
+         coherence_snr_nMinusCal->SetPoint(pcount_nMinusCal ,snr, coherence);
+         pcount_nMinusCal++;
+      }
+   }
+   if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut /*&& passSurfaceCut && passSurfaceCut_2 */&& passNoisyRunCut )
+   {
+   zen_nMinusSurface->Fill((passSurfaceCut?zenMaj:90.f-dummyData->constantNZen));
+   zen_azi_nMinusSurface->Fill(dummyData->constantNAzi, (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen), dummyData->weight);
+   double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
+
+   if(inBand){
+      //coherence_snr_nMinusSurface->Fill(snr, coherence, dummyData->weight);
+      coherence_snr_nMinusSurface->SetPoint(pcount_nMinusSurface, snr, coherence);
+      pcount_nMinusSurface++;
+   }
+
+   if(theta_temp > 52 && theta_temp < 57 && dummyData->constantNAzi > 235 && dummyData->constantNAzi < 245){
+      //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
+   } else {
+      zen_nMinusSurface_noSPSEvents->Fill(theta_temp, dummyData->weight);
+      sinzen_nMinusSurface_noSPSEvents->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+      //outputFile<<theta_temp<<",";
+   }
+
+
+   //outputFile<<(passSurfaceCut?zenMaj:90.f-dummyData->constantNZen)<<",";
+   }
+
+
+   if(passCWCut && passThermalCut && passThermalImpulsivityCut /*&& passSNRCut*/ && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut /*&& passSurfaceCut && passSurfaceCut_2 *//*&& passNoisyRunCut*/ )
+   {
+   //zen_nMinusSurface->Fill((passSurfaceCut?zenMaj:90.f-dummyData->constantNZen));
+   //zen_azi_nMinusSurface->Fill(dummyData->constantNAzi, (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen), dummyData->weight);
+   double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
+   if(theta_temp > 52 && theta_temp < 57 && dummyData->constantNAzi > 235 && dummyData->constantNAzi < 245){
+      //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
+   } else {
+
+      zen_nMinusNoisyRunSNRSurface_noSPSEvents->Fill(theta_temp, dummyData->weight);
+      sinzen_nMinusNoisyRunSNRSurface_noSPSEvents->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+
+      if(passSNRCut){
+         zen_nMinusNoisyRunSurface_noSPSEvents->Fill(theta_temp, dummyData->weight);
+         sinzen_nMinusNoisyRunSurface_noSPSEvents->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+      }
+
+      if(passNoisyRunCut){
+         zen_nMinusSNRSurface_noSPSEvents->Fill(theta_temp, dummyData->weight);
+         sinzen_nMinusSNRSurface_noSPSEvents->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+      }
+
+      //outputFile<<theta_temp<<",";
+   }
+
+
+   //outputFile<<(passSurfaceCut?zenMaj:90.f-dummyData->constantNZen)<<",";
+   }
+
+   if(passCWCut /*&& passThermalCut*/ && passThermalImpulsivityCut /*&& passSNRCut*/ && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut /*&& passSurfaceCut && passSurfaceCut_2 *//*&& passNoisyRunCut*/ ){
+
+      double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
+      coherenceSNRZenHist->Fill(coherence, snr, sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+      coherenceSNR->Fill(snr, coherence, dummyData->weight);
+      zenCoherence->Fill(coherence, sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+      zenSNR->Fill(snr, sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+
+   }
+
+   //if(passDeepPulserCut && passThermalCut && passCalpulserCut && passSurfaceCut) runHist->Fill(runNum);
+   if( /*passNumSatChanCut && *//*passCWCut*/!lowFreqDominance && passDeepPulserCut && passThermalCut && passSNRCut && /*passThermalImpulsivityCut &&*/ passCalpulserCut && passCalpulserTimeCut && (!passSurfaceCut || !passSurfaceCut_2)) surfaceRunHist->Fill(runNum);
+   //if( /*passNumSatChanCut &&*/ /*passCWCut &&*/ passDeepPulserCut && passThermalCut && passSurfaceCut && passSurfaceCut_2){ impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight); outputFile<<avgImpulsivity<<","; }
 //   //if( !lowFreqDominance && passDeepPulserCut){
 //   if( passCWCut && passDeepPulserCut ){
 //
@@ -1417,11 +1592,11 @@ for(int i=4; i<argc; i++){
 //   }
 //
 
-//   if(/*isCW &&*/ passThermalCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut && !lowFreqDominance ){
+   if(/*isCW &&*/ passThermalCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 /*&& passNoisyRunCut*/ && !lowFreqDominance ){
 
 //      cout<<"run: "<<runNum<<" event: "<<dummyData->eventNumber<<" SNR: "<<snr<<endl;
 //      _snrHist->Fill(snr, dummyData->weight);
-//      outputFile<<snr<<",";
+      //outputFile<<snr<<",";
 //
 //      std::fill(&impulsivity[0], &impulsivity[16], 0.);
 //      int nonZeroCount = 0;
@@ -1543,7 +1718,7 @@ for(int i=4; i<argc; i++){
 
       thermalCWEventCount += dummyData->weight;
       */
-//   }//if pass all other cuts except CW and thermal
+   }//if pass all other cuts except CW and thermal
 
 
    }//end of entry
@@ -1553,6 +1728,89 @@ delete recoSettingsTree;
 fp1.Close();
 
 }//end of file
+
+cout<<"snr_vec size: "<<snr_vec.size()<<" c_vec size: "<<c_vec.size()<<" count: "<<count<<endl;
+
+//Compute the covariance matrix of c-snr 2D data
+for(int i=0; i<(int)snr_vec.size(); i++){
+   snr_mean += snr_vec[i];
+   c_mean   += c_vec[i];
+}
+
+snr_mean /= (double)snr_vec.size();
+c_mean   /= (double)c_vec.size();
+cout<<"snr_mean: "<<snr_mean<<" c_mean: "<<c_mean<<endl;
+
+double sigma_snr, sigma_c;
+sigma_snr = sigma_c = 0.;
+for(int i=0; i<(int)snr_vec.size(); i++){
+   sigma_snr += snr_vec[i] * snr_vec[i];
+   sigma_c   += c_vec[i] * c_vec[i];
+}
+
+sigma_snr -= (double)((int)snr_vec.size()*snr_mean*snr_mean);
+sigma_c   -= (double)((int)c_vec.size()*c_mean*c_mean);
+sigma_snr /= (double)((int)snr_vec.size()/*-1*/);
+sigma_c   /= (double)((int)c_vec.size()/*-1*/);
+sigma_snr = sqrt(sigma_snr);
+sigma_c   = sqrt(sigma_c);
+cout<<"sigma_snr: "<<sigma_snr<<" sigma_c: "<<sigma_c<<endl;
+
+double cov[4] = {0.};
+
+for(int i=0; i<(int)snr_vec.size(); i++){
+   cov[0] += (snr_vec[i] - snr_mean) * (snr_vec[i] - snr_mean);
+   cov[1] += (snr_vec[i] - snr_mean) * (c_vec[i] - c_mean);
+   cov[3] += (c_vec[i] - c_mean) * (c_vec[i] - c_mean);
+}
+
+cov[0] /= (double)snr_vec.size();
+cov[1] /= (double)snr_vec.size();
+cov[3] /= (double)c_vec.size();
+cov[2] = cov[1];
+
+double corr[4] = {0.};
+corr[0] = cov[0] / (sigma_snr * sigma_snr);
+corr[1] = cov[1] / (sigma_snr * sigma_c);
+corr[2] = cov[2] / (sigma_snr * sigma_c);
+corr[3] = cov[3] / (sigma_c * sigma_c);
+TMatrixDSym *corrMatrix = new TMatrixDSym(2, corr);
+corrMatrix->Print();
+
+TMatrixDSym *covMatrix = new TMatrixDSym(2, cov);
+covMatrix->Print();
+TMatrixDSymEigen *eigen = new TMatrixDSymEigen(*covMatrix);
+TVectorD eigenVal    = eigen->GetEigenValues();
+TMatrixD eigenMatrix = eigen->GetEigenVectors();
+eigenVal.Print();
+eigenMatrix.Print();
+double x0=0.15;
+double y0=0.1;
+double d=1.;
+
+//double eigenVec[2][2] = {{eigenMatr},{}};
+// line: alpha*x + beta*y + c = 0
+// across cut point
+double p0[2] = {cutValues->snrCut[type-1].val/snr_scaling, cutValues->coherenceCut_inBand[type-1].val};
+TGraph *cutPoint = new TGraph();
+cutPoint->SetPoint(0,p0[0],p0[1]);
+//pca 1
+double alpha = eigenMatrix(0,0);
+double beta  = eigenMatrix(1,0);
+double c = -(alpha*p0[0]+beta*p0[1]);
+double x = -c / alpha;
+double y = -c / beta;
+TLine pca1(0,y,x,0);
+
+//pca 2
+alpha = eigenMatrix(0,1);
+beta  = eigenMatrix(1,1);
+c = -(alpha*p0[0]+beta*p0[1]);
+x = -c / alpha;
+y = -c / beta;
+TLine pca2(0,y,x,0);
+//TLine pca1(x0,y0,x0+d*eigenMatrix(0,0),y0+d*eigenMatrix(1,0));
+//TLine pca2(x0,y0,x0+d*eigenMatrix(0,1),y0+d*eigenMatrix(1,1));
 
 outputFile.close();
 
@@ -1671,16 +1929,19 @@ fout.Close();
 /*
 TCanvas c4("c4","c4",800,800);
 surfaceRunHist->Draw();
-sprintf(filename,"surfaceRunHist_vnchnl3NoMasking_beforeImpCut_noMaskSat_snrMode1_ch6Fit2Corr_2SurfaceCut_%s_type%d.C", STATION.c_str(), type);
+sprintf(filename,"surfaceRunHist_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_%s_type%d.C", STATION.c_str(), type);
 c4.SaveAs(filename);
-
-sprintf(filename, "%s_vnchnl3NoMasking_beforeImpCut_noMaskSat_snrMode1_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt", STATION.c_str());
+*/
+/*
+sprintf(filename, "%s_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEventRuns.txt", STATION.c_str());
 ofstream noisyRunFile(filename, ofstream::out|ofstream::app);
 for(int bin=1; bin<=surfaceRunHist->GetNbinsX(); bin++){
-   if(surfaceRunHist->GetBinContent(bin)>1) noisyRunFile<<surfaceRunHist->GetBinCenter(bin)<<endl;
+   //if(surfaceRunHist->GetBinContent(bin)>1) noisyRunFile<<surfaceRunHist->GetBinCenter(bin)<<endl;
+   if(surfaceRunHist->GetBinContent(bin)>0) noisyRunFile<<surfaceRunHist->GetBinCenter(bin)<<","<<surfaceRunHist->GetBinContent(bin)<<endl;
 }
 noisyRunFile.close();
-
+*/
+/*
 
 TCanvas c5("c5","c5",1200,800);
 c5.Divide(2,1);
@@ -1715,35 +1976,95 @@ ff.Close();
 */
 
 TCanvas c6("c6","c6",800,800);
-impulsivityHist_nMinusCW->Draw();
-impulsivityHist_nMinusCW->SetTitle(";Impulsivity;Entry");
-sprintf(filename, "%s_type%d_nMinusCW_impulsivity.C", STATION.c_str(), type);
+//impulsivityHist_nMinusCW->Draw();
+//impulsivityHist_nMinusCW->SetTitle(";Impulsivity;Entry");
+coherence_nMinusThermal->SetTitle(";Coherence;Entry");
+coherence_nMinusThermal->Draw();
+sprintf(filename, "%s_type%d_nMinusThermal_coherence.C", STATION.c_str(), type);
 //c6.SaveAs(filename);
-/*
+
 TCanvas c7("c7","c7",800,800);
-impulsivityHist_nMinusImp->Draw();
-impulsivityHist_nMinusImp->SetTitle(";Impulsivity;Entry");
-sprintf(filename, "%s_type%d_nMinusImp_impulsivity.C", STATION.c_str(), type);
-c7.SaveAs(filename);
+//impulsivityHist_nMinusImp->Draw();
+//impulsivityHist_nMinusImp->SetTitle(";Impulsivity;Entry");
+snr_nMinusSNR->SetTitle(";SNR;Entry");
+snr_nMinusSNR->Draw();
+sprintf(filename, "%s_type%d_nMinusSNR_snr.C", STATION.c_str(), type);
+//c7.SaveAs(filename);
 
 TCanvas c8("c8","c8",800,800);
-zen_nMinusSurface->Draw();
-zen_nMinusSurface->SetTitle(";Receipt Angle [#circ];Entry");
-sprintf(filename, "%s_type%d_nMinusSurface_zen.C", STATION.c_str(), type);
-c8.SaveAs(filename);
+//zen_nMinusSurface->Draw();
+//zen_nMinusSurface->SetTitle(";Receipt Angle [#circ];Entry");
+//zen_azi_nMinusSurface->Draw("colz");
+//zen_azi_nMinusSurface->SetTitle(";Reco Azimuth [#circ];Receipt Angle [#circ]");
+//sprintf(filename, "%s_type%d_snrMode1_nMinusSurface_zen_azi.C", STATION.c_str(), type);
+zen_nMinusSurface_noSPSEvents->Draw();
+zen_nMinusSurface_noSPSEvents->SetTitle(";Reco Zenith[#circ];Entry");
+sprintf(filename, "%s_type%d_snrMode1_nMinusSurface_zen_noSPSEvents.C", STATION.c_str(), type);
+//c8.SaveAs(filename);
 
 TCanvas c9("c9","c9",800,800);
-c_vs_snr_hist_nMinusThermal->Draw("colz");
-c_vs_snr_hist_nMinusThermal->SetTitle(";SNR;Coherence");
-sprintf(filename, "%s_type%d_nMinusThermal_c_vs_snr.C", STATION.c_str(), type);
-c9.SaveAs(filename);
+//c_vs_snr_hist_nMinusThermal->Draw("colz");
+//c_vs_snr_hist_nMinusThermal->SetTitle(";SNR;Coherence");
+//sprintf(filename, "%s_type%d_nMinusThermal_c_vs_snr.C", STATION.c_str(), type);
+//sinzen_nMinusSurface_noSPSEvents->Draw();
+//sinzen_nMinusSurface_noSPSEvents->SetTitle(";sin(Reco Zenith);Entry");
+//sprintf(filename, "%s_type%d_snrMode1_nMinusSurface_sinzen_noSPSEvents.C", STATION.c_str(), type);
+//c9.SaveAs(filename);
+
+sprintf(filename, "%s_type%d_snrMode1_coherenceSNRZenHist.C", STATION.c_str(), type);
+//coherenceSNRZenHist->Draw();
+//c9.SaveAs(filename);
+
+TCanvas c19("c19","c19",1200,800);
+c19.Divide(3,1);
+c19.cd(1);
+coherenceSNR->Draw("colz");
+c19.cd(2);
+zenCoherence->Draw("colz");
+c19.cd(3);
+zenSNR->Draw("colz");
+sprintf(filename, "%s_type%d_snrMode1_coherence_SNR_ZenHist.C", STATION.c_str(), type);
+//c19.SaveAs(filename);
+
+
+/*
+TFile fp("ARA02_allTypes_snrMode1_nMinusNoisyRunSurface_zen_sinzen_noSPSEvents.root", "update");
+sprintf(filename, "zen_type%d", type);
+zen_nMinusNoisyRunSurface_noSPSEvents->SetName(filename);
+zen_nMinusNoisyRunSurface_noSPSEvents->Write();
+sprintf(filename,"sinzen_%d", type);
+sinzen_nMinusNoisyRunSurface_noSPSEvents->SetName(filename);
+sinzen_nMinusNoisyRunSurface_noSPSEvents->Write();
+fp.Close();
+
+
+fp.Open("ARA02_allTypes_snrMode1_nMinusSNRSurface_zen_sinzen_noSPSEvents.root", "update");
+sprintf(filename, "zen_type%d", type);
+zen_nMinusSNRSurface_noSPSEvents->SetName(filename);
+zen_nMinusSNRSurface_noSPSEvents->Write();
+sprintf(filename,"sinzen_%d", type);
+sinzen_nMinusSNRSurface_noSPSEvents->SetName(filename);
+sinzen_nMinusSNRSurface_noSPSEvents->Write();
+fp.Close();
+*/
+/*
+TFile fp("ARA02_allTypes_snrMode1_nMinusNoisyRunSNRSurface_zen_sinzen_noSPSEvents.root", "update");
+sprintf(filename, "zen_type%d", type);
+zen_nMinusNoisyRunSNRSurface_noSPSEvents->SetName(filename);
+zen_nMinusNoisyRunSNRSurface_noSPSEvents->Write();
+sprintf(filename,"sinzen_%d", type);
+sinzen_nMinusNoisyRunSNRSurface_noSPSEvents->SetName(filename);
+sinzen_nMinusNoisyRunSNRSurface_noSPSEvents->Write();
+fp.Close();
+*/
+
 
 TCanvas c10("c10","c10",800,800);
 zen_azi_nMinusCal->Draw("colz");
 zen_azi_nMinusCal->SetTitle(";Azimuth [#circ];Zenith [#circ]");
-sprintf(filename, "%s_type%d_nMinusCal_zen_azi.C", STATION.c_str(), type);
-c10.SaveAs(filename);
-
+sprintf(filename, "%s_type%d_snrMode1_nMinusCal_zen_azi.C", STATION.c_str(), type);
+//c10.SaveAs(filename);
+/*
 TCanvas c11("c11","c11",800,800);
 c_vs_imp->Draw("colz");
 c_vs_imp->SetTitle(";Impulsivity;Coherence");
@@ -1857,6 +2178,69 @@ c17.SaveAs(filename);
 //_snrCumuHist->Draw();
 //c18.SaveAs(filename);
 
+TCanvas c20("c20","c20",800,800);
+coherence_snr_nMinusCoherenceSNR->Draw("colz");
+coherence_snr_nMinusCoherenceSNR->SetTitle("All - Thermal Cut - SNR Cut;SNR;Coherence");
+c20.SetLogz();
+pca1.SetLineColor(kRed);
+pca2.SetLineColor(kBlue);
+//pca1.Draw("same");
+//pca2.Draw("same");
+cutPoint->SetMarkerStyle(4);
+//cutPoint->SetMarkerSize(3);
+cutPoint->Draw("psame");
+//sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_pca_outOfBand.C", STATION.c_str(), type);
+sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_c_snr_inBand.C", STATION.c_str(), type);
+c20.SaveAs(filename);
+sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_c_snr_inBand.pdf", STATION.c_str(), type);
+c20.SaveAs(filename);
+
+
+TCanvas c21("c21","c21",1200,800);
+c21.Divide(2,1);
+c21.cd(1);
+frame->Draw();
+coherence_snr_nMinusCoherence->Draw("Psame");
+frame->SetTitle(";SNR;Coherence");
+frame->GetYaxis()->SetTitleOffset(1.3);
+coherence_snr_nMinusCoherence->GetXaxis()->SetRangeUser(0,40);
+coherence_snr_nMinusCoherence->GetYaxis()->SetRangeUser(0,1);
+coherence_snr_nMinusCoherence->SetMarkerStyle(8);
+coherence_snr_nMinusSNR->SetMarkerStyle(5);
+coherence_snr_nMinusSNR->Draw("psame");
+TLine snrLine(cutValues->snrCut[type-1].val,0,cutValues->snrCut[type-1].val,1);
+TLine cohLine(0,cutValues->coherenceCut_inBand[type-1].val,40,cutValues->coherenceCut_inBand[type-1].val);
+snrLine.Draw("same");
+cohLine.Draw("same");
+c21.cd(2);
+frame->Draw();
+coherence_snr_nMinusSurface->Draw("Psame");
+frame->SetTitle(";SNR;Coherence");
+frame->GetYaxis()->SetTitleOffset(1.3);
+coherence_snr_nMinusSurface->GetXaxis()->SetRangeUser(0,40);
+coherence_snr_nMinusSurface->GetYaxis()->SetRangeUser(0,1);
+coherence_snr_nMinusSurface->SetMarkerStyle(4);
+coherence_snr_nMinusCal->SetMarkerStyle(2);
+coherence_snr_nMinusCal->Draw("psame");
+snrLine.Draw("same");
+cohLine.Draw("same");
+sprintf(filename,"%s_type%d_snrMode1_nMinusCuts_c_snr_inBand.C", STATION.c_str(), type);
+c21.SaveAs(filename);
+sprintf(filename,"%s_type%d_snrMode1_nMinusCuts_c_snr_inBand.pdf", STATION.c_str(), type);
+c21.SaveAs(filename);
+
+TCanvas c22("c22","c22",800,800);
+zen_azi_nMinusSurface->Draw();
+zen_azi_nMinusCal->Draw("same");
+zen_azi_nMinusSurface->SetMarkerStyle(8);
+zen_azi_nMinusCal->SetMarkerStyle(5);
+TLine surfLine(0,cutValues->surfaceCut_constantN.val,360,cutValues->surfaceCut_constantN.val);
+surfLine.Draw("same");
+zen_azi_nMinusSurface->SetTitle(";Reco Azimuth [#circ];Reco Zenith [#circ]");
+sprintf(filename,"%s_type%d_snrMode1_nMinusSurfaceCal_zen_azi.C", STATION.c_str(), type);
+//c22.SaveAs(filename);
+sprintf(filename,"%s_type%d_snrMode1_nMinusSurfaceCal_zen_azi.pdf", STATION.c_str(), type);
+//c22.SaveAs(filename);
 
 return 0;
 }

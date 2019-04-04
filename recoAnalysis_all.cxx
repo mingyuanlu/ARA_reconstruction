@@ -68,17 +68,17 @@ gROOT->ProcessLine("#include <vector>");
 
 
 string STATION = string(argv[1]);
-int type = atoi(argv[2]);
-cout<<"STATION: "<<STATION<<" type: "<<type<<endl;
-string ENERGY = string(argv[3]);
+int type;// = atoi(argv[2]);
+cout<<"STATION: "<<STATION/*<<" type: "<<type*/<<endl;
+//string ENERGY = string(argv[3]);
 
-ofstream outputFile(argv[4],std::ofstream::out|std::ofstream::app);
+ofstream outputFile(argv[2],std::ofstream::out|std::ofstream::app);
 
 /*TChain*/TTree *recoSettingsTree/*=new TChain("recoSettingsTree")*/;
 /*TChain*/TTree *dataTree/*=new TChain("dataTree")*/;
 TChain *runInfoTree=new TChain("runInfoTree");
 
-for(int i=5; i<argc; i++){
+for(int i=3; i<argc; i++){
 
    TFile fp( argv[i] );
 
@@ -115,7 +115,7 @@ int runStartTime, runEndTime;
 int runRFEventCount, runCalEventCount, runSoftEventCount;
 double weightedOffsetBlockEventCount, weightedImpulsivityFilteredEventCount, weightedTrigEventCount;
 */
-int runEventCount, runRFEventCount, runCalEventCount, runSoftEventCount, trigEventCount, recoEventCount, utime_runStart, utime_runEnd, cutWaveEventCount, nonIncreasingSampleTimeEventCount, cutWaveAndNonIncreasingEventCount, mistaggedSoftEventCount, offsetBlockEventCount, cwFilteredEventCount, nchnlFilteredEventCount, impulsivityFilteredEventCount, corruptFirst3EventCount, corruptD1EventCount, blockGapEventCount;
+int runEventCount, runRFEventCount, runCalEventCount, runSoftEventCount, trigEventCount, recoEventCount, utime_runStart, utime_runEnd, cutWaveEventCount, nonIncreasingSampleTimeEventCount, cutWaveAndNonIncreasingEventCount, mistaggedSoftEventCount, offsetBlockEventCount, cwFilteredEventCount, nchnlFilteredEventCount, impulsivityFilteredEventCount, corruptFirst3EventCount, corruptD1EventCount;
 
 double weightedTrigEventCount, weightedRecoEventCount, weightedOffsetBlockEventCount, weightedNchnlFilteredEventCount, weightedCWFilteredEventCount, weightedImpulsivityFilteredEventCount;
 
@@ -171,7 +171,6 @@ runInfoTree->SetBranchAddress("weightedOffsetBlockEventCount", &weightedOffsetBl
 runInfoTree->SetBranchAddress("weightedNchnlFilteredEventCount", &weightedNchnlFilteredEventCount);
 runInfoTree->SetBranchAddress("weightedCWFilteredEventCount", &weightedCWFilteredEventCount);//
 runInfoTree->SetBranchAddress("weightedImpulsivityFilteredEventCount", &weightedImpulsivityFilteredEventCount);
-//runInfoTree->SetBranchAddress("blockGapEventCount", &blockGapEventCount);
 
 int totalRunEventCount, totalRFEventCount, totalCalEventCount, totalSoftEventCount, totalTrigEventCount, totalRecoEventCount, totalCutWaveEventCount, totalNonIncreasingSampleTimeEventCount, totalCutWaveAndNonIncreasingEventCount, totalMistaggedSoftEventCount, totalOffsetBlockEventCount, totalCWFilteredEventCount, totalNchnlFilteredEventCount, totalImpulsivityFilteredEventCount, totalCorruptFirst3EventCount, totalCorruptD1EventCount;
 
@@ -258,7 +257,9 @@ ifstream list;
 //list.open("ARA02_vnchnl3NoMasking_noMaskSat_impCut_surfaceEvents_noisyRuns.txt");
 //list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_surfaceEvents_noisyRuns.txt");
 //list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_2SurfaceCut_surfaceEvents_noisyRuns.txt");
-list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_snrMode1_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
+//list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_snrMode1_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
+list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
+//list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEventRuns.txt");
 vector<int> listOfRuns;
 //vector<int> listOfEvents;
 string line;
@@ -268,14 +269,25 @@ char line_char[200];
 if (list.is_open() ){
 
    while (list.good()){
+
       getline(list, line, '\n');
       if (line == "") break;
       run = stoi(line);
-      //getline(list, line, ',');
-      //event = stoi(line);
+
+/*
+      getline(list, line, ',');
+      if (line=="") break;
+      run = stoi(line);
+      getline(list, line, '\n');
+      if (line=="") break;
+      event = stoi(line);
       //getline(list, line, '\n');
-      cout<<"run: "<<run/*<<" event: "<<event*/<<endl;
-      listOfRuns.push_back(run);
+*/
+      //if(event >= 22 ){
+         cout<<"run: "<<run/*<<" event: "<<event*/<<endl;
+         //cout<<"run: "<<run<<" event: "<<event<<endl;
+         listOfRuns.push_back(run);
+      //}
       //listOfEvents.push_back(event);
    }
 }
@@ -365,6 +377,7 @@ for(int c=0; c<5; c++){
 
 //double coherenceCut_inBand[5] = {0.108008, 0.108996,  0.108338, 0.099024, 0.097075};
 //double coherenceCut_outOfBand[5] = {0.103715, 0.107195, 0.103552, 0.094714, 0.095006};
+
 double coherenceCut_inBand[5] = {0.10800825822688973, 0.10932663315269384, 0.10838951766838757, 0.09902432045234812, 0.09707451485364714};
 double coherenceCut_outOfBand[5] = {0.10371485739304964, 0.10727052346393086, 0.10355164968621144, 0.09471396819592758, 0.09505296821439854};
 
@@ -377,10 +390,47 @@ TH2F *c_vs_snr_hist_nMinusThermal = new TH2F("c_vs_snr_hist_nMinusThermal","c_vs
 TH1F *impulsivityHist_nMinusImp = new TH1F("impulsivityHist_nMinusImp","impulsivityHist_nMinusImp",1000, -2, 2);
 TH2F *zen_azi_nMinusCal = new TH2F("zen_azi_nMinusCal", "zen_azi_nMinusCal", 360/0.4, 0, 360, 180/0.4, -90, 90);
 TH1F *zen_nMinusSurface = new TH1F("zen_nMinusSurface", "zen_nMinusSurface", 180/0.4, -90, 90);
+TH2F *zen_azi_nMinusSurface = new TH2F("zen_azi_nMinusSurface", "zen_azi_nMinusSurface", 360/0.4, 0, 360, 180/0.4, -90, 90);
+
+TH1F *sinzen_nMinusSurface = new TH1F("zen_nMinusSurface", "zen_nMinusSurface", 180/0.4, -90, 90);
+TH2F *sinzen_azi_nMinusSurface = new TH2F("zen_azi_nMinusSurface", "zen_azi_nMinusSurface", 360/0.4, 0, 360, 180/0.4, -90, 90);
+
+TH1F *zen_nMinusSurface_noSPSEvents = new TH1F("zen_nMinusSurface_noSPSEvents", "zen_nMinusSurface_noSPSEvents", 180/0.4, -90, 90);
+TH1F *sinzen_nMinusSurface_noSPSEvents = new TH1F("sinzen_nMinusSurface_noSPSEvents", "sinzen_nMinusSurface_noSPSEvents", 500, -1, 1);
+
+TH1F *zen_nMinusSurface_SPSEvents = new TH1F("zen_nMinusSurface_SPSEvents", "zen_nMinusSurface_SPSEvents", 180/0.2, -90, 90);
+TH1F *sinzen_nMinusSurface_SPSEvents = new TH1F("sinzen_nMinusSurface_SPSEvents", "sinzen_nMinusSurface_SPSEvents", 500, -1, 1);
+
+TH1F *zen_nMinusNoisyRunSurface_noSPSEvents = new TH1F("zen_nMinusNoisyRunSurface_noSPSEvents", "zen_nMinusNoisyRunSurface_noSPSEvents", 180/0.4, -90, 90);
+TH1F *sinzen_nMinusNoisyRunSurface_noSPSEvents = new TH1F("sinzen_nMinusNoisyRunSurface_noSPSEvents", "sinzen_nMinusNoisyRunSurface_noSPSEvents", 500, -1, 1);
+
+TH1F *zen_nMinusNoisyRunSurface = new TH1F("zen_nMinusNoisyRunSurface", "zen_nMinusNoisyRunSurface", 180/0.4, -90, 90);
+TH1F *sinzen_nMinusNoisyRunSurface = new TH1F("sinzen_nMinusNoisyRunSurface", "sinzen_nMinusNoisyRunSurface", 500, -1, 1);
+
+TH1F *zen_nMinusSNRSurface_noSPSEvents = new TH1F("zen_nMinusSNRSurface_noSPSEvents", "zen_nMinusSNRSurface_noSPSEvents", 180/0.4, -90, 90);
+TH1F *sinzen_nMinusSNRSurface_noSPSEvents = new TH1F("sinzen_nMinusSNRSurface_noSPSEvents", "sinzen_nMinusSNRSurface_noSPSEvents", 500, -1, 1);
+
+TH1F *zen_nMinusSNRSurface = new TH1F("zen_nMinusSNRSurface", "zen_nMinusSNRSurface", 180/0.4, -90, 90);
+TH1F *sinzen_nMinusSNRSurface = new TH1F("sinzen_nMinusSNRSurface", "sinzen_nMinusSNRSurface", 500, -1, 1);
+
+TH1F *zen_nMinusNoisyRunSNRSurface_noSPSEvents = new TH1F("zen_nMinusNoisyRunSNRSurface_noSPSEvents", "zen_nMinusNoisyRunSNRSurface_noSPSEvents", 180/0.4, -90, 90);
+TH1F *sinzen_nMinusNoisyRunSNRSurface_noSPSEvents = new TH1F("sinzen_nMinusNoisyRunSNRSurface_noSPSEvents", "sinzen_nMinusNoisyRunSNRSurface_noSPSEvents", 500, -1, 1);
+
+
+TH1F *zen_nMinusNoisyRunSNRSurface = new TH1F("zen_nMinusNoisyRunSNRSurface", "zen_nMinusNoisyRunSNRSurface", 180/0.4, -90, 90);
+TH1F *sinzen_nMinusNoisyRunSNRSurface = new TH1F("sinzen_nMinusNoisyRunSNRSurface", "sinzen_nMinusNoisyRunSNRSurface", 500, -1, 1);
+
+TH1F *coherence_nMinusThermal = new TH1F("coherence_nMinusThermal","coherence_nMinusThermal",1000,0,1);
+TH1F *snr_nMinusSNR = new TH1F("snr_nMinusSNR","snr_nMinusSNR",400,0,40);
 
 TH2F *c_vs_snr_hist = new TH2F("c_vs_snr_hist","c_vs_snr_hist",400,0,40,1000,0,1);
 
 TH2F *c_vs_imp = new TH2F("c_vs_imp", "c_vs_imp", 1000, 0, 1, 1000, 0, 1);
+
+TH3F *coherenceSNRZenHist = new TH3F("coherenceSNRZenHist","coherenceSNRZenHist", 1000, 0, 1, 400, 0, 40, 500, -1, 1);
+TH2F *coherenceSNR = new TH2F("coherenceSNR","coherenceSNR", 400,0,40,1000,0,1);
+TH2F *zenCoherence = new TH2F("zenCoherence","zenCoherence",1000,0,1,500,-1,1);
+TH2F *zenSNR = new TH2F("zenSNR","zenSNR",400,0,40,500,-1,1);
 
 double snrCutValue, coherenceCutValue;
 float coherence, snr;
@@ -403,7 +453,11 @@ double isCWCount = 0;
 TH2F *coherence_snr_cw = new TH2F("coherence_snr_cw","coherence_snr_cw",400,0,40,1000,0,1);
 TH1F *snr_cw = new TH1F("snr_cw","snr_cw",400,0,40);
 
+TH1F *_snrHist = new TH1F("_snrHist","_snrHist",400,0,40);
+TH1F *_snrCumuHist;
+
 TH1F *impulsivityHist_max = new TH1F("impulsivityHist_max","impulsivityHist_max",1000, -2, 2);
+
 TH1F *impulsivityHist_3rd = new TH1F("impulsivityHist_3rd","impulsivityHist_3rd",1000, -2, 2);
 TH1F *impulsivityHist_avg = new TH1F("impulsivityHist_avg","impulsivityHist_avg",1000, -2, 2);
 double impulsivity[16] = {0.};
@@ -433,11 +487,10 @@ int iterIndex[50];
 float iterMaxPixCoherenceEachLayer[50];
 int iterMaxPixIdxEachLayer[50];
 
-TH1F *snrHist_all=new TH1F("hist_offsetBlock", "hist_offsetBlock", 1000, 0, 50);
 
 char histName[200];
-TH1F *snrHist[6];
-for(int i=0; i<6; i++){
+TH1F *snrHist[5];
+for(int i=0; i<5; i++){
    sprintf(histName, "hist_%d", i);
    snrHist[i] = new TH1F(histName, histName, 1000, 0, 50);
 }
@@ -455,12 +508,11 @@ TH2F *impulsivity_dT = new TH2F("impulsivity_dT","impulsivity_dT",800,0,800,1000
 TH2F *impulsivity_bipolarRatio = new TH2F("impulsivity_bipolarRatio","impulsivity_bipolarRatio",1000,0,1,1000,0,1);
 
 double fftRes;
-if(type<=3) fftRes = 1/(379e-9)/1e6;
-else        fftRes = 1/(499e-9)/1e6;
+//if(type<=3) fftRes = 1/(379e-9)/1e6;
+//else        fftRes = 1/(499e-9)/1e6;
 cout<<"fftRes: "<<fftRes<<endl;
 
 int vResBin, hResBin, xResBin;
-
 
 TH1F *thetaXingHist = new TH1F("thetaXingHist","thetaXingHist",500+1,0.5,500+0.5+1);
 TH1F *phiXingHist = new TH1F("phiXingHist","phiXingHist",500+1,0.5,500+0.5+1);
@@ -472,11 +524,14 @@ TH1F *inRangePhiFracHist = new TH1F("inRangePhiFracHist","inRangePhiFracHist",10
 TH2F *inRangeThetaPhiFracHist = new TH2F("inRangeThetaPhiFracHist","inRangeThetaPhiFracHist",100,0,1,100,0,1);
 
 //for(int entry=0; entry<Nentries; entry++){
-for(int i=5; i<argc; i++){
+for(int i=3; i<argc; i++){
 
    string fin(argv[i]);
    int runNum = atoi(  fin.substr(fin.find("run")+3, fin.find(".root")-fin.find("run")-2).c_str() );
+   type = getRunType(STATION, runNum);
 
+   if(type<=3) fftRes = 1/(379e-9)/1e6;
+   else        fftRes = 1/(499e-9)/1e6;
 
    //Exclude certain runs:
    //Cal sweep
@@ -484,7 +539,7 @@ for(int i=5; i<argc; i++){
    if(runNum>=3302 && runNum<=3311) continue;
    //Weird channel delays. Recon of calpulser is bad
    if(runNum>=3465 && runNum<=3504) continue;
-   //First run after ~1mo downtime, D1 shoes large glitches
+   //First run after ~1mo downtime, D1 shows large glitches
    if(runNum==7100)                 continue;
    //Cal sweep
    if(runNum>=7625 && runNum<=7686) continue;
@@ -523,11 +578,25 @@ for(int i=5; i<argc; i++){
    double orderedArray[16];
    int orderedArrayPolType[16];
 
+
+
    for(int entry=0; entry<Nentries; entry++){
    //if(Nentries > 100) {  if(  entry % (Nentries/100) == 0  ){ cout<<"Progess: "<<entry / (Nentries/100) <<"%\n"; } }
    dataTree->GetEntry(entry);
    //cout<<"eventTrigType: "<<dummyData->eventTrigType<<endl;
    //if(dummyData->eventNumber != 127378) continue;
+
+   //Exclude the offset-block events and block-gap events
+   if(runNum==2889 && dummyData->eventNumber==108253) continue;
+   if(runNum==2759 && dummyData->eventNumber==8625) continue;
+   if(runNum==4838 && dummyData->eventNumber==15842) continue;
+   if(runNum==6842 && dummyData->eventNumber==324) continue;
+   //block-gap
+   if(runNum==4429 && dummyData->eventNumber==34200) continue;
+
+
+
+
    if(dummyData->eventTrigType == 0) rfEventCount+=dummyData->weight;
    else if (dummyData->eventTrigType == 1) calEventCount+=dummyData->weight;
    else if (dummyData->eventTrigType == 2) softEventCount+=dummyData->weight;
@@ -542,6 +611,7 @@ for(int i=5; i<argc; i++){
    passNumSatChanCut = false;
    passSurfaceCut_2 = false;
    passCalpulserTimeCut = false;
+
    passSNRCut = false;
 
    isCW = false;
@@ -555,8 +625,6 @@ for(int i=5; i<argc; i++){
    maxFreqBinVec_V.clear();
    maxFreqBinVec_H.clear();
    maxFreqBinVec.clear();
-
-   snrHist_all->Fill(dummyData->inWindowSNR_V, dummyData->weight);
 
    //isCW = isCW_coincidence(isVpolCW, isHpolCW, maxCountFreqBin_V, maxCountFreqBin_H, dummyData, cwBinThres);
 /*
@@ -638,7 +706,7 @@ for(int i=5; i<argc; i++){
 
 */
 
-  isCW = isCW_freqWindow(isVpolCW, isHpolCW, isXpolCW, dummyData, fftRes);
+  //isCW = isCW_freqWindow(isVpolCW, isHpolCW, isXpolCW, dummyData, fftRes);
 
 //      for(int ch=0; ch<16; ch++){
 //
@@ -765,14 +833,14 @@ for(int i=5; i<argc; i++){
 */
    /***** 2. Thermal cut ********************/
 
-   //passThermalCut = !isThermal_boxCut(inBand, settings, dummyData, onion,  cutValues->snrCut_inBand[type-1].val, cutValues->coherenceCut_inBand[type-1].val, cutValues->snrCut_outOfBand[type-1].val, cutValues->coherenceCut_outOfBand[type-1].val);
+//passThermalCut = !isThermal_boxCut(inBand, settings, dummyData, onion,  cutValues->snrCut_inBand[type-1].val, cutValues->coherenceCut_inBand[type-1].val, cutValues->snrCut_outOfBand[type-1].val, cutValues->coherenceCut_outOfBand[type-1].val);
 
 
-
+/*
    r     = onion.getLayerRadius(dummyData->maxPixIdx2);
    theta = onion.getPointing(dummyData->maxPixIdx2).theta * TMath::RadToDeg();
    phi   = onion.getPointing(dummyData->maxPixIdx2).phi   * TMath::RadToDeg();
-
+*/
    if(dummyData->maxPixCoherence > dummyData->maxPixCoherence2){
 
       zen_bestHypo = 90.f-dummyData->recoZen;
@@ -787,16 +855,17 @@ for(int i=5; i<argc; i++){
 
    }
 
-   //if (zen_bestHypo < ZEN_BAND_MAX && zen_bestHypo > ZEN_BAND_MIN){ snrCutValue = cutValues->snrCut_inBand[type-1].val;    coherenceCutValue = cutValues->coherenceCut_inBand[type-1].val;    inBand = true; }
+   //if (zen_bestHypo < ZEN_BAND_MAX && zen_bestHypo > ZEN_BAND_MIN){ snrCutValue = cutValues->snrCut_inBand[type-1].val;    coherenceCutValue = cutValues->coherenceCut_inBand[type-1].val; inBand = true; }
    //else                                                           { snrCutValue = cutValues->snrCut_outOfBand[type-1].val; coherenceCutValue = cutValues->coherenceCut_outOfBand[type-1].val; inBand = false;}
 
-   if (zen_bestHypo < ZEN_BAND_MAX && zen_bestHypo > ZEN_BAND_MIN){ coherenceCutValue = cutValues->coherenceCut_inBand[type-1].val;    inBand = true; }
+   if (zen_bestHypo < ZEN_BAND_MAX && zen_bestHypo > ZEN_BAND_MIN){ coherenceCutValue = cutValues->coherenceCut_inBand[type-1].val; inBand = true; }
    else                                                           { coherenceCutValue = cutValues->coherenceCut_outOfBand[type-1].val; inBand = false;}
 
    if(string(settings->recoPolType)=="vpol"){ snr = dummyData->inWindowSNR_V; }
    else if(string(settings->recoPolType)=="hpol"){ snr = dummyData->inWindowSNR_H; }
 
    //if( snr > snrCutValue || coherence > coherenceCutValue){
+
    //if(inBand){
       //if( 0.003 * snr + 1.916 * coherence - 0.368 > -0.144889) passThermalCut = true;
    //   if(coherence > coherenceCut_inBand[type-1]/*0.108008*/) passThermalCut = true;
@@ -807,16 +876,18 @@ for(int i=5; i<argc; i++){
    //   else passThermalCut = false;
 
    //}
-
    if(coherence > coherenceCutValue) passThermalCut = true;
    else passThermalCut = false;
       //passThermalCut = true;
    //}
 
-   snrCutValue = cutValues->snrCut[type-1].val;
+   double scalingFactor = 1.;
+   snrCutValue = scalingFactor * cutValues->snrCut[type-1].val;
+   //cout<<"snrCutValue: "<<snrCutValue<<endl;
    if(snr > snrCutValue){
       passSNRCut = true;
    }
+
 
    /***** 3. Surface cut ********************/
 
@@ -1101,7 +1172,7 @@ for(int i=5; i<argc; i++){
    }
    */
    double impCut = cutValues->cwImpCut[type-1].val; //impulsivityCut[type-1];
-   impCut = 0.2579306/*0.*//*0.2384656*/;
+   impCut = 0.2579306/*0.2384656*/;
    //passCWCut = ( !isCW || (isCW && passHighPassFilter && passImpulsivityCut )) && !lowFreqDominance;
    //passCWCut = ( !isCW || (isCW && isRecoverableByImp(isVpolCW, isHpolCW, isXpolCW, dummyData, impCut, highPassFreq) )) && !lowFreqDominance;
    passCWCut = !lowFreqDominance;
@@ -1139,7 +1210,6 @@ for(int i=5; i<argc; i++){
      passNumSatChanCut = true;
    //}
 
-   //passCWCut = true;
    //passThermalImpulsivityCut=1;
    //passNoisyRunCut = 1;
    //nPassNumSatChanCut += passNumSatChanCut * dummyData->weight;
@@ -1150,44 +1220,43 @@ for(int i=5; i<argc; i++){
    //nPassImpulsivityCut+= passImpulsivityCut *dummyData->weight;
    //nCut1              += (passHighPassFilter && passImpulsivityCut) * dummyData->weight;
    //nPassHighPassFilter+= passHighPassFilter * dummyData->weight;
-   snrHist[0]->Fill(dummyData->inWindowSNR_V, dummyData->weight);
+   snrHist[0]->Fill(dummyData->inWindowSNR, dummyData->weight);
    nPassCWCut         += passCWCut * dummyData->weight;
    nCut1p5            += (passNumSatChanCut && passCWCut) * dummyData->weight;
-   if (passNumSatChanCut && passCWCut) snrHist[1]->Fill(dummyData->inWindowSNR_V, dummyData->weight);
+   if (passNumSatChanCut && passCWCut) snrHist[1]->Fill(dummyData->inWindowSNR, dummyData->weight);
    nPassDeepPulserCut += passDeepPulserCut * dummyData->weight;
    nCut2              += (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut && passThermalCut && passSuE19aceCut &&*/ passDeepPulserCut) * dummyData->weight;
    nPassThermalCut    += passThermalCut * dummyData->weight;
    nCut3              += (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passDeepPulserCut && passThermalCut) * dummyData->weight;
-   if (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passDeepPulserCut && passThermalCut) snrHist[2]->Fill(dummyData->inWindowSNR_V, dummyData->weight);
+   if (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passDeepPulserCut && passThermalCut) snrHist[2]->Fill(dummyData->inWindowSNR, dummyData->weight);
    nPassThermalImpulsivityCut += passThermalImpulsivityCut * dummyData->weight;
-   nPassSNRCut +=  passSNRCut * dummyData->weight;
-   //nCut3p5            += (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passDeepPulserCut && passThermalCut && passThermalImpulsivityCut) * dummyData->weight;
-   nCut3p5            += (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passDeepPulserCut && passThermalCut && passSNRCut) * dummyData->weight;
-   if(passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passDeepPulserCut && passThermalCut && passSNRCut) snrHist[3]->Fill(dummyData->inWindowSNR_V, dummyData->weight);
+   nPassSNRCut += passSNRCut * dummyData->weight;
+   nCut3p5            += (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passDeepPulserCut && passThermalCut && passThermalImpulsivityCut && passSNRCut) * dummyData->weight;
    //nPassSuE19aceCut    += passSuE19aceCut * dummyData->weight;
    //nCut3              += (passCorruptionCut && passThermalCut && passSuE19aceCut) * dummyData->weight;
    //nPassDeepPulserCut += passDeepPulserCut * dummyData->weight;
    //nCut4              += (passCorruptionCut && passThermalCut /*&& passSuE19aceCut*/ && passDeepPulserCut) * dummyData->weight;
    //if((passCorruptionCut && passThermalCut /*&& passSuE19aceCut*/ && passDeepPulserCut)){ outputFile<<dummyData->unixTime<<","<<dummyData->eventNumber<<endl; }
    nPassCalpulserCut += passCalpulserCut * dummyData->weight;
-   nCut4             += (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut && passDeepPulserCut && passThermalCut && passThermalImpulsivityCut && passCalpulserCut && passSNRCut) * dummyData->weight;
-   if (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut && passDeepPulserCut && passThermalCut && passThermalImpulsivityCut && passCalpulserCut && passSNRCut)  snrHist[4]->Fill(dummyData->inWindowSNR_V, dummyData->weight);
+   nCut4             += (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut && passDeepPulserCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passCalpulserCut) * dummyData->weight;
+   if (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut && passDeepPulserCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passCalpulserCut)  snrHist[3]->Fill(dummyData->inWindowSNR, dummyData->weight);
    nPassCalpulserTimeCut += passCalpulserTimeCut * dummyData->weight;
-   nCut4p5           += (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut && passDeepPulserCut && passThermalCut && passThermalImpulsivityCut && passCalpulserCut && passSNRCut && passCalpulserTimeCut) * dummyData->weight;
+   nCut4p5           += (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut && passDeepPulserCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passCalpulserCut && passCalpulserTimeCut) * dummyData->weight;
    //nPassNoisyRunCut   += passNoisyRunCut * dummyData->weight;
    //nCut5              += (/*passCorruptionCut &&*/ passThermalCut /*&& passSuE19aceCut*/ && passDeepPulserCut && passCalpulserCut && passNoisyRunCut) * dummyData->weight;
    nPassSurfaceCut    += passSurfaceCut * dummyData->weight;
-   nCut6              += (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passThermalCut && passThermalImpulsivityCut && passDeepPulserCut && passSNRCut && passCalpulserCut && passCalpulserTimeCut/*&& passNoisyRunCut*/ && passSurfaceCut) * dummyData->weight;
+   nCut6              += (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut/*&& passNoisyRunCut*/ && passSurfaceCut) * dummyData->weight;
    nPassSurfaceCut_2  += passSurfaceCut_2 * dummyData->weight;
    nCut6p5            += (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut/*&& passNoisyRunCut*/ && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
-   if (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut/*&& passNoisyRu     nCut*/ && passSurfaceCut && passSurfaceCut_2) snrHist[5]->Fill(dummyData->inWindowSNR_V, dummyData->weight);
+   if (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut/*&& passNoisyRu     nCut*/ && passSurfaceCut && passSurfaceCut_2) snrHist[4]->Fill(dummyData->inWindowSNR, dummyData->weight);
    nPassNoisyRunCut   += passNoisyRunCut * dummyData->weight;
-   nCut7              +=  (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passThermalCut &&  passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passNoisyRunCut && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
-//
-//   if(passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut && passThermalCut /*&& passThermalImpulsivityCut*/ && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut/*&& passNoisyRunCut*/ && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut){
+   nCut7              +=  (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passNoisyRunCut && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
+
+//   if(/*passNumSatChanCut &&*//*passHighPassFilter && passImpulsivityCut*/passCWCut && passThermalCut && passThermalImpulsivityCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut/*&& passNoisyRunCut*/ && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut){
 //   //if(passCalpulserCut){
+//
 //      cout<<endl;
-//      cout<<"run: "<<runNum<<" event: "<<dummyData->eventNumber<<" unixtime: "<<dummyData->unixTime<<"snr: "<<snr<<" coherence: "<<coherence<<endl;
+//      cout<<"run: "<<runNum<<" event: "<<dummyData->eventNumber<<" unixtime: "<<dummyData->unixTime<<"snr: "<<dummyData->inWindowSNR_V<<" coherence: "<<(dummyData->maxPixCoherence>dummyData->maxPixCoherence2?dummyData->maxPixCoherence:dummyData->maxPixCoherence2)<<endl;
 //      cout<<"inBand: "<<inBand<<" Fisher: "<<(inBand?0.003:0.007)*snr+(inBand?1.916:1.039)*coherence+(inBand?-0.368:-0.284)<<endl;
 //      cout<<"constantNZen: "<<90.f-dummyData->constantNZen<<" zenMaj: "<<zenMaj<<endl;
 //      cout<<"avg imp: "<<avgImpulsivity<<endl;
@@ -1209,16 +1278,16 @@ for(int i=5; i<argc; i++){
 //      cout<<endl;
 //
 //      cout<<"recoZen: "<<90.f-dummyData->recoZen<<" azi: "<<dummyData->recoAzi<<endl;
-//      /*
-//      for(int iter=0; iter<numIter; iter++){
-//         int maxPixIdx = dummyData->iterMaxPixIdx.at(iter);
-//         cout<<"iterMaxPixIdx: "<<maxPixIdx<<" layer: "<<maxPixIdx/nDir<<endl;
-//         cout<<"zen: "<<90.f-TMath::RadToDeg()*onion.getPointing(maxPixIdx).theta<<" azi: "<<TMath::RadToDeg()*onion.getPointing(maxPixIdx).phi<<endl;
-//      }
-//      */
-//      //outputFile<<"run: "<<runNum<<" event: "<<dummyData->eventNumber<<" unixtime: "<<dummyData->unixTime<<endl;
-//      //cout<<"isVpolCW: "<<isVpolCW<<" isHpolCW: "<<isHpolCW<<endl;
-//      //cout<<"maxCountFreq_V: "<<dummyData->maxCountFreq_V<<" maxCountFreq_H: "<<dummyData->maxCountFreq_H<<endl;
+      /*
+      for(int iter=0; iter<numIter; iter++){
+         int maxPixIdx = dummyData->iterMaxPixIdx.at(iter);
+         cout<<"iterMaxPixIdx: "<<maxPixIdx<<" layer: "<<maxPixIdx/nDir<<endl;
+         cout<<"zen: "<<90.f-TMath::RadToDeg()*onion.getPointing(maxPixIdx).theta<<" azi: "<<TMath::RadToDeg()*onion.getPointing(maxPixIdx).phi<<endl;
+      }
+      */
+      //outputFile<<"run: "<<runNum<<" event: "<<dummyData->eventNumber<<" unixtime: "<<dummyData->unixTime<<endl;
+      //cout<<"isVpolCW: "<<isVpolCW<<" isHpolCW: "<<isHpolCW<<endl;
+      //cout<<"maxCountFreq_V: "<<dummyData->maxCountFreq_V<<" maxCountFreq_H: "<<dummyData->maxCountFreq_H<<endl;
 //      impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight);
 //      //impulsivityHist_3rd->Fill(impulsivity[index[2]], dummyData->weight);
 //      c_vs_snr_hist->Fill(dummyData->inWindowSNR_V, coherence, dummyData->weight);
@@ -1240,7 +1309,7 @@ for(int i=5; i<argc; i++){
 //         impulsivity_bipolarRatio->Fill(bipolarRatio, dummyData->impulsivity[ch], dummyData->weight);
 //         }
 //      }
-//
+
 //      for(int ch=0; ch<16; ch++){
 //
 //         //maxFreqBinVec.push_back(dummyData->maxFreqBin[ch]);
@@ -1316,107 +1385,228 @@ for(int i=5; i<argc; i++){
 //      else cout<<"NOT CW!!!!!"<<endl;
 //
 //   }
+//
+//   //c_vs_imp->Fill(avgImpulsivity, coherence, dummyData->weight);
+//
+   //if(!lowFreqDominance &&/*passCWCut &&*/passThermalCut && passThermalImpulsivityCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) impulsivityHist_nMinusCW->Fill( avgImpulsivity, dummyData->weight);
 
-   //c_vs_imp->Fill(avgImpulsivity, coherence, dummyData->weight);
-
-   if(!lowFreqDominance &&/*passCWCut &&*/passThermalCut && passThermalImpulsivityCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) impulsivityHist_nMinusCW->Fill( avgImpulsivity, dummyData->weight);
-   if(passCWCut && /*passThermalCut && */ passThermalImpulsivityCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) c_vs_snr_hist_nMinusThermal->Fill(snr, coherence, dummyData->weight);
-   if(passCWCut && passThermalCut &&/* passThermalImpulsivityCut &&*/ passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) impulsivityHist_nMinusImp->Fill( avgImpulsivity, dummyData->weight);
-   if(passCWCut && passThermalCut && passThermalImpulsivityCut && passDeepPulserCut /*&& passCalpulserCut*/ && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) zen_azi_nMinusCal->Fill(inBoxPhi, inBoxTheta, dummyData->weight);
-   if(passCWCut && passThermalCut && passThermalImpulsivityCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut /*&& passSurfaceCut && passSurfaceCut_2 */&& passNoisyRunCut ) zen_nMinusSurface->Fill((passSurfaceCut?zenMaj:90.f-dummyData->constantNZen));
-
-   //if(passDeepPulserCut && passThermalCut && passCalpulserCut && passSurfaceCut) runHist->Fill(runNum);
-   if( /*passNumSatChanCut && */passCWCut /*!lowFreqDominance*/ && passDeepPulserCut && passThermalCut && /*passThermalImpulsivityCut &&*/ passCalpulserCut && passCalpulserTimeCut && (!passSurfaceCut || !passSurfaceCut_2)) surfaceRunHist->Fill(runNum);
-   //if( /*passNumSatChanCut &&*/ /*passCWCut &&*/ passDeepPulserCut && passThermalCut && passSurfaceCut && passSurfaceCut_2){ impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight); outputFile<<avgImpulsivity<<","; }
-   //if( !lowFreqDominance && passDeepPulserCut){
-   if( passCWCut && passDeepPulserCut ){
-
-
-      if(inBand) inBand_all += dummyData->weight;
-      else       outOfBand_all += dummyData->weight;
-
-      if(passThermalCut){
-         //impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight);
-         //outputFile<<avgImpulsivity<<",";
-         if(inBand) inBand_pass += dummyData->weight;
-         else       outOfBand_pass += dummyData->weight;
-
-         //constantNZenHist->Fill(90.f-dummyData->constantNZen, dummyData->weight);
-         //outputFile<<90.f-dummyData->constantNZen<<",";
-
+   if(passCWCut && /*passThermalCut && */ passSNRCut && passThermalImpulsivityCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) //c_vs_snr_hist_nMinusThermal->Fill(snr, coherence, dummyData->weight);
+      {
+         coherence_nMinusThermal->Fill(coherence, dummyData->weight);
+         //if(inBand) outputFile<<coherence<<",";
       }
+
+   if(passCWCut && passThermalCut &&/* passThermalImpulsivityCut &&*/ passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) //impulsivityHist_nMinusImp->Fill( avgImpulsivity, dummyData->weight);
+   {
+      snr_nMinusSNR->Fill(snr, dummyData->weight);
+      // cout<<"snr: "<<snr<<endl;
+      //outputFile<<snr<<",";
+   }
+   if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut /*&& passCalpulserCut*/ && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) {
+      zen_azi_nMinusCal->Fill(inBoxPhi, inBoxTheta, dummyData->weight);
+      //outputFile<<inBoxPhi<<",";
+   }
+   if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut /*&& passSurfaceCut && passSurfaceCut_2 */&& passNoisyRunCut )
+   {
+   zen_nMinusSurface->Fill((passSurfaceCut?zenMaj:90.f-dummyData->constantNZen));
+   zen_azi_nMinusSurface->Fill(dummyData->constantNAzi, (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen), dummyData->weight);
+   //double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
+   double theta_temp = 90.f-dummyData->constantNZen;
+   if(theta_temp > 52 && theta_temp < 57 && dummyData->constantNAzi > 235 && dummyData->constantNAzi < 245){
+      //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
+      zen_nMinusSurface_SPSEvents->Fill(theta_temp, dummyData->weight);
+      sinzen_nMinusSurface_SPSEvents->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+
+   } else {
+      zen_nMinusSurface_noSPSEvents->Fill(theta_temp, dummyData->weight);
+      sinzen_nMinusSurface_noSPSEvents->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+      //outputFile<<theta_temp<<",";
    }
 
-   if( /*passCWCut &&*/ passDeepPulserCut && passThermalCut && passCalpulserCut && passCalpulserTimeCut){
 
-      constantNZenHist->Fill(90.f-dummyData->constantNZen, dummyData->weight);
-      //outputFile<<90.f-dummyData->constantNZen<<",";
-      /*
-      for(int iter=0; iter<numIter; iter++){
+   //outputFile<<(passSurfaceCut?zenMaj:90.f-dummyData->constantNZen)<<",";
+   }
 
-         if(8-5+iter >= 5){
 
-            for(int layer=0; layer<nLayer; layer++){
+   if(passCWCut && passThermalCut && passThermalImpulsivityCut /*&& passSNRCut*/ && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut /*&& passSurfaceCut && passSurfaceCut_2 *//*&& passNoisyRunCut*/ )
+   {
+   //zen_nMinusSurface->Fill((passSurfaceCut?zenMaj:90.f-dummyData->constantNZen));
+   //zen_azi_nMinusSurface->Fill(dummyData->constantNAzi, (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen), dummyData->weight);
+   //double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
+   double theta_temp = 90.f-dummyData->constantNZen;
 
-               iterMaxPixIdxEachLayer[layer] = dummyData->iterMaxPixIdxEachLayer.at(iter*nLayer+layer);
-               iterMaxPixCoherenceEachLayer[layer] = dummyData->iterMaxPixCoherenceEachLayer.at(iter*nLayer+layer);
+   zen_nMinusNoisyRunSNRSurface->Fill(theta_temp, dummyData->weight);
+   sinzen_nMinusNoisyRunSNRSurface->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
 
-            }
+   if(passNoisyRunCut){
+      zen_nMinusSNRSurface->Fill(theta_temp, dummyData->weight);
+      sinzen_nMinusSNRSurface->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+   }
 
-            TMath::Sort(50, iterMaxPixCoherenceEachLayer, iterIndex);
-            float iterZen = 90.f - onion.getPointing(iterMaxPixIdxEachLayer[iterIndex[0]]).theta * TMath::RadToDeg();
-            iterZenVec.push_back(iterZen);
+   if(passSNRCut){
+      zen_nMinusNoisyRunSurface->Fill(theta_temp, dummyData->weight);
+      sinzen_nMinusNoisyRunSurface->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+   }
 
-         }//end of if
-      }//end of iter
+   if(theta_temp > 52 && theta_temp < 57 && dummyData->constantNAzi > 235 && dummyData->constantNAzi < 245){
+      //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
+   } else {
 
-      float zenRange = 3.;
-      double zenMaj = getZenMaj(iterZenVec, zenRange);
-      */
-      if(zenMaj <= 90 ) iterMajorityZenHist->Fill(zenMaj,dummyData->weight);
+      zen_nMinusNoisyRunSNRSurface_noSPSEvents->Fill(theta_temp, dummyData->weight);
+      sinzen_nMinusNoisyRunSNRSurface_noSPSEvents->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
 
-   }//end of pass cut
-
-   int thetaXingPix, phiXingPix, avgThetaXingPix, avgPhiXingPix;
-   double  angThres = 1.;
-
-   if(/*isCW &&*/ passThermalCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut /*&& passCWCut */&& !lowFreqDominance){
-
-      std::fill(&impulsivity[0], &impulsivity[16], 0.);
-      int nonZeroCount = 0;
-      double sum = 0.;
-      for(int ch=0; ch<8; ch++){
-         if(fabs( dummyData->impulsivity[ch] - 0 ) > 1e-9 ){
-            nonZeroCount++;
-            impulsivity[ch] = dummyData->impulsivity[ch];
-            sum += impulsivity[ch];
-         }
+      if(passSNRCut){
+         zen_nMinusNoisyRunSurface_noSPSEvents->Fill(theta_temp, dummyData->weight);
+         sinzen_nMinusNoisyRunSurface_noSPSEvents->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
       }
 
-      //int index[16];
-      //TMath::Sort(16, impulsivity, index);
-      avgImpulsivity = sum / (double)nonZeroCount;
+      if(passNoisyRunCut){
+         zen_nMinusSNRSurface_noSPSEvents->Fill(theta_temp, dummyData->weight);
+         sinzen_nMinusSNRSurface_noSPSEvents->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+      }
 
-      impulsivityHist_nMinusCW->Fill(avgImpulsivity, dummyData->weight);
+      //outputFile<<theta_temp<<",";
+   }
+
+
+   //outputFile<<(passSurfaceCut?zenMaj:90.f-dummyData->constantNZen)<<",";
+   }
+
+   if(passCWCut /*&& passThermalCut*/ && passThermalImpulsivityCut /*&& passSNRCut*/ && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut /*&& passSurfaceCut && passSurfaceCut_2 *//*&& passNoisyRunCut*/ ){
+
+      double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
+      coherenceSNRZenHist->Fill(coherence, snr, sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+      coherenceSNR->Fill(snr, coherence, dummyData->weight);
+      zenCoherence->Fill(coherence, sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+      zenSNR->Fill(snr, sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+
+   }
+
+   //if(passDeepPulserCut && passThermalCut && passCalpulserCut && passSurfaceCut) runHist->Fill(runNum);
+   if( /*passNumSatChanCut && *//*passCWCut*/!lowFreqDominance && passDeepPulserCut && passThermalCut && passSNRCut && /*passThermalImpulsivityCut &&*/ passCalpulserCut && passCalpulserTimeCut && (!passSurfaceCut || !passSurfaceCut_2)) surfaceRunHist->Fill(runNum);
+   //if( /*passNumSatChanCut &&*/ /*passCWCut &&*/ passDeepPulserCut && passThermalCut && passSurfaceCut && passSurfaceCut_2){ impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight); outputFile<<avgImpulsivity<<","; }
+//   //if( !lowFreqDominance && passDeepPulserCut){
+//   if( passCWCut && passDeepPulserCut ){
+//
+//
+//      if(inBand) inBand_all += dummyData->weight;
+//      else       outOfBand_all += dummyData->weight;
+//
+//      if(passThermalCut){
+//         //impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight);
+//         //outputFile<<avgImpulsivity<<",";
+//         if(inBand) inBand_pass += dummyData->weight;
+//         else       outOfBand_pass += dummyData->weight;
+//
+//         //constantNZenHist->Fill(90.f-dummyData->constantNZen, dummyData->weight);
+//         //outputFile<<90.f-dummyData->constantNZen<<",";
+//
+//      }
+//   }
+//
+//   if( /*passCWCut &&*/ passDeepPulserCut && passThermalCut && passCalpulserCut && passCalpulserTimeCut){
+//
+//      constantNZenHist->Fill(90.f-dummyData->constantNZen, dummyData->weight);
+//      //outputFile<<90.f-dummyData->constantNZen<<",";
+//      /*
+//      for(int iter=0; iter<numIter; iter++){
+//
+//         if(8-5+iter >= 5){
+//
+//            for(int layer=0; layer<nLayer; layer++){
+//
+//               iterMaxPixIdxEachLayer[layer] = dummyData->iterMaxPixIdxEachLayer.at(iter*nLayer+layer);
+//               iterMaxPixCoherenceEachLayer[layer] = dummyData->iterMaxPixCoherenceEachLayer.at(iter*nLayer+layer);
+//
+//            }
+//
+//            TMath::Sort(50, iterMaxPixCoherenceEachLayer, iterIndex);
+//            float iterZen = 90.f - onion.getPointing(iterMaxPixIdxEachLayer[iterIndex[0]]).theta * TMath::RadToDeg();
+//            iterZenVec.push_back(iterZen);
+//
+//         }//end of if
+//      }//end of iter
+//
+//      float zenRange = 3.;
+//      double zenMaj = getZenMaj(iterZenVec, zenRange);
+//      */
+//      if(zenMaj <= 90 ) iterMajorityZenHist->Fill(zenMaj,dummyData->weight);
+//
+//   }//end of pass cut
+//
+//   if(isCW){
+//      coherence_snr_cw->Fill(dummyData->inWindowSNR_V, (dummyData->maxPixCoherence>dummyData->maxPixCoherence2?dummyData->maxPixCoherence:dummyData->maxPixCoherence2), dummyData->weight);
+//   }
+//
+//   int thetaXingPix, phiXingPix, avgThetaXingPix, avgPhiXingPix;
+//   double  angThres = 1.;
+//   if(passThermalCut && passDeepPulserCut && passSurfaceCut && passSurfaceCut_2 && passCalpulserCut && passCalpulserTimeCut && passNoisyRunCut /*&& !lowFreqDominance */&& passCWCut){
+//
+//      cout<<"RunNum: "<<runNum<<" event: "<<dummyData->eventNumber<<endl;
+//
+//      //getAngXingPixels(thetaXingPix, phiXingPix, dummyData, settings, onion, angThres);
+//      //getAvgAngXingPixels(avgThetaXingPix, avgPhiXingPix, dummyData, settings, onion, angThres);
+//
+//      //if(avgPhiXingPix>500){
+//      //   cout<<"avgPhiXingPix: "<<avgPhiXingPix<<" runNum: "<<runNum<<" event: "<<dummyData->eventNumber<<endl;
+//      //}
+//
+//      //thetaXingHist->Fill(thetaXingPix, dummyData->weight);
+//      //phiXingHist->Fill(phiXingPix, dummyData->weight);
+//      //avgThetaXingHist->Fill(avgThetaXingPix, dummyData->weight);
+//      //avgPhiXingHist->Fill(avgPhiXingPix, dummyData->weight);
+//
+//      angThres = 0.5;
+//      double inRangeThetaFrac = getZenithInRangeFraction(dummyData, settings, onion, angThres);
+//      double inRangePhiFrac   = getAzimuthInRangeFraction(dummyData, settings, onion, angThres);
+//      inRangeThetaFracHist->Fill(inRangeThetaFrac, dummyData->weight);
+//      inRangePhiFracHist->Fill(inRangePhiFrac, dummyData->weight);
+//      inRangeThetaPhiFracHist->Fill(inRangePhiFrac, inRangeThetaFrac, dummyData->weight);
+//
+//   }
+//
+
+   if(/*isCW &&*/ passThermalCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 /*&& passNoisyRunCut*/ && !lowFreqDominance ){
+
+//      cout<<"run: "<<runNum<<" event: "<<dummyData->eventNumber<<" SNR: "<<snr<<endl;
+//      _snrHist->Fill(snr, dummyData->weight);
+      //outputFile<<snr<<",";
+//
+//      std::fill(&impulsivity[0], &impulsivity[16], 0.);
+//      int nonZeroCount = 0;
+//      double sum = 0.;
+//      for(int ch=0; ch<8; ch++){
+//         if(fabs( dummyData->impulsivity[ch] - 0 ) > 1e-9 ){
+//            nonZeroCount++;
+//            impulsivity[ch] = dummyData->impulsivity[ch];
+//            sum += impulsivity[ch];
+//         }
+//      }
+//
+//      //int index[16];
+//      //TMath::Sort(16, impulsivity, index);
+//      avgImpulsivity = sum / (double)nonZeroCount;
+//
+//      impulsivityHist_nMinusCW->Fill(avgImpulsivity, dummyData->weight);
+//
+//      if(avgImpulsivity > 0.4 ){
+//               cout<<endl;
+//               cout<<"run: "<<runNum<<" event: "<<dummyData->eventNumber<<" unixtime: "<<dummyData->unixTime<<"snr: "<<snr<<" coherence: "<<coherence<<endl;
+//               cout<<"inBand: "<<inBand<<" Fisher: "<<(inBand?0.003:0.007)*snr+(inBand?1.916:1.039)*coherence+(inBand?-0.368:-0.284)<<endl;
+//               cout<<"constantNZen: "<<90.f-dummyData->constantNZen<<" zenMaj: "<<zenMaj<<endl;
+//               cout<<"avg imp: "<<avgImpulsivity<<endl;
+//               outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<endl;
+//               //outputFile<<avgImpulsivity<<",";
+//               //cout<<avgImpulsivity<<endl;
+//               cout<<endl;
+//               cout<<"maxCountFreq_V: "<<dummyData->maxCountFreq_V<<" maxCountFreq_H: "<<dummyData->maxCountFreq_H<<endl;
+//               cout<<"From recoData channel-by-channel maxFreqBin: "<<endl;
+//               cout<<"maxCountFreq_V: "<<maxCountFreqBin_V*dummyData->freqBinWidth_V<<" maxCountFreq_H: "<<maxCountFreqBin_H*dummyData->freqBinWidth_H<<endl;
+//               cout<<"freqBinWidth_V: "<<dummyData->freqBinWidth_V<<" freqBinWidth_H: "<<dummyData->freqBinWidth_H<<endl;
+//
+//      }
 
       //if( !isCW ) cerr<<"Not CW! run: "<<runNum<<" ev: "<<entry<<endl;
-
-
-
-      getAngXingPixels(thetaXingPix, phiXingPix, dummyData, settings, onion, angThres);
-      getAvgAngXingPixels(avgThetaXingPix, avgPhiXingPix, dummyData, settings, onion, angThres);
-
-      thetaXingHist->Fill(thetaXingPix, dummyData->weight);
-      phiXingHist->Fill(phiXingPix, dummyData->weight);
-      avgThetaXingHist->Fill(avgThetaXingPix, dummyData->weight);
-      avgPhiXingHist->Fill(avgPhiXingPix, dummyData->weight);
-
-      angThres=0.5;
-      double inRangeThetaFrac = getZenithInRangeFraction(dummyData, settings, onion, angThres);
-      double inRangePhiFrac   = getAzimuthInRangeFraction(dummyData, settings, onion, angThres);
-      inRangeThetaFracHist->Fill(inRangeThetaFrac, dummyData->weight);
-      inRangePhiFracHist->Fill(inRangePhiFrac, dummyData->weight);
-      inRangeThetaPhiFracHist->Fill(inRangePhiFrac, inRangeThetaFrac, dummyData->weight);
 
       //coherence_snr_cw->Fill(dummyData->inWindowSNR_V, (dummyData->maxPixCoherence>dummyData->maxPixCoherence2?dummyData->maxPixCoherence:dummyData->maxPixCoherence2), dummyData->weight);
       //snr_cw->Fill(dummyData->inWindowSNR_V, dummyData->weight);
@@ -1504,6 +1694,7 @@ for(int i=5; i<argc; i++){
       */
    }//if pass all other cuts except CW and thermal
 
+
    }//end of entry
 
 delete dataTree;
@@ -1512,7 +1703,7 @@ fp1.Close();
 
 }//end of file
 
-//outputFile.close();
+outputFile.close();
 
 printf("totalRecoEventCount: %d\trfEventCount: %f\tcalEventCount: %f\tsoftEventCount: %f\n", totalRecoEventCount, rfEventCount, calEventCount, softEventCount);
 //printf("nPassCorruption: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassCorruption, (float)nPassCorruption/(float)E19EventCount, nCut1, (float)nCut1/(float)E19EventCount);
@@ -1536,10 +1727,10 @@ printf("nPassNoisyRunCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f
 cout<<"rfEventCount: "<<rfEventCount<<" isCWCount: "<<isCWCount<<" ratio: "<<isCWCount/rfEventCount<<" 1e-2 background ratio: "<<1e-2/(isCWCount*10)<<endl;
 cout<<"inBand_all: "<<inBand_all<<" inBand_pass: "<<inBand_pass<<" inBand_cut: "<<inBand_all-inBand_pass<<endl;
 cout<<"outOfBand_all: "<<outOfBand_all<<" outOfBand_pass: "<<outOfBand_pass<<" outOfBand_cut: "<<outOfBand_all-outOfBand_pass<<endl;
-cout<<"pre-thermal: "<<inBand_all+outOfBand_all<<" post-thermal: "<<inBand_pass+outOfBand_pass<<" ratio: "<<(inBand_pass+outOfBand_pass)/(inBand_all+outOfBand_all)<<endl;
-outputFile<<ENERGY<<","<<totalWeightedTrigEventCount<<","<<totalWeightedTrigEventCount-totalWeightedOffsetBlockEventCount/*<<","<<totalTrigEventCount-totalOffsetBlockEventCount-totalImpulsivityFilteredEventCount*/<<","<<totalWeightedTrigEventCount-totalWeightedOffsetBlockEventCount-totalWeightedNchnlFilteredEventCount<<",";
-outputFile/*<<nCut0p5<<","*/<<nCut1p5<<","/*<<nCut2<<*//*","*/<<nCut3<<","<<nCut3p5<</*","<<nCut4<<*/","<<nCut4<<","/*<<nCut6<<*/<<nCut6p5/*<<","<<nCut7*/<<endl;
-outputFile.close();
+cout<<"pre-thermal: "<<inBand_all+outOfBand_all<<" post-thermal: "<<inBand_pass+outOfBand_pass<<" ratio: "<<(inBand_pass+outOfBand_pass)/(inBand_all+outOfBand_all)<<endl;;
+//outputFile<<ENERGY<<","<<totalTrigEventCount<<","<<totalTrigEventCount-totalOffsetBlockEventCount<<","<<totalTrigEventCount-totalOffsetBlockEventCount-totalImpulsivityFilteredEventCount<<",";
+//outputFile/*<<nCut0p5<<","*/<<nCut1p5<<","<<nCut2<<","<<nCut3/*<<","<<nCut3p5*/<<","<<nCut4<<","<<nCut6<<","<<nCut7<<endl;
+//outputFile.close();
 
 //cout<<"passCWCut: "<<passCWCut<<endl;
 //cout<<"thermalCWEventCount: "<<thermalCWEventCount<<endl;
@@ -1591,16 +1782,16 @@ suE19aceRunHist->SetName(filename);
 suE19aceRunHist->Write();
 fout.Close();
 */
-/*
-sprintf(filename, "%s_type%d_E18_coherence_snr_cw.C", STATION.c_str(), type);
+
+//sprintf(filename, "%s_type%d_E18_coherence_snr_cw.C", STATION.c_str(), type);
 TCanvas c34("c34","c34",1200,800);
 c34.Divide(2,1);
 c34.cd(1);
 coherence_snr_cw->Draw("colz");
 c34.cd(2);
 snr_cw->Draw();
-c34.SaveAs(filename);
-*/
+//c34.SaveAs(filename);
+
 /*
 sprintf(filename, "%s_type%d_E18_impulsivity_cw.C", STATION.c_str(), type);
 TCanvas c35("c35","c35",800,800);
@@ -1629,16 +1820,19 @@ fout.Close();
 /*
 TCanvas c4("c4","c4",800,800);
 surfaceRunHist->Draw();
-sprintf(filename,"surfaceRunHist_vnchnl3NoMasking_beforeImpCut_noMaskSat_snrMode1_ch6Fit2Corr_2SurfaceCut_%s_type%d.C", STATION.c_str(), type);
+sprintf(filename,"surfaceRunHist_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_%s_type%d.C", STATION.c_str(), type);
 c4.SaveAs(filename);
-
-sprintf(filename, "%s_vnchnl3NoMasking_beforeImpCut_noMaskSat_snrMode1_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt", STATION.c_str());
+*/
+/*
+sprintf(filename, "%s_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEventRuns.txt", STATION.c_str());
 ofstream noisyRunFile(filename, ofstream::out|ofstream::app);
 for(int bin=1; bin<=surfaceRunHist->GetNbinsX(); bin++){
-   if(surfaceRunHist->GetBinContent(bin)>1) noisyRunFile<<surfaceRunHist->GetBinCenter(bin)<<endl;
+   //if(surfaceRunHist->GetBinContent(bin)>1) noisyRunFile<<surfaceRunHist->GetBinCenter(bin)<<endl;
+   if(surfaceRunHist->GetBinContent(bin)>0) noisyRunFile<<surfaceRunHist->GetBinCenter(bin)<<","<<surfaceRunHist->GetBinContent(bin)<<endl;
 }
 noisyRunFile.close();
-
+*/
+/*
 
 TCanvas c5("c5","c5",1200,800);
 c5.Divide(2,1);
@@ -1656,56 +1850,139 @@ iterMajorityZenHist->SetTitle("Iter. Majority Reco:Reco Zenith [#circ];Entry");
 sprintf(filename, "%s_type%d_vnchnl3NoMasking_noMaskSat_snrMode1_ch6Fit2Corr_constantNZen_iterMajorityZenHist.C", STATION.c_str(), type);
 c5.SaveAs(filename);
 */
-
-TCanvas c5("c5","c5",1200,800);
+/*
 snrHist[0]->SetLineColor(kBlue);
 snrHist[1]->SetLineColor(kRed);
 snrHist[2]->SetLineColor(kTeal);
 snrHist[3]->SetLineColor(kOrange);
 snrHist[4]->SetLineColor(kMagenta);
-snrHist[5]->SetLineColor(kCyan);
 snrHist[0]->Draw();
-for(int i=1; i<6; i++) snrHist[i]->Draw("same");
+for(int i=1; i<5; i++) snrHist[i]->Draw("same");
 sprintf(filename, "%s_type%d_signalEffiencyVsSNR.C", STATION.c_str(), type);
 c5.SaveAs(filename);
-
 sprintf(filename, "%s_type%d_signalEffiencyVsSNR.root", STATION.c_str(), type);
-TFile ff(filename, "recreate");
-for(int i=0; i<6; i++) snrHist[i]->Write();
-//snrHist_all->Write();
+TFile ff(filename, "RECREATE");
+for(int i=0; i<5; i++) snrHist[i]->Write();
 ff.Close();
+*/
 
-/*
 TCanvas c6("c6","c6",800,800);
-impulsivityHist_nMinusCW->Draw();
-impulsivityHist_nMinusCW->SetTitle(";Impulsivity;Entry");
-sprintf(filename, "%s_type%d_nMinusCW_impulsivity.C", STATION.c_str(), type);
-c6.SaveAs(filename);
+//impulsivityHist_nMinusCW->Draw();
+//impulsivityHist_nMinusCW->SetTitle(";Impulsivity;Entry");
+coherence_nMinusThermal->SetTitle(";Coherence;Entry");
+coherence_nMinusThermal->Draw();
+sprintf(filename, "%s_type%d_nMinusThermal_coherence.C", STATION.c_str(), type);
+//c6.SaveAs(filename);
 
 TCanvas c7("c7","c7",800,800);
-impulsivityHist_nMinusImp->Draw();
-impulsivityHist_nMinusImp->SetTitle(";Impulsivity;Entry");
-sprintf(filename, "%s_type%d_nMinusImp_impulsivity.C", STATION.c_str(), type);
-c7.SaveAs(filename);
+//impulsivityHist_nMinusImp->Draw();
+//impulsivityHist_nMinusImp->SetTitle(";Impulsivity;Entry");
+snr_nMinusSNR->SetTitle(";SNR;Entry");
+snr_nMinusSNR->Draw();
+sprintf(filename, "%s_type%d_nMinusSNR_snr.C", STATION.c_str(), type);
+//c7.SaveAs(filename);
 
-TCanvas c8("c8","c8",800,800);
-zen_nMinusSurface->Draw();
-zen_nMinusSurface->SetTitle(";Receipt Angle [#circ];Entry");
-sprintf(filename, "%s_type%d_nMinusSurface_zen.C", STATION.c_str(), type);
+TCanvas c8("c8","c8",1200,800);
+//zen_nMinusSurface->Draw();
+//zen_nMinusSurface->SetTitle(";Receipt Angle [#circ];Entry");
+//zen_azi_nMinusSurface->Draw("colz");
+//zen_azi_nMinusSurface->SetTitle(";Reco Azimuth [#circ];Receipt Angle [#circ]");
+//sprintf(filename, "%s_type%d_snrMode1_nMinusSurface_zen_azi.C", STATION.c_str(), type);
+//zen_nMinusSurface_noSPSEvents->Draw();
+//zen_nMinusSurface_noSPSEvents->SetTitle(";Reco Zenith[#circ];Entry");
+c8.Divide(2,1);
+c8.cd(1);
+zen_nMinusSurface_SPSEvents->Draw();
+c8.cd(2);
+sinzen_nMinusSurface_SPSEvents->Draw();
+//sprintf(filename, "%s_type%d_snrMode1_nMinusSurface_zen_noSPSEvents.C", STATION.c_str(), type);
+sprintf(filename, "%s_allTypes_snrMode1_nMinusSurface_zen_sinzen_SPSEvents.C", STATION.c_str());
 c8.SaveAs(filename);
 
 TCanvas c9("c9","c9",800,800);
-c_vs_snr_hist_nMinusThermal->Draw("colz");
-c_vs_snr_hist_nMinusThermal->SetTitle(";SNR;Coherence");
-sprintf(filename, "%s_type%d_nMinusThermal_c_vs_snr.C", STATION.c_str(), type);
-c9.SaveAs(filename);
+//c_vs_snr_hist_nMinusThermal->Draw("colz");
+//c_vs_snr_hist_nMinusThermal->SetTitle(";SNR;Coherence");
+//sprintf(filename, "%s_type%d_nMinusThermal_c_vs_snr.C", STATION.c_str(), type);
+//sinzen_nMinusSurface_noSPSEvents->Draw();
+//sinzen_nMinusSurface_noSPSEvents->SetTitle(";sin(Reco Zenith);Entry");
+//sprintf(filename, "%s_type%d_snrMode1_nMinusSurface_sinzen_noSPSEvents.C", STATION.c_str(), type);
+//c9.SaveAs(filename);
+
+sprintf(filename, "%s_type%d_snrMode1_coherenceSNRZenHist.C", STATION.c_str(), type);
+//coherenceSNRZenHist->Draw();
+//c9.SaveAs(filename);
+
+TCanvas c19("c19","c19",1200,800);
+c19.Divide(3,1);
+c19.cd(1);
+coherenceSNR->Draw("colz");
+c19.cd(2);
+zenCoherence->Draw("colz");
+c19.cd(3);
+zenSNR->Draw("colz");
+sprintf(filename, "%s_type%d_snrMode1_coherence_SNR_ZenHist.C", STATION.c_str(), type);
+//c19.SaveAs(filename);
+
+
+/*
+TFile fp("ARA02_allTypes_snrMode1_nMinusNoisyRunSurface_zen_sinzen_noSPSEvents.root", "update");
+sprintf(filename, "zen_type%d", type);
+zen_nMinusNoisyRunSurface_noSPSEvents->SetName(filename);
+zen_nMinusNoisyRunSurface_noSPSEvents->Write();
+sprintf(filename,"sinzen_%d", type);
+sinzen_nMinusNoisyRunSurface_noSPSEvents->SetName(filename);
+sinzen_nMinusNoisyRunSurface_noSPSEvents->Write();
+fp.Close();
+*/
+
+TCanvas c20("c20","c20",1200,800);
+c20.Divide(2,1);
+c20.cd(1);
+zen_nMinusNoisyRunSurface->Draw();
+c20.cd(2);
+sinzen_nMinusNoisyRunSurface->Draw();
+sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunSurface_zen_sinzen.C", STATION.c_str());
+//c20.SaveAs(filename);
+/*
+c20.Divide(4,1);
+c20.cd(1);
+//fp.Open("ARA02_allTypes_snrMode1_nMinusSNRSurface_zen_sinzen_noSPSEvents.root", "update");
+//sprintf(filename, "zen_type%d", type);
+//zen_nMinusSNRSurface_noSPSEvents->SetName(filename);
+//zen_nMinusSNRSurface_noSPSEvents->Write();
+zen_nMinusSNRSurface->Draw();
+c20.cd(2);
+//sprintf(filename,"sinzen_%d", type);
+//sinzen_nMinusSNRSurface_noSPSEvents->SetName(filename);
+//sinzen_nMinusSNRSurface_noSPSEvents->Write();
+sinzen_nMinusSNRSurface->Draw();
+c20.cd(3);
+zen_nMinusNoisyRunSNRSurface->Draw();
+c20.cd(4);
+sinzen_nMinusNoisyRunSNRSurface->Draw();
+//fp.Close();
+sprintf(filename,"%s_allTypes_snrMode1_nMinusSNRSurface_nMinusNoisyRunSNRSurface_zen_sinzen.C", STATION.c_str());
+c20.SaveAs(filename);
+*/
+
+/*
+TFile fp("ARA02_allTypes_snrMode1_nMinusNoisyRunSNRSurface_zen_sinzen_noSPSEvents.root", "update");
+sprintf(filename, "zen_type%d", type);
+zen_nMinusNoisyRunSNRSurface_noSPSEvents->SetName(filename);
+zen_nMinusNoisyRunSNRSurface_noSPSEvents->Write();
+sprintf(filename,"sinzen_%d", type);
+sinzen_nMinusNoisyRunSNRSurface_noSPSEvents->SetName(filename);
+sinzen_nMinusNoisyRunSNRSurface_noSPSEvents->Write();
+fp.Close();
+*/
+
 
 TCanvas c10("c10","c10",800,800);
 zen_azi_nMinusCal->Draw("colz");
 zen_azi_nMinusCal->SetTitle(";Azimuth [#circ];Zenith [#circ]");
-sprintf(filename, "%s_type%d_nMinusCal_zen_azi.C", STATION.c_str(), type);
-c10.SaveAs(filename);
-
+sprintf(filename, "%s_type%d_snrMode1_nMinusCal_zen_azi.C", STATION.c_str(), type);
+//c10.SaveAs(filename);
+/*
 TCanvas c11("c11","c11",800,800);
 c_vs_imp->Draw("colz");
 c_vs_imp->SetTitle(";Impulsivity;Coherence");
@@ -1764,13 +2041,6 @@ dFHist_H->Draw();
 c14.SaveAs("recoAnalysis_14.C");
 */
 /*
-TCanvas c6("c6","c6",800,800);
-impulsivityHist_nMinusCW->Draw();
-impulsivityHist_nMinusCW->SetTitle(";Impulsivity;Entry");
-sprintf(filename, "%s_type%d_E%s_nMinusCW_impulsivity.C", STATION.c_str(), type, ENERGY.c_str());
-c6.SaveAs(filename);
-*/
-/*
 TCanvas c15("c15","c15",800,800);
 c15.Divide(2,2);
 c15.cd(1);
@@ -1802,7 +2072,7 @@ avgPhiXingHist_cumu->Draw();
 c16.SaveAs("recoAnalysis_16.C");
 */
 /*
-sprintf(filename,"%s_type%d_E%s_nMinusCWThermalImp_inRangeThetaPhiFraction_angThres0.5.C",STATION.c_str(),type,ENERGY.c_str());
+sprintf(filename,"%s_type%d_nMinusThermalImp_inRangeThetaPhiFraction_angThres0.5.C",STATION.c_str(),type);
 TCanvas c17("c17","c17",1200,800);
 c17.Divide(3,1);
 c17.cd(1);
@@ -1813,6 +2083,20 @@ c17.cd(3);
 inRangeThetaPhiFracHist->Draw("colz");
 c17.SaveAs(filename);
 */
+
+//sprintf(filename,"%s_type%d_coherenceThermalCut_snr.C",STATION.c_str(),type);
+//TCanvas c18("c18","c18",/*800*/1200,800);
+//c18.Divide(2,1);
+//c18.cd(1);
+//_snrHist->Draw();
+//c18.cd(2);
+//_snrCumuHist = getCumulative(_snrHist);
+//_snrCumuHist->SetTitle("_snrCumuHist");
+//_snrCumuHist->SetName("_snrCumuHist");
+//_snrCumuHist->Draw();
+//c18.SaveAs(filename);
+
+
 return 0;
 }
 

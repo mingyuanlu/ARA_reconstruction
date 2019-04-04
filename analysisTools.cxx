@@ -86,7 +86,7 @@ void ARA02_cutValues::initialize(){
    setValue(coherenceCut_outOfBand[3],0.094399, 0.000217, -0.000212);
    setValue(coherenceCut_outOfBand[4],0.092622, 0.000142, -0.000140);
 */
-
+/*
    //Cut values from sliding V^2 SNR n-chan
    setValue(snrCut_inBand[0], 12.935000, 0.552648, -0.509019);
    setValue(snrCut_inBand[1], 13.365000, 0.051088, -0.050650);
@@ -111,6 +111,30 @@ void ARA02_cutValues::initialize(){
    setValue(coherenceCut_outOfBand[2],0.103737, 0.000132, -0.000130);
    setValue(coherenceCut_outOfBand[3],0.094770, 0.000120, -0.000119);
    setValue(coherenceCut_outOfBand[4],0.095079, 0.000324, -0.000315);
+*/
+
+   //Cut values from sliding V^2 SNR n-chan & 1D coherence thermal cut & 1D SNR cut
+   setValue(coherenceCut_inBand[0],0.10800825822688973,0,0);
+   setValue(coherenceCut_inBand[1],0.10932663315269384,0,0);
+   setValue(coherenceCut_inBand[2],0.10838951766838757,0,0);
+   setValue(coherenceCut_inBand[3],0.09902432045234812,0,0);
+   setValue(coherenceCut_inBand[4],0.09707451485364714,0,0);
+
+   setValue(coherenceCut_outOfBand[0],0.10371485739304964,0,0);
+   //setValue(coherenceCut_outOfBand[1],0.10727052346393086,0,0); //pre-cut distribution fit
+   setValue(coherenceCut_outOfBand[1],0.11397002217253263,0,0);   //post-cut distribution fit, tuned to 0.1 bkg/yr
+   setValue(coherenceCut_outOfBand[2],0.10355164968621144,0,0);
+   //setValue(coherenceCut_outOfBand[3],0.09471396819592758,0,0); //pre-cut distribution fit
+   setValue(coherenceCut_outOfBand[3],0.09829565111400411,0,0);   //post-cut distribution fit, tuned to 0.1 bkg/yr
+   setValue(coherenceCut_outOfBand[4],0.09505296821439854,0,0);
+
+   //SNR cut after 1D coherence thermal cut. This cut is applied to inBand & outOfBand events
+   setValue(snrCut[0],8.414422261800883,0,0);
+   setValue(snrCut[1],8.937513009286487,0,0);
+   setValue(snrCut[2],8.377493977106527,0,0);
+   setValue(snrCut[3],8.574324074772582,0,0);
+   setValue(snrCut[4],9.722923507324271,0,0);
+
 
    //setValue(impCut, 0.25563478, 0.00124038, -0.00124038);
    setValue(impCut, 0.28108427, 0.00160186, -0.00160186);
