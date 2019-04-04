@@ -867,6 +867,7 @@ for(int i=5; i<argc; i++){
 
    /***** 4. Deep pulser time cut ***********/
    passDeepPulserCut = !isDeepPulser(STATION, dummyData, runNum);
+   passDeepPulserCut = true;
    /*
    if( STATION == "ARA02" ){
       if( !(dummyData->unixTime < 1420.5122e6 && dummyData->unixTime > 1420.50905e6) && !(runNum >= 4795 && runNum <= 4800) && !(runNum == 4787 || runNum==4785 ) ){
@@ -878,6 +879,7 @@ for(int i=5; i<argc; i++){
    /***** Calpulser sweep time cut **********/
 
    passCalpulserTimeCut = !isCalpulserTime(STATION, dummyData);
+   passCalpulserTimeCut = true;
 /*
    if( STATION == "ARA02" ){
       if( !(dummyData->unixTime < 1393923046 && dummyData->unixTime > 1393917793) && !(dummyData->unixTime < 1395649842 && dummyData->unixTime > 1395648365) ){
@@ -1504,6 +1506,10 @@ for(int i=5; i<argc; i++){
       */
    }//if pass all other cuts except CW and thermal
 
+   if(passCWCut && passSNRCut && passCalpulserCut && passCalpulserTimeCut && passDeepPulserCut && passSurfaceCut && passSurfaceCut_2){
+      outputFile<<coherence<<",";
+   }
+
    }//end of entry
 
 delete dataTree;
@@ -1537,8 +1543,8 @@ cout<<"rfEventCount: "<<rfEventCount<<" isCWCount: "<<isCWCount<<" ratio: "<<isC
 cout<<"inBand_all: "<<inBand_all<<" inBand_pass: "<<inBand_pass<<" inBand_cut: "<<inBand_all-inBand_pass<<endl;
 cout<<"outOfBand_all: "<<outOfBand_all<<" outOfBand_pass: "<<outOfBand_pass<<" outOfBand_cut: "<<outOfBand_all-outOfBand_pass<<endl;
 cout<<"pre-thermal: "<<inBand_all+outOfBand_all<<" post-thermal: "<<inBand_pass+outOfBand_pass<<" ratio: "<<(inBand_pass+outOfBand_pass)/(inBand_all+outOfBand_all)<<endl;
-outputFile<<ENERGY<<","<<totalWeightedTrigEventCount<<","<<totalWeightedTrigEventCount-totalWeightedOffsetBlockEventCount/*<<","<<totalTrigEventCount-totalOffsetBlockEventCount-totalImpulsivityFilteredEventCount*/<<","<<totalWeightedTrigEventCount-totalWeightedOffsetBlockEventCount-totalWeightedNchnlFilteredEventCount<<",";
-outputFile/*<<nCut0p5<<","*/<<nCut1p5<<","/*<<nCut2<<*//*","*/<<nCut3<<","<<nCut3p5<</*","<<nCut4<<*/","<<nCut4<<","/*<<nCut6<<*/<<nCut6p5/*<<","<<nCut7*/<<endl;
+//outputFile<<ENERGY<<","<<totalWeightedTrigEventCount<<","<<totalWeightedTrigEventCount-totalWeightedOffsetBlockEventCount/*<<","<<totalTrigEventCount-totalOffsetBlockEventCount-totalImpulsivityFilteredEventCount*/<<","<<totalWeightedTrigEventCount-totalWeightedOffsetBlockEventCount-totalWeightedNchnlFilteredEventCount<<",";
+//outputFile/*<<nCut0p5<<","*/<<nCut1p5<<","/*<<nCut2<<*//*","*/<<nCut3<<","<<nCut3p5<</*","<<nCut4<<*/","<<nCut4<<","/*<<nCut6<<*/<<nCut6p5/*<<","<<nCut7*/<<endl;
 outputFile.close();
 
 //cout<<"passCWCut: "<<passCWCut<<endl;
