@@ -393,12 +393,18 @@ int compute3DRecoDelaysWithRadioSplineForSinglePixel(const int nAnt, const float
                                       Healpix_Onion *onion,
                                       float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                                       const int pix);
+int compute3DRecoBothDelaysWithRadioSplineForSinglePixel(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
+                                    //const float radius, const int nSideExp,
+                                    Healpix_Onion *onion,
+                                    float *recoDelays, float *recoDelays_V, float *recoDelays_H,
+                                    float *recoRefracDelays, float *recoRefracDelays_V, float *recoRefracDelays_H,
+                                    const int pix);
 int compute3DRecoDelaysWithRadioSplineForSinglePoint_sphericalCoordInDeg(const int nAnt,
-                                     const float zCenter, const vector<vector<double> >& antLoc,
-                                     //const float radius, const int nSideExp,
-                                     //Healpix_Onion *onion,
-                                     float *recoDelays, float *recoDelays_V, float *recoDelays_H,
-                                     const double *srcLoc);
+                                    const float zCenter, const vector<vector<double> >& antLoc,
+                                    //const float radius, const int nSideExp,
+                                    //Healpix_Onion *onion,
+                                    float *recoDelays, float *recoDelays_V, float *recoDelays_H,
+                                    const double *srcLoc);
 int compute3DRecoDelaysWithRadioSplineForSinglePoint_cartesianCoord(const int nAnt,
                                      const float zCenter, const vector<vector<double> >& antLoc,
                                      //const float radius, const int nSideExp,
