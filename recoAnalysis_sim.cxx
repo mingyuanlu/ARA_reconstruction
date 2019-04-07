@@ -1507,7 +1507,7 @@ for(int i=5; i<argc; i++){
    }//if pass all other cuts except CW and thermal
 
    if(passCWCut && passSNRCut && passCalpulserCut && passCalpulserTimeCut && passDeepPulserCut && passSurfaceCut && passSurfaceCut_2){
-      outputFile<<coherence<<",";
+      outputFile<<coherence<<","<<dummyData->weight<<endl;
    }
 
    }//end of entry
