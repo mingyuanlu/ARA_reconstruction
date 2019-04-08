@@ -1506,8 +1506,8 @@ for(int i=5; i<argc; i++){
       */
    }//if pass all other cuts except CW and thermal
 
-   if(passCWCut && passThermalCut /*&& passSNRCut */&& passCalpulserCut && passCalpulserTimeCut && passDeepPulserCut && passSurfaceCut && passSurfaceCut_2){
-      outputFile<<snr<<","<<dummyData->weight<<endl;
+   if(passCWCut && passThermalCut && passSNRCut && passCalpulserCut && passCalpulserTimeCut && passDeepPulserCut /*&& passSurfaceCut && passSurfaceCut_2*/){
+      outputFile<<(passSurfaceCut?zenMaj:90.f-dummyData->constantNZen)<<","<<dummyData->weight<<endl;
    }
 
 
