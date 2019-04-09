@@ -1511,6 +1511,7 @@ for(int i=5; i<argc; i++){
       //outputFile<<90.f-dummyData->constantNZen<<","<<dummyData->weight<<endl;
       //outputFile<<coherence<<","<<dummyData->weight<<endl;
       //outputFile<<snr<<","<<dummyData->weight<<endl;
+      
       outputFile<<snr<<","<<90.f-dummyData->constantNZen<<","<<dummyData->weight<<endl;
    }
 
