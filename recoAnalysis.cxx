@@ -896,6 +896,7 @@ for(int i=4; i<argc; i++){
 
    /***** 3. Surface cut ********************/
 
+   surfaceCut_1 = cutValues->surfaceCut_constantN[type-1].val;
    passSurfaceCut = !isSurface(dummyData, surfaceCut_1);
 
    //if(90.f-dummyData->constantNZen < /*SURFACE_CUT*/surfaceCut_1){
@@ -1461,7 +1462,7 @@ for(int i=4; i<argc; i++){
    } else {
       zen_nMinusSurface_noSPSEvents->Fill(theta_temp, dummyData->weight);
       sinzen_nMinusSurface_noSPSEvents->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
-      outputFile<<theta_temp<<endl;
+      //outputFile<<theta_temp<<endl;
    }
 
 

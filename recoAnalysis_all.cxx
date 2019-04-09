@@ -891,6 +891,7 @@ for(int i=3; i<argc; i++){
 
    /***** 3. Surface cut ********************/
 
+   surfaceCut_1 = cutValues->surfaceCut_constantN[type-1];
    passSurfaceCut = !isSurface(dummyData, surfaceCut_1);
 
    //if(90.f-dummyData->constantNZen < /*SURFACE_CUT*/surfaceCut_1){
@@ -1897,7 +1898,7 @@ c8.cd(2);
 sinzen_nMinusSurface_SPSEvents->Draw();
 //sprintf(filename, "%s_type%d_snrMode1_nMinusSurface_zen_noSPSEvents.C", STATION.c_str(), type);
 sprintf(filename, "%s_allTypes_snrMode1_nMinusSurface_zen_sinzen_SPSEvents.C", STATION.c_str());
-c8.SaveAs(filename);
+//c8.SaveAs(filename);
 
 TCanvas c9("c9","c9",800,800);
 //c_vs_snr_hist_nMinusThermal->Draw("colz");

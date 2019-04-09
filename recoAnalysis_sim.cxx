@@ -820,6 +820,7 @@ for(int i=5; i<argc; i++){
 
    /***** 3. Surface cut ********************/
 
+   surfaceCut_1 = cutValues->surfaceCut_constantN[type-1].val;
    passSurfaceCut = !isSurface(dummyData, surfaceCut_1);
 
    //if(90.f-dummyData->constantNZen < /*SURFACE_CUT*/surfaceCut_1){
@@ -1511,8 +1512,8 @@ for(int i=5; i<argc; i++){
       //outputFile<<90.f-dummyData->constantNZen<<","<<dummyData->weight<<endl;
       //outputFile<<coherence<<","<<dummyData->weight<<endl;
       //outputFile<<snr<<","<<dummyData->weight<<endl;
-      
-      outputFile<<snr<<","<<90.f-dummyData->constantNZen<<","<<dummyData->weight<<endl;
+
+      //outputFile<<snr<<","<<90.f-dummyData->constantNZen<<","<<dummyData->weight<<endl;
    }
 
 
@@ -1550,8 +1551,8 @@ cout<<"rfEventCount: "<<rfEventCount<<" isCWCount: "<<isCWCount<<" ratio: "<<isC
 cout<<"inBand_all: "<<inBand_all<<" inBand_pass: "<<inBand_pass<<" inBand_cut: "<<inBand_all-inBand_pass<<endl;
 cout<<"outOfBand_all: "<<outOfBand_all<<" outOfBand_pass: "<<outOfBand_pass<<" outOfBand_cut: "<<outOfBand_all-outOfBand_pass<<endl;
 cout<<"pre-thermal: "<<inBand_all+outOfBand_all<<" post-thermal: "<<inBand_pass+outOfBand_pass<<" ratio: "<<(inBand_pass+outOfBand_pass)/(inBand_all+outOfBand_all)<<endl;
-//outputFile<<ENERGY<<","<<totalWeightedTrigEventCount<<","<<totalWeightedTrigEventCount-totalWeightedOffsetBlockEventCount/*<<","<<totalTrigEventCount-totalOffsetBlockEventCount-totalImpulsivityFilteredEventCount*/<<","<<totalWeightedTrigEventCount-totalWeightedOffsetBlockEventCount-totalWeightedNchnlFilteredEventCount<<",";
-//outputFile/*<<nCut0p5<<","*/<<nCut1p5<<","/*<<nCut2<<*//*","*/<<nCut3<<","<<nCut3p5<</*","<<nCut4<<*/","<<nCut4<<","/*<<nCut6<<*/<<nCut6p5/*<<","<<nCut7*/<<endl;
+outputFile<<ENERGY<<","<<totalWeightedTrigEventCount<<","<<totalWeightedTrigEventCount-totalWeightedOffsetBlockEventCount/*<<","<<totalTrigEventCount-totalOffsetBlockEventCount-totalImpulsivityFilteredEventCount*/<<","<<totalWeightedTrigEventCount-totalWeightedOffsetBlockEventCount-totalWeightedNchnlFilteredEventCount<<",";
+outputFile/*<<nCut0p5<<","*/<<nCut1p5<<","/*<<nCut2<<*//*","*/<<nCut3<<","<<nCut3p5<</*","<<nCut4<<*/","<<nCut4<<","/*<<nCut6<<*/<<nCut6p5/*<<","<<nCut7*/<<endl;
 outputFile.close();
 
 //cout<<"passCWCut: "<<passCWCut<<endl;
@@ -1681,20 +1682,20 @@ snrHist[0]->Draw();
 sprintf(filename, "%s Config %d;SNR;Signal Efficiency From Trigger", STATION.c_str(), type);
 snrHist[0]->SetTitle(filename);
 for(int i=1; i<6; i++) snrHist[i]->Draw("same");
-sprintf(filename, "%s_type%d_snrMode1_postCutTunedThermalCut_signalEffiencyVsSNR.C", STATION.c_str(), type);
-//c5.SaveAs(filename);
-/*
+sprintf(filename, "%s_type%d_snrMode1_postCutTunedThermalSNRSurfaceCut_signalEffiencyVsSNR.C", STATION.c_str(), type);
+c5.SaveAs(filename);
+
 sprintf(filename, "%s_type%d_signalEffiencyVsSNR.root", STATION.c_str(), type);
 TFile ff(filename, "update");
 for(int i=0; i<6; i++) {
    //snrHist[i]->Write();
-   sprintf(filename, "hist_%d_tunedThermalCut", i);
+   sprintf(filename, "hist_%d_tunedThermalSNRSurfaceCut", i);
    snrHist[i]->SetName(filename);
    snrHist[i]->Write();
 }
 //snrHist_all->Write();
 ff.Close();
-*/
+
 /*
 TCanvas c6("c6","c6",800,800);
 impulsivityHist_nMinusCW->Draw();
