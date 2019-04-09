@@ -891,7 +891,7 @@ for(int i=3; i<argc; i++){
 
    /***** 3. Surface cut ********************/
 
-   surfaceCut_1 = cutValues->surfaceCut_constantN[type-1];
+   surfaceCut_1 = cutValues->surfaceCut_constantN[type-1].val;
    passSurfaceCut = !isSurface(dummyData, surfaceCut_1);
 
    //if(90.f-dummyData->constantNZen < /*SURFACE_CUT*/surfaceCut_1){
