@@ -447,7 +447,7 @@ ARA02_cutValues *cutValues = new ARA02_cutValues();
 
 cout<<"impCut: "<<cutValues->impCut.val<<endl;
 double postThermalAvgImpulsivityCut = cutValues->impCut.val;
-double surfaceCut_1 = /*SURFACE_CUT*/cutValues->surfaceCut_constantN.val;
+double surfaceCut_1;// = /*SURFACE_CUT*/cutValues->surfaceCut_constantN.val;
 double surfaceCut_2 = /*SURFACE_CUT_2*/cutValues->surfaceCut_iterReco.val;
 
 TH2F *bipolarRatio_dT = new TH2F("bipolarRatio_dT","bipolarRatio_dT",800,0,800,1000,0,1);
