@@ -1461,7 +1461,7 @@ for(int i=4; i<argc; i++){
    } else {
       zen_nMinusSurface_noSPSEvents->Fill(theta_temp, dummyData->weight);
       sinzen_nMinusSurface_noSPSEvents->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
-      //outputFile<<theta_temp<<",";
+      outputFile<<theta_temp<<endl;
    }
 
 
@@ -2193,7 +2193,7 @@ cutPoint->Draw("psame");
 sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_c_snr_inBand.C", STATION.c_str(), type);
 c20.SaveAs(filename);
 sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_c_snr_inBand.pdf", STATION.c_str(), type);
-c20.SaveAs(filename);
+//c20.SaveAs(filename);
 
 
 TCanvas c21("c21","c21",1200,800);
@@ -2225,9 +2225,9 @@ coherence_snr_nMinusCal->Draw("psame");
 snrLine.Draw("same");
 cohLine.Draw("same");
 sprintf(filename,"%s_type%d_snrMode1_nMinusCuts_c_snr_inBand.C", STATION.c_str(), type);
-c21.SaveAs(filename);
+//c21.SaveAs(filename);
 sprintf(filename,"%s_type%d_snrMode1_nMinusCuts_c_snr_inBand.pdf", STATION.c_str(), type);
-c21.SaveAs(filename);
+//c21.SaveAs(filename);
 
 TCanvas c22("c22","c22",800,800);
 zen_azi_nMinusSurface->Draw();
