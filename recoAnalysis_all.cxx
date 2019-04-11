@@ -1569,7 +1569,7 @@ for(int i=3; i<argc; i++){
 //   }
 //
 
-   if( passCWCut /*isCW &&*/ passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 /*&& passNoisyRunCut*/  ){
+   if( passCWCut && /*isCW &&*/ passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 /*&& passNoisyRunCut*/  ){
 
 
 
