@@ -392,6 +392,8 @@ TH2F *zen_azi_nMinusCal = new TH2F("zen_azi_nMinusCal", "zen_azi_nMinusCal", 360
 TH1F *zen_nMinusSurface = new TH1F("zen_nMinusSurface", "zen_nMinusSurface", 180/0.4, -90, 90);
 TH2F *zen_azi_nMinusSurface = new TH2F("zen_azi_nMinusSurface", "zen_azi_nMinusSurface", 360/0.4, 0, 360, 180/0.4, -90, 90);
 
+TH2F *zen_azi_nMinusNoisyRun = new TH2F("zen_azi_nMinusNoisyRun", "zen_azi_nMinusNoisyRun", 360/0.4, 0, 360, 180/0.4, -90, 90);
+
 TH1F *sinzen_nMinusSurface = new TH1F("zen_nMinusSurface", "zen_nMinusSurface", 180/0.4, -90, 90);
 TH2F *sinzen_azi_nMinusSurface = new TH2F("zen_azi_nMinusSurface", "zen_azi_nMinusSurface", 360/0.4, 0, 360, 180/0.4, -90, 90);
 
@@ -1423,7 +1425,7 @@ for(int i=3; i<argc; i++){
       sinzen_nMinusSurface_noSPSEvents->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
       //outputFile<<theta_temp<<",";
    }
-   outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<","<<(passSurfaceCut?zenMaj:90.f-dummyData->constantNZen)<<endl;
+   //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<","<<(passSurfaceCut?zenMaj:90.f-dummyData->constantNZen)<<endl;
 
    //outputFile<<(passSurfaceCut?zenMaj:90.f-dummyData->constantNZen)<<",";
    }
@@ -1567,8 +1569,14 @@ for(int i=3; i<argc; i++){
 //   }
 //
 
-   if(/*isCW &&*/ passThermalCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 /*&& passNoisyRunCut*/ && !lowFreqDominance ){
+   if( passCWCut /*isCW &&*/ passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 /*&& passNoisyRunCut*/  ){
 
+
+
+      //double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
+      double theta_temp = 90.f-dummyData->constantNZen;
+      zen_azi_nMinusNoisyRun->Fill(dummyData->constantNAzi, theta_temp, dummyData->weight);
+      outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->constantNAzi<<","<<theta_temp<<endl;
 //      cout<<"run: "<<runNum<<" event: "<<dummyData->eventNumber<<" SNR: "<<snr<<endl;
 //      _snrHist->Fill(snr, dummyData->weight);
       //outputFile<<snr<<",";
@@ -1693,7 +1701,7 @@ for(int i=3; i<argc; i++){
 
       thermalCWEventCount += dummyData->weight;
       */
-   }//if pass all other cuts except CW and thermal
+   }//if pass all other cuts except noisy runs
 
 
    }//end of entry
@@ -1977,12 +1985,18 @@ sinzen_nMinusNoisyRunSNRSurface_noSPSEvents->Write();
 fp.Close();
 */
 
+TCanvas c21("c21","c21",800,800);
+zen_azi_nMinusNoisyRun->Draw("colz");
+zen_azi_nMinusNoisyRun->SetTitle("ARA02 [All Minus Noisy Run] Events;Azimith [#circ];Zenith [#circ]");
+sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRuns_zen_azi.C", STATION.c_str());
+c21.SaveAs(filename);
 
 TCanvas c10("c10","c10",800,800);
 zen_azi_nMinusCal->Draw("colz");
 zen_azi_nMinusCal->SetTitle(";Azimuth [#circ];Zenith [#circ]");
 sprintf(filename, "%s_type%d_snrMode1_nMinusCal_zen_azi.C", STATION.c_str(), type);
 //c10.SaveAs(filename);
+
 /*
 TCanvas c11("c11","c11",800,800);
 c_vs_imp->Draw("colz");
