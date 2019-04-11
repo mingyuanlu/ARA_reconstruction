@@ -409,6 +409,8 @@ TH1F *sinzen_nMinusNoisyRunSurface_noSPSEvents = new TH1F("sinzen_nMinusNoisyRun
 TH1F *zen_nMinusNoisyRunSurface = new TH1F("zen_nMinusNoisyRunSurface", "zen_nMinusNoisyRunSurface", 180/0.4, -90, 90);
 TH1F *sinzen_nMinusNoisyRunSurface = new TH1F("sinzen_nMinusNoisyRunSurface", "sinzen_nMinusNoisyRunSurface", 500, -1, 1);
 
+TH2F *zen_azi_nMinusNoisyRunSurface = new TH2F("zen_azi_nMinusNoisyRunSurface", "zen_azi_nMinusNoisyRunSurface", 360/0.4, 0, 360, 180/0.4, -90, 90);
+
 TH1F *zen_nMinusSNRSurface_noSPSEvents = new TH1F("zen_nMinusSNRSurface_noSPSEvents", "zen_nMinusSNRSurface_noSPSEvents", 180/0.4, -90, 90);
 TH1F *sinzen_nMinusSNRSurface_noSPSEvents = new TH1F("sinzen_nMinusSNRSurface_noSPSEvents", "sinzen_nMinusSNRSurface_noSPSEvents", 500, -1, 1);
 
@@ -1449,6 +1451,8 @@ for(int i=3; i<argc; i++){
    if(passSNRCut){
       zen_nMinusNoisyRunSurface->Fill(theta_temp, dummyData->weight);
       sinzen_nMinusNoisyRunSurface->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+      zen_azi_nMinusNoisyRunSurface->Fill(dummyData->constantNAzi, theta_temp, dummyData->weight);
+      outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->constantNAzi<<","<<theta_temp<<endl;
    }
 
    if(theta_temp > 52 && theta_temp < 57 && dummyData->constantNAzi > 235 && dummyData->constantNAzi < 245){
@@ -1576,7 +1580,7 @@ for(int i=3; i<argc; i++){
       //double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
       double theta_temp = 90.f-dummyData->constantNZen;
       zen_azi_nMinusNoisyRun->Fill(dummyData->constantNAzi, theta_temp, dummyData->weight);
-      outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->constantNAzi<<","<<theta_temp<<endl;
+      //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->constantNAzi<<","<<theta_temp<<endl;
 //      cout<<"run: "<<runNum<<" event: "<<dummyData->eventNumber<<" SNR: "<<snr<<endl;
 //      _snrHist->Fill(snr, dummyData->weight);
       //outputFile<<snr<<",";
@@ -1986,9 +1990,9 @@ fp.Close();
 */
 
 TCanvas c21("c21","c21",800,800);
-zen_azi_nMinusNoisyRun->Draw("colz");
-zen_azi_nMinusNoisyRun->SetTitle("ARA02 [All Minus Noisy Run] Events;Azimith [#circ];Zenith [#circ]");
-sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRuns_zen_azi.C", STATION.c_str());
+zen_azi_nMinusNoisyRunSurface->Draw("colz");
+zen_azi_nMinusNoisyRunSurface->SetTitle("ARA02 [All Minus Noisy Run & Surface Cut] Events;Azimith [#circ];Zenith [#circ]");
+sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunsSurface_zen_azi.C", STATION.c_str());
 c21.SaveAs(filename);
 
 TCanvas c10("c10","c10",800,800);
