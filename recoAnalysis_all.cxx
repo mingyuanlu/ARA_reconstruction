@@ -1177,7 +1177,7 @@ for(int i=3; i<argc; i++){
    }
    */
    double impCut = cutValues->cwImpCut[type-1].val; //impulsivityCut[type-1];
-   impCut = 0.2579306/*0.2384656*/;
+   impCut = 0/*0.2579306*//*0.2384656*/;
    //passCWCut = ( !isCW || (isCW && passHighPassFilter && passImpulsivityCut )) && !lowFreqDominance;
    passCWCut = ( !isCW || (isCW && isRecoverableByImp(isVpolCW, isHpolCW, isXpolCW, dummyData, impCut, highPassFreq) )) && !lowFreqDominance;
    //passCWCut = !lowFreqDominance;
@@ -1992,7 +1992,7 @@ fp.Close();
 TCanvas c21("c21","c21",800,800);
 zen_azi_nMinusNoisyRunSurface->Draw("colz");
 zen_azi_nMinusNoisyRunSurface->SetTitle("ARA02 [All Minus Noisy Run & Surface Cut] Events;Azimith [#circ];Zenith [#circ]");
-sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunsSurface_coincidenceCW_zen_azi.C", STATION.c_str());
+sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunsSurface_coincidenceCWNoImp_zen_azi.C", STATION.c_str());
 c21.SaveAs(filename);
 
 TCanvas c10("c10","c10",800,800);
