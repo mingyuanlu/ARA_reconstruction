@@ -392,6 +392,8 @@ TH2F *zen_azi_nMinusCal = new TH2F("zen_azi_nMinusCal", "zen_azi_nMinusCal", 360
 TH1F *zen_nMinusSurface = new TH1F("zen_nMinusSurface", "zen_nMinusSurface", 180/0.4, -90, 90);
 TH2F *zen_azi_nMinusSurface = new TH2F("zen_azi_nMinusSurface", "zen_azi_nMinusSurface", 360/0.4, 0, 360, 180/0.4, -90, 90);
 
+TH2F *zen_azi_nMinusNoisyRun = new TH2F("zen_azi_nMinusNoisyRun", "zen_azi_nMinusNoisyRun", 360/0.4, 0, 360, 180/0.4, -90, 90);
+
 TH1F *sinzen_nMinusSurface = new TH1F("zen_nMinusSurface", "zen_nMinusSurface", 180/0.4, -90, 90);
 TH2F *sinzen_azi_nMinusSurface = new TH2F("zen_azi_nMinusSurface", "zen_azi_nMinusSurface", 360/0.4, 0, 360, 180/0.4, -90, 90);
 
@@ -406,6 +408,8 @@ TH1F *sinzen_nMinusNoisyRunSurface_noSPSEvents = new TH1F("sinzen_nMinusNoisyRun
 
 TH1F *zen_nMinusNoisyRunSurface = new TH1F("zen_nMinusNoisyRunSurface", "zen_nMinusNoisyRunSurface", 180/0.4, -90, 90);
 TH1F *sinzen_nMinusNoisyRunSurface = new TH1F("sinzen_nMinusNoisyRunSurface", "sinzen_nMinusNoisyRunSurface", 500, -1, 1);
+
+TH2F *zen_azi_nMinusNoisyRunSurface = new TH2F("zen_azi_nMinusNoisyRunSurface", "zen_azi_nMinusNoisyRunSurface", 360/0.4, 0, 360, 180/0.4, -90, 90);
 
 TH1F *zen_nMinusSNRSurface_noSPSEvents = new TH1F("zen_nMinusSNRSurface_noSPSEvents", "zen_nMinusSNRSurface_noSPSEvents", 180/0.4, -90, 90);
 TH1F *sinzen_nMinusSNRSurface_noSPSEvents = new TH1F("sinzen_nMinusSNRSurface_noSPSEvents", "sinzen_nMinusSNRSurface_noSPSEvents", 500, -1, 1);
@@ -626,7 +630,7 @@ for(int i=3; i<argc; i++){
    maxFreqBinVec_H.clear();
    maxFreqBinVec.clear();
 
-   //isCW = isCW_coincidence(isVpolCW, isHpolCW, maxCountFreqBin_V, maxCountFreqBin_H, dummyData, cwBinThres);
+   isCW = isCW_coincidence(isVpolCW, isHpolCW, maxCountFreqBin_V, maxCountFreqBin_H, dummyData, cwBinThres);
 /*
    for(int i=0; i<8; i++){
       //cout<<"ch: "<<i<<" maxFreqBin: "<<dummyData->maxFreqBin[i]<<" maxFreq: "<<dummyData->maxFreqBin[i] * dummyData->freqBinWidth_V<<" maxFreqPower: "<<dummyData->maxFreqPower[i]<<" ";
@@ -1173,10 +1177,10 @@ for(int i=3; i<argc; i++){
    }
    */
    double impCut = cutValues->cwImpCut[type-1].val; //impulsivityCut[type-1];
-   impCut = 0.2579306/*0.2384656*/;
+   impCut = 1/*0.2579306*//*0.2384656*/;
    //passCWCut = ( !isCW || (isCW && passHighPassFilter && passImpulsivityCut )) && !lowFreqDominance;
-   //passCWCut = ( !isCW || (isCW && isRecoverableByImp(isVpolCW, isHpolCW, isXpolCW, dummyData, impCut, highPassFreq) )) && !lowFreqDominance;
-   passCWCut = !lowFreqDominance;
+   passCWCut = ( !isCW || (isCW && isRecoverableByImp(isVpolCW, isHpolCW, isXpolCW, dummyData, impCut, highPassFreq) )) && !lowFreqDominance;
+   //passCWCut = !lowFreqDominance;
 
 
    /****** Check if pass thermal impulsivity cut ********/
@@ -1423,7 +1427,7 @@ for(int i=3; i<argc; i++){
       sinzen_nMinusSurface_noSPSEvents->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
       //outputFile<<theta_temp<<",";
    }
-   outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<","<<(passSurfaceCut?zenMaj:90.f-dummyData->constantNZen)<<endl;
+   //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<","<<(passSurfaceCut?zenMaj:90.f-dummyData->constantNZen)<<endl;
 
    //outputFile<<(passSurfaceCut?zenMaj:90.f-dummyData->constantNZen)<<",";
    }
@@ -1447,6 +1451,8 @@ for(int i=3; i<argc; i++){
    if(passSNRCut){
       zen_nMinusNoisyRunSurface->Fill(theta_temp, dummyData->weight);
       sinzen_nMinusNoisyRunSurface->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+      zen_azi_nMinusNoisyRunSurface->Fill(dummyData->constantNAzi, theta_temp, dummyData->weight);
+      outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->constantNAzi<<","<<theta_temp<<endl;
    }
 
    if(theta_temp > 52 && theta_temp < 57 && dummyData->constantNAzi > 235 && dummyData->constantNAzi < 245){
@@ -1567,8 +1573,14 @@ for(int i=3; i<argc; i++){
 //   }
 //
 
-   if(/*isCW &&*/ passThermalCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 /*&& passNoisyRunCut*/ && !lowFreqDominance ){
+   if( passCWCut && /*isCW &&*/ passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 /*&& passNoisyRunCut*/  ){
 
+
+
+      //double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
+      double theta_temp = 90.f-dummyData->constantNZen;
+      zen_azi_nMinusNoisyRun->Fill(dummyData->constantNAzi, theta_temp, dummyData->weight);
+      //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->constantNAzi<<","<<theta_temp<<endl;
 //      cout<<"run: "<<runNum<<" event: "<<dummyData->eventNumber<<" SNR: "<<snr<<endl;
 //      _snrHist->Fill(snr, dummyData->weight);
       //outputFile<<snr<<",";
@@ -1693,7 +1705,7 @@ for(int i=3; i<argc; i++){
 
       thermalCWEventCount += dummyData->weight;
       */
-   }//if pass all other cuts except CW and thermal
+   }//if pass all other cuts except noisy runs
 
 
    }//end of entry
@@ -1977,12 +1989,18 @@ sinzen_nMinusNoisyRunSNRSurface_noSPSEvents->Write();
 fp.Close();
 */
 
+TCanvas c21("c21","c21",800,800);
+zen_azi_nMinusNoisyRunSurface->Draw("colz");
+zen_azi_nMinusNoisyRunSurface->SetTitle("ARA02 [All Minus Noisy Run & Surface Cut] Events;Azimith [#circ];Zenith [#circ]");
+sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunsSurface_coincidenceCWNoImp_zen_azi.C", STATION.c_str());
+c21.SaveAs(filename);
 
 TCanvas c10("c10","c10",800,800);
 zen_azi_nMinusCal->Draw("colz");
 zen_azi_nMinusCal->SetTitle(";Azimuth [#circ];Zenith [#circ]");
 sprintf(filename, "%s_type%d_snrMode1_nMinusCal_zen_azi.C", STATION.c_str(), type);
 //c10.SaveAs(filename);
+
 /*
 TCanvas c11("c11","c11",800,800);
 c_vs_imp->Draw("colz");
