@@ -630,7 +630,7 @@ for(int i=3; i<argc; i++){
    maxFreqBinVec_H.clear();
    maxFreqBinVec.clear();
 
-   //isCW = isCW_coincidence(isVpolCW, isHpolCW, maxCountFreqBin_V, maxCountFreqBin_H, dummyData, cwBinThres);
+   isCW = isCW_coincidence(isVpolCW, isHpolCW, maxCountFreqBin_V, maxCountFreqBin_H, dummyData, cwBinThres);
 /*
    for(int i=0; i<8; i++){
       //cout<<"ch: "<<i<<" maxFreqBin: "<<dummyData->maxFreqBin[i]<<" maxFreq: "<<dummyData->maxFreqBin[i] * dummyData->freqBinWidth_V<<" maxFreqPower: "<<dummyData->maxFreqPower[i]<<" ";
@@ -1179,8 +1179,8 @@ for(int i=3; i<argc; i++){
    double impCut = cutValues->cwImpCut[type-1].val; //impulsivityCut[type-1];
    impCut = 0.2579306/*0.2384656*/;
    //passCWCut = ( !isCW || (isCW && passHighPassFilter && passImpulsivityCut )) && !lowFreqDominance;
-   //passCWCut = ( !isCW || (isCW && isRecoverableByImp(isVpolCW, isHpolCW, isXpolCW, dummyData, impCut, highPassFreq) )) && !lowFreqDominance;
-   passCWCut = !lowFreqDominance;
+   passCWCut = ( !isCW || (isCW && isRecoverableByImp(isVpolCW, isHpolCW, isXpolCW, dummyData, impCut, highPassFreq) )) && !lowFreqDominance;
+   //passCWCut = !lowFreqDominance;
 
 
    /****** Check if pass thermal impulsivity cut ********/
@@ -1992,7 +1992,7 @@ fp.Close();
 TCanvas c21("c21","c21",800,800);
 zen_azi_nMinusNoisyRunSurface->Draw("colz");
 zen_azi_nMinusNoisyRunSurface->SetTitle("ARA02 [All Minus Noisy Run & Surface Cut] Events;Azimith [#circ];Zenith [#circ]");
-sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunsSurface_zen_azi.C", STATION.c_str());
+sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunsSurface_coincidenceCW_zen_azi.C", STATION.c_str());
 c21.SaveAs(filename);
 
 TCanvas c10("c10","c10",800,800);
