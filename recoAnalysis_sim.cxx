@@ -1683,8 +1683,8 @@ sprintf(filename, "%s Config %d;SNR;Signal Efficiency From Trigger", STATION.c_s
 snrHist[0]->SetTitle(filename);
 for(int i=1; i<6; i++) snrHist[i]->Draw("same");
 sprintf(filename, "%s_type%d_snrMode1_postCutTunedThermalSNRSurfaceCut_signalEffiencyVsSNR.C", STATION.c_str(), type);
-//c5.SaveAs(filename);
-/*
+c5.SaveAs(filename);
+
 sprintf(filename, "%s_type%d_signalEffiencyVsSNR.root", STATION.c_str(), type);
 TFile ff(filename, "update");
 for(int i=0; i<6; i++) {
@@ -1695,7 +1695,7 @@ for(int i=0; i<6; i++) {
 }
 //snrHist_all->Write();
 ff.Close();
-*/
+
 /*
 TCanvas c6("c6","c6",800,800);
 impulsivityHist_nMinusCW->Draw();
