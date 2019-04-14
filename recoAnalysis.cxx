@@ -2198,7 +2198,7 @@ cutPoint->SetMarkerStyle(4);
 cutPoint->Draw("psame");
 //sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_pca_outOfBand.C", STATION.c_str(), type);
 sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_c_snr_inBand.C", STATION.c_str(), type);
-c20.SaveAs(filename);
+//c20.SaveAs(filename);
 sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_c_snr_inBand.pdf", STATION.c_str(), type);
 //c20.SaveAs(filename);
 
