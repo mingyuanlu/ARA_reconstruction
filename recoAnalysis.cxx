@@ -1826,7 +1826,7 @@ printf("totalMistaggedSoftEventCount: %d\ttotalOffsetBlockEventCount: %d\ttotalC
 
 
 printf("totalRecoEventCount: %d\trfEventCount: %f\tcalEventCount: %f\tsoftEventCount: %f\n", totalRecoEventCount, rfEventCount, calEventCount, softEventCount);
-print("\nnRecoEvent: %d\n\n", nRecoEvent);
+printf("\nnRecoEvent: %d\n\n", nRecoEvent);
 //printf("nPassCorruption: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassCorruption, (float)nPassCorruption/(float)E19EventCount, nCut1, (float)nCut1/(float)E19EventCount);
 //printf("nPassThermalCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassThermalCut, (float)nPassThermalCut/(float)E19EventCount, nCut2, (float)nCut2/(float)E19EventCount);
 //printf("nPassSuE19aceCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassSuE19aceCut, (float)nPassSuE19aceCut/(float)E19EventCount, nCut3, (float)nCut3/(float)E19EventCount);
