@@ -236,12 +236,12 @@ for(int run=0; run<runInfoTree->GetEntries(); run++){
 
 
 }
-/*
+
 printf("totalRunEventCount: %d\ttotalTrigEventCount: %d\ttotalRecoEventCount: %d\ntotalLiveTime :%ds\n", totalRunEventCount, totalTrigEventCount, totalRecoEventCount, totalLiveTime);
 printf("totalRFEventCount: %d\ttotalCalEventCount: %d\ttotalSoftEventCount: %d\n", totalRFEventCount, totalCalEventCount, totalSoftEventCount);
 printf("totalCutWaveEventCount: %d\ttotalNonIncreasingSampleTimeEventCount: %d\ttotalCutWaveAndNonIncreasingEventCount: %d\ncutWave ratio: %f\tnonIncreasing ratio: %f\tcutWaveAndNonIncreasing ratio: %f\n", totalCutWaveEventCount, totalNonIncreasingSampleTimeEventCount, totalCutWaveAndNonIncreasingEventCount, (float)totalCutWaveEventCount/(float)totalRunEventCount, (float)totalNonIncreasingSampleTimeEventCount/(float)totalRunEventCount, (float)totalCutWaveAndNonIncreasingEventCount/(float)totalRunEventCount);
 printf("totalMistaggedSoftEventCount: %d\ttotalOffsetBlockEventCount: %d\ttotalCWFilteredEventCount: %d\ttotalNchnlFilteredEventCount: %d\ttotalCorruptFirst3EventCount: %d\nmistag soft ratio: %f\toffset ratio: %f\tCW ratio: %f\tnchnl ratio: %f\tfirst3 ratio: %f\n", totalMistaggedSoftEventCount, totalOffsetBlockEventCount, totalCWFilteredEventCount, totalNchnlFilteredEventCount, totalCorruptFirst3EventCount, (float)totalMistaggedSoftEventCount/(float)totalRunEventCount, (float)totalOffsetBlockEventCount/(float)totalRunEventCount, (float)totalCWFilteredEventCount/(float)totalRunEventCount, (float)totalNchnlFilteredEventCount/(float)totalRunEventCount, (float)totalCorruptFirst3EventCount/(float)totalRunEventCount);
-*/
+
 //int Nentries = dataTree->GetEntries();
 //cout<<"Total number of dataTree events: "<<Nentries<<endl;
 
