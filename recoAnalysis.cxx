@@ -1251,12 +1251,12 @@ for(int i=4; i<argc; i++){
    nCut2              += (passCWCut && passDeepPulserCut) * dummyData->weight;
 
 
-   nCut3              += (passCWCut && passDeepPulserCut && passSNRCut) * dummyData->weight;
+   nCut3              += (passCWCut && passDeepPulserCut && passSurfaceCut) * dummyData->weight;
    //if (passCWCut && passDeepPulserCut && passThermalCut) snrHist[2]->Fill(dummyData->inWindowSNR, dummyData->weight);
 
 
 
-   nCut3p5            += (passCWCut && passDeepPulserCut && passSNRCut && passSurfaceCut) * dummyData->weight;
+   nCut3p5            += (passCWCut && passDeepPulserCut && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
 
    //nPassSuE19aceCut    += passSuE19aceCut * dummyData->weight;
    //nCut3              += (passCorruptionCut && passThermalCut && passSuE19aceCut) * dummyData->weight;
@@ -1857,10 +1857,10 @@ printf("\nnRecoEvent: %d\n\n", nRecoEvent);
 //printf("nPassNumSatChanCut %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassNumSatChanCut, (float)nPassNumSatChanCut/(float)rfEventCount, nCut0p5, (float)nCut0p5/(float)rfEventCount);
 printf("nPassCWCut %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassCWCut, (float)nPassCWCut/(float)rfEventCount, nCut1p5, (float)nCut1p5/(float)rfEventCount);
 printf("nPassDeepPulserCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassDeepPulserCut, (float)nPassDeepPulserCut/(float)rfEventCount, nCut2, (float)nCut2/(float)rfEventCount);
-printf("nPassSNRCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassSNRCut, (float)nPassSNRCut/(float)rfEventCount, nCut3, (float)nCut3/(float)rfEventCount);
+printf("nPassSurfaceCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassSurfaceCut, (float)nPassSurfaceCut/(float)rfEventCount, nCut3, (float)nCut3/(float)rfEventCount);
 //printf("nPassThermalImpulsivityCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassThermalImpulsivityCut, (float)nPassThermalImpulsivityCut/(float)rfEventCount, nCut3p5, (float)nCut3p5/(float)rfEventCount);
-printf("nPassSurfaceCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassSurfaceCut, (float)nPassSurfaceCut/(float)rfEventCount, nCut3p5, (float)nCut3p5/(float)rfEventCount);
-printf("nPassSurfaceCut_2: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassSurfaceCut_2, (float)nPassSurfaceCut_2/(float)rfEventCount, nCut4, (float)nCut4/(float)rfEventCount);
+printf("nPassSurfaceCut_2: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassSurfaceCut_2, (float)nPassSurfaceCut_2/(float)rfEventCount, nCut3p5, (float)nCut3p5/(float)rfEventCount);
+printf("nPassSNRCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassSNRCut, (float)nPassSNRCut/(float)rfEventCount, nCut4, (float)nCut4/(float)rfEventCount);
 printf("nPassThermalCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassThermalCut, (float)nPassThermalCut/(float)rfEventCount, nCut4p5, (float)nCut4p5/(float)rfEventCount);
 //printf("nPassNoisyRunCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassNoisyRunCut, (float)nPassNoisyRunCut/(float)rfEventCount, nCut5, (float)nCut5/(float)rfEventCount);
 printf("nPassCalpulserCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassCalpulserCut, (float)nPassCalpulserCut/(float)rfEventCount, nCut6, (float)nCut6/(float)rfEventCount);
