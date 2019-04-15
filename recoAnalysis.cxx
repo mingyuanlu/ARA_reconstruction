@@ -1265,16 +1265,16 @@ for(int i=4; i<argc; i++){
    //if((passCorruptionCut && passThermalCut /*&& passSuE19aceCut*/ && passDeepPulserCut)){ outputFile<<dummyData->unixTime<<","<<dummyData->eventNumber<<endl; }
 
 
-   nCut4             += (passCWCut && passDeepPulserCut && passThermalCut && passSNRCut && passCalpulserCut) * dummyData->weight;
+   nCut4             += (passCWCut && passDeepPulserCut && passThermalCut && passSNRCut && passSurfaceCut) * dummyData->weight;
    //if (passCWCut && passDeepPulserCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passCalpulserCut)  snrHist[3]->Fill(dummyData->inWindowSNR, dummyData->weight);
 
 
-   nCut4p5           += (passCWCut && passDeepPulserCut && passThermalCut  && passSNRCut && passCalpulserCut && passCalpulserTimeCut) * dummyData->weight;
+   nCut4p5           += (passCWCut && passDeepPulserCut && passThermalCut  && passSNRCut && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
 
    //nPassNoisyRunCut   += passNoisyRunCut * dummyData->weight;
    //nCut5              += (/*passCorruptionCut &&*/ passThermalCut /*&& passSuE19aceCut*/ && passDeepPulserCut && passCalpulserCut && passNoisyRunCut) * dummyData->weight;
 
-   nCut6              += (passCWCut && passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut) * dummyData->weight;
+   nCut6              += (passCWCut && passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
 
 
    nCut6p5            += (passCWCut && passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
@@ -1860,11 +1860,11 @@ printf("nPassDeepPulserCut: %f\tratio: %f\tEvents passed this level: %f\tratio: 
 printf("nPassSNRCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassSNRCut, (float)nPassSNRCut/(float)rfEventCount, nCut3, (float)nCut3/(float)rfEventCount);
 //printf("nPassThermalImpulsivityCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassThermalImpulsivityCut, (float)nPassThermalImpulsivityCut/(float)rfEventCount, nCut3p5, (float)nCut3p5/(float)rfEventCount);
 printf("nPassThermalCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassThermalCut, (float)nPassThermalCut/(float)rfEventCount, nCut3p5, (float)nCut3p5/(float)rfEventCount);
-printf("nPassCalpulserCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassCalpulserCut, (float)nPassCalpulserCut/(float)rfEventCount, nCut4, (float)nCut4/(float)rfEventCount);
-printf("nPassCalpulserTimeCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassCalpulserTimeCut, (float)nPassCalpulserTimeCut/(float)rfEventCount, nCut4p5, (float)nCut4p5/(float)rfEventCount);
+printf("nPassSurfaceCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassSurfaceCut, (float)nPassSurfaceCut/(float)rfEventCount, nCut4, (float)nCut4/(float)rfEventCount);
+printf("nPassSurfaceCut_2: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassSurfaceCut_2, (float)nPassSurfaceCut_2/(float)rfEventCount, nCut4p5, (float)nCut4p5/(float)rfEventCount);
 //printf("nPassNoisyRunCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassNoisyRunCut, (float)nPassNoisyRunCut/(float)rfEventCount, nCut5, (float)nCut5/(float)rfEventCount);
-printf("nPassSurfaceCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassSurfaceCut, (float)nPassSurfaceCut/(float)rfEventCount, nCut6, (float)nCut6/(float)rfEventCount);
-printf("nPassSurfaceCut_2: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassSurfaceCut_2, (float)nPassSurfaceCut_2/(float)rfEventCount, nCut6p5, (float)nCut6p5/(float)rfEventCount);
+printf("nPassCalpulserCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassCalpulserCut, (float)nPassCalpulserCut/(float)rfEventCount, nCut6, (float)nCut6/(float)rfEventCount);
+printf("nPassCalpulserTimeCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassCalpulserTimeCut, (float)nPassCalpulserTimeCut/(float)rfEventCount, nCut6p5, (float)nCut6p5/(float)rfEventCount);
 printf("nPassNoisyRunCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassNoisyRunCut, (float)nPassNoisyRunCut/(float)rfEventCount, nCut7, (float)nCut7/(float)rfEventCount);
 cout<<"rfEventCount: "<<rfEventCount<<" isCWCount: "<<isCWCount<<" ratio: "<<isCWCount/rfEventCount<<" 1e-2 background ratio: "<<1e-2/(isCWCount*10)<<endl;
 cout<<"inBand_all: "<<inBand_all<<" inBand_pass: "<<inBand_pass<<" inBand_cut: "<<inBand_all-inBand_pass<<endl;
