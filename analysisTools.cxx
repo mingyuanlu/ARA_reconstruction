@@ -1138,7 +1138,7 @@ void getAvgAngXingPixels(int& avgThetaPixCount, int& avgPhiPixCount, recoData* d
    if (!isAvgPhiOut)   avgPhiPixCount   = settings->topN+1;
 }
 
-TH1F *getCumulative(TH1F *hist){
+TH1F *getCumulative(TH1F *hist, bool cdf){
 
    double integral, sum;
    TH1F *hist_cumu = (TH1F*)hist->Clone();
@@ -1147,11 +1147,17 @@ TH1F *getCumulative(TH1F *hist){
    integral = hist->Integral();
    if(integral==0) return NULL;
 
-   for(int bin=1; bin<=nbins; bin++){
-      sum = hist->Integral(bin,nbins);
-      hist_cumu->SetBinContent(bin,sum/integral);
+   if (!cdf){
+      for(int bin=1; bin<=nbins; bin++){
+         sum = hist->Integral(bin,nbins+1);
+         hist_cumu->SetBinContent(bin,sum/integral);
+      }
+   } else {
+         for(int bin=1; bin<=nbins; bin++){
+         sum = hist->Integral(0,bin);
+         hist_cumu->SetBinContent(bin,sum/integral);
+      }
    }
-
    return hist_cumu;
 }
 

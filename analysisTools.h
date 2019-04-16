@@ -127,7 +127,7 @@ bool isBelowThermalImpulsivityCut(double &avgImpulsivity, recoData *dummyData, d
 double getPercentile(vector<double> fftValues, const double percentile);
 void getAngXingPixels(int& thetaPixCount, int& phiPixCount, recoData* dummyData, recoSettings* settings, Healpix_Onion onion, const double angThres);
 void getAvgAngXingPixels(int& avgThetaPixCount, int& avgPhiPixCount, recoData* dummyData, recoSettings* settings, Healpix_Onion onion, const double angThres);
-TH1F *getCumulative(TH1F *hist);
+TH1F *getCumulative(TH1F *hist, bool cdf);
 double getZenithInRangeFraction(recoData* dummyData, recoSettings* settings, Healpix_Onion onion, const double angThres);
 double getAzimuthInRangeFraction(recoData* dummyData, recoSettings* settings, Healpix_Onion onion, const double angThres);
 #endif
