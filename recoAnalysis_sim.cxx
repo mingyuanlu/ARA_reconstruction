@@ -426,6 +426,10 @@ TH1F *dFHist_H = new TH1F("dFHist_H","dFHist_H", (int)(2000/0.625), -1000, 1000)
 
 
 TH1F *constantNZenHist = new TH1F("constantNZen", "constantNZen", 450, -90, 90);
+
+
+TH1F *constantNZenHist_passAllCuts= new TH1F("constantNZen_passAllCuts", "constantNZen_passAllCuts", 450, -1, 1);
+
 TH1F *iterMajorityZenHist = new TH1F("iterMajorityZen","iterMajorityZen", 450, -90, 90);
 vector<float> iterZenVec;
 
@@ -1186,7 +1190,11 @@ for(int i=5; i<argc; i++){
    if (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut/*&& passNoisyRu     nCut*/ && passSurfaceCut && passSurfaceCut_2) snrHist[5]->Fill(dummyData->inWindowSNR_V, dummyData->weight);
    nPassNoisyRunCut   += passNoisyRunCut * dummyData->weight;
    nCut7              +=  (passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passThermalCut &&  passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passNoisyRunCut && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
-//
+
+   if(/*passNumSatChanCut &&*//*passHighPassFilter && passImpulsivityCut*/passCWCut &&/*passCorruptionCut &&*/ passThermalCut &&  /*passThermalImpulsivityCut &&*/ passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passNoisyRunCut && passSurfaceCut && passSurfaceCut_2){
+      constantNZenHist_passAllCuts->Fill(sin((90.f-dummyData->constantNZen)*TMath::DegToRad()), dummyData->weight);
+   }
+
 //   if(passNumSatChanCut &&/*passHighPassFilter && passImpulsivityCut*/passCWCut && passThermalCut /*&& passThermalImpulsivityCut*/ && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut/*&& passNoisyRunCut*/ && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut){
 //   //if(passCalpulserCut){
 //      cout<<endl;
@@ -1683,8 +1691,8 @@ sprintf(filename, "%s Config %d;SNR;Signal Efficiency From Trigger", STATION.c_s
 snrHist[0]->SetTitle(filename);
 for(int i=1; i<6; i++) snrHist[i]->Draw("same");
 sprintf(filename, "%s_type%d_snrMode1_postCutTunedThermalSNRSurfaceCut_signalEffiencyVsSNR.C", STATION.c_str(), type);
-c5.SaveAs(filename);
-
+//c5.SaveAs(filename);
+/*
 sprintf(filename, "%s_type%d_signalEffiencyVsSNR.root", STATION.c_str(), type);
 TFile ff(filename, "update");
 for(int i=0; i<6; i++) {
@@ -1695,7 +1703,7 @@ for(int i=0; i<6; i++) {
 }
 //snrHist_all->Write();
 ff.Close();
-
+*/
 /*
 TCanvas c6("c6","c6",800,800);
 impulsivityHist_nMinusCW->Draw();
@@ -1834,6 +1842,21 @@ c17.cd(3);
 inRangeThetaPhiFracHist->Draw("colz");
 c17.SaveAs(filename);
 */
+
+TCanvas c18("c18","c18",1200,800);
+c18.Divide(2,1);
+c18.cd(1);
+constantNZen_passAllCuts->Draw();
+sprintf(filename, "%s Config %d E%s Pass-All_Cut Events;sin(#theta_{reco});Event Count");
+constantNZen_passAllCuts->SetTitle(filename);
+c18.cd(2);
+TH1F *constantNZen_passAllCuts_cumu = getCumulative(constantNZen_passAllCuts, true);
+constantNZen_passAllCuts_cumu->Draw();
+sprintf(filename, "%s Config %d E%s Pass-All_Cut Events;sin(#theta_{reco});Cumulative Fraction");
+constantNZen_passAllCuts_cumu->SetTitle(filename);
+sprintf(filename,"%s_type%d_E%s_passAllCuts_sinzen.C", STATION.c_str(), type, ENERGY.c_str());
+c18.SaveAs(filename);
+
 return 0;
 }
 
