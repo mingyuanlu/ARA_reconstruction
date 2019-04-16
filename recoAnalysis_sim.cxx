@@ -1847,13 +1847,50 @@ TCanvas c18("c18","c18",1200,800);
 c18.Divide(2,1);
 c18.cd(1);
 constantNZenHist_passAllCuts->Draw();
-sprintf(filename, "%s Config %d E%s Pass-All_Cut Events;sin(#theta_{reco});Event Count", STATION.c_str(), type, ENERGY.c_str());
+sprintf(filename, "%s Config %d E%s Pass-All-Cut Events;sin(#theta_{reco});Event Count", STATION.c_str(), type, ENERGY.c_str());
 constantNZenHist_passAllCuts->SetTitle(filename);
 c18.cd(2);
 TH1F *constantNZen_passAllCuts_cumu = getCumulative(constantNZenHist_passAllCuts, true);
 constantNZen_passAllCuts_cumu->Draw();
-sprintf(filename, "%s Config %d E%s Pass-All_Cut Events;sin(#theta_{reco});Cumulative Fraction", STATION.c_str(), type, ENERGY.c_str());
+sprintf(filename, "%s Config %d E%s Pass-All-Cut Events;sin(#theta_{reco});Cumulative Fraction", STATION.c_str(), type, ENERGY.c_str() );
 constantNZen_passAllCuts_cumu->SetTitle(filename);
+double angles = -20;
+double sinangles = sin(angles*TMath::DegToRad());
+int nbins = constantNZen_passAllCuts_cumu->GetNbinsX();
+double x, x_next, y;
+for(int bin=1; bin<=nbins-1; bin++){
+   x = constantNZen_passAllCuts_cumu->GetBinCenter(bin);
+   x_next = constantNZen_passAllCuts_cumu->GetBinCenter(bin+1);
+   if (x<sinangles && x_next>sinangles){
+      y = (constantNZen_passAllCuts_cumu->GetBinContent(bin) + constantNZen_passAllCuts_cumu->GetBinContent(bin+1)) / 2.;
+      cout<<"angles: "<<angles<<" sin(angles): "<<sinangles<<" cdf: "<<y<<endl;
+   }
+}
+
+angles = -30;
+sinangles =  sin(angles*TMath::DegToRad());
+
+for(int bin=1; bin<=nbins-1; bin++){
+   x = constantNZen_passAllCuts_cumu->GetBinCenter(bin);
+   x_next = constantNZen_passAllCuts_cumu->GetBinCenter(bin+1);
+   if (x<sinangles && x_next>sinangles){
+      y = (constantNZen_passAllCuts_cumu->GetBinContent(bin) + constantNZen_passAllCuts_cumu->GetBinContent(bin+1)) / 2.;
+      cout<<"angles: "<<angles<<" sin(angles): "<<sinangles<<" cdf: "<<y<<endl;
+   }
+}
+
+angles = -40;
+sinangles =  sin(angles*TMath::DegToRad());
+
+for(int bin=1; bin<=nbins-1; bin++){
+   x = constantNZen_passAllCuts_cumu->GetBinCenter(bin);
+   x_next = constantNZen_passAllCuts_cumu->GetBinCenter(bin+1);
+   if (x<sinangles && x_next>sinangles){
+      y = (constantNZen_passAllCuts_cumu->GetBinContent(bin) + constantNZen_passAllCuts_cumu->GetBinContent(bin+1)) / 2.;
+      cout<<"angles: "<<angles<<" sin(angles): "<<sinangles<<" cdf: "<<y<<endl;
+   }
+}
+
 sprintf(filename,"%s_type%d_E%s_passAllCuts_sinzen.C", STATION.c_str(), type, ENERGY.c_str());
 c18.SaveAs(filename);
 
