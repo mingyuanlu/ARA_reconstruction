@@ -100,8 +100,8 @@ public:
    cutParameter aziMax[nBoxes];
 
    //Surface cut
-   cutParameter surfaceCut_constantN;
-   //cutParameter surfaceCut_constantN[5];
+   //cutParameter surfaceCut_constantN;
+   cutParameter surfaceCut_constantN[5];
    cutParameter surfaceCut_iterReco;
 
    void initialize();
