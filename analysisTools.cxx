@@ -197,7 +197,11 @@ void ARA02_cutValues::initialize(){
    setValue(surfaceCut_constantN, 35.648,	-0.693,	0.693); // plus: cut region is larger, minus: cut region is smaller
    setValue(surfaceCut_iterReco, 36.77852,	-0.588241,	0.588241);
 */
-   setValue(surfaceCut_constantN, 35.95705,	-0.749395,	0.749395); // plus: cut region is larger, minus: cut region is smaller
+   setValue(surfaceCut_constantN[0], 35.95705,	-0.749395,	0.749395); // plus: cut region is larger, minus: cut region is smaller
+   setValue(surfaceCut_constantN[1], 35.95705,	-0.749395,	0.749395);
+   setValue(surfaceCut_constantN[2], 35.95705,	-0.749395,	0.749395);
+   setValue(surfaceCut_constantN[3], 35.95705,	-0.749395,	0.749395);
+   setValue(surfaceCut_constantN[4], 35.95705,	-0.749395,	0.749395);
 /*
    //Bring combined background of surface + SNR cut to 0.011 for config 1,4,5.
    setValue(surfaceCut_constantN[0], 32.4774546, 0, 0);
