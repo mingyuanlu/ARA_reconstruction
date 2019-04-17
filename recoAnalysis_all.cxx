@@ -1495,7 +1495,7 @@ for(int i=3; i<argc; i++){
    //if(passDeepPulserCut && passThermalCut && passCalpulserCut && passSurfaceCut) runHist->Fill(runNum);
    if( /*passNumSatChanCut && *//*passCWCut*/!lowFreqDominance && passDeepPulserCut && passThermalCut && passSNRCut && /*passThermalImpulsivityCut &&*/ passCalpulserCut && passCalpulserTimeCut && (!passSurfaceCut || !passSurfaceCut_2)){
        surfaceRunHist->Fill(runNum);
-       outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixtime<<","<<dummyData->timeStamp<<endl;
+       outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
        numSurfaceEvent++;
     }
    //if( /*passNumSatChanCut &&*/ /*passCWCut &&*/ passDeepPulserCut && passThermalCut && passSurfaceCut && passSurfaceCut_2){ impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight); outputFile<<avgImpulsivity<<","; }
@@ -1842,10 +1842,10 @@ fout.Close();
 
 TCanvas c4("c4","c4",1200,800);
 c4.Divide(2,1);
-TPad *gPad = c4.cd(1);
+TVirtualPad *gPad = c4.cd(1);
 surfaceRunHist->Draw();
 surfaceRunHist->SetTitle("A2 Full Data;Run Number;Number of Surface Events");
-maxCount = surfaceRunHist->GetBinContent(surfaceRunHist->GetMaximumBin());
+int maxCount = surfaceRunHist->GetBinContent(surfaceRunHist->GetMaximumBin());
 TLine l2013(1388534399,0.5,1388534399,maxCount*1.5);
 TLine l2014(1420070399,0.5,1420070399,maxCount*1.5);
 TLine l2015(1451606399,0.5,1451606399,maxCount*1.5);
