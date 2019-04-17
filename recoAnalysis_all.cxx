@@ -1842,7 +1842,7 @@ fout.Close();
 
 TCanvas c4("c4","c4",1200,800);
 c4.Divide(2,1);
-TVirtualPad *gPad = c4.cd(1);
+c4.cd(1);
 surfaceRunHist->Draw();
 surfaceRunHist->SetTitle("A2 Full Data;Run Number;Number of Surface Events");
 int maxCount = surfaceRunHist->GetBinContent(surfaceRunHist->GetMaximumBin());
@@ -1867,7 +1867,7 @@ latex.DrawLatex(900,100,"2013");
 latex.DrawLatex(3400,100,"2014");
 latex.DrawLatex(5200,100,"2015");
 latex.DrawLatex(7000,100,"2016");
-gPad->SetLogy();
+//gPad->SetLogy();
 
 c4.cd(2);
 numSurfaceEventsInRun->Draw();
