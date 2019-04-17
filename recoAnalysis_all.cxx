@@ -116,7 +116,7 @@ int runStartTime, runEndTime;
 int runRFEventCount, runCalEventCount, runSoftEventCount;
 double weightedOffsetBlockEventCount, weightedImpulsivityFilteredEventCount, weightedTrigEventCount;
 */
-int runEventCount, runRFEventCount, runCalEventCount, runSoftEventCount, trigEventCount, recoEventCount, utime_runStart, utime_runEnd, cutWaveEventCount, nonIncreasingSampleTimeEventCount, cutWaveAndNonIncreasingEventCount, mistaggedSoftEventCount, offsetBlockEventCount, cwFilteredEventCount, nchnlFilteredEventCount, impulsivityFilteredEventCount, corruptFirst3EventCount, corruptD1EventCount;
+int runEventCount, runRFEventCount, runCalEventCount, runSoftEventCount, trigEventCount, recoEventCount, utime_runStart, utime_runEnd, cutWaveEventCount, nonIncreasingSampleTimeEventCount, cutWaveAndNonIncreasingEventCount, mistaggedSoftEventCount, offsetBlockEventCount, cwFilteredEventCount, nchnlFilteredEventCount, impulsivityFilteredEventCount, corruptFirst3EventCount, corruptD1EventCount, blockGapEventCount;
 
 double weightedTrigEventCount, weightedRecoEventCount, weightedOffsetBlockEventCount, weightedNchnlFilteredEventCount, weightedCWFilteredEventCount, weightedImpulsivityFilteredEventCount;
 
@@ -172,10 +172,11 @@ runInfoTree->SetBranchAddress("weightedOffsetBlockEventCount", &weightedOffsetBl
 runInfoTree->SetBranchAddress("weightedNchnlFilteredEventCount", &weightedNchnlFilteredEventCount);
 runInfoTree->SetBranchAddress("weightedCWFilteredEventCount", &weightedCWFilteredEventCount);//
 runInfoTree->SetBranchAddress("weightedImpulsivityFilteredEventCount", &weightedImpulsivityFilteredEventCount);
+runInfoTree->SetBranchAddress("blockGapEventCount", &blockGapEventCount);
 
-int totalRunEventCount, totalRFEventCount, totalCalEventCount, totalSoftEventCount, totalTrigEventCount, totalRecoEventCount, totalCutWaveEventCount, totalNonIncreasingSampleTimeEventCount, totalCutWaveAndNonIncreasingEventCount, totalMistaggedSoftEventCount, totalOffsetBlockEventCount, totalCWFilteredEventCount, totalNchnlFilteredEventCount, totalImpulsivityFilteredEventCount, totalCorruptFirst3EventCount, totalCorruptD1EventCount;
+int totalRunEventCount, totalRFEventCount, totalCalEventCount, totalSoftEventCount, totalTrigEventCount, totalRecoEventCount, totalCutWaveEventCount, totalNonIncreasingSampleTimeEventCount, totalCutWaveAndNonIncreasingEventCount, totalMistaggedSoftEventCount, totalOffsetBlockEventCount, totalCWFilteredEventCount, totalNchnlFilteredEventCount, totalImpulsivityFilteredEventCount, totalCorruptFirst3EventCount, totalCorruptD1EventCount, totalBlockGapEventCount;
 
-totalRunEventCount = totalRFEventCount = totalCalEventCount = totalSoftEventCount = totalTrigEventCount = totalRecoEventCount = totalCutWaveEventCount = totalNonIncreasingSampleTimeEventCount = totalCutWaveAndNonIncreasingEventCount = totalMistaggedSoftEventCount = totalOffsetBlockEventCount = totalCWFilteredEventCount = totalNchnlFilteredEventCount = totalImpulsivityFilteredEventCount = totalCorruptFirst3EventCount = totalCorruptD1EventCount = 0;
+totalRunEventCount = totalRFEventCount = totalCalEventCount = totalSoftEventCount = totalTrigEventCount = totalRecoEventCount = totalCutWaveEventCount = totalNonIncreasingSampleTimeEventCount = totalCutWaveAndNonIncreasingEventCount = totalMistaggedSoftEventCount = totalOffsetBlockEventCount = totalCWFilteredEventCount = totalNchnlFilteredEventCount = totalImpulsivityFilteredEventCount = totalCorruptFirst3EventCount = totalCorruptD1EventCount = totalBlockGapEventCount =  0;
 
 double totalWeightedTrigEventCount, totalWeightedRecoEventCount, totalWeightedOffsetBlockEventCount, totalWeightedNchnlFilteredEventCount, totalWeightedCWFilteredEventCount, totalWeightedImpulsivityFilteredEventCount;
 
@@ -227,6 +228,7 @@ for(int run=0; run<runInfoTree->GetEntries(); run++){
    totalWeightedNchnlFilteredEventCount       += weightedNchnlFilteredEventCount;
    totalWeightedCWFilteredEventCount          += weightedCWFilteredEventCount;
    totalWeightedImpulsivityFilteredEventCount += weightedImpulsivityFilteredEventCount;
+   totalBlockGapEventCount                    += blockGapEventCount;
 
    if(runEndTime < runStartTime){ cerr<<"Run "<<run<<" livetime error. Skipping...\n"; continue; }
    else totalLiveTime += (runEndTime - runStartTime);
@@ -237,7 +239,7 @@ for(int run=0; run<runInfoTree->GetEntries(); run++){
 printf("totalRunEventCount: %d\ttotalTrigEventCount: %d\ttotalRecoEventCount: %d\ntotalLiveTime :%ds\n", totalRunEventCount, totalTrigEventCount, totalRecoEventCount, totalLiveTime);
 printf("totalRFEventCount: %d\ttotalCalEventCount: %d\ttotalSoftEventCount: %d\n", totalRFEventCount, totalCalEventCount, totalSoftEventCount);
 printf("totalCutWaveEventCount: %d\ttotalNonIncreasingSampleTimeEventCount: %d\ttotalCutWaveAndNonIncreasingEventCount: %d\ncutWave ratio: %f\tnonIncreasing ratio: %f\tcutWaveAndNonIncreasing ratio: %f\n", totalCutWaveEventCount, totalNonIncreasingSampleTimeEventCount, totalCutWaveAndNonIncreasingEventCount, (float)totalCutWaveEventCount/(float)totalRunEventCount, (float)totalNonIncreasingSampleTimeEventCount/(float)totalRunEventCount, (float)totalCutWaveAndNonIncreasingEventCount/(float)totalRunEventCount);
-printf("totalMistaggedSoftEventCount: %d\ttotalOffsetBlockEventCount: %d\ttotalCWFilteredEventCount: %d\ttotalNchnlFilteredEventCount: %d\ttotalCorruptFirst3EventCount: %d\nmistag soft ratio: %f\toffset ratio: %f\tCW ratio: %f\tnchnl ratio: %f\tfirst3 ratio: %f\n", totalMistaggedSoftEventCount, totalOffsetBlockEventCount, totalCWFilteredEventCount, totalNchnlFilteredEventCount, totalCorruptFirst3EventCount, (float)totalMistaggedSoftEventCount/(float)totalRunEventCount, (float)totalOffsetBlockEventCount/(float)totalRunEventCount, (float)totalCWFilteredEventCount/(float)totalRunEventCount, (float)totalNchnlFilteredEventCount/(float)totalRunEventCount, (float)totalCorruptFirst3EventCount/(float)totalRunEventCount);
+printf("totalMistaggedSoftEventCount: %d\ttotalOffsetBlockEventCount: %d\ttotalCWFilteredEventCount: %d\ttotalNchnlFilteredEventCount: %d\ttotalCorruptFirst3EventCount: %d\ttotalCorruptD1EventCount: %d\ttotalBlockGapEventCount: %d\nmistag soft ratio: %f\toffset ratio: %f\tCW ratio: %f\tnchnl ratio: %f\tfirst3 ratio: %f\tD1 ratio: %f\tblock-gap ratio: %f\n", totalMistaggedSoftEventCount, totalOffsetBlockEventCount, totalCWFilteredEventCount, totalNchnlFilteredEventCount, totalCorruptFirst3EventCount, totalCorruptD1EventCount, totalBlockGapEventCount, (float)totalMistaggedSoftEventCount/(float)totalRunEventCount, (float)totalOffsetBlockEventCount/(float)totalRunEventCount, (float)totalCWFilteredEventCount/(float)totalRunEventCount, (float)totalNchnlFilteredEventCount/(float)totalRunEventCount, (float)totalCorruptFirst3EventCount/(float)totalRunEventCount, (float)totalCorruptD1EventCount/(float)totalRunEventCount, (float)totalBlockGapEventCount/(float)totalRunEventCount);
 
 //int Nentries = dataTree->GetEntries();
 //cout<<"Total number of dataTree events: "<<Nentries<<endl;
