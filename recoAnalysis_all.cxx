@@ -1874,7 +1874,7 @@ latex.DrawLatex(7000,100,"2016");
 c4.cd(2);
 numSurfaceEventsInRun->Draw();
 numSurfaceEventsInRun->SetTitle("A2 Full Data;Number of Surface Events in Run;Number of Runs");
-sprintf(filename,"surfaceRunHist_numSurfaceEventsInRun_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_%s_fullData.C", STATION.c_str());
+sprintf(filename,"surfaceRunHist_numSurfaceEventsInRun_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_%s_fullData_type1.C", STATION.c_str());
 c4.SaveAs(filename);
 
 
