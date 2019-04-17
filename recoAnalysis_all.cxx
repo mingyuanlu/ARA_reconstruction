@@ -29,6 +29,7 @@
 #include "TStyle.h"
 #include "TLine.h"
 #include "TLegend.h"
+#include "TLatex.h"
 
 #include "calibrationTools.h"
 #include "calibrationToolsVs3.h"
@@ -443,6 +444,8 @@ int startRun=0;
 int endRun  =9000;
 TH1I *runHist = new TH1I("runHist","runHist", endRun-startRun+1, startRun-0.5, endRun+0.5);
 TH1I *surfaceRunHist = new TH1I("surfaceRunHist","surfaceRunHist", endRun-startRun+1, startRun-0.5, endRun+0.5);
+TH1I *numSurfaceEventsInRun = new TH1I("numSurfaceEventsInRun","numSurfaceEventsInRun", 10001,-0.5,10000.5);
+int numSurfaceEvent = 0;
 
 int maxFreqBin[16];
 double maxFreqPower[16];
@@ -582,7 +585,7 @@ for(int i=3; i<argc; i++){
    double orderedArray[16];
    int orderedArrayPolType[16];
 
-
+   numSurfaceEvent = 0;
 
    for(int entry=0; entry<Nentries; entry++){
    //if(Nentries > 100) {  if(  entry % (Nentries/100) == 0  ){ cout<<"Progess: "<<entry / (Nentries/100) <<"%\n"; } }
@@ -1493,6 +1496,7 @@ for(int i=3; i<argc; i++){
    if( /*passNumSatChanCut && *//*passCWCut*/!lowFreqDominance && passDeepPulserCut && passThermalCut && passSNRCut && /*passThermalImpulsivityCut &&*/ passCalpulserCut && passCalpulserTimeCut && (!passSurfaceCut || !passSurfaceCut_2)){
        surfaceRunHist->Fill(runNum);
        outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixtime<<","<<dummyData->timeStamp<<endl;
+       numSurfaceEvent++;
     }
    //if( /*passNumSatChanCut &&*/ /*passCWCut &&*/ passDeepPulserCut && passThermalCut && passSurfaceCut && passSurfaceCut_2){ impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight); outputFile<<avgImpulsivity<<","; }
 //   //if( !lowFreqDominance && passDeepPulserCut){
@@ -1713,6 +1717,8 @@ for(int i=3; i<argc; i++){
 
    }//end of entry
 
+   numSurfaceEventsInRun->Fill(numSurfaceEvent);
+
 delete dataTree;
 delete recoSettingsTree;
 fp1.Close();
@@ -1833,21 +1839,58 @@ impulsivityHist_avg->Write();
 fout.Close();
 */
 
-/*
-TCanvas c4("c4","c4",800,800);
+
+TCanvas c4("c4","c4",1200,800);
+c4.Divide(2,1);
+TPad *gPad = c4.cd(1);
 surfaceRunHist->Draw();
-sprintf(filename,"surfaceRunHist_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_%s_type%d.C", STATION.c_str(), type);
+surfaceRunHist->SetTitle("A2 Full Data;Run Number;Number of Surface Events");
+maxCount = surfaceRunHist->GetBinContent(surfaceRunHist->GetMaximumBin());
+TLine l2013(1388534399,0.5,1388534399,maxCount*1.5);
+TLine l2014(1420070399,0.5,1420070399,maxCount*1.5);
+TLine l2015(1451606399,0.5,1451606399,maxCount*1.5);
+TLine l2016(1483228799,0.5,1483228799,maxCount*1.5);
+l2013.SetLineColor(kRed);
+l2014.SetLineColor(kRed);
+l2015.SetLineColor(kRed);
+l2016.SetLineColor(kRed);
+l2013.SetLineWidth(3);
+l2014.SetLineWidth(3);
+l2015.SetLineWidth(3);
+l2016.SetLineWidth(3);
+l2013.Draw("same");
+l2014.Draw("same");
+l2015.Draw("same");
+l2016.Draw("same");
+TLatex latex;
+latex.DrawLatex(900,100,"2013");
+latex.DrawLatex(3400,100,"2014");
+latex.DrawLatex(5200,100,"2015");
+latex.DrawLatex(7000,100,"2016");
+gPad->SetLogy();
+
+c4.cd(2);
+numSurfaceEventsInRun->Draw();
+numSurfaceEventsInRun->SetTitle("A2 Full Data;Number of Surface Events in Run;Number of Runs");
+sprintf(filename,"surfaceRunHist_numSurfaceEventsInRun_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_%s_fullData.C", STATION.c_str());
 c4.SaveAs(filename);
-*/
-/*
-sprintf(filename, "%s_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEventRuns.txt", STATION.c_str());
-ofstream noisyRunFile(filename, ofstream::out|ofstream::app);
-for(int bin=1; bin<=surfaceRunHist->GetNbinsX(); bin++){
+
+
+
+
+//sprintf(filename, "%s_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEventRuns.txt", STATION.c_str());
+//ofstream noisyRunFile(filename, ofstream::out|ofstream::app);
+//int maxCount = 0;
+//for(int bin=1; bin<=surfaceRunHist->GetNbinsX(); bin++){
    //if(surfaceRunHist->GetBinContent(bin)>1) noisyRunFile<<surfaceRunHist->GetBinCenter(bin)<<endl;
-   if(surfaceRunHist->GetBinContent(bin)>0) noisyRunFile<<surfaceRunHist->GetBinCenter(bin)<<","<<surfaceRunHist->GetBinContent(bin)<<endl;
-}
-noisyRunFile.close();
-*/
+   //if(surfaceRunHist->GetBinContent(bin)>0) noisyRunFile<<surfaceRunHist->GetBinCenter(bin)<<","<<surfaceRunHist->GetBinContent(bin)<<endl;
+   //if(surfaceRunHist->GetBinContent(bin)>maxCount) maxCount =  surfaceRunHist->GetBinContent(bin);
+//}
+//noisyRunFile.close();
+
+
+
+
 /*
 
 TCanvas c5("c5","c5",1200,800);
