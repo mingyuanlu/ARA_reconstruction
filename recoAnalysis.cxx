@@ -1424,7 +1424,7 @@ for(int i=4; i<argc; i++){
    if(passCWCut && /*passThermalCut && */ passSNRCut && passThermalImpulsivityCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) //c_vs_snr_hist_nMinusThermal->Fill(snr, coherence, dummyData->weight);
       {
          coherence_nMinusThermal->Fill(coherence, dummyData->weight);
-         //if(inBand) outputFile<<coherence<<",";
+         if(!inBand) outputFile<<coherence<<",";
          if(inBand){
                //coherence_snr_nMinusCoherence->Fill(snr, coherence, dummyData->weight);
                coherence_snr_nMinusCoherence->SetPoint(pcount_nMinusCoherence, snr, coherence);
