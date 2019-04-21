@@ -1503,6 +1503,9 @@ for(int i=4; i<argc; i++){
    double theta_temp = 90.f-dummyData->constantNZen;
    if(theta_temp > 52 && theta_temp < 57 && dummyData->constantNAzi > 235 && dummyData->constantNAzi < 245){
       //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
+      if(passNoisyRunCut){
+         outputFile<<theta_temp<<",";
+      }
    } else {
 
       zen_nMinusNoisyRunSNRSurface_noSPSEvents->Fill(theta_temp, dummyData->weight);
@@ -1516,7 +1519,7 @@ for(int i=4; i<argc; i++){
       if(passNoisyRunCut){
          zen_nMinusSNRSurface_noSPSEvents->Fill(theta_temp, dummyData->weight);
          sinzen_nMinusSNRSurface_noSPSEvents->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
-         outputFile<<theta_temp<<",";
+         //outputFile<<theta_temp<<",";
       }
 
       //outputFile<<theta_temp<<",";
