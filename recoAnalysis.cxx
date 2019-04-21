@@ -1504,7 +1504,7 @@ for(int i=4; i<argc; i++){
    if(theta_temp > 52 && theta_temp < 57 && dummyData->constantNAzi > 235 && dummyData->constantNAzi < 245){
       //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
       if(passNoisyRunCut){
-         outputFile<<theta_temp<<",";
+         //outputFile<<theta_temp<<",";
       }
    } else {
 
@@ -1527,6 +1527,7 @@ for(int i=4; i<argc; i++){
 
 
    //outputFile<<(passSurfaceCut?zenMaj:90.f-dummyData->constantNZen)<<",";
+   outputFile<<theta_temp<<",";
    }
 
    if(passCWCut /*&& passThermalCut*/ && passThermalImpulsivityCut /*&& passSNRCut*/ && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut /*&& passSurfaceCut && passSurfaceCut_2 *//*&& passNoisyRunCut*/ ){
