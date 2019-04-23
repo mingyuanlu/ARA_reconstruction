@@ -119,7 +119,7 @@ void ARA02_cutValues::initialize(){
    setValue(coherenceCut_inBand[2],0.10838951766838757,0,0);
    setValue(coherenceCut_inBand[3],0.09902432045234812,0,0);
    setValue(coherenceCut_inBand[4],0.09707451485364714,0,0);
-/*
+
    setValue(coherenceCut_outOfBand[0],0.10371485739304964,0,0);
    setValue(coherenceCut_outOfBand[1],0.10727052346393086,0,0); //pre-cut distribution fit
    //setValue(coherenceCut_outOfBand[1],0.11397002217253263,0,0);   //post-cut distribution fit, tuned to 0.1 bkg/yr
@@ -127,25 +127,25 @@ void ARA02_cutValues::initialize(){
    setValue(coherenceCut_outOfBand[3],0.09471396819592758,0,0); //pre-cut distribution fit
    //setValue(coherenceCut_outOfBand[3],0.09829565111400411,0,0);   //post-cut distribution fit, tuned to 0.1 bkg/yr
    setValue(coherenceCut_outOfBand[4],0.09505296821439854,0,0);
-*/
 
+/*
    //Bring background to a level of 0.001 per 228 days
    setValue(coherenceCut_outOfBand[0],0.10371485739304964,0,0);
    setValue(coherenceCut_outOfBand[1],0.12134843558483599,0,0);
    setValue(coherenceCut_outOfBand[2],0.10447875614817306,0,0);
    setValue(coherenceCut_outOfBand[3],0.10431188,0,0);
    setValue(coherenceCut_outOfBand[4],0.09505296821439854,0,0);
-
+*/
 
    //SNR cut after 1D coherence thermal cut. This cut is applied to inBand & outOfBand events
-/*
+
    setValue(snrCut[0],8.414422261800883,0,0);
    setValue(snrCut[1],8.937513009286487,0,0);
    setValue(snrCut[2],8.377493977106527,0,0);
    setValue(snrCut[3],8.574324074772582,0,0);
    setValue(snrCut[4],9.722923507324271,0,0);
-*/
 
+/*
    //Bring combined background of surface + SNR cut to 0.011 for config 1,4,5. Simply bring the background to 0.01 from the SNR cut for config 2, 3
    //Numbers quotes here are number of backgrounds per 228 days
    setValue(snrCut[0],8.557611,0,0);
@@ -153,7 +153,7 @@ void ARA02_cutValues::initialize(){
    setValue(snrCut[2],8.898891522924314,0,0);
    setValue(snrCut[3],9.020635,0,0);
    setValue(snrCut[4],10.521,0,0);
-
+*/
    //setValue(impCut, 0.25563478, 0.00124038, -0.00124038);
    setValue(impCut, 0.28108427, 0.00160186, -0.00160186);
 /*
@@ -196,21 +196,21 @@ void ARA02_cutValues::initialize(){
 /*
    setValue(surfaceCut_constantN, 35.648,	-0.693,	0.693); // plus: cut region is larger, minus: cut region is smaller
    setValue(surfaceCut_iterReco, 36.77852,	-0.588241,	0.588241);
-*//*
+*/
    setValue(surfaceCut_constantN[0], 35.95705,	-0.749395,	0.749395); // plus: cut region is larger, minus: cut region is smaller
    setValue(surfaceCut_constantN[1], 35.95705,	-0.749395,	0.749395);
    setValue(surfaceCut_constantN[2], 35.95705,	-0.749395,	0.749395);
    setValue(surfaceCut_constantN[3], 35.95705,	-0.749395,	0.749395);
    setValue(surfaceCut_constantN[4], 35.95705,	-0.749395,	0.749395);
-   */
 
+/*
    //Bring combined background of surface + SNR cut to 0.011 for config 1,4,5.
    setValue(surfaceCut_constantN[0], 32.4774546, 0, 0);
    setValue(surfaceCut_constantN[1], 35.95705, -0.749395,	0.749395);
    setValue(surfaceCut_constantN[2], 35.95705, -0.749395,	0.749395);
    setValue(surfaceCut_constantN[3], 31.1072651, 0,	0);
    setValue(surfaceCut_constantN[4], 31.7583268, 0,	0);
-
+*/
    setValue(surfaceCut_iterReco, 31.62731,	-1.217763,	1.217763);
 
 }
