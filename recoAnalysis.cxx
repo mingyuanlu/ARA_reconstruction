@@ -1457,10 +1457,11 @@ for(int i=4; i<argc; i++){
       snr_vec.push_back(snr/snr_scaling);
       c_vec.push_back(coherence);
       coherence_snr_nMinusCoherenceSNR->Fill(snr/snr_scaling, coherence, dummyData->weight);
-   } else {
+      outputFile<<coherence<<","<<snr<<endl;
+   }   else {
       //outputFile<<coherence<<","<<snr<<endl;
    }
-      outputFile<<coherence<<","<<snr<<","<<inBand<<endl;
+      //outputFile<<coherence<<","<<snr<<","<<inBand<<endl;
 
    }
 
