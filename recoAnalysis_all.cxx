@@ -1874,8 +1874,8 @@ latex.DrawLatex(7000,100,"2016");
 c4.cd(2);
 numSurfaceEventsInRun->Draw();
 numSurfaceEventsInRun->SetTitle("A2 Full Data;Number of Surface Events in Run;Number of Runs");
-sprintf(filename,"surfaceRunHist_numSurfaceEventsInRun_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_%s_fullData_type4.C", STATION.c_str());
-//c4.SaveAs(filename);
+sprintf(filename,"surfaceRunHist_numSurfaceEventsInRun_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_%s_fullData_tunedCut_allTypes.C", STATION.c_str());
+c4.SaveAs(filename);
 
 
 
@@ -2003,7 +2003,7 @@ zen_nMinusNoisyRunSurface->Draw();
 c20.cd(2);
 sinzen_nMinusNoisyRunSurface->Draw();
 sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunSurface_zen_sinzen_postCut.C", STATION.c_str());
-c20.SaveAs(filename);
+//c20.SaveAs(filename);
 /*
 c20.Divide(4,1);
 c20.cd(1);
