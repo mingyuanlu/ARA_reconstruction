@@ -452,7 +452,7 @@ int endRun  =9000;
 TH1I *runHist = new TH1I("runHist","runHist", endRun-startRun+1, startRun-0.5, endRun+0.5);
 TH1I *surfaceRunHist = new TH1I("surfaceRunHist","surfaceRunHist", endRun-startRun+1, startRun-0.5, endRun+0.5);
 TH1I *numSurfaceEventsInRun = new TH1I("numSurfaceEventsInRun","numSurfaceEventsInRun", 10001,-0.5,10000.5);
-int numSurfaceEvent = 0;
+int numSurfaceEventPerRun = 0;
 
 int maxFreqBin[16];
 double maxFreqPower[16];
@@ -592,7 +592,7 @@ for(int i=3; i<argc; i++){
    double orderedArray[16];
    int orderedArrayPolType[16];
 
-   numSurfaceEvent = 0;
+   numSurfaceEventPerRun = 0;
 
    for(int entry=0; entry<Nentries; entry++){
    //if(Nentries > 100) {  if(  entry % (Nentries/100) == 0  ){ cout<<"Progess: "<<entry / (Nentries/100) <<"%\n"; } }
@@ -1515,7 +1515,7 @@ for(int i=3; i<argc; i++){
    if( /*passNumSatChanCut && *//*passCWCut*/!lowFreqDominance && passDeepPulserCut && passThermalCut && passSNRCut && /*passThermalImpulsivityCut &&*/ passCalpulserCut && passCalpulserTimeCut && (!passSurfaceCut || !passSurfaceCut_2)){
        surfaceRunHist->Fill(runNum);
        //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
-       numSurfaceEvent++;
+       numSurfaceEventPerRun++;
     }
    //if( /*passNumSatChanCut &&*/ /*passCWCut &&*/ passDeepPulserCut && passThermalCut && passSurfaceCut && passSurfaceCut_2){ impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight); outputFile<<avgImpulsivity<<","; }
 //   //if( !lowFreqDominance && passDeepPulserCut){
@@ -1736,7 +1736,10 @@ for(int i=3; i<argc; i++){
 
    }//end of entry
 
-   numSurfaceEventsInRun->Fill(numSurfaceEvent);
+   numSurfaceEventsInRun->Fill(numSurfaceEventPerRun);
+   if(numSurfaceEventPerRun>=14){ //Expo fit to 100% data numSurfaceEventPerRun, at 0.01 run the numSurfaceEventPerRun is 13.63
+      outputFile<<runNum<<","<<numSurfaceEventPerRun<<endl;
+   }
 
 delete dataTree;
 delete recoSettingsTree;
@@ -2177,12 +2180,12 @@ c17.SaveAs(filename);
 //_snrCumuHist->SetName("_snrCumuHist");
 //_snrCumuHist->Draw();
 //c18.SaveAs(filename);
-
+/*
 TCanvas c22("c22","c22",800,800);
 surfaceEventdT->Draw();
 surfaceEventdT->SetTitle("A2 N-chan Filtered Surface Events;#DeltaT [s];Number of Events");
 c22.SaveAs("A2_allTypes_surfaceEventdT.C");
-
+*/
 
 return 0;
 }
