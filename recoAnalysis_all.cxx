@@ -29,6 +29,7 @@
 #include "TStyle.h"
 #include "TLine.h"
 #include "TLegend.h"
+#include "TLatex.h"
 
 #include "calibrationTools.h"
 #include "calibrationToolsVs3.h"
@@ -115,7 +116,7 @@ int runStartTime, runEndTime;
 int runRFEventCount, runCalEventCount, runSoftEventCount;
 double weightedOffsetBlockEventCount, weightedImpulsivityFilteredEventCount, weightedTrigEventCount;
 */
-int runEventCount, runRFEventCount, runCalEventCount, runSoftEventCount, trigEventCount, recoEventCount, utime_runStart, utime_runEnd, cutWaveEventCount, nonIncreasingSampleTimeEventCount, cutWaveAndNonIncreasingEventCount, mistaggedSoftEventCount, offsetBlockEventCount, cwFilteredEventCount, nchnlFilteredEventCount, impulsivityFilteredEventCount, corruptFirst3EventCount, corruptD1EventCount;
+int runEventCount, runRFEventCount, runCalEventCount, runSoftEventCount, trigEventCount, recoEventCount, utime_runStart, utime_runEnd, cutWaveEventCount, nonIncreasingSampleTimeEventCount, cutWaveAndNonIncreasingEventCount, mistaggedSoftEventCount, offsetBlockEventCount, cwFilteredEventCount, nchnlFilteredEventCount, impulsivityFilteredEventCount, corruptFirst3EventCount, corruptD1EventCount, blockGapEventCount;
 
 double weightedTrigEventCount, weightedRecoEventCount, weightedOffsetBlockEventCount, weightedNchnlFilteredEventCount, weightedCWFilteredEventCount, weightedImpulsivityFilteredEventCount;
 
@@ -171,10 +172,11 @@ runInfoTree->SetBranchAddress("weightedOffsetBlockEventCount", &weightedOffsetBl
 runInfoTree->SetBranchAddress("weightedNchnlFilteredEventCount", &weightedNchnlFilteredEventCount);
 runInfoTree->SetBranchAddress("weightedCWFilteredEventCount", &weightedCWFilteredEventCount);//
 runInfoTree->SetBranchAddress("weightedImpulsivityFilteredEventCount", &weightedImpulsivityFilteredEventCount);
+runInfoTree->SetBranchAddress("blockGapEventCount", &blockGapEventCount);
 
-int totalRunEventCount, totalRFEventCount, totalCalEventCount, totalSoftEventCount, totalTrigEventCount, totalRecoEventCount, totalCutWaveEventCount, totalNonIncreasingSampleTimeEventCount, totalCutWaveAndNonIncreasingEventCount, totalMistaggedSoftEventCount, totalOffsetBlockEventCount, totalCWFilteredEventCount, totalNchnlFilteredEventCount, totalImpulsivityFilteredEventCount, totalCorruptFirst3EventCount, totalCorruptD1EventCount;
+int totalRunEventCount, totalRFEventCount, totalCalEventCount, totalSoftEventCount, totalTrigEventCount, totalRecoEventCount, totalCutWaveEventCount, totalNonIncreasingSampleTimeEventCount, totalCutWaveAndNonIncreasingEventCount, totalMistaggedSoftEventCount, totalOffsetBlockEventCount, totalCWFilteredEventCount, totalNchnlFilteredEventCount, totalImpulsivityFilteredEventCount, totalCorruptFirst3EventCount, totalCorruptD1EventCount, totalBlockGapEventCount;
 
-totalRunEventCount = totalRFEventCount = totalCalEventCount = totalSoftEventCount = totalTrigEventCount = totalRecoEventCount = totalCutWaveEventCount = totalNonIncreasingSampleTimeEventCount = totalCutWaveAndNonIncreasingEventCount = totalMistaggedSoftEventCount = totalOffsetBlockEventCount = totalCWFilteredEventCount = totalNchnlFilteredEventCount = totalImpulsivityFilteredEventCount = totalCorruptFirst3EventCount = totalCorruptD1EventCount = 0;
+totalRunEventCount = totalRFEventCount = totalCalEventCount = totalSoftEventCount = totalTrigEventCount = totalRecoEventCount = totalCutWaveEventCount = totalNonIncreasingSampleTimeEventCount = totalCutWaveAndNonIncreasingEventCount = totalMistaggedSoftEventCount = totalOffsetBlockEventCount = totalCWFilteredEventCount = totalNchnlFilteredEventCount = totalImpulsivityFilteredEventCount = totalCorruptFirst3EventCount = totalCorruptD1EventCount = totalBlockGapEventCount =  0;
 
 double totalWeightedTrigEventCount, totalWeightedRecoEventCount, totalWeightedOffsetBlockEventCount, totalWeightedNchnlFilteredEventCount, totalWeightedCWFilteredEventCount, totalWeightedImpulsivityFilteredEventCount;
 
@@ -226,6 +228,7 @@ for(int run=0; run<runInfoTree->GetEntries(); run++){
    totalWeightedNchnlFilteredEventCount       += weightedNchnlFilteredEventCount;
    totalWeightedCWFilteredEventCount          += weightedCWFilteredEventCount;
    totalWeightedImpulsivityFilteredEventCount += weightedImpulsivityFilteredEventCount;
+   totalBlockGapEventCount                    += blockGapEventCount;
 
    if(runEndTime < runStartTime){ cerr<<"Run "<<run<<" livetime error. Skipping...\n"; continue; }
    else totalLiveTime += (runEndTime - runStartTime);
@@ -236,7 +239,7 @@ for(int run=0; run<runInfoTree->GetEntries(); run++){
 printf("totalRunEventCount: %d\ttotalTrigEventCount: %d\ttotalRecoEventCount: %d\ntotalLiveTime :%ds\n", totalRunEventCount, totalTrigEventCount, totalRecoEventCount, totalLiveTime);
 printf("totalRFEventCount: %d\ttotalCalEventCount: %d\ttotalSoftEventCount: %d\n", totalRFEventCount, totalCalEventCount, totalSoftEventCount);
 printf("totalCutWaveEventCount: %d\ttotalNonIncreasingSampleTimeEventCount: %d\ttotalCutWaveAndNonIncreasingEventCount: %d\ncutWave ratio: %f\tnonIncreasing ratio: %f\tcutWaveAndNonIncreasing ratio: %f\n", totalCutWaveEventCount, totalNonIncreasingSampleTimeEventCount, totalCutWaveAndNonIncreasingEventCount, (float)totalCutWaveEventCount/(float)totalRunEventCount, (float)totalNonIncreasingSampleTimeEventCount/(float)totalRunEventCount, (float)totalCutWaveAndNonIncreasingEventCount/(float)totalRunEventCount);
-printf("totalMistaggedSoftEventCount: %d\ttotalOffsetBlockEventCount: %d\ttotalCWFilteredEventCount: %d\ttotalNchnlFilteredEventCount: %d\ttotalCorruptFirst3EventCount: %d\nmistag soft ratio: %f\toffset ratio: %f\tCW ratio: %f\tnchnl ratio: %f\tfirst3 ratio: %f\n", totalMistaggedSoftEventCount, totalOffsetBlockEventCount, totalCWFilteredEventCount, totalNchnlFilteredEventCount, totalCorruptFirst3EventCount, (float)totalMistaggedSoftEventCount/(float)totalRunEventCount, (float)totalOffsetBlockEventCount/(float)totalRunEventCount, (float)totalCWFilteredEventCount/(float)totalRunEventCount, (float)totalNchnlFilteredEventCount/(float)totalRunEventCount, (float)totalCorruptFirst3EventCount/(float)totalRunEventCount);
+printf("totalMistaggedSoftEventCount: %d\ttotalOffsetBlockEventCount: %d\ttotalCWFilteredEventCount: %d\ttotalNchnlFilteredEventCount: %d\ttotalCorruptFirst3EventCount: %d\ttotalCorruptD1EventCount: %d\ttotalBlockGapEventCount: %d\nmistag soft ratio: %f\toffset ratio: %f\tCW ratio: %f\tnchnl ratio: %f\tfirst3 ratio: %f\tD1 ratio: %f\tblock-gap ratio: %f\n", totalMistaggedSoftEventCount, totalOffsetBlockEventCount, totalCWFilteredEventCount, totalNchnlFilteredEventCount, totalCorruptFirst3EventCount, totalCorruptD1EventCount, totalBlockGapEventCount, (float)totalMistaggedSoftEventCount/(float)totalRunEventCount, (float)totalOffsetBlockEventCount/(float)totalRunEventCount, (float)totalCWFilteredEventCount/(float)totalRunEventCount, (float)totalNchnlFilteredEventCount/(float)totalRunEventCount, (float)totalCorruptFirst3EventCount/(float)totalRunEventCount, (float)totalCorruptD1EventCount/(float)totalRunEventCount, (float)totalBlockGapEventCount/(float)totalRunEventCount);
 
 //int Nentries = dataTree->GetEntries();
 //cout<<"Total number of dataTree events: "<<Nentries<<endl;
@@ -436,6 +439,11 @@ TH2F *coherenceSNR = new TH2F("coherenceSNR","coherenceSNR", 400,0,40,1000,0,1);
 TH2F *zenCoherence = new TH2F("zenCoherence","zenCoherence",1000,0,1,500,-1,1);
 TH2F *zenSNR = new TH2F("zenSNR","zenSNR",400,0,40,500,-1,1);
 
+TH1F *surfaceEventdT = new TH1F("surfaceEventdT","surfaceEventdT",10000, 0, 2000);
+double thisSurfaceTime, lastSurfaceTime;
+int surfaceEventCount = 0;
+
+
 double snrCutValue, coherenceCutValue;
 float coherence, snr;
 
@@ -443,6 +451,8 @@ int startRun=0;
 int endRun  =9000;
 TH1I *runHist = new TH1I("runHist","runHist", endRun-startRun+1, startRun-0.5, endRun+0.5);
 TH1I *surfaceRunHist = new TH1I("surfaceRunHist","surfaceRunHist", endRun-startRun+1, startRun-0.5, endRun+0.5);
+TH1I *numSurfaceEventsInRun = new TH1I("numSurfaceEventsInRun","numSurfaceEventsInRun", 10001,-0.5,10000.5);
+int numSurfaceEventPerRun = 0;
 
 int maxFreqBin[16];
 double maxFreqPower[16];
@@ -582,7 +592,7 @@ for(int i=3; i<argc; i++){
    double orderedArray[16];
    int orderedArrayPolType[16];
 
-
+   numSurfaceEventPerRun = 0;
 
    for(int entry=0; entry<Nentries; entry++){
    //if(Nentries > 100) {  if(  entry % (Nentries/100) == 0  ){ cout<<"Progess: "<<entry / (Nentries/100) <<"%\n"; } }
@@ -630,7 +640,7 @@ for(int i=3; i<argc; i++){
    maxFreqBinVec_H.clear();
    maxFreqBinVec.clear();
 
-   isCW = isCW_coincidence(isVpolCW, isHpolCW, maxCountFreqBin_V, maxCountFreqBin_H, dummyData, cwBinThres);
+   //isCW = isCW_coincidence(isVpolCW, isHpolCW, maxCountFreqBin_V, maxCountFreqBin_H, dummyData, cwBinThres);
 /*
    for(int i=0; i<8; i++){
       //cout<<"ch: "<<i<<" maxFreqBin: "<<dummyData->maxFreqBin[i]<<" maxFreq: "<<dummyData->maxFreqBin[i] * dummyData->freqBinWidth_V<<" maxFreqPower: "<<dummyData->maxFreqPower[i]<<" ";
@@ -905,6 +915,18 @@ for(int i=3; i<argc; i++){
    float zenRange = 3.;
    double zenMaj;
    passSurfaceCut_2 = !isIterSurface(zenMaj, dummyData, onion, settings, zenRange, surfaceCut_2);
+
+   if (!(passSurfaceCut && passSurfaceCut_2)){
+
+      thisSurfaceTime = dummyData->unixTime + 1e-9*10*dummyData->timeStamp; //timeStamp in unit of 10ns
+
+      if(surfaceEventCount>0){
+         surfaceEventdT->Fill(thisSurfaceTime-lastSurfaceTime, dummyData->weight);
+      }
+      surfaceEventCount++;
+      lastSurfaceTime = thisSurfaceTime;
+
+   }
 //
 //   cout<<"zenMaj in func: "<<zenMaj<<endl;
 //   iterZenVec.clear();
@@ -1179,8 +1201,8 @@ for(int i=3; i<argc; i++){
    double impCut = cutValues->cwImpCut[type-1].val; //impulsivityCut[type-1];
    impCut = 1/*0.2579306*//*0.2384656*/;
    //passCWCut = ( !isCW || (isCW && passHighPassFilter && passImpulsivityCut )) && !lowFreqDominance;
-   passCWCut = ( !isCW || (isCW && isRecoverableByImp(isVpolCW, isHpolCW, isXpolCW, dummyData, impCut, highPassFreq) )) && !lowFreqDominance;
-   //passCWCut = !lowFreqDominance;
+   //passCWCut = ( !isCW || (isCW && isRecoverableByImp(isVpolCW, isHpolCW, isXpolCW, dummyData, impCut, highPassFreq) )) && !lowFreqDominance;
+   passCWCut = !lowFreqDominance;
 
 
    /****** Check if pass thermal impulsivity cut ********/
@@ -1452,7 +1474,7 @@ for(int i=3; i<argc; i++){
       zen_nMinusNoisyRunSurface->Fill(theta_temp, dummyData->weight);
       sinzen_nMinusNoisyRunSurface->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
       zen_azi_nMinusNoisyRunSurface->Fill(dummyData->constantNAzi, theta_temp, dummyData->weight);
-      outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->constantNAzi<<","<<theta_temp<<endl;
+      //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->constantNAzi<<","<<theta_temp<<endl;
    }
 
    if(theta_temp > 52 && theta_temp < 57 && dummyData->constantNAzi > 235 && dummyData->constantNAzi < 245){
@@ -1490,7 +1512,11 @@ for(int i=3; i<argc; i++){
    }
 
    //if(passDeepPulserCut && passThermalCut && passCalpulserCut && passSurfaceCut) runHist->Fill(runNum);
-   if( /*passNumSatChanCut && *//*passCWCut*/!lowFreqDominance && passDeepPulserCut && passThermalCut && passSNRCut && /*passThermalImpulsivityCut &&*/ passCalpulserCut && passCalpulserTimeCut && (!passSurfaceCut || !passSurfaceCut_2)) surfaceRunHist->Fill(runNum);
+   if( /*passNumSatChanCut && *//*passCWCut*/!lowFreqDominance && passDeepPulserCut && passThermalCut && passSNRCut && /*passThermalImpulsivityCut &&*/ passCalpulserCut && passCalpulserTimeCut && (!passSurfaceCut || !passSurfaceCut_2)){
+       surfaceRunHist->Fill(runNum);
+       //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
+       numSurfaceEventPerRun++;
+    }
    //if( /*passNumSatChanCut &&*/ /*passCWCut &&*/ passDeepPulserCut && passThermalCut && passSurfaceCut && passSurfaceCut_2){ impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight); outputFile<<avgImpulsivity<<","; }
 //   //if( !lowFreqDominance && passDeepPulserCut){
 //   if( passCWCut && passDeepPulserCut ){
@@ -1710,6 +1736,11 @@ for(int i=3; i<argc; i++){
 
    }//end of entry
 
+   numSurfaceEventsInRun->Fill(numSurfaceEventPerRun);
+   if(numSurfaceEventPerRun>=14){ //Expo fit to 100% data numSurfaceEventPerRun, at 0.01 run the numSurfaceEventPerRun is 13.63
+      outputFile<<runNum<<","<<numSurfaceEventPerRun<<endl;
+   }
+
 delete dataTree;
 delete recoSettingsTree;
 fp1.Close();
@@ -1831,20 +1862,55 @@ fout.Close();
 */
 
 /*
-TCanvas c4("c4","c4",800,800);
+TCanvas c4("c4","c4",1200,800);
+c4.Divide(2,1);
+c4.cd(1);
 surfaceRunHist->Draw();
-sprintf(filename,"surfaceRunHist_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_%s_type%d.C", STATION.c_str(), type);
+surfaceRunHist->SetTitle("A2 Full Data;Run Number;Number of Surface Events");
+int maxCount = surfaceRunHist->GetBinContent(surfaceRunHist->GetMaximumBin());
+TLine l2013(2792,0.5,2792,maxCount*1.5);
+TLine l2014(4763,0.5,4763,maxCount*1.5);
+TLine l2015(6638,0.5,6638,maxCount*1.5);
+TLine l2016(8246,0.5,8246,maxCount*1.5);
+l2013.SetLineColor(kRed);
+l2014.SetLineColor(kRed);
+l2015.SetLineColor(kRed);
+l2016.SetLineColor(kRed);
+l2013.SetLineWidth(3);
+l2014.SetLineWidth(3);
+l2015.SetLineWidth(3);
+l2016.SetLineWidth(3);
+l2013.Draw("same");
+l2014.Draw("same");
+l2015.Draw("same");
+l2016.Draw("same");
+TLatex latex;
+latex.DrawLatex(900,100,"2013");
+latex.DrawLatex(3400,100,"2014");
+latex.DrawLatex(5200,100,"2015");
+latex.DrawLatex(7000,100,"2016");
+//gPad->SetLogy();
+
+c4.cd(2);
+numSurfaceEventsInRun->Draw();
+numSurfaceEventsInRun->SetTitle("A2 Full Data;Number of Surface Events in Run;Number of Runs");
+sprintf(filename,"surfaceRunHist_numSurfaceEventsInRun_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_%s_fullData_tunedCut_allTypes.C", STATION.c_str());
 c4.SaveAs(filename);
 */
-/*
-sprintf(filename, "%s_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEventRuns.txt", STATION.c_str());
-ofstream noisyRunFile(filename, ofstream::out|ofstream::app);
-for(int bin=1; bin<=surfaceRunHist->GetNbinsX(); bin++){
+
+
+
+
+//sprintf(filename, "%s_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEventRuns.txt", STATION.c_str());
+//ofstream noisyRunFile(filename, ofstream::out|ofstream::app);
+//int maxCount = 0;
+//for(int bin=1; bin<=surfaceRunHist->GetNbinsX(); bin++){
    //if(surfaceRunHist->GetBinContent(bin)>1) noisyRunFile<<surfaceRunHist->GetBinCenter(bin)<<endl;
-   if(surfaceRunHist->GetBinContent(bin)>0) noisyRunFile<<surfaceRunHist->GetBinCenter(bin)<<","<<surfaceRunHist->GetBinContent(bin)<<endl;
-}
-noisyRunFile.close();
-*/
+   //if(surfaceRunHist->GetBinContent(bin)>0) noisyRunFile<<surfaceRunHist->GetBinCenter(bin)<<","<<surfaceRunHist->GetBinContent(bin)<<endl;
+   //if(surfaceRunHist->GetBinContent(bin)>maxCount) maxCount =  surfaceRunHist->GetBinContent(bin);
+//}
+//noisyRunFile.close();
+
 /*
 
 TCanvas c5("c5","c5",1200,800);
@@ -1954,7 +2020,7 @@ c20.cd(1);
 zen_nMinusNoisyRunSurface->Draw();
 c20.cd(2);
 sinzen_nMinusNoisyRunSurface->Draw();
-sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunSurface_zen_sinzen.C", STATION.c_str());
+sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunSurface_zen_sinzen_postCut.C", STATION.c_str());
 //c20.SaveAs(filename);
 /*
 c20.Divide(4,1);
@@ -1993,7 +2059,7 @@ TCanvas c21("c21","c21",800,800);
 zen_azi_nMinusNoisyRunSurface->Draw("colz");
 zen_azi_nMinusNoisyRunSurface->SetTitle("ARA02 [All Minus Noisy Run & Surface Cut] Events;Azimith [#circ];Zenith [#circ]");
 sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunsSurface_coincidenceCWNoImp_zen_azi.C", STATION.c_str());
-c21.SaveAs(filename);
+//c21.SaveAs(filename);
 
 TCanvas c10("c10","c10",800,800);
 zen_azi_nMinusCal->Draw("colz");
@@ -2114,7 +2180,12 @@ c17.SaveAs(filename);
 //_snrCumuHist->SetName("_snrCumuHist");
 //_snrCumuHist->Draw();
 //c18.SaveAs(filename);
-
+/*
+TCanvas c22("c22","c22",800,800);
+surfaceEventdT->Draw();
+surfaceEventdT->SetTitle("A2 N-chan Filtered Surface Events;#DeltaT [s];Number of Events");
+c22.SaveAs("A2_allTypes_surfaceEventdT.C");
+*/
 
 return 0;
 }
