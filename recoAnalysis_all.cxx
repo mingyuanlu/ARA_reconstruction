@@ -439,6 +439,11 @@ TH2F *coherenceSNR = new TH2F("coherenceSNR","coherenceSNR", 400,0,40,1000,0,1);
 TH2F *zenCoherence = new TH2F("zenCoherence","zenCoherence",1000,0,1,500,-1,1);
 TH2F *zenSNR = new TH2F("zenSNR","zenSNR",400,0,40,500,-1,1);
 
+TH1F *surfaceEventdT = new TH1F("surfaceEventdT","surfaceEventdT",10000, 0, 2000);
+double thisSurfaceTime, lastSurfaceTime;
+int surfaceEventCount = 0;
+
+
 double snrCutValue, coherenceCutValue;
 float coherence, snr;
 
@@ -910,6 +915,18 @@ for(int i=3; i<argc; i++){
    float zenRange = 3.;
    double zenMaj;
    passSurfaceCut_2 = !isIterSurface(zenMaj, dummyData, onion, settings, zenRange, surfaceCut_2);
+
+   if (!(passSurfaceCut && passSurfaceCut_2)){
+
+      thisSurfaceTime = dummyData->unixTime + 1e-9*10*dummyData->timeStamp; //timeStamp in unit of 10ns
+
+      if(surfaceEventCount>0){
+         surfaceEventdT->Fill(thisSurfaceTime-lastSurfaceTime, dummyData->weight);
+      }
+      surfaceEventCount++;
+      lastSurfaceTime = thisSurfaceTime;
+
+   }
 //
 //   cout<<"zenMaj in func: "<<zenMaj<<endl;
 //   iterZenVec.clear();
@@ -1841,7 +1858,7 @@ impulsivityHist_avg->Write();
 fout.Close();
 */
 
-
+/*
 TCanvas c4("c4","c4",1200,800);
 c4.Divide(2,1);
 c4.cd(1);
@@ -1876,6 +1893,7 @@ numSurfaceEventsInRun->Draw();
 numSurfaceEventsInRun->SetTitle("A2 Full Data;Number of Surface Events in Run;Number of Runs");
 sprintf(filename,"surfaceRunHist_numSurfaceEventsInRun_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_%s_fullData_tunedCut_allTypes.C", STATION.c_str());
 c4.SaveAs(filename);
+*/
 
 
 
@@ -1889,9 +1907,6 @@ c4.SaveAs(filename);
    //if(surfaceRunHist->GetBinContent(bin)>maxCount) maxCount =  surfaceRunHist->GetBinContent(bin);
 //}
 //noisyRunFile.close();
-
-
-
 
 /*
 
@@ -2162,6 +2177,11 @@ c17.SaveAs(filename);
 //_snrCumuHist->SetName("_snrCumuHist");
 //_snrCumuHist->Draw();
 //c18.SaveAs(filename);
+
+TCanvas c22("c22","c22",800,800);
+surfaceEventdT->Draw();
+surfaceEventdT->SetTitle("A2 N-chan Filtered Surface Events;#DeltaT [s];Number of Events");
+c22.SaveAs("A2_allTypes_surfaceEventdT.C");
 
 
 return 0;
