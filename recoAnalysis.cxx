@@ -1632,9 +1632,11 @@ for(int i=4; i<argc; i++){
 //   }
 //
 
-   if(/*isCW &&*/ passThermalCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 /*&& passNoisyRunCut*/ && !lowFreqDominance ){
+   if(/*isCW &&*/ passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut && !lowFreqDominance ){
 
-//      cout<<"run: "<<runNum<<" event: "<<dummyData->eventNumber<<" SNR: "<<snr<<endl;
+
+
+      cout<<"run: "<<runNum<<" event: "<<dummyData->eventNumber<<" SNR: "<<snr<<endl;
 //      _snrHist->Fill(snr, dummyData->weight);
       //outputFile<<snr<<",";
 //
