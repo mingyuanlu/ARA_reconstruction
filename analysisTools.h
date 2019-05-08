@@ -119,6 +119,7 @@ bool isSurface(recoData *dummyData, double surfaceCut_1);
 bool isIterSurface(double &zenMaj, recoData *dummyData, Healpix_Onion onion, recoSettings *settings, double zenRange, double surfaceCut_2);
 float getZenMaj(const vector<float>& iterZenVec, float zenRange);
 bool isNearNoisyRun(const vector<int>& noisyRuns, int runNum, int plusMinusRunNum);
+bool isInCalibrationRun(const vector<int>& calRuns, int runNum);
 bool isDeepPulser(string STATION, recoData *dummyData, int runNum);
 bool isCalpulserTime(string STATION, recoData *dummyData);
 bool isCalpulser(float &inBoxTheta, float &inBoxPhi, string STATION, recoData *dummyData, Healpix_Onion onion, recoSettings *settings, int type);

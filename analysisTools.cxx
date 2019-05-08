@@ -621,6 +621,22 @@ bool isNearNoisyRun(const vector<int>& noisyRuns, int runNum, int plusMinusRunNu
 
 }
 
+bool isInCalibrationRun(const vector<int>& calRuns, int runNum){
+
+
+   bool isCal = false;
+
+   for(int run=0; run<calRuns.size(); run++){
+      if(calRuns[run] == runNum){
+         isCal=true;
+         break;
+      }
+   }
+
+   return isCal;
+
+}
+
 bool isDeepPulser(string STATION, recoData *dummyData, int runNum){
 
    bool passDeepPulserCut = false;

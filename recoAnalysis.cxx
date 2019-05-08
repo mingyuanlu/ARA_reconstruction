@@ -304,6 +304,24 @@ list.close();
 int numNoisyRuns = listOfRuns.size();
 //vector< vector<int> > noisyRun;
 
+ifstream list2;
+list2.open("ARA02_calibrationRuns.txt")
+vector<int> listOfCalRuns;
+if(list2.is_open()){
+   while(list2.good()){
+
+      getline(list2, line, '\n');
+      if(line == "") break;
+      run = stoi(line);
+
+      cout<<"cal run: "<<run<<endl;
+      listOfCalRuns.push_back(run);
+
+   }
+}
+
+list2.close();
+int numCalRuns = listOfCalRuns.size();
 
 /*************    START LOOPING THROUGH EVENTS *********************************************************************
  * we will have
@@ -314,10 +332,10 @@ int numNoisyRuns = listOfRuns.size();
  * Then a list fo remaining events will be produced for iterative reconstruction.
  *******************************************************************************************************************/
 
-bool passThermalCut, passSurfaceCut, passCalpulserCut, passDeepPulserCut, passCorruptionCut, passNoisyRunCut, passThermalImpulsivityCut, passCWCut, passNumSatChanCut, passSurfaceCut_2, passCalpulserTimeCut;
-double nPassCorruption, nPassThermalCut, nPassSurfaceCut, nPassDeepPulserCut, nPassNoisyRunCut, nPassCalpulserCut, nPassImpulsivityCut, nPassHighPassFilter, nPassThermalImpulsivityCut, nPassCWCut, nPassNumSatChanCut, nPassSurfaceCut_2, nPassCalpulserTimeCut;
+bool passThermalCut, passSurfaceCut, passCalpulserCut, passDeepPulserCut, passCorruptionCut, passNoisyRunCut, passThermalImpulsivityCut, passCWCut, passNumSatChanCut, passSurfaceCut_2, passCalpulserTimeCut, passCalRunCut;
+double nPassCorruption, nPassThermalCut, nPassSurfaceCut, nPassDeepPulserCut, nPassNoisyRunCut, nPassCalpulserCut, nPassImpulsivityCut, nPassHighPassFilter, nPassThermalImpulsivityCut, nPassCWCut, nPassNumSatChanCut, nPassSurfaceCut_2, nPassCalpulserTimeCut, nPassCalRunCut;
 double nCut0, nCut1, nCut2, nCut3, nCut4, nCut5, nCut6, nCut7, nCut3p5, nCut1p5, nCut0p5, nCut6p5, nCut4p5;
-nPassCorruption = nPassThermalCut = nPassSurfaceCut = nPassDeepPulserCut = nPassNoisyRunCut = nPassCalpulserCut = nPassImpulsivityCut = nPassHighPassFilter = nPassThermalImpulsivityCut = nPassCWCut = nPassNumSatChanCut = nPassSurfaceCut_2 = nPassCalpulserTimeCut = 0.;
+nPassCorruption = nPassThermalCut = nPassSurfaceCut = nPassDeepPulserCut = nPassNoisyRunCut = nPassCalpulserCut = nPassImpulsivityCut = nPassHighPassFilter = nPassThermalImpulsivityCut = nPassCWCut = nPassNumSatChanCut = nPassSurfaceCut_2 = nPassCalpulserTimeCut = nPassCalRunCut = 0.;
 nCut0 = nCut1 = nCut2 = nCut3 = nCut4 = nCut5 = nCut6 = nCut7 = nCut3p5 = nCut1p5 = nCut0p5 = nCut6p5 = nCut4p5 = 0.;
 
 bool passImpulsivityCut;
@@ -545,7 +563,9 @@ for(int i=4; i<argc; i++){
    int runNum = atoi(  fin.substr(fin.find("run")+3, fin.find(".root")-fin.find("run")-2).c_str() );
 
 
-   //Exclude certain runs:
+   //Exclude calibration runs:
+   if( isInCalibrationRun(listOfCalRuns, runNum) ) continue;
+   /*
    //Cal sweep
    if(runNum>=3177 && runNum<=3186) continue;
    if(runNum>=3302 && runNum<=3311) continue;
@@ -555,7 +575,7 @@ for(int i=4; i<argc; i++){
    if(runNum==7100)                 continue;
    //Cal sweep
    if(runNum>=7625 && runNum<=7686) continue;
-
+   */
 
    //int event  = atoi(  fin.substr(fin.find("event")+5, fin.find(".txt")-fin.find("event")-4).c_str() );
    TFile fp1( argv[i] );
@@ -597,13 +617,14 @@ for(int i=4; i<argc; i++){
    //if(dummyData->eventNumber != 127378) continue;
 
    //Exclude the offset-block events and block-gap events
+   /*
    if(runNum==2889 && dummyData->eventNumber==108253) { totalOffsetBlockEventCount++; continue; }
    if(runNum==2759 && dummyData->eventNumber==8625) { totalOffsetBlockEventCount++; continue; }
    if(runNum==4838 && dummyData->eventNumber==15842) { totalOffsetBlockEventCount++; continue; }
    if(runNum==6842 && dummyData->eventNumber==324) { totalOffsetBlockEventCount++; continue; }
    //block-gap
    if(runNum==4429 && dummyData->eventNumber==34200) { totalBlockGapEventCount++; continue; }
-
+   */
 
 
 
@@ -623,6 +644,7 @@ for(int i=4; i<argc; i++){
    passNumSatChanCut = false;
    passSurfaceCut_2 = false;
    passCalpulserTimeCut = false;
+   //passCalRunCut = false;
 
    passSNRCut = false;
 
@@ -1087,6 +1109,10 @@ for(int i=4; i<argc; i++){
    //if(runNum == 4787 || runNum==4785 ) passNoisyRunCut = false; //DP
 
 
+   /********* Calibration run exclusion *********/
+   //passCalRunCut = !isInCalibrationRun(listOfCalRuns, runNum);
+
+
    /* Check if CW-tagged event can be recovered by surviving the impulsivity cut */
    /*
    if ( isCW ){
@@ -1236,6 +1262,7 @@ for(int i=4; i<argc; i++){
 
    //snrHist[0]->Fill(dummyData->inWindowSNR, dummyData->weight);
 
+   //nPassCalRunCut     += passCalRunCut * dummyData->weight;
    nPassCWCut         += passCWCut * dummyData->weight;
    nPassDeepPulserCut += passDeepPulserCut * dummyData->weight;
    nPassThermalCut    += passThermalCut * dummyData->weight;
@@ -1246,6 +1273,8 @@ for(int i=4; i<argc; i++){
    nPassSurfaceCut    += passSurfaceCut * dummyData->weight;
    nPassSurfaceCut_2  += passSurfaceCut_2 * dummyData->weight;
    nPassNoisyRunCut   += passNoisyRunCut * dummyData->weight;
+
+   //nCut1              += (passCalRunCut) * dummyData->weight;
 
    nCut1p5            += (passCWCut) * dummyData->weight;
    //if ( passCWCut) snrHist[1]->Fill(dummyData->inWindowSNR, dummyData->weight);
@@ -1632,7 +1661,7 @@ for(int i=4; i<argc; i++){
 //   }
 //
 
-   if(/*isCW &&*/ passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut && !lowFreqDominance ){
+   if(/*isCW &&*/passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut && !lowFreqDominance ){
 
 
 
@@ -1871,6 +1900,7 @@ printf("\nnRecoEvent: %d\n\n", nRecoEvent);
 //printf("nPassImpulsivityCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassImpulsivityCut, (float)nPassImpulsivityCut/(float)rfEventCount, nCut0, (float)nCut0/(float)rfEventCount);
 //printf("nPassHighPassFilter: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassHighPassFilter, (float)nPassHighPassFilter/(float)rfEventCount, nCut1, (float)nCut1/(float)rfEventCount);
 //printf("nPassNumSatChanCut %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassNumSatChanCut, (float)nPassNumSatChanCut/(float)rfEventCount, nCut0p5, (float)nCut0p5/(float)rfEventCount);
+//printf("nPassCalRunCut %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassCalRunCut, (float)nPassCalRunCut/(float)rfEventCount, nCut1, (float)nCut1/(float)rfEventCount);
 printf("nPassCWCut %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassCWCut, (float)nPassCWCut/(float)rfEventCount, nCut1p5, (float)nCut1p5/(float)rfEventCount);
 printf("nPassDeepPulserCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassDeepPulserCut, (float)nPassDeepPulserCut/(float)rfEventCount, nCut2, (float)nCut2/(float)rfEventCount);
 printf("nPassSurfaceCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassSurfaceCut, (float)nPassSurfaceCut/(float)rfEventCount, nCut3, (float)nCut3/(float)rfEventCount);
