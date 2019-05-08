@@ -305,7 +305,7 @@ int numNoisyRuns = listOfRuns.size();
 //vector< vector<int> > noisyRun;
 
 ifstream list2;
-list2.open("ARA02_calibrationRuns.txt")
+list2.open("ARA02_calibrationRuns.txt");
 vector<int> listOfCalRuns;
 if(list2.is_open()){
    while(list2.good()){
