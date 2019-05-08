@@ -78,20 +78,94 @@ cout<<"STATION: "<<STATION<<" type: "<<type<<endl;
 
 ofstream outputFile(argv[3],std::ofstream::out|std::ofstream::app);
 
+ifstream list;
+
+//list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
+list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_fullDataExpoFit_surfaceEvents_noisyRuns.txt");
+
+vector<int> listOfRuns;
+//vector<int> listOfEvents;
+string line;
+int run, event;
+char line_char[200];
+
+if (list.is_open() ){
+
+   while (list.good()){
+
+      getline(list, line, '\n');
+      if (line == "") break;
+      run = stoi(line);
+
+      /*
+      getline(list, line, ',');
+      if (line=="") break;
+      run = stoi(line);
+      getline(list, line, '\n');
+      if (line=="") break;
+      event = stoi(line);
+      //getline(list, line, '\n');
+      */
+      //if(event >= 10){
+         cout<<"run: "<<run/*<<" event: "<<event*/<<endl;
+         //cout<<"run: "<<run<<" event: "<<event<<endl;
+         listOfRuns.push_back(run);
+      //}
+      //listOfEvents.push_back(event);
+   }
+}  else {
+   cerr<<"No noisy run list! Aborting...";
+   return -1;
+}
+
+list.close();
+
+int numNoisyRuns = listOfRuns.size();
+//vector< vector<int> > noisyRun;
+
+ifstream list2;
+list2.open("ARA02_calibrationRuns.txt");
+vector<int> listOfCalRuns;
+if(list2.is_open()){
+   while(list2.good()){
+
+      getline(list2, line, '\n');
+      if(line == "") break;
+      run = stoi(line);
+
+      cout<<"cal run: "<<run<<endl;
+      listOfCalRuns.push_back(run);
+
+   }
+}  else {
+   cerr<<"No calibration run list! Aborting...";
+   return -1;
+}
+
+list2.close();
+int numCalRuns = listOfCalRuns.size();
+
+
 /*TChain*/TTree *recoSettingsTree/*=new TChain("recoSettingsTree")*/;
 /*TChain*/TTree *dataTree/*=new TChain("dataTree")*/;
 TChain *runInfoTree=new TChain("runInfoTree");
 
 for(int i=4; i<argc; i++){
 
+   string fin(argv[i]);
+   int runNum = atoi(  fin.substr(fin.find("run")+3, fin.find(".root")-fin.find("run")-2).c_str() );
+
    TFile fp( argv[i] );
 
    if( fp.IsZombie() ){ cerr<<"File "<<argv[i]<<" is zombie. Skipping..."<<endl; continue; }
    if( fp.TestBit(TFile::kRecovered) ){ cerr<<"File "<<argv[i]<<" is recovered file. Skipping..."<<endl; continue; }
 
+   if (!isNearNoisyRun(listOfRuns, runNum, 0) && !isInCalibrationRun(listOfCalRuns, runNum)){
    //recoSettingsTree->Add( argv[i] );
    //dataTree->Add( argv[i] );
    runInfoTree->Add( argv[i] );
+   }
+
    fp.Close();
 }
 
@@ -248,86 +322,86 @@ printf("totalMistaggedSoftEventCount: %d\ttotalOffsetBlockEventCount: %d\ttotalC
 double rfEventCount, calEventCount, softEventCount;
 rfEventCount = calEventCount = softEventCount = 0.;
 
-ifstream list;
-//list.open("ARA02_noSuE19aceCut_noisyRuns.txt");
-//list.open("ARA02_suE19aceCut_noisyRuns.txt");
-//list.open("ARA02_surfaceEvents_noisyRuns.txt");
-//list.open("ARA02_impulsivityFilter1_surfaceEvents_noisyRuns.txt");
-//list.open("ARA02_impulsivityFilter1_noMaskSat_surfaceEvents_noisyRuns.txt");
-//list.open("ARA02_impulsivityFilter1_extendedThermalCut_noMaskSat_surfaceEvents_noisyRuns.txt");
-//list.open("ARA02_impulsivityFilter1_thermalImpulsivityCut_noMaskSat_surfaceEvents_noisyRuns.txt");
-//list.open("ARA02_vnchnl3NoMasking_noMaskSat_surfaceEvents_noisyRuns.txt");
-//list.open("ARA02_vnchnl3NoMasking_noMaskSat_impCut_surfaceEvents_noisyRuns.txt");
-//list.open("ARA02_vnchnl3NoMasking_noMaskSat_impCut_surfaceEvents_noisyRuns.txt");
-//list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_surfaceEvents_noisyRuns.txt");
-//list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_2SurfaceCut_surfaceEvents_noisyRuns.txt");
-//list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_snrMode1_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
-//list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
-
-list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_fullDataExpoFit_surfaceEvents_noisyRuns.txt");
-
-//list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEventRuns.txt");
-vector<int> listOfRuns;
-//vector<int> listOfEvents;
-string line;
-int run, event;
-char line_char[200];
-
-if (list.is_open() ){
-
-   while (list.good()){
-
-      getline(list, line, '\n');
-      if (line == "") break;
-      run = stoi(line);
-
-      /*
-      getline(list, line, ',');
-      if (line=="") break;
-      run = stoi(line);
-      getline(list, line, '\n');
-      if (line=="") break;
-      event = stoi(line);
-      //getline(list, line, '\n');
-      */
-      //if(event >= 10){
-         cout<<"run: "<<run/*<<" event: "<<event*/<<endl;
-         //cout<<"run: "<<run<<" event: "<<event<<endl;
-         listOfRuns.push_back(run);
-      //}
-      //listOfEvents.push_back(event);
-   }
-}  else {
-   cerr<<"No noisy run list! Aborting...";
-   return -1;
-}
-
-list.close();
-
-int numNoisyRuns = listOfRuns.size();
-//vector< vector<int> > noisyRun;
-
-ifstream list2;
-list2.open("ARA02_calibrationRuns.txt");
-vector<int> listOfCalRuns;
-if(list2.is_open()){
-   while(list2.good()){
-
-      getline(list2, line, '\n');
-      if(line == "") break;
-      run = stoi(line);
-
-      cout<<"cal run: "<<run<<endl;
-      listOfCalRuns.push_back(run);
-
-   }
-}  else {
-   cerr<<"No calibration run list! Aborting...";
-   return -1;
-}
-
-list2.close();
-int numCalRuns = listOfCalRuns.size();
+//ifstream list;
+////list.open("ARA02_noSuE19aceCut_noisyRuns.txt");
+////list.open("ARA02_suE19aceCut_noisyRuns.txt");
+////list.open("ARA02_surfaceEvents_noisyRuns.txt");
+////list.open("ARA02_impulsivityFilter1_surfaceEvents_noisyRuns.txt");
+////list.open("ARA02_impulsivityFilter1_noMaskSat_surfaceEvents_noisyRuns.txt");
+////list.open("ARA02_impulsivityFilter1_extendedThermalCut_noMaskSat_surfaceEvents_noisyRuns.txt");
+////list.open("ARA02_impulsivityFilter1_thermalImpulsivityCut_noMaskSat_surfaceEvents_noisyRuns.txt");
+////list.open("ARA02_vnchnl3NoMasking_noMaskSat_surfaceEvents_noisyRuns.txt");
+////list.open("ARA02_vnchnl3NoMasking_noMaskSat_impCut_surfaceEvents_noisyRuns.txt");
+////list.open("ARA02_vnchnl3NoMasking_noMaskSat_impCut_surfaceEvents_noisyRuns.txt");
+////list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_surfaceEvents_noisyRuns.txt");
+////list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_2SurfaceCut_surfaceEvents_noisyRuns.txt");
+////list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_snrMode1_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
+////list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
+//
+//list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_fullDataExpoFit_surfaceEvents_noisyRuns.txt");
+//
+////list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEventRuns.txt");
+//vector<int> listOfRuns;
+////vector<int> listOfEvents;
+//string line;
+//int run, event;
+//char line_char[200];
+//
+//if (list.is_open() ){
+//
+//   while (list.good()){
+//
+//      getline(list, line, '\n');
+//      if (line == "") break;
+//      run = stoi(line);
+//
+//      /*
+//      getline(list, line, ',');
+//      if (line=="") break;
+//      run = stoi(line);
+//      getline(list, line, '\n');
+//      if (line=="") break;
+//      event = stoi(line);
+//      //getline(list, line, '\n');
+//      */
+//      //if(event >= 10){
+//         cout<<"run: "<<run/*<<" event: "<<event*/<<endl;
+//         //cout<<"run: "<<run<<" event: "<<event<<endl;
+//         listOfRuns.push_back(run);
+//      //}
+//      //listOfEvents.push_back(event);
+//   }
+//}  else {
+//   cerr<<"No noisy run list! Aborting...";
+//   return -1;
+//}
+//
+//list.close();
+//
+//int numNoisyRuns = listOfRuns.size();
+////vector< vector<int> > noisyRun;
+//
+//ifstream list2;
+//list2.open("ARA02_calibrationRuns.txt");
+//vector<int> listOfCalRuns;
+//if(list2.is_open()){
+//   while(list2.good()){
+//
+//      getline(list2, line, '\n');
+//      if(line == "") break;
+//      run = stoi(line);
+//
+//      cout<<"cal run: "<<run<<endl;
+//      listOfCalRuns.push_back(run);
+//
+//   }
+//}  else {
+//   cerr<<"No calibration run list! Aborting...";
+//   return -1;
+//}
+//
+//list2.close();
+//int numCalRuns = listOfCalRuns.size();
 
 /*************    START LOOPING THROUGH EVENTS *********************************************************************
  * we will have
