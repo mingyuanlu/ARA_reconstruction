@@ -297,6 +297,9 @@ if (list.is_open() ){
       //}
       //listOfEvents.push_back(event);
    }
+}  else {
+   cerr<<"No noisy run list! Aborting...";
+   return -1;
 }
 
 list.close();
@@ -318,6 +321,9 @@ if(list2.is_open()){
       listOfCalRuns.push_back(run);
 
    }
+}  else {
+   cerr<<"No calibration run list! Aborting...";
+   return -1;
 }
 
 list2.close();
