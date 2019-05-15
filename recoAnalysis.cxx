@@ -160,11 +160,11 @@ for(int i=4; i<argc; i++){
    if( fp.IsZombie() ){ cerr<<"File "<<argv[i]<<" is zombie. Skipping..."<<endl; continue; }
    if( fp.TestBit(TFile::kRecovered) ){ cerr<<"File "<<argv[i]<<" is recovered file. Skipping..."<<endl; continue; }
 
-   //if (/*!isNearNoisyRun(listOfRuns, runNum, 0) &&*/ !isInCalibrationRun(listOfCalRuns, runNum)){
+   if (!isNearNoisyRun(listOfRuns, runNum, 0) && !isInCalibrationRun(listOfCalRuns, runNum)){
    //recoSettingsTree->Add( argv[i] );
    //dataTree->Add( argv[i] );
    runInfoTree->Add( argv[i] );
-   //}
+   }
 
    fp.Close();
 }
