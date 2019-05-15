@@ -1767,9 +1767,9 @@ for(int i=3; i<argc; i++){
    }//end of entry
 
    numSurfaceEventsInRun->Fill(numSurfaceEventPerRun);
-//   if(numSurfaceEventPerRun>=14){ //Expo fit to 100% data numSurfaceEventPerRun, at 0.01 run the numSurfaceEventPerRun is 13.63
-//      outputFile<<runNum<<","<<numSurfaceEventPerRun<<endl;
-//   }
+   if(numSurfaceEventPerRun>=14){ //Expo fit to 100% data numSurfaceEventPerRun, at 0.01 run the numSurfaceEventPerRun is 13.10
+      outputFile<<runNum<<","<<numSurfaceEventPerRun<<endl;
+   }
 
 delete dataTree;
 delete recoSettingsTree;
@@ -1891,7 +1891,7 @@ impulsivityHist_avg->Write();
 fout.Close();
 */
 
-
+/*
 TCanvas c4("c4","c4",1200,800);
 c4.Divide(2,1);
 c4.cd(1);
@@ -1926,7 +1926,7 @@ numSurfaceEventsInRun->Draw();
 numSurfaceEventsInRun->SetTitle("A2 Full Data;Number of Surface Events in Run;Number of Runs");
 sprintf(filename,"surfaceRunHist_numSurfaceEventsInRun_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_%s_fullData_tunedCut_allTypes.C", STATION.c_str());
 c4.SaveAs(filename);
-
+*/
 
 
 
