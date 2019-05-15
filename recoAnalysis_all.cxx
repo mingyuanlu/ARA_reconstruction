@@ -1767,6 +1767,7 @@ for(int i=3; i<argc; i++){
    }//end of entry
 
    numSurfaceEventsInRun->Fill(numSurfaceEventPerRun);
+   cout<<runNum<<","<<numSurfaceEventPerRun<<endl;
    if(numSurfaceEventPerRun>=14){ //Expo fit to 100% data numSurfaceEventPerRun, at 0.01 run the numSurfaceEventPerRun is 13.10
       outputFile<<runNum<<","<<numSurfaceEventPerRun<<endl;
    }
