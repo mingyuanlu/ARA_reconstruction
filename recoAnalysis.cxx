@@ -2421,7 +2421,8 @@ c23.cd(3);
 zen_c_hist->Draw("colz");
 c23.cd(4);
 zen_azi_rf->Draw("colz");
-c23.SaveAs(("recoAnalysis_23_type"+str(type)+".C").c_str());
+sprintf(filename,"recoAnalysis_23_type%d.C", type);
+c23.SaveAs(filename);
 
 return 0;
 }
