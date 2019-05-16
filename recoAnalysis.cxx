@@ -521,6 +521,11 @@ TH2F *coherenceSNR = new TH2F("coherenceSNR","coherenceSNR", 400,0,40,1000,0,1);
 TH2F *zenCoherence = new TH2F("zenCoherence","zenCoherence",1000,0,1,500,-1,1);
 TH2F *zenSNR = new TH2F("zenSNR","zenSNR",400,0,40,500,-1,1);
 
+TH1F *zenHist = new TH1F("zenHist","zenHist",180/0.4, -90, 90);
+TH1F *aziHist = new TH1F("aziHist","aziHist",360/0.4, 0, 360);
+TH2F *zen_c_hist = new TH2F("zen_c_hist","zen_c_hist",1000,0,1,180/0.4,-90,90);
+TH2F *zen_azi_rf = new TH2F("zen_azi_rf","zen_azu_rf",360/0.4,0,360,180/0.4,-90,90);
+
 double snrCutValue, coherenceCutValue;
 float coherence, snr;
 
@@ -949,6 +954,11 @@ for(int i=4; i<argc; i++){
 
 //passThermalCut = !isThermal_boxCut(inBand, settings, dummyData, onion,  cutValues->snrCut_inBand[type-1].val, cutValues->coherenceCut_inBand[type-1].val, cutValues->snrCut_outOfBand[type-1].val, cutValues->coherenceCut_outOfBand[type-1].val);
 
+
+   zenHist->Fill(90.f-dummyData->recoZen);
+   aziHist->Fill(dummyData->recoAzi);
+   zen_c_hist->Fill(dummyData->maxPixCoherence, 90.f-dummyData->recoZen);
+   zen_azi_rf->Fill(dummyData->recoAzi, 90.f-dummyData->recoZen);
 
 /*
    r     = onion.getLayerRadius(dummyData->maxPixIdx2);
@@ -2400,6 +2410,18 @@ sprintf(filename,"%s_type%d_snrMode1_nMinusSurfaceCal_zen_azi.C", STATION.c_str(
 //c22.SaveAs(filename);
 sprintf(filename,"%s_type%d_snrMode1_nMinusSurfaceCal_zen_azi.pdf", STATION.c_str(), type);
 //c22.SaveAs(filename);
+
+TCanvas c23("c23","c23",800,800);
+c23.Divide(2,2);
+c23.cd(1);
+zenHist->Draw();
+c23.cd(2);
+aziHist->Draw();
+c23.cd(3);
+zen_c_hist->Draw("colz");
+c23.cd(4);
+zen_azi_rf->Draw("colz");
+c23.SaveAs("recoAnalysis_23.C");
 
 return 0;
 }
