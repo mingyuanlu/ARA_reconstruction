@@ -757,13 +757,13 @@ for(int i=4; i<argc; i++){
    maxFreqBinVec_H.clear();
    maxFreqBinVec.clear();
 
-   bool passBVSNRCut;
+   bool passBVSNRCut ;
 
-   for(int ch=0; ch<8; ch++){
-      slidingV2SNR_V[ch] = dummyData->slidingV2SNR[ch];
-   }
+   //for(int ch=0; ch<8; ch++){
+   //   slidingV2SNR_V[ch] = dummyData->slidingV2SNR[ch];
+   //}
 
-   TMath::Sort(8, slidingV2SNR_V, index_V);
+   //TMath::Sort(8, slidingV2SNR_V, index_V);
    //for(int order=0; order<8; order++){
    //   cout<<"order: "<<order<<" chan: "<<index_V[order]<<" v2snr: "<<slidingV2SNR_V[index_V[order]]<<endl;
    //}
