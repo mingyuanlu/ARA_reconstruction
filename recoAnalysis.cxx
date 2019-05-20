@@ -1787,8 +1787,11 @@ for(int i=4; i<argc; i++){
 //
 //   }
 //
-
+   cout<<runNum<<endl;
    if  ( passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && !lowFreqDominance && passBVSNRCut){
+
+      cout<<runNum<<","<<dummyData->eventNumber<<endl;
+
       outputFile<<runNum<<","<<dummyData->eventNumber;
       for(int ch=0; ch<8; ch++) outputFile<<","<<dummyData->slidingV2SNR[ch];
       outputFile<<endl;
