@@ -260,6 +260,10 @@ totalWeightedTrigEventCount = totalWeightedRecoEventCount = totalWeightedOffsetB
 
 int totalLiveTime=0;
 
+int startTimeMin, endTimeMax;
+startTimeMin=1e16;
+endTimeMax=0;
+
 for(int run=0; run<runInfoTree->GetEntries(); run++){
 
    runInfoTree->GetEntry(run);
@@ -304,6 +308,9 @@ for(int run=0; run<runInfoTree->GetEntries(); run++){
    totalWeightedNchnlFilteredEventCount       += weightedNchnlFilteredEventCount;
    totalWeightedCWFilteredEventCount          += weightedCWFilteredEventCount;
    totalWeightedImpulsivityFilteredEventCount += weightedImpulsivityFilteredEventCount;
+
+   if(runStartTime<startTimeMin) startTimeMin=runStartTime;
+   if(runEndTime>endTimeMax)     endTimeMax=runEndTime+1;
 
    if(runEndTime < runStartTime){ cerr<<"Run "<<run<<" livetime error. Skipping...\n"; continue; }
    else totalLiveTime += (runEndTime - runStartTime);
@@ -641,6 +648,11 @@ pcount_nMinusCal = pcount_nMinusSNR = pcount_nMinusCoherence = pcount_nMinusSurf
 
 int nRecoEvent = 0;
 
+TH1F *bvEventTime = new TH1F("bvEventTime","bvEventTime", endTimeMax-startTimeMin+1, startTimeMin, endTimeMax);
+TH2F *azi_bvEventTime = new TH2F("azi_bvEventTime","azi_bvEventTime", endTimeMax-startTimeMin+1, startTimeMin, endTimeMax, 360/0.4, 1, 360);
+TH2F *zen_bvEventTime = new TH2F("zen_bvEventTime","zen_bvEventTime", endTimeMax-startTimeMin+1, startTimeMin, endTimeMax, 180/0.4, -90, 90);
+
+
 //for(int entry=0; entry<Nentries; entry++){
 for(int i=4; i<argc; i++){
 
@@ -744,6 +756,22 @@ for(int i=4; i<argc; i++){
    maxFreqBinVec_V.clear();
    maxFreqBinVec_H.clear();
    maxFreqBinVec.clear();
+
+   bool passBVSNRCut = true;
+
+   for(int ch=0; ch<8; ch++){
+      slidingV2SNR_V[ch] = dummyData->slidingV2SNR[ch];
+   }
+
+   TMath::Sort(8, slidingV2SNR_V, index_V);
+   //for(int order=0; order<8; order++){
+   //   cout<<"order: "<<order<<" chan: "<<index_V[order]<<" v2snr: "<<slidingV2SNR_V[index_V[order]]<<endl;
+   //}
+   for(int ch=4; ch<8; ch++){
+      if(dummyData->slidingV2SNR[ch]<10) passBVSNRCut = false;
+   }
+
+
 
    //isCW = isCW_coincidence(isVpolCW, isHpolCW, maxCountFreqBin_V, maxCountFreqBin_H, dummyData, cwBinThres);
 /*
@@ -1751,6 +1779,17 @@ for(int i=4; i<argc; i++){
 //   }
 //
 
+   if  ( passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && !lowFreqDominance && passBVSNRCut){
+      outputFile<<runNum<<","<<dummyData->eventNumber;
+      for(int ch=4; ch<8; ch++) outputFile<<","<<dummyData->slidingV2SNR[ch];
+      outputFile<<endl;
+
+      bvEventTime->Fill(dummyData->unixTime);
+      azi_bvEventTime->Fill(dummyData->unixTime, dummyData->constantNAzi);
+      zen_bvEventTime->Fill(dummyData->unixTime, 90.f-dummyData->constantNZen);
+
+   }
+
    if(/*isCW &&*/passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut && !lowFreqDominance ){
 
 
@@ -2422,7 +2461,21 @@ zen_c_hist->Draw("colz");
 c23.cd(4);
 zen_azi_rf->Draw("colz");
 sprintf(filename,"recoAnalysis_23_type%d.C", type);
-c23.SaveAs(filename);
+//c23.SaveAs(filename);
+
+TCanvas c24("c24","c24",1200,800);
+c24.Divide(3,1);
+c24.cd(1);
+bvEventTime->Draw();
+bvEventTime->SetTitle("BV Events;Unix Time [s];Count");
+c24.cd(2);
+azi_bvEventTime->Draw("colz");
+azi_bvEventTime->SetTitle("BV Events;Unix Time [s];Quasi-planewave Reco Azi [#circ]");
+c24.cd(3);
+zen_bvEventTime->Draw("colz");
+zen_bvEventTime->SetTitle("BV Events;Unix Time [s];Quasi-planewave Reco Zen [#circ]");
+sprintf(filename,"recoAnalysis_24_type%d.C", type);
+c24.SaveAs(filename);
 
 return 0;
 }
