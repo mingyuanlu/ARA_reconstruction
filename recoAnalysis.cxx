@@ -757,7 +757,7 @@ for(int i=4; i<argc; i++){
    maxFreqBinVec_H.clear();
    maxFreqBinVec.clear();
 
-   bool passBVSNRCut = true;
+   bool passBVSNRCut;
 
    for(int ch=0; ch<8; ch++){
       slidingV2SNR_V[ch] = dummyData->slidingV2SNR[ch];
@@ -767,9 +767,18 @@ for(int i=4; i<argc; i++){
    //for(int order=0; order<8; order++){
    //   cout<<"order: "<<order<<" chan: "<<index_V[order]<<" v2snr: "<<slidingV2SNR_V[index_V[order]]<<endl;
    //}
-   for(int ch=4; ch<8; ch++){
-      if(dummyData->slidingV2SNR[ch]<10) passBVSNRCut = false;
+   if( (dummyData->slidingV2SNR[0] < 7 && dummyData->slidingV2SNR[1] < 7 && dummyData->slidingV2SNR[2] < 7 && dummyData->slidingV2SNR[3] < 7)
+   &&
+   (dummyData->slidingV2SNR[4] > 12 && dummyData->slidingV2SNR[5] > 12 && dummyData->slidingV2SNR[6] > 12 && dummyData->slidingV2SNR[7] > 12) ) {
+      passBVSNRCut = true;
+   } else {
+      passBVSNRCut = false;
    }
+
+
+   //for(int ch=4; ch<8; ch++){
+   //   if(dummyData->slidingV2SNR[ch]<7) passBVSNRCut = false;
+   //}
 
 
 
