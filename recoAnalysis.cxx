@@ -1796,10 +1796,11 @@ for(int i=4; i<argc; i++){
       for(int ch=0; ch<8; ch++) outputFile<<","<<dummyData->slidingV2SNR[ch];
       outputFile<<endl;
       cout<<"1798\n";
-      bvEventTime->Fill(dummyData->unixTime);
-      azi_bvEventTime->Fill(dummyData->unixTime, dummyData->constantNAzi);
-      zen_bvEventTime->Fill(dummyData->unixTime, 90.f-dummyData->constantNZen);
-      cout<<"1802\n";
+      //bvEventTime->Fill(dummyData->unixTime);
+      //cout<<"1800\n";
+      //azi_bvEventTime->Fill(dummyData->unixTime, dummyData->constantNAzi);
+      //zen_bvEventTime->Fill(dummyData->unixTime, 90.f-dummyData->constantNZen);
+      //cout<<"1802\n";
    }
 
    if(/*isCW &&*/passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut && !lowFreqDominance ){
