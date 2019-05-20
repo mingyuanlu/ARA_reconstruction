@@ -1790,7 +1790,7 @@ for(int i=4; i<argc; i++){
 
    if  ( passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && !lowFreqDominance && passBVSNRCut){
       outputFile<<runNum<<","<<dummyData->eventNumber;
-      for(int ch=4; ch<8; ch++) outputFile<<","<<dummyData->slidingV2SNR[ch];
+      for(int ch=0; ch<8; ch++) outputFile<<","<<dummyData->slidingV2SNR[ch];
       outputFile<<endl;
 
       bvEventTime->Fill(dummyData->unixTime);
