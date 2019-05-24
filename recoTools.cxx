@@ -15673,7 +15673,7 @@ nchnlArray[2] = totalPassedHpol;
 /*
  * Returns the sliding V^2 SNR peak time as the number of sigmas between the V^2 peak and mean for all channels. This is Thomas' definition of SNR
  */
-void getChannelSlidingV2SNRPeakTime(const vector<TGraph *>& cleanEvent, int nIntSamp_V, int nIntSamp_H, float *peakTime){
+void getChannelSlidingV2SNRPeakIntoWaveformTime(const vector<TGraph *>& cleanEvent, int nIntSamp_V, int nIntSamp_H, float *peakTime){
 
    double sigma;
    double mean;
@@ -15745,7 +15745,7 @@ void getChannelSlidingV2SNRPeakTime(const vector<TGraph *>& cleanEvent, int nInt
 
          }//end of binCounter
 
-      peakTime[ch] = ti + wInt * (double)(maxBin);
+      peakTime[ch] = wInt * (double)(maxBin);
 
       //delete gr;
       //if(sigma>0)

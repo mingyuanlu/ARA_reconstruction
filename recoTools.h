@@ -459,7 +459,7 @@ TGraph *impulsivityMeasure(TGraph * wf, double *impulsivity/*TGraph * distance_c
 TGraph *bipolarnessMeasure(TGraph *wf, double *bipolarness/*, TGraph *grCumuSumCDF*/);
 void getPosNegPowerPeakAndDeltaT(TGraph *wf, double *posPowerPeak, double *negPowerPeak, double *deltaT, int nIntSamp=50);
 void getChannelSlidingV2SNR(const vector<TGraph *>& cleanEvent, int nIntSamp_V, int nIntSamp_H, float *snrArray);
-void getChannelSlidingV2SNRPeakTime(const vector<TGraph *>& cleanEvent, int nIntSamp_V, int nIntSamp_H, float *peakTime);
+void getChannelSlidingV2SNRPeakIntoWaveformTime(const vector<TGraph *>& cleanEvent, int nIntSamp_V, int nIntSamp_H, float *peakTime);
 void getChannelTotalPowerSNR(const vector<TGraph *>& cleanEvent, int nIntSamp_V, int nIntSamp_H, float *snrArray);
 void computeSNR(recoSettings * settings, const vector<TGraph *>& cleanEvent, recoData *summary);
 int getCWCount_iterFreqWindow(vector<TGraph *>& grFFT, double fftRes, int iterThres);
