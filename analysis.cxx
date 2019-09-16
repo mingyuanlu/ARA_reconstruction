@@ -889,7 +889,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
                timeRange = *max_element(maxTimeVec[s][1].begin(), maxTimeVec[s][1].end())
                          - *min_element(maxTimeVec[s][1].begin(), maxTimeVec[s][1].end());
                if(timeRange < timeRangeCut){
-                  nOffsetBlockString++;   
+                  nOffsetBlockString++;
                }
             }
          }
@@ -1226,7 +1226,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
        maxPixIdx = reconstructCSWGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, summary);
    }
    } else {
-   if(settings->getSkymapMode == 0){
+   //if(settings->getSkymapMode == 0){
 
       //evStr = std::to_string(ev);
       stringstream ss;
@@ -1250,10 +1250,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       } else { //zoom search mode
       maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode(settings, cleanEvent, &clEnv, stationCenterDepth, antLocation, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile);
       }
-   } else {
-      maxPixIdx = reconstructXCorrEnvelopeGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, goodChan/*chanMask*/, summary);
-
-   }
+   //} else {
+   //   maxPixIdx = reconstructXCorrEnvelopeGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, goodChan/*chanMask*/, summary);
+   //}
 
    }
    if( err<0 || maxPixIdx<0 || maxPixIdx2<0 ){ cerr<<"Error reconstructing\n"; return -1; }
@@ -1860,7 +1859,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
        maxPixIdx = reconstructCSWGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, summary);
    }
    } else {
-   if(settings->getSkymapMode == 0){
+   //if(settings->getSkymapMode == 0){
 
       //evStr = std::to_string(ev);
       stringstream ss;
@@ -1884,10 +1883,9 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       } else {//zoom search mode
       maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode(settings, cleanEvent, &clEnv, stationCenterDepth, antLocation, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile);
       }
-   } else {
-      maxPixIdx = reconstructXCorrEnvelopeGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, goodChan/*chanMask*/, summary);
-
-   }
+   //} else {
+   //   maxPixIdx = reconstructXCorrEnvelopeGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, goodChan/*chanMask*/, summary);
+   //}
    }
 
    if( err<0 || maxPixIdx<0 || maxPixIdx2<0 ){ cerr<<"Error reconstructing\n"; return -1; }

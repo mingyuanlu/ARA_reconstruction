@@ -47,7 +47,7 @@ public:
       Default 0. 0: save skymap giving the reco vertex. 1: do not save.
    recoPolType:
       Default "vpol". Three choices are available: "vpol", "hpol", "both". This determines the polarization of antennas going into the reco. NB: only vpol or hpol is supported now.
-   nSideExpStart:
+   nSideExpStartG:
       Default 2. This is only used when skymapSearchMode == 1, ie zoom search mode is used. This number gives the starting pixelization.
    nSideExpEnd:
       Default 8. This is only used when skymapSearchMode == 1, ie zoom search mode is used. This number gives the ending pixelization.
@@ -245,6 +245,7 @@ public:
 
    //ClassDef 19
    int applyA2Ch6Correction;
+
 
    ClassDef(recoSettings, 19); //2: convert all string parameters to char
                               //3: add openCLDeviceType and openCLMaxNumberOfDevices parameters
