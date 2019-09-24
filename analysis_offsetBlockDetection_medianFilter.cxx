@@ -955,8 +955,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          for (int c=0; c<numCross; c++) fout<<","<<crossingTime[c];
          fout<<endl;
       }
-
-      cvs.SaveAs("medianFilter_run"+std::to_string(runNum)+"_ev"+std::to_string(realAtriEvPtr->eventNumber)+".C");
+      char filename[200];
+      sprintf(filename,"medianFilter_run%d_ev%d.C", runNum, realAtriEvPtr->eventNumber);
+      cvs.SaveAs(filename);
 
    }
    numSatChan = getSaturation(settings, unpaddedEvent, satChan);
