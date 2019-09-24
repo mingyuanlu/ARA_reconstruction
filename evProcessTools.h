@@ -86,7 +86,7 @@ static double modifiedHannWindow(int idx, int numSample, int modFrac);
 static double uniformWindow();
 static double getFFTBinWidth(TGraph *grFFT);
 static int getMaxCount(int freqCountSize, int *freqCount, int *maxCountBin, int minCoindence);
-static TGraph* getRollingMeanGraph(TGraph *grInt, int samplerPerBlock);
+static TGraph* getRollingMeanGraph(TGraph *grInt, int samplePerBlock);
 static double getMean(TGraph *gr);
 static double getMax(TGraph *gr, double* maxTime);
 //static double getPeakSqValRange(TGraph *gr, int *index, int firstBin, int lastBin);
@@ -95,6 +95,6 @@ static TGraph* getOneSidedWaveform(TGraph *gr, bool positive);
 static TGraph* getVoltageSummedWaveform(TGraph *gr, int nIntSamp);
 static TGraph* getSqrtVoltageSquaredSummedWaveform(TGraph *gr, int nIntSamp);
 static TGraph* getVoltageSquaredWaveform(TGraph *gr);
-
+static TGraph* getMedianFilteredGraph(TGraph *grInt, int samplePerBlock);
 };
 #endif
