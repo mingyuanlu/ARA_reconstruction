@@ -1716,7 +1716,7 @@ TGraph* evProcessTools::getMedianFilteredGraph(TGraph *grInt, int samplePerBlock
       y = grCrop->GetY();
       grMedianFiltered->SetPoint(i, t0+wInt*i, TMath::Median(grCrop->GetN(), y));
       delete grCrop;
-      delete y;
+      //delete y;
    }
 
    for (int i=nSamp-samplePerBlock; i<nSamp; i++){
@@ -1724,7 +1724,7 @@ TGraph* evProcessTools::getMedianFilteredGraph(TGraph *grInt, int samplePerBlock
       y = grCrop->GetY();
       grMedianFiltered->SetPoint(i, t0+wInt*i, TMath::Median(grCrop->GetN(), y));
       delete grCrop;
-      delete y;
+      //delete y;
 
    }
 
