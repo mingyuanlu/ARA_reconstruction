@@ -939,7 +939,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          slopeVals = grSlope[ch]->GetY();
          slopeSum = fabs(std::accumulate(slopeVals, slopeVals+grSlope[ch]->GetN(), 0.));
          crossingTime.clear();
-         crossingTime = evProcessTools::countZeroCrossings(grSlope[ch], numCross);
+         crossingTime = evProcessTools::countZeroCrossings(grMedianFiltered[ch], numCross);
 
          cvs.cd(ch+1);
          grInt[ch]->SetLineColor(kBlack);
