@@ -949,7 +949,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          grInt[ch]->Draw("AL");
          grMedianFiltered[ch]->Draw("Lsame");
          //gr1stDiffMedian[ch]->Draw("Lsame");
-         grSlope[ch]->SetLineColor(kOrange);
+         grSlope[ch]->Draw("Lsame");
 
          fout<<firstBlockMedian<<","<<lastBlockMedian<<","<<slopeSum<<","<<numCross;
          for (int c=0; c<numCross; c++) fout<<","<<crossingTime[c];
