@@ -922,7 +922,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    else if (stationId == 3){
 
       for (int ch=0; ch<16; ch++){
-         grMedianFiltered[ch] = evProcessTools::getMedianFilteredGraph(grInt[ch], IRS2SamplePerBlock);
+         grMedianFiltered[ch] = evProcessTools::getMedianFilteredGraph(grInt[ch], IRS2SamplePerBlock/2);
          gr1stDiffMedian[ch] = FFTtools::subtractGraphs(grMedianFiltered[ch], grInt[ch]);
          cvs.cd(ch+1);
          grInt[ch]->SetLineColor(kBlack);
