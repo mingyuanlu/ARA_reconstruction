@@ -951,7 +951,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          //gr1stDiffMedian[ch]->Draw("Lsame");
          grSlope[ch]->SetLineColor(kOrange);
 
-         fout<<slopeSum<<","<<numCross;
+         fout<<firstBlockMedian<<","<<lastBlockMedian<<","<<slopeSum<<","<<numCross;
          for (int c=0; c<numCross; c++) fout<<","<<crossingTime[c];
 
       }
