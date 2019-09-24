@@ -551,8 +551,15 @@ if( err<0 ){
    TGraph *grCumuSumCDF[16];
    TGraph *grMedianFiltered[16];
    TGraph *gr1stDiffMedian[16];
+   TGraph *grSlope[16];
    TCanvas cvs("cvs","cvs",1200,800);
    cvs.Divide(4,4);
+
+   double firstBlockMedian, lastBlockMedian, slopeSum;
+   double *slopeVals;
+   vector<double> crossingTime;
+   int numCross;
+   ofstream fout("A3_cliffEvent.csv",std::ofstream::out|std::ofstream::trunc);
 
 if(settings->dataType == 1){
 /*
@@ -921,20 +928,35 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    }
    else if (stationId == 3){
 
+      fout<<runNum<<","<<realAtriEvPtr->eventNumber<<",";
+
       for (int ch=0; ch<16; ch++){
          grMedianFiltered[ch] = evProcessTools::getMedianFilteredGraph(grInt[ch], IRS2SamplePerBlock);
-         gr1stDiffMedian[ch] = FFTtools::subtractGraphs(grMedianFiltered[ch], grInt[ch]);
+         firstBlockMedian = grMedianFiltered[ch]->GetY()[0];
+         lastBlockMedian  = grMedianFiltered[ch]->GetY()[grMedianFiltered[ch]->GetN()-IRS2SamplePerBlock];
+         //gr1stDiffMedian[ch] = FFTtools::subtractGraphs(grMedianFiltered[ch], grInt[ch]);
+         grSlope[ch] = FFTtools::getDerivative(grMedianFiltered[ch]);
+         slopeVals = grSlope[ch]->GetY();
+         slopeSum = fabs(std::accumulate(slopeVals, slopeVals+grSlope[ch]->GetN(), 0.));
+         crossingTime.clear();
+         crossingTime = evProcessTools::countZeroCrossings(grSlope[ch], numCross);
+
          cvs.cd(ch+1);
          grInt[ch]->SetLineColor(kBlack);
          grMedianFiltered[ch]->SetLineColor(kBlue);
-         gr1stDiffMedian[ch]->SetLineColor(kRed);
+         //gr1stDiffMedian[ch]->SetLineColor(kRed);
+         grSlope[ch]->SetLineColor(kOrange);
          grInt[ch]->Draw("AL");
          grMedianFiltered[ch]->Draw("Lsame");
-         gr1stDiffMedian[ch]->Draw("Lsame");
+         //gr1stDiffMedian[ch]->Draw("Lsame");
+         grSlope[ch]->SetLineColor(kOrange);
+
+         fout<<slopeSum<<","<<numCross;
+         for (int c=0; c<numCross; c++) fout<<","<<crossingTime[c];
+
       }
 
       cvs.SaveAs("medianFilter_test.C");
-
 
    }
    numSatChan = getSaturation(settings, unpaddedEvent, satChan);
@@ -1322,7 +1344,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    treg->clearForNextEvent();
 
-   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ /*if(settings->cwFilter>0)*/ /*delete grFFT[ch];*/ delete grMedianFiltered[ch]; delete gr1stDiffMedian[ch]; }
+   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ /*if(settings->cwFilter>0)*/ /*delete grFFT[ch];*/ delete grMedianFiltered[ch]; delete gr1stDiffMedian[ch]; delete grSlope[ch]; }
 
    }//end of ev loop
 
@@ -1992,6 +2014,8 @@ runInfoTree->Fill();
 
 outputFile->Write();
 outputFile->Close();
+
+fout.close();
 
 clfftTeardown();
 err = tearDown(&clEnv);

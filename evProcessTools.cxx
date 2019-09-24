@@ -1731,6 +1731,26 @@ TGraph* evProcessTools::getMedianFilteredGraph(TGraph *grInt, int samplePerBlock
    return grMedianFiltered;
 }
 
+vector<double> evProcessTools::countZeroCrossings(TGraph *gr, int& numCross){
+
+   numCross = 0;
+   vector<double> crossTime;
+   double t0, v0, t1, v1;
+
+   for (int i=0; i<gr->GetN()-1; i++){
+      gr->GetPoint(i,   t0, v0);
+      gr->GetPoint(i+1, t1, v1);
+
+      if (v0*v1<=0){ //zero crossing
+         numCross += 1;
+         crossTime.push_back((t0+t1)/2.);
+      }
+   }
+
+   return crossTime;
+
+}
+
 double evProcessTools::getMean(TGraph *gr){
 
 double v, t, mean;

@@ -96,5 +96,6 @@ static TGraph* getVoltageSummedWaveform(TGraph *gr, int nIntSamp);
 static TGraph* getSqrtVoltageSquaredSummedWaveform(TGraph *gr, int nIntSamp);
 static TGraph* getVoltageSquaredWaveform(TGraph *gr);
 static TGraph* getMedianFilteredGraph(TGraph *grInt, int samplePerBlock);
+static vector<double> countZeroCrossings(TGraph *gr, int& numCross);
 };
 #endif
