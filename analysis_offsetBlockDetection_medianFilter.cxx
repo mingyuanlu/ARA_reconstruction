@@ -928,7 +928,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    }
    else if (stationId == 3){
 
-      fout<<runNum<<","<<realAtriEvPtr->eventNumber<<",";
+      fout<<runNum<<","<<realAtriEvPtr->eventNumber<<endl;
 
       for (int ch=0; ch<16; ch++){
          grMedianFiltered[ch] = evProcessTools::getMedianFilteredGraph(grInt[ch], IRS2SamplePerBlock);
@@ -953,7 +953,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
          fout<<firstBlockMedian<<","<<lastBlockMedian<<","<<slopeSum<<","<<numCross;
          for (int c=0; c<numCross; c++) fout<<","<<crossingTime[c];
-
+         fout<<endl;
       }
 
       cvs.SaveAs("medianFilter_test.C");
