@@ -43,7 +43,8 @@
 #include "signal.hh"
 #include "IceModel.h"
 
-#define CORRUPT_EVENT_START_TIME 1448485911 //ARA02 run 3 start time
+#define CORRUPT_EVENT_START_TIME_A2 1448485911 //ARA02 run 3 start time
+#define CORRUPT_EVENT_START_TIME_A3 1448835608 //ARA03 run6002 start time
 #define CORRUPT_EVENT_END_EVENT_NUMBER 4
 #define ZEN_BAND_MAX -41
 #define ZEN_BAND_MIN -46
