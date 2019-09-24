@@ -559,7 +559,7 @@ if( err<0 ){
    double *slopeVals;
    vector<double> crossingTime;
    int numCross;
-   ofstream fout("A3_cliffEvent.csv",std::ofstream::out|std::ofstream::trunc);
+   ofstream fout("A3_cliffEvent_cliff.csv",std::ofstream::out|std::ofstream::app);
 
 if(settings->dataType == 1){
 /*
@@ -956,7 +956,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          fout<<endl;
       }
 
-      cvs.SaveAs("medianFilter_test.C");
+      cvs.SaveAs("medianFilter_run"+str(runNum)+"_ev"+str(realAtriEvPtr->eventNumber)+".C");
 
    }
    numSatChan = getSaturation(settings, unpaddedEvent, satChan);
