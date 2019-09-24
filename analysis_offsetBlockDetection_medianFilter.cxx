@@ -956,7 +956,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          fout<<endl;
       }
       char filename[200];
-      sprintf(filename,"medianFilter_run%d_ev%d.C", runNum, realAtriEvPtr->eventNumber);
+      sprintf(filename,"medianFilter_run%d_ev%s.C", runNum, realAtriEvPtr->eventNumber.c_str());
       cvs.SaveAs(filename);
 
    }
