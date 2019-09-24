@@ -737,7 +737,11 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
 //***********CHECK FIRTS 3 EVENTS CORRUPTION*************************
 
-   if ( stationId == 2 && realAtriEvPtr->unixTime >= corruptFirst3EventStartTime && realAtriEvPtr->eventNumber < corruptEventEndEventNumber){
+   if (( stationId == 2 && realAtriEvPtr->unixTime >= corruptFirst3EventStartTime_A2 && realAtriEvPtr->eventNumber < corruptEventEndEventNumber)
+   ||
+    ( stationId == 3 && realAtriEvPtr->unixTime >= corruptFirst3EventStartTime_A3 && realAtriEvPtr->eventNumber < corruptEventEndEventNumber))
+   
+   {
       corruptFirst3EventCount+=1;
       delete realAtriEvPtr;
       continue;
