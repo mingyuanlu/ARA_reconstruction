@@ -956,7 +956,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          fout<<endl;
       }
 
-      cvs.SaveAs("medianFilter_run"+str(runNum)+"_ev"+str(realAtriEvPtr->eventNumber)+".C");
+      cvs.SaveAs("medianFilter_run"+std::to_string(runNum)+"_ev"+std::to_string(realAtriEvPtr->eventNumber)+".C");
 
    }
    numSatChan = getSaturation(settings, unpaddedEvent, satChan);
