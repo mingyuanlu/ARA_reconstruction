@@ -1713,7 +1713,7 @@ TGraph* evProcessTools::getMedianFilteredGraph(TGraph *grInt, int samplePerBlock
    for(int i=0; i<nSamp-samplePerBlock; i++){
       grCrop = FFTtools::cropWave(grInt, t0+i*wInt, t0+(i+samplePerBlock)*wInt);
       //grMean->SetPoint(i, wInt*i, evProcessTools::getMean(grCrop));
-      y = grCrop.GetY();
+      y = grCrop->GetY();
       grMedianFiltered->SetPoint(i, t0+wInt*i, TMath::Median(grCrop->GetN(), y));
       delete grCrop;
       delete y;
@@ -1721,7 +1721,7 @@ TGraph* evProcessTools::getMedianFilteredGraph(TGraph *grInt, int samplePerBlock
 
    for (int i=nSamp-samplePerBlock; i<nSamp; i++){
       grCrop = FFTtools::cropWave(grInt, t0+i*wInt, t0+(nSamp-1)*wInt);
-      y = grCrop.GetY();
+      y = grCrop->GetY();
       grMedianFiltered->SetPoint(i, t0+wInt*i, TMath::Median(grCrop->GetN(), y));
       delete grCrop;
       delete y;
