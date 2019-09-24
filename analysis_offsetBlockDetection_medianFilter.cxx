@@ -1344,7 +1344,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    treg->clearForNextEvent();
 
-   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ /*if(settings->cwFilter>0)*/ /*delete grFFT[ch];*/ delete grMedianFiltered[ch]; delete gr1stDiffMedian[ch]; delete grSlope[ch]; }
+   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ /*if(settings->cwFilter>0)*/ /*delete grFFT[ch];*/ delete grMedianFiltered[ch]; /*delete gr1stDiffMedian[ch];*/ delete grSlope[ch]; }
 
    }//end of ev loop
 
