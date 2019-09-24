@@ -551,7 +551,7 @@ if( err<0 ){
    TGraph *grCumuSumCDF[16];
    TGraph *grMedianFiltered[16];
    TGraph *gr1stDiffMedian[16];
-   TCanvas cvs("cvs","cvs",800,600);
+   TCanvas cvs("cvs","cvs",1200,800);
    cvs.Divide(4,4);
 
 if(settings->dataType == 1){
