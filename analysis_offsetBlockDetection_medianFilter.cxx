@@ -559,7 +559,7 @@ if( err<0 ){
    double *slopeVals;
    vector<double> crossingTime;
    int numCross;
-   ofstream fout("A3_cliffEvent_rf.csv",std::ofstream::out|std::ofstream::app);
+   ofstream fout("A3_cliffEvent_selectFromChan0_rf.csv",std::ofstream::out|std::ofstream::app);
 
 if(settings->dataType == 1){
 /*
@@ -1117,7 +1117,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    //cvs.SaveAs(filename);
 
    }
-   
+
    /* CW filter */
 
    //if(settings->cwFilter > 0){
