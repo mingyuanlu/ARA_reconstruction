@@ -926,41 +926,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    //   }
    }
    }
-   else if (stationId == 3){
 
-      fout<<runNum<<","<<realAtriEvPtr->eventNumber<<endl;
-
-      for (int ch=0; ch<16; ch++){
-         grMedianFiltered[ch] = evProcessTools::getMedianFilteredGraph(grInt[ch], IRS2SamplePerBlock);
-         firstBlockMedian = grMedianFiltered[ch]->GetY()[0];
-         lastBlockMedian  = grMedianFiltered[ch]->GetY()[grMedianFiltered[ch]->GetN()-IRS2SamplePerBlock];
-         //gr1stDiffMedian[ch] = FFTtools::subtractGraphs(grMedianFiltered[ch], grInt[ch]);
-         grSlope[ch] = FFTtools::getDerivative(grMedianFiltered[ch]);
-         slopeVals = grSlope[ch]->GetY();
-         slopeSum = fabs(std::accumulate(slopeVals, slopeVals+grSlope[ch]->GetN(), 0.));
-         crossingTime.clear();
-         crossingTime = evProcessTools::countZeroCrossings(grMedianFiltered[ch], numCross);
-         /*
-         cvs.cd(ch+1);
-         grInt[ch]->SetLineColor(kBlack);
-         grMedianFiltered[ch]->SetLineColor(kBlue);
-         //gr1stDiffMedian[ch]->SetLineColor(kRed);
-         grSlope[ch]->SetLineColor(kOrange);
-         grInt[ch]->Draw("AL");
-         grMedianFiltered[ch]->Draw("Lsame");
-         //gr1stDiffMedian[ch]->Draw("Lsame");
-         grSlope[ch]->Draw("Lsame");
-         */
-         fout<<firstBlockMedian<<","<<lastBlockMedian<<","<<slopeSum<<","<<numCross;
-         for (int c=0; c<numCross; c++) fout<<","<<crossingTime[c];
-         fout<<endl;
-      }
-      char filename[200];
-      int evN = realAtriEvPtr->eventNumber;
-      //sprintf(filename,"medianFilter_run%s_ev%d.C", runNum.c_str(), evN);
-      //cvs.SaveAs(filename);
-
-   }
    numSatChan = getSaturation(settings, unpaddedEvent, satChan);
    summary->setSaturatedChannels(numSatChan, satChan);
    if(settings->maskSaturatedChannels) for(int ch=0; ch<16; ch++) goodChan[ch] = goodChan[ch] && (!satChan[ch]);
@@ -1116,7 +1082,42 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       }
    }//end if if nchnlFilter=1
 
+   if (stationId == 3){
 
+   fout<<runNum<<","<<realAtriEvPtr->eventNumber<<endl;
+
+   for (int ch=0; ch<16; ch++){
+      grMedianFiltered[ch] = evProcessTools::getMedianFilteredGraph(grInt[ch], IRS2SamplePerBlock);
+      firstBlockMedian = grMedianFiltered[ch]->GetY()[0];
+      lastBlockMedian  = grMedianFiltered[ch]->GetY()[grMedianFiltered[ch]->GetN()-IRS2SamplePerBlock];
+      //gr1stDiffMedian[ch] = FFTtools::subtractGraphs(grMedianFiltered[ch], grInt[ch]);
+      grSlope[ch] = FFTtools::getDerivative(grMedianFiltered[ch]);
+      slopeVals = grSlope[ch]->GetY();
+      slopeSum = fabs(std::accumulate(slopeVals, slopeVals+grSlope[ch]->GetN(), 0.));
+      crossingTime.clear();
+      crossingTime = evProcessTools::countZeroCrossings(grMedianFiltered[ch], numCross);
+      /*
+      cvs.cd(ch+1);
+      grInt[ch]->SetLineColor(kBlack);
+      grMedianFiltered[ch]->SetLineColor(kBlue);
+      //gr1stDiffMedian[ch]->SetLineColor(kRed);
+      grSlope[ch]->SetLineColor(kOrange);
+      grInt[ch]->Draw("AL");
+      grMedianFiltered[ch]->Draw("Lsame");
+      //gr1stDiffMedian[ch]->Draw("Lsame");
+      grSlope[ch]->Draw("Lsame");
+      */
+      fout<<firstBlockMedian<<","<<lastBlockMedian<<","<<slopeSum<<","<<numCross;
+      for (int c=0; c<numCross; c++) fout<<","<<crossingTime[c];
+      fout<<endl;
+   }
+   char filename[200];
+   int evN = realAtriEvPtr->eventNumber;
+   //sprintf(filename,"medianFilter_run%s_ev%d.C", runNum.c_str(), evN);
+   //cvs.SaveAs(filename);
+
+   }
+   
    /* CW filter */
 
    //if(settings->cwFilter > 0){
