@@ -559,7 +559,7 @@ if( err<0 ){
    double *slopeVals;
    vector<double> crossingTime;
    int numCross;
-   ofstream fout("A3_cliffEvent_nonCliff.csv",std::ofstream::out|std::ofstream::app);
+   ofstream fout("A3_cliffEvent_cal.csv",std::ofstream::out|std::ofstream::app);
 
 if(settings->dataType == 1){
 /*
@@ -940,7 +940,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          slopeSum = fabs(std::accumulate(slopeVals, slopeVals+grSlope[ch]->GetN(), 0.));
          crossingTime.clear();
          crossingTime = evProcessTools::countZeroCrossings(grMedianFiltered[ch], numCross);
-
+         /*
          cvs.cd(ch+1);
          grInt[ch]->SetLineColor(kBlack);
          grMedianFiltered[ch]->SetLineColor(kBlue);
@@ -950,15 +950,15 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          grMedianFiltered[ch]->Draw("Lsame");
          //gr1stDiffMedian[ch]->Draw("Lsame");
          grSlope[ch]->Draw("Lsame");
-
+         */
          fout<<firstBlockMedian<<","<<lastBlockMedian<<","<<slopeSum<<","<<numCross;
          for (int c=0; c<numCross; c++) fout<<","<<crossingTime[c];
          fout<<endl;
       }
       char filename[200];
       int evN = realAtriEvPtr->eventNumber;
-      sprintf(filename,"medianFilter_run%s_ev%d.C", runNum.c_str(), evN);
-      cvs.SaveAs(filename);
+      //sprintf(filename,"medianFilter_run%s_ev%d.C", runNum.c_str(), evN);
+      //cvs.SaveAs(filename);
 
    }
    numSatChan = getSaturation(settings, unpaddedEvent, satChan);
