@@ -1117,16 +1117,16 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
       if (ch%4 == 0){ //string 1
           if (medianDiff > settings->cliff_threshold_A3_string1){
-             cliffCount_string1 += 1
+             cliffCount_string1 += 1;
           }
       } else if (ch%4 == 1) { //string 2
           if (medianDiff > settings->cliff_threshold_A3_string2){
-             cliffCount_string2 += 1
+             cliffCount_string2 += 1;
           }
 
       } else if (ch%4 == 2){ //string 3
           if (medianDiff > settings->cliff_threshold_A3_string3){
-             cliffCount_string3 += 1
+             cliffCount_string3 += 1;
           }
 
       }
