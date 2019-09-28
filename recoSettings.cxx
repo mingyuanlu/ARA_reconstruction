@@ -103,6 +103,10 @@ void recoSettings::initialize(){
 
   applyA2Ch6Correction = 1;
 
+  cliff_threshold_A3_string1 = 100;
+  cliff_threshold_A3_string2 = 45;
+  cliff_threshold_A3_string3 = 100;
+
   //remark = "Default.";
   snprintf(remark, sizeof(remark), "Default.");
 
@@ -189,6 +193,12 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
             else if(label == "powerEnvIntDuration")   powerEnvIntDuration = atof( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "snrMode")               snrMode             = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "applyA2Ch6Correction")  applyA2Ch6Correction= atoi( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "cliff_threshold_A3_string1")
+               cliff_threshold_A3_string1 = atof( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "cliff_threshold_A3_string2")
+               cliff_threshold_A3_string2 = atof( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "cliff_threshold_A3_string3")
+               cliff_threshold_A3_string3 = atof( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label != "") cerr<<"Undefined parameter detected. Label: "<<label<<endl;
          }
       }
@@ -269,6 +279,9 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
       if( powerEnvIntDuration < 0 ){              cerr<<"powerEnvIntDuration: "<<powerEnvIntDuration<<endl; errCnt++; }
       if( (unsigned)(snrMode-0) > 2){             cerr<<"snrMode: "<<snrMode<<endl; errCnt++; }
       if( (unsigned)(applyA2Ch6Correction-0) > 1){cerr<<"applyA2Ch6Correction: "<<applyA2Ch6Correction<<endl; errCnt++; }
+      if( cliff_threshold_A3_string1 < 0 ){       cerr<<"cliff_threshold_A3_string1: "<<cliff_threshold_A3_string1<<endl; errCnt++; }
+      if( cliff_threshold_A3_string2 < 0 ){       cerr<<"cliff_threshold_A3_string2: "<<cliff_threshold_A3_string2<<endl; errCnt++; }
+      if( cliff_threshold_A3_string3 < 0 ){       cerr<<"cliff_threshold_A3_string3: "<<cliff_threshold_A3_string3<<endl; errCnt++; } 
       if(errCnt > 0) return false;
 
    } else { cerr<<"Unable to open "<<sf<<endl; return false; }

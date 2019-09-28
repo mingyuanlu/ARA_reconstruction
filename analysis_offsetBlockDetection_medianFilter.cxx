@@ -559,7 +559,7 @@ if( err<0 ){
    double *slopeVals;
    vector<double> crossingTime;
    int numCross;
-   ofstream fout("A3_cliffEvent_selectFromChan2.csv",std::ofstream::out|std::ofstream::app);
+   ofstream fout("A3_cliffEvent_selectFromChan1_validate.csv",std::ofstream::out|std::ofstream::app);
 
 if(settings->dataType == 1){
 /*
@@ -1084,18 +1084,20 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    if (stationId == 3){
 
-   fout<<runNum<<","<<realAtriEvPtr->eventNumber<<endl;
+   int cliffCount_string1, cliffCount_string2, cliffCount_string3;
+   cliffCount_string1 = cliffCount_string2 = cliffCount_string3 = 0;
+   //fout<<runNum<<","<<realAtriEvPtr->eventNumber<<endl;
 
    for (int ch=0; ch<16; ch++){
       grMedianFiltered[ch] = evProcessTools::getMedianFilteredGraph(grInt[ch], IRS2SamplePerBlock);
       firstBlockMedian = grMedianFiltered[ch]->GetY()[0];
       lastBlockMedian  = grMedianFiltered[ch]->GetY()[grMedianFiltered[ch]->GetN()-IRS2SamplePerBlock];
       //gr1stDiffMedian[ch] = FFTtools::subtractGraphs(grMedianFiltered[ch], grInt[ch]);
-      grSlope[ch] = FFTtools::getDerivative(grMedianFiltered[ch]);
-      slopeVals = grSlope[ch]->GetY();
-      slopeSum = fabs(std::accumulate(slopeVals, slopeVals+grSlope[ch]->GetN(), 0.));
-      crossingTime.clear();
-      crossingTime = evProcessTools::countZeroCrossings(grMedianFiltered[ch], numCross);
+      //grSlope[ch] = FFTtools::getDerivative(grMedianFiltered[ch]);
+      //slopeVals = grSlope[ch]->GetY();
+      //slopeSum = fabs(std::accumulate(slopeVals, slopeVals+grSlope[ch]->GetN(), 0.));
+      //crossingTime.clear();
+      //crossingTime = evProcessTools::countZeroCrossings(grMedianFiltered[ch], numCross);
       /*
       cvs.cd(ch+1);
       grInt[ch]->SetLineColor(kBlack);
@@ -1107,16 +1109,48 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       //gr1stDiffMedian[ch]->Draw("Lsame");
       grSlope[ch]->Draw("Lsame");
       */
-      fout<<firstBlockMedian<<","<<lastBlockMedian<<","<<slopeSum<<","<<numCross;
-      for (int c=0; c<numCross; c++) fout<<","<<crossingTime[c];
-      fout<<endl;
+      //fout<<firstBlockMedian<<","<<lastBlockMedian<<","<<slopeSum<<","<<numCross;
+      //for (int c=0; c<numCross; c++) fout<<","<<crossingTime[c];
+      //fout<<endl;
+
+      double medianDiff = fabs(firstBlockMedian - lastBlockMedian);
+
+      if (ch%4 == 0){ //string 1
+          if (medianDiff > settings->cliff_threshold_A3_string1){
+             cliffCount_string1 += 1
+          }
+      } else if (ch%4 == 1) { //string 2
+          if (medianDiff > settings->cliff_threshold_A3_string2){
+             cliffCount_string2 += 1
+          }
+
+      } else if (ch%4 == 2){ //string 3
+          if (medianDiff > settings->cliff_threshold_A3_string3){
+             cliffCount_string3 += 1
+          }
+
+      }
+
    }
+
+   if (cliffCount_string1 > 3 || cliffCount_string2 > 3 || cliffCount_string3 > 3){ //if cliff is seen in all channels on the same string
+      cliffAlert = 1;
+      cliffEventCount += 1;
+      unpaddedEvent.clear();
+      cleanEvent.clear();
+      delete realAtriEvPtr;
+      for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grMedianFiltered[ch]; }
+      continue;
+   }
+
    char filename[200];
    int evN = realAtriEvPtr->eventNumber;
    //sprintf(filename,"medianFilter_run%s_ev%d.C", runNum.c_str(), evN);
    //cvs.SaveAs(filename);
 
    }
+
+   fout<<runNum<<","<<realAtriEvPtr->eventNumber<<endl;
 
    /* CW filter */
 

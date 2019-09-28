@@ -137,6 +137,12 @@ public:
       Default 0. 0: V_peak/RMS (crest factor). 1: sqrt((1/N)*(Sum V^2)) within powerEnvIntDuration of time. 2: E_s+n - E_n / E_n / (1ns/T)
    applyA2Ch6Correction:
       Default: 1. 0: do not apply. 1: apply.
+   cliff_threshold_A3_string1:
+      Default: 100. The threshold in mV for the absolute difference between the first and last sample of the 64-sample median-filtered waveform in A3 string 1 (ch%4==0), above which the waveform is considered a cliff waveform
+   cliff_threshold_A3_string2:
+      Default: 45. The threshold in mV for the absolute difference between the first and last sample of the 64-sample median-filtered waveform in A3 string 2 (ch%4==1), above which the waveform is considered a cliff waveform
+   cliff_threshold_A3_string3:
+      Default: 100. The threshold in mV for the absolute difference between the first and last sample of the 64-sample median-filtered waveform in A3 string 3 (ch%4==2), above which the waveform is considered a cliff waveform   
    remark:
       Default "". Any remark one wishes to add to the reco setup file. The remarks will then be carried along in the analysis output ROOT file. Note that number of characters should not exceed CSTRING_MAX defined in recoSettings.h
 */
@@ -246,8 +252,12 @@ public:
    //ClassDef 19
    int applyA2Ch6Correction;
 
+   //ClassDef 20
+   double cliff_threshold_A3_string1;
+   double cliff_threshold_A3_string2;
+   double cliff_threshold_A3_string3;
 
-   ClassDef(recoSettings, 19); //2: convert all string parameters to char
+   ClassDef(recoSettings, 20); //2: convert all string parameters to char
                               //3: add openCLDeviceType and openCLMaxNumberOfDevices parameters
 };
 
