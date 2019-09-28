@@ -237,6 +237,11 @@ utime_runStart = utime_runEnd = 0;
  vector<double> maxTimeVec[4][2];
 
 /*
+ * Variables used in detecting cliff events in A3
+ */
+ int cliffAlert;
+
+/*
  * Variables used in nchnlFilter > 0 case
  */
 
@@ -270,6 +275,7 @@ int mistaggedSoftEventCount, offsetBlockEventCount;
 mistaggedSoftEventCount = offsetBlockEventCount = 0;
 int nchnlFilteredEventCount, cwFilteredEventCount, impulsivityFilteredEventCount;
 nchnlFilteredEventCount = cwFilteredEventCount = impulsivityFilteredEventCount = 0;
+int cliffEventCount = 0;
 int corruptFirst3EventCount = 0;
 int corruptD1EventCount = 0;
 int blockGapEventCount = 0;
@@ -279,6 +285,7 @@ double weightedOffsetBlockEventCount = 0.;
 double weightedNchnlFilteredEventCount = 0.;
 double weightedCWFilteredEventCount = 0.;
 double weightedImpulsivityFilteredEventCount = 0.;
+double weightedCliffEventCount = 0.;
 runInfoTree->Branch("runEventCount",  &runEventCount);
 runInfoTree->Branch("runRFEventCount", &runRFEventCount);
 runInfoTree->Branch("runCalEventCount", &runCalEventCount);
@@ -297,6 +304,7 @@ runInfoTree->Branch("nchnlFilteredEventCount", &nchnlFilteredEventCount);
 runInfoTree->Branch("impulsivityFilteredEventCount", &impulsivityFilteredEventCount);
 runInfoTree->Branch("corruptFirst3EventCount", &corruptFirst3EventCount);
 runInfoTree->Branch("corruptD1EventCount", &corruptD1EventCount);
+runInfoTree->Branch("cliffEventCount", &cliffEventCount);
 runInfoTree->Branch("weightedTrigEventCount", &weightedTrigEventCount);
 runInfoTree->Branch("weightedRecoEventCount", &weightedRecoEventCount);
 runInfoTree->Branch("weightedOffsetBlockEventCount", &weightedOffsetBlockEventCount);
@@ -304,6 +312,7 @@ runInfoTree->Branch("weightedNchnlFilteredEventCount", &weightedNchnlFilteredEve
 runInfoTree->Branch("weightedCWFilteredEventCount", &weightedCWFilteredEventCount);
 runInfoTree->Branch("weightedImpulsivityFilteredEventCount", &weightedImpulsivityFilteredEventCount);
 runInfoTree->Branch("blockGapEventCount", &blockGapEventCount);
+runInfoTree->Branch("weightedCliffEventCount", &weightedCliffEventCount);
 
 if(settings->dataType == 1)//real events
 {
