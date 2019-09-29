@@ -568,7 +568,7 @@ if( err<0 ){
    double *slopeVals;
    vector<double> crossingTime;
    int numCross;
-   ofstream fout("A3_cliffEvent_selectFromChan2_validate.csv",std::ofstream::out|std::ofstream::app);
+   ofstream fout("A3_cliffEvent_selectFromChan8_validate.csv",std::ofstream::out|std::ofstream::app);
 
 if(settings->dataType == 1){
 /*
