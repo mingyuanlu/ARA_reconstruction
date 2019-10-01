@@ -1267,3 +1267,81 @@ double getAzimuthInRangeFraction(recoData* dummyData, recoSettings* settings, He
 
    return (double)inRangePixCount/(double)settings->topN;
 }
+
+bool shouldExclude(string STATION, int runNum){
+
+   bool exclude = false;
+
+   ifstream list;
+   ifstream list2;
+   vector<int> listOfRuns;
+   vector<int> listOfCalRuns;
+   string line;
+   int run, event;
+   char line_char[200];
+
+
+   if (STATION=="ARA02"){
+
+      list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_fullDataExpoFit_surfaceEvents_noisyRuns.txt");
+      list2.open("ARA02_calibrationRuns.txt");
+   }
+   else if (STATION=="ARA03"){
+      list.open("ARA03_anomalousRuns.txt");
+      list2.open("ARA03_calibrationRuns.txt");
+   }
+
+   if (list.is_open() ){
+
+      while (list.good()){
+
+         getline(list, line, '\n');
+         if (line == "") break;
+         run = stoi(line);
+
+         //if(event >= 10){
+            //cout<<"run: "<<run/*<<" event: "<<event*/<<endl;
+            //cout<<"run: "<<run<<" event: "<<event<<endl;
+            listOfRuns.push_back(run);
+         //}
+         //listOfEvents.push_back(event);
+      }
+   }  else {
+      cerr<<"No noisy run list! Aborting...";
+      return -1;
+   }
+
+   list.close();
+
+   int numNoisyRuns = listOfRuns.size();
+   //vector< vector<int> > noisyRun;
+
+   if(list2.is_open()){
+      while(list2.good()){
+
+         getline(list2, line, '\n');
+         if(line == "") break;
+         run = stoi(line);
+
+         //cout<<"cal run: "<<run<<endl;
+         listOfCalRuns.push_back(run);
+
+      }
+   }  else {
+      cerr<<"No calibration run list! Aborting...";
+      return -1;
+   }
+
+   list2.close();
+   int numCalRuns = listOfCalRuns.size();
+
+   if (isNearNoisyRun(listOfRuns, runNum, 0)){
+      exclude = true;
+   }
+
+   if (isInCalibrationRun(listOfCalRuns, runNum)){
+      exclude = true;
+   }
+
+   return exclude;
+}
