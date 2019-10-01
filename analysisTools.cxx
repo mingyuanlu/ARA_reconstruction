@@ -699,9 +699,9 @@ bool isCalpulserTime(string STATION, recoData *dummyData){
 
 bool isCalpulser(float &inBoxTheta, float &inBoxPhi, string STATION, recoData *dummyData, Healpix_Onion onion, recoSettings *settings, int type){
 
-   ARA02_cutValues *cutValues;
+   //ARA02_cutValues *cutValues;
 
-   if(STATION == "ARA02") cutValues = new ARA02_cutValues();
+   //if(STATION == "ARA02") cutValues = new ARA02_cutValues();
    //ARA03: to be implemented
 
    bool inBox = false;
@@ -717,70 +717,89 @@ bool isCalpulser(float &inBoxTheta, float &inBoxPhi, string STATION, recoData *d
    int nAnt = (string(settings->recoPolType)=="both"?16:8);
    int numIter = nAnt - settings->nchnlCut + 1;
 
-   for(int iter=0; iter<numIter; iter++){
+   if (STATION == "ARA02"){
 
-      //int maxPixIdx = dummyData->iterMaxPixIdx.at(iter);
-      //float maxPixCoherence = dummyData->iterMaxPixCoherence.at(iter);
-      int maxPixIdx = dummyData->iterMaxPixIdxEachLayer.at(iter*nLayer+0);
-      float maxPixCoherence = dummyData->iterMaxPixCoherenceEachLayer.at(iter*nLayer+0);
-      //cout<<"maxPixIdx: "<<maxPixIdx<<" layer: "<<maxPixIdx/nDir<<" maxPixCoherence: "<<maxPixCoherence<<endl;
-      float theta = 90.f-TMath::RadToDeg()*onion.getPointing(maxPixIdx).theta;
-      float phi   = TMath::RadToDeg()*onion.getPointing(maxPixIdx).phi;
+      ARA02_cutValues *cutValues = new ARA02_cutValues();
+
+      for(int iter=0; iter<numIter; iter++){
+
+         //int maxPixIdx = dummyData->iterMaxPixIdx.at(iter);
+         //float maxPixCoherence = dummyData->iterMaxPixCoherence.at(iter);
+         int maxPixIdx = dummyData->iterMaxPixIdxEachLayer.at(iter*nLayer+0);
+         float maxPixCoherence = dummyData->iterMaxPixCoherenceEachLayer.at(iter*nLayer+0);
+         //cout<<"maxPixIdx: "<<maxPixIdx<<" layer: "<<maxPixIdx/nDir<<" maxPixCoherence: "<<maxPixCoherence<<endl;
+         float theta = 90.f-TMath::RadToDeg()*onion.getPointing(maxPixIdx).theta;
+         float phi   = TMath::RadToDeg()*onion.getPointing(maxPixIdx).phi;
 
 
-      iterInBox = false;
-      /*** Box 1 ***/
-      ///if( theta > zenMin[0] && theta < zenMax[0] && phi > aziMin[0] && phi < aziMax[0] ) { inBox = true; iterInBox = true;}
+         iterInBox = false;
+         /*** Box 1 ***/
+         ///if( theta > zenMin[0] && theta < zenMax[0] && phi > aziMin[0] && phi < aziMax[0] ) { inBox = true; iterInBox = true;}
 
-      /*** Box 2 ***/
-      //if( type != 3){
-      //if( (theta > zenMin[1] && theta < zenMax[1] && phi > aziMin[1] && phi < aziMax[1]) ){ inBox = true; iterInBox = true;}
-      //}
+         /*** Box 2 ***/
+         //if( type != 3){
+         //if( (theta > zenMin[1] && theta < zenMax[1] && phi > aziMin[1] && phi < aziMax[1]) ){ inBox = true; iterInBox = true;}
+         //}
 
-      if( STATION == "ARA02"){
 
-         for(int box=0; box<cutValues->nBoxes; box++){
 
-            // 0: D5BV, 1: D6BV, 2: D5BV Mirror, only for type 5
-            if(box<2){
+            for(int box=0; box<cutValues->nBoxes; box++){
 
-               if( theta > cutValues->zenMin[box].val && theta < cutValues->zenMax[box].val && phi > cutValues->aziMin[box].val && phi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
+               // 0: D5BV, 1: D6BV, 2: D5BV Mirror, only for type 5
+               if(box<2){
 
-            } else {
-
-               if( type == 5 ){
                   if( theta > cutValues->zenMin[box].val && theta < cutValues->zenMax[box].val && phi > cutValues->aziMin[box].val && phi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
+
+               } else {
+
+                  if( type == 5 ){
+                     if( theta > cutValues->zenMin[box].val && theta < cutValues->zenMax[box].val && phi > cutValues->aziMin[box].val && phi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
+                  }
                }
             }
+
+
+         /*** Box 3 & 4 ***/
+         //if ( type == 3 ){
+         //   if( (theta > zenMin[2] && theta < zenMax[2] && phi > aziMin[2] && phi < aziMax[2])
+         //     ||(theta > zenMin[3] && theta < zenMax[3] && phi > aziMin[3] && phi < aziMax[3])){ inBox = true; iterInBox = true;}
+         //}
+
+         if(iterInBox){
+            inBoxCount++;
+            inBoxTheta += theta;
+            inBoxPhi   += phi;
          }
-      } else {
-         //ARA03: to be implemented
+
+      }//end of iter
+
+      //if (!inBox) passCalpulserCut = true;
+      //else passSurfaceCut = false;
+
+      if(inBoxCount > 0 ){
+
+         inBoxTheta /= (float)inBoxCount;
+         inBoxPhi   /= (float)inBoxCount;
       }
 
-      /*** Box 3 & 4 ***/
-      //if ( type == 3 ){
-      //   if( (theta > zenMin[2] && theta < zenMax[2] && phi > aziMin[2] && phi < aziMax[2])
-      //     ||(theta > zenMin[3] && theta < zenMax[3] && phi > aziMin[3] && phi < aziMax[3])){ inBox = true; iterInBox = true;}
-      //}
+      delete cutValues;
+   }//end of A2
+   else if (STATION == "ARA03"){
 
-      if(iterInBox){
-         inBoxCount++;
-         inBoxTheta += theta;
-         inBoxPhi   += phi;
+      ARA03_cutValues *A3_cutValues = new ARA03_cutValues();
+
+      float theta = 90.f-TMath::RadToDeg()*onion.getPointing(dummyData->maxPixIdxEachLayer.at(0)).theta;
+      float phi   = TMath::RadToDeg()*onion.getPointing(dummyData->maxPixIdxEachLayer.at(0)).phi;
+
+
+      for(int box=0; box<A3_cutValues->nBoxes; box++){
+
+         if( theta > A3_cutValues->zenMin[box].val && theta < A3_cutValues->zenMax[box].val && phi > A3_cutValues->aziMin[box].val && phi < A3_cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
+
       }
 
-   }//end of iter
 
-   //if (!inBox) passCalpulserCut = true;
-   //else passSurfaceCut = false;
-
-   if(inBoxCount > 0 ){
-
-      inBoxTheta /= (float)inBoxCount;
-      inBoxPhi   /= (float)inBoxCount;
-   }
-
-   delete cutValues;
+   }//end of A3
 
    return inBox;
 }
