@@ -51,6 +51,10 @@ cutParameter::~cutParameter() { /*default destructor*/ }
 ARA02_cutValues::ARA02_cutValues(){ initialize(); }
 ARA02_cutValues::~ARA02_cutValues(){ /* default destructor */ }
 
+ARA03_cutValues::ARA03_cutValues(){ initialize(); }
+ARA03_cutValues::~ARA03_cutValues(){ /* default destructor */ }
+
+
 void ARA02_cutValues::initialize(){
 
 
@@ -253,6 +257,30 @@ void ARA02_cutValues::setValue(cutParameter& param, double _val, double _plus, d
    param.minus = _minus;
 
 }
+
+void ARA03_cutValues::setValue(cutParameter& param, double _val, double _plus, double _minus){
+
+   param.val = _val;
+   param.plus = _plus;
+   param.minus = _minus;
+
+}
+
+void ARA03_cutValues::initialize(){
+      setValue(zenMin[0], -20.69046186485236,  0, 0); // plus: cut region is larger minus: cut regin is smaller
+      setValue(zenMin[1], -21.906032056707886, 0, 0);
+
+      setValue(zenMax[0], -12.94687186089013, 0, 0);
+      setValue(zenMax[1], -14.337983472752098, 0, 0);
+
+      setValue(aziMin[0], 59.52637689493247, 0, 0);
+      setValue(aziMin[1], 333.26133343753344, 0, 0);
+
+      setValue(aziMax[0], 67.34121862517262, 0, 0);
+      setValue(aziMax[1], 341.25032248832935, 0, 0);
+}
+
+
 
 
 bool isCW_coincidence(bool &isVpolCW, bool &isHpolCW, int &maxCountFreqBin_V, int &maxCountFreqBin_H, recoData *dummyData, int cwBinThres){

@@ -112,6 +112,49 @@ public:
 
 };
 
+class ARA03_cutValues /*: public TObject*/
+{
+private:
+
+protected:
+
+public:
+
+   ARA03_cutValues();
+   ~ARA03_cutValues();
+
+   //CW impulsivity
+   cutParameter cwImpCut[4];
+
+   //Thermal box cut
+   cutParameter coherenceCut_inBand[4];
+   cutParameter snrCut_inBand[4];
+   cutParameter coherenceCut_outOfBand[4];
+   cutParameter snrCut_outOfBand[4];
+   cutParameter snrCut[4];
+
+   //Impulsivity cut
+   cutParameter impCut;
+
+   //Calpulser cut
+   static const int nBoxes = 2;
+   cutParameter zenMin[nBoxes];
+   cutParameter zenMax[nBoxes];
+   cutParameter aziMin[nBoxes];
+   cutParameter aziMax[nBoxes];
+
+   //Surface cut
+   //cutParameter surfaceCut_constantN;
+   cutParameter surfaceCut_constantN[4];
+   cutParameter surfaceCut_iterReco;
+
+   void initialize();
+   void setValue(cutParameter& param, double _val, double _plus, double _minus);
+
+   //ClassDef(ARA02_cutValues, 1);
+
+};
+
 bool isCW_coincidence(bool &isVpolCW, bool &isHpolCW, int &maxCountFreqBin_V, int &maxCountFreqBin_H, recoData *dummyData, int cwBinThres);
 bool isCW_freqWindow(bool &isVpolCW, bool &isHpolCW, bool& isXpolCW, recoData *dummyData, double fftRes);
 bool isLowFreqDominance(int& lowFreqCount_V, int& lowFreqCount_H, recoData *dummyData, double highPassFreq, int lowFreqCountThres);
