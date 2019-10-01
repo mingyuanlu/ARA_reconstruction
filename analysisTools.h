@@ -132,5 +132,5 @@ void getAvgAngXingPixels(int& avgThetaPixCount, int& avgPhiPixCount, recoData* d
 TH1F *getCumulative(TH1F *hist, bool cdf);
 double getZenithInRangeFraction(recoData* dummyData, recoSettings* settings, Healpix_Onion onion, const double angThres);
 double getAzimuthInRangeFraction(recoData* dummyData, recoSettings* settings, Healpix_Onion onion, const double angThres);
-bool shouldExclude(string STATION, in runNum);
+bool shouldExclude(string STATION, int runNum);
 #endif
