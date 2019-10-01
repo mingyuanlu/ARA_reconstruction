@@ -713,7 +713,7 @@ bool isCalpulser(float &inBoxTheta, float &inBoxPhi, string STATION, recoData *d
    inBoxPhi   = 0.f;
 
    int nLayer = settings->nLayer;
-
+   cout<<"nLayer: "<<nLayer<<endl;
    int nAnt = (string(settings->recoPolType)=="both"?16:8);
    int numIter = nAnt - settings->nchnlCut + 1;
 
@@ -791,7 +791,7 @@ bool isCalpulser(float &inBoxTheta, float &inBoxPhi, string STATION, recoData *d
       float theta = 90.f-TMath::RadToDeg()*onion.getPointing(dummyData->maxPixIdxEachLayer.at(0)).theta;
       float phi   = TMath::RadToDeg()*onion.getPointing(dummyData->maxPixIdxEachLayer.at(0)).phi;
 
-
+      cout<<"nBoxes: "<<A3_cutValues->nBoxes<<endl;
       for(int box=0; box<A3_cutValues->nBoxes; box++){
 
          if( theta > A3_cutValues->zenMin[box].val && theta < A3_cutValues->zenMax[box].val && phi > A3_cutValues->aziMin[box].val && phi < A3_cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
