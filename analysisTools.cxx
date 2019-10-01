@@ -786,8 +786,9 @@ bool isCalpulser(float &inBoxTheta, float &inBoxPhi, string STATION, recoData *d
    }//end of A2
    else if (STATION == "ARA03"){
 
+      cout<<"789\n";
       ARA03_cutValues *A3_cutValues = new ARA03_cutValues();
-
+      cout<<"791\n";
       float theta = 90.f-TMath::RadToDeg()*onion.getPointing(dummyData->maxPixIdxEachLayer.at(0)).theta;
       float phi   = TMath::RadToDeg()*onion.getPointing(dummyData->maxPixIdxEachLayer.at(0)).phi;
 
