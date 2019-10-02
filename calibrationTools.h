@@ -42,6 +42,7 @@ using namespace std;
 #define corruptFirst3EventStartTime_A2 1448485911 //ARA02 run 3 start time
 #define corruptFirst3EventStartTime_A3 1448835608 //ARA02 run6002 start time
 #define corruptEventEndEventNumber 4
+#define corruptEventEndEventNumber_A3 5
 
 #define ARA02D1CorruptionStartTime 1448485911 //ARA02 run 3, 11, 59, 60
 #define ARA02D1CorruptionEndTime 1448954419
