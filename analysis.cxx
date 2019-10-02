@@ -1525,7 +1525,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    delete gr_v[ch];
    }//end of ch
 
-   if (stationId == 2){
+   if (AraSim_settings->DETECTOR_STATION==2){
 
       /* Check for offset block */
       /* Criteria: at least 2 offset block strings. An offset block string is defined as having offset blocks in both Vpols and at least 1
@@ -1565,7 +1565,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       //   }
       }
    }
-   else if (stationId == 3){
+   else if (AraSim_settings->DETECTOR_STATION==3){
 
       /* Check for cliff event
       /* Check if a cliff string exists. If so, the event is considered a cliff event and discarded.
