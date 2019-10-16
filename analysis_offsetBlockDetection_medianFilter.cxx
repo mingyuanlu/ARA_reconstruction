@@ -30,7 +30,6 @@
 #include "recoSettings.h"
 #include "recoData.h"
 #include "trackEngine.h"
-#include "analysisTools.h"
 
 #include "Detector.h"
 #include "Trigger.h"
@@ -139,7 +138,7 @@ if( !settings->readRecoSetupFile( recoSetupFile_fullPath )){
 
 } else {
    cout<<"Obtained new reoSetupFile\n";
-   //outputFile = new TFile((outputDir+"fftPedestal."+recoSetupFile+".run"+runNum+".root").c_str(),"RECREATE","fftPedestal");
+   outputFile = new TFile((outputDir+"recoOut."+recoSetupFile+".run"+runNum+".root").c_str(),"RECREATE","recoOut");
    fitsFile_tmp = outputDir + "recoSkymap." + recoSetupFile + ".run" + runNum/* + ".fits"*/;
 }
 char fitsFile[200];
@@ -231,10 +230,16 @@ utime_runStart = utime_runEnd = 0;
  double threshold_V = settings->offsetBlock_threshold_V;
  double threshold_H = settings->offsetBlock_threshold_H;
  double timeRangeCut = settings->offsetBlock_timeRangeCut;
- int nChanBelowThres;
+ int nChanBelowThres_V[4];
+ int nChanBelowThres_H[4];
  int nChanBelowThres_Thres;
  double timeRange;
- vector<double> maxTimeVec;
+ vector<double> maxTimeVec[4][2];
+
+/*
+ * Variables used in detecting cliff events in A3
+ */
+ int cliffAlert;
 
 /*
  * Variables used in nchnlFilter > 0 case
@@ -255,6 +260,9 @@ int freqCountLen_V, freqCountLen_H;
 int *freqCount_V, *freqCount_H;
 double freqBinWidth_V, freqBinWidth_H;
 
+/*
+ * Constants used
+
 /* End of conditional variables pre-declaration */
 
 int runEventCount, trigEventCount, recoEventCount;
@@ -267,14 +275,17 @@ int mistaggedSoftEventCount, offsetBlockEventCount;
 mistaggedSoftEventCount = offsetBlockEventCount = 0;
 int nchnlFilteredEventCount, cwFilteredEventCount, impulsivityFilteredEventCount;
 nchnlFilteredEventCount = cwFilteredEventCount = impulsivityFilteredEventCount = 0;
+int cliffEventCount = 0;
 int corruptFirst3EventCount = 0;
 int corruptD1EventCount = 0;
+int blockGapEventCount = 0;
 double weightedTrigEventCount = 0.;
 double weightedRecoEventCount = 0.;
 double weightedOffsetBlockEventCount = 0.;
 double weightedNchnlFilteredEventCount = 0.;
 double weightedCWFilteredEventCount = 0.;
 double weightedImpulsivityFilteredEventCount = 0.;
+double weightedCliffEventCount = 0.;
 runInfoTree->Branch("runEventCount",  &runEventCount);
 runInfoTree->Branch("runRFEventCount", &runRFEventCount);
 runInfoTree->Branch("runCalEventCount", &runCalEventCount);
@@ -293,12 +304,15 @@ runInfoTree->Branch("nchnlFilteredEventCount", &nchnlFilteredEventCount);
 runInfoTree->Branch("impulsivityFilteredEventCount", &impulsivityFilteredEventCount);
 runInfoTree->Branch("corruptFirst3EventCount", &corruptFirst3EventCount);
 runInfoTree->Branch("corruptD1EventCount", &corruptD1EventCount);
+runInfoTree->Branch("cliffEventCount", &cliffEventCount);
 runInfoTree->Branch("weightedTrigEventCount", &weightedTrigEventCount);
 runInfoTree->Branch("weightedRecoEventCount", &weightedRecoEventCount);
 runInfoTree->Branch("weightedOffsetBlockEventCount", &weightedOffsetBlockEventCount);
 runInfoTree->Branch("weightedNchnlFilteredEventCount", &weightedNchnlFilteredEventCount);
 runInfoTree->Branch("weightedCWFilteredEventCount", &weightedCWFilteredEventCount);
 runInfoTree->Branch("weightedImpulsivityFilteredEventCount", &weightedImpulsivityFilteredEventCount);
+runInfoTree->Branch("blockGapEventCount", &blockGapEventCount);
+runInfoTree->Branch("weightedCliffEventCount", &weightedCliffEventCount);
 
 if(settings->dataType == 1)//real events
 {
@@ -461,33 +475,33 @@ if( settings->skymapSearchMode == 0){ //No zoom search
       cerr<<"topN greater than total number of pixles. Setting topN to equal nDir*nLayer...\n";
       topN = nDir*nLayer; //in case topN < total number of pixels
    }
-//
-//   recoDelays  = (float*)malloc(nLayer*nDir*nAnt*sizeof(float));
-//   recoDelays_V= (float*)malloc(nLayer*nDir*(nAnt/2)*sizeof(float));
-//   recoDelays_H= (float*)malloc(nLayer*nDir*(nAnt/2)*sizeof(float));
-//
-//   if(settings->use2ndRayReco == 1){
-//      recoRefracDelays  = (float*)malloc(nLayer*nDir*nAnt*sizeof(float));
-//      recoRefracDelays_V= (float*)malloc(nLayer*nDir*(nAnt/2)*sizeof(float));
-//      recoRefracDelays_H= (float*)malloc(nLayer*nDir*(nAnt/2)*sizeof(float));
-//   }
-//
-//   if(settings->iceModel == 1){
-//   err = computeRecoDelaysWithConstantN(nAnt, -1.f*stationCenterDepth, antLocation,
-//                                        //radius, nSideExp,
-//                                        onion, recoDelays, recoDelays_V, recoDelays_H);
-//   if(settings->use2ndRayReco == 1){ cerr<<"Constant N ice model incompatible with use2ndRayReco == 1\n"; return -1; }
-//   } else if(settings->iceModel == 0){
-//   if(settings->use2ndRayReco == 0)
-//   err = compute3DRecoDelaysWithRadioSpline(nAnt, -1.f*stationCenterDepth, antLocation,
-//                                            onion, recoDelays, recoDelays_V, recoDelays_H);
-//   else
-//   err = compute3DRecoBothDelaysWithRadioSpline(nAnt, -1.f*stationCenterDepth, antLocation,
-//                                               onion, recoDelays, recoDelays_V, recoDelays_H,
-//                                               recoRefracDelays, recoRefracDelays_V, recoRefracDelays_H);
-//
-//   } else { cerr<<"Undefined iceModel parameter\n"; return -1; }
-//   if( err<0 ){ cerr<<"Error computing reco delays\n"; return -1; }
+
+   recoDelays  = (float*)malloc(nLayer*nDir*nAnt*sizeof(float));
+   recoDelays_V= (float*)malloc(nLayer*nDir*(nAnt/2)*sizeof(float));
+   recoDelays_H= (float*)malloc(nLayer*nDir*(nAnt/2)*sizeof(float));
+
+   if(settings->use2ndRayReco == 1){
+      recoRefracDelays  = (float*)malloc(nLayer*nDir*nAnt*sizeof(float));
+      recoRefracDelays_V= (float*)malloc(nLayer*nDir*(nAnt/2)*sizeof(float));
+      recoRefracDelays_H= (float*)malloc(nLayer*nDir*(nAnt/2)*sizeof(float));
+   }
+
+   if(settings->iceModel == 1){
+   err = computeRecoDelaysWithConstantN(nAnt, -1.f*stationCenterDepth, antLocation,
+                                        //radius, nSideExp,
+                                        onion, recoDelays, recoDelays_V, recoDelays_H);
+   if(settings->use2ndRayReco == 1){ cerr<<"Constant N ice model incompatible with use2ndRayReco == 1\n"; return -1; }
+   } else if(settings->iceModel == 0){
+   if(settings->use2ndRayReco == 0)
+   err = compute3DRecoDelaysWithRadioSpline(nAnt, -1.f*stationCenterDepth, antLocation,
+                                            onion, recoDelays, recoDelays_V, recoDelays_H);
+   else
+   err = compute3DRecoBothDelaysWithRadioSpline(nAnt, -1.f*stationCenterDepth, antLocation,
+                                               onion, recoDelays, recoDelays_V, recoDelays_H,
+                                               recoRefracDelays, recoRefracDelays_V, recoRefracDelays_H);
+
+   } else { cerr<<"Undefined iceModel parameter\n"; return -1; }
+   if( err<0 ){ cerr<<"Error computing reco delays\n"; return -1; }
 
 } else {// zoom search mode
 
@@ -505,17 +519,17 @@ if( settings->skymapSearchMode == 0){ //No zoom search
 float *constantNDelays, *constantNDelays_V, *constantNDelays_H;
 Healpix_Onion *onion_temp;
 
-//if( settings->constantNFilter > 0){
-//
-//   constantNDelays   = (float*)malloc(1*nDir*nAnt*sizeof(float));
-//   constantNDelays_V = (float*)malloc(1*nDir*(nAnt/2)*sizeof(float));
-//   constantNDelays_H = (float*)malloc(1*nDir*(nAnt/2)*sizeof(float));
-//   onion_temp = new Healpix_Onion(nSideExp, 1, 5000, 5000);
-//
-//   err = computeRecoDelaysWithNoBoundConstantN(nAnt, -1.f*stationCenterDepth, antLocation,
-//                                               onion_temp, constantNDelays, constantNDelays_V, constantNDelays_H);
-//
-//}
+if( settings->constantNFilter > 0){
+
+   constantNDelays   = (float*)malloc(1*nDir*nAnt*sizeof(float));
+   constantNDelays_V = (float*)malloc(1*nDir*(nAnt/2)*sizeof(float));
+   constantNDelays_H = (float*)malloc(1*nDir*(nAnt/2)*sizeof(float));
+   onion_temp = new Healpix_Onion(nSideExp, 1, 5000, 5000);
+
+   err = computeRecoDelaysWithNoBoundConstantN(nAnt, -1.f*stationCenterDepth, antLocation,
+                                               onion_temp, constantNDelays, constantNDelays_V, constantNDelays_H);
+
+}
 
 
 //recordTime(tmr,2);
@@ -544,7 +558,17 @@ if( err<0 ){
    TGraph *grCDF[16];
    TGraph *grCumuSum[16];
    TGraph *grCumuSumCDF[16];
+   TGraph *grMedianFiltered[16];
+   TGraph *gr1stDiffMedian[16];
+   TGraph *grSlope[16];
+   TCanvas cvs("cvs","cvs",1200,800);
+   cvs.Divide(4,4);
 
+   double firstBlockMedian, lastBlockMedian, slopeSum;
+   double *slopeVals;
+   vector<double> crossingTime;
+   int numCross;
+   ofstream fout("A3_cliffEvent_selectFromChan8_validate.csv",std::ofstream::out|std::ofstream::app);
 
 if(settings->dataType == 1){
 /*
@@ -638,15 +662,6 @@ char histname[200];
 //}
 
 
-vector< vector<double> > fftValues[16];
-double f, p;
-int eventCount = 0;
-vector<double>* fftValues_V;
-vector<double>* fftValues_H;
-int fInt_V, fInt_H;
-//vector<double> vec_v;
-//vector<double> vec_h;
-
 //recordTime(tmr,3);
 time_t t_before_event_loop = time(NULL);
 clock_t c_before_event_loop = clock();
@@ -689,6 +704,15 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       if(triggerCode[2] != 1) continue;
    } else { cerr<<"Undefined trigger type!!\n"; continue; }
 
+   /* Check block gap */
+   int lenBlockVec = rawAtriEvPtr->blockVec.size();
+   if(rawAtriEvPtr->blockVec[lenBlockVec-1].getBlock() != (rawAtriEvPtr->blockVec[0].getBlock() + lenBlockVec/numDDA -1 ) ){
+      if( IRS2NumBlocks-rawAtriEvPtr->blockVec[0].getBlock() + rawAtriEvPtr->blockVec[lenBlockVec-1].getBlock() != lenBlockVec/numDDA-1){
+         //Is block gap event
+         blockGapEventCount+=1;
+         continue;
+      }
+   }
 
 
    UsefulAtriStationEvent *realAtriEvPtr = new UsefulAtriStationEvent( rawAtriEvPtr, AraCalType::kLatestCalib);
@@ -712,7 +736,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    if (( stationId == 2 && realAtriEvPtr->unixTime >= corruptFirst3EventStartTime_A2 && realAtriEvPtr->eventNumber < corruptEventEndEventNumber)
    ||
-   ( stationId == 3 && realAtriEvPtr->unixTime >= corruptFirst3EventStartTime_A3 && realAtriEvPtr->eventNumber < corruptEventEndEventNumber))
+   (stationId == 3 && realAtriEvPtr->unixTime >= corruptFirst3EventStartTime_A3 && realAtriEvPtr->eventNumber < corruptEventEndEventNumber))
    {
       corruptFirst3EventCount+=1;
       delete realAtriEvPtr;
@@ -836,8 +860,13 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    }
 
-   nChanBelowThres = 0;
-   maxTimeVec.clear();
+   //nChanBelowThres = 0;
+   for(int s=0; s<4; s++){
+      nChanBelowThres_V[s]=0;
+      nChanBelowThres_H[s]=0;
+      for(int pol=0; pol<2; pol++)
+         maxTimeVec[s][pol].clear();
+   }
 
    for(int ch=0; ch<16; ch++){
 
@@ -857,29 +886,54 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    grMean[ch] = evProcessTools::getRollingMeanGraph(grInt[ch], IRS2SamplePerBlock);
    meanMax[ch] = evProcessTools::getMax(grMean[ch], &maxTime[ch]);
-   if(meanMax[ch]<(ch<8?threshold_V:threshold_H)){
-      nChanBelowThres += 1;
-      maxTimeVec.push_back(maxTime[ch]);
+   if(-1.*fabs(meanMax[ch])<(ch<8?threshold_V:threshold_H)){
+      if(ch<8) nChanBelowThres_V[ch%4] += 1;
+      else     nChanBelowThres_H[ch%4] += 1;
+      maxTimeVec[ch%4][ch<8?0:1].push_back(maxTime[ch]);
    }
 
    delete gr_v[ch];
    }//end of ch
 
    /* Check for offset block */
+   /* A2 criteria: at least 2 offset block strings. An offset block string is defined as having offset blocks in both Vpols and at least 1
+    *  Hpol, and their offset time is within timeRangeCut for Vpol & Hpol resoectively.
+    */
 
-   nChanBelowThres_Thres = (dropARA02D4BH?15:(dropARA03D4?12:16));
-   if( nChanBelowThres >= nChanBelowThres_Thres ){
-      timeRange = *max_element(maxTimeVec.begin(), maxTimeVec.end()) - *min_element(maxTimeVec.begin(), maxTimeVec.end());
-      //cout<<"max element: "<<*max_element(maxTimeVec.begin(), maxTimeVec.end())<<" min element: "<<*min_element(maxTimeVec.begin(), maxTimeVec.end())<<" timeRange: "<<timeRange<<endl;
-      if(timeRange < timeRangeCut){
-         offsetBlockAlert = 1;
-         offsetBlockEventCount += 1;
-         unpaddedEvent.clear();
-         cleanEvent.clear();
-         delete realAtriEvPtr;
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; }
-         continue;
+   if (stationId == 2){
+
+   //nChanBelowThres_Thres = (dropARA02D4BH?15:(dropARA03D4?12:16));
+   int nOffsetBlockString = 0;
+   for(int s=0; s<4; s++){
+      if (nChanBelowThres_V[s]==2){
+         timeRange = *max_element(maxTimeVec[s][0].begin(), maxTimeVec[s][0].end())
+                   - *min_element(maxTimeVec[s][0].begin(), maxTimeVec[s][0].end());
+         if(timeRange < timeRangeCut){
+            if(nChanBelowThres_H[s]>0){
+               timeRange = *max_element(maxTimeVec[s][1].begin(), maxTimeVec[s][1].end())
+                         - *min_element(maxTimeVec[s][1].begin(), maxTimeVec[s][1].end());
+               if(timeRange < timeRangeCut){
+                  nOffsetBlockString++;
+               }
+            }
+         }
       }
+   }
+
+   //if( nChanBelowThres >= nChanBelowThres_Thres ){
+   //   timeRange = *max_element(maxTimeVec.begin(), maxTimeVec.end()) - *min_element(maxTimeVec.begin(), maxTimeVec.end());
+      //cout<<"max element: "<<*max_element(maxTimeVec.begin(), maxTimeVec.end())<<" min element: "<<*min_element(maxTimeVec.begin(), maxTimeVec.end())<<" timeRange: "<<timeRange<<endl;
+   //   if(timeRange < timeRangeCut){
+   if(nOffsetBlockString>1){
+      offsetBlockAlert = 1;
+      offsetBlockEventCount += 1;
+      unpaddedEvent.clear();
+      cleanEvent.clear();
+      delete realAtriEvPtr;
+      for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; }
+      continue;
+   //   }
+   }
    }
 
    numSatChan = getSaturation(settings, unpaddedEvent, satChan);
@@ -919,43 +973,13 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          freqCount_V = new int [freqCountLen_V];
          fill(&freqCount_V[0], &freqCount_V[freqCountLen_V], 0);
          freqBinWidth_V = evProcessTools::getFFTBinWidth(grFFT[ch]);
-         if(eventCount == 0) fftValues_V = new vector<double> [freqCountLen_V*8];
-         //if(eventCount == 0) fftValues_V = (vector<double>*)malloc(8*freqCountLen_V*sizeof(vector<double>));
-         //fInt_V = freqBinWidth_V;
       }
       else if (ch==8){
          freqCountLen_H = grFFT[ch]->GetN();
          freqCount_H = new int [freqCountLen_H];
          fill(&freqCount_H[0], &freqCount_H[freqCountLen_H], 0);
          freqBinWidth_H = evProcessTools::getFFTBinWidth(grFFT[ch]);
-         if(eventCount == 0) fftValues_H = new vector<double> [freqCountLen_H*8];
-         //if(eventCount == 0) fftValues_H = (vector<double>*)malloc(8*freqCountLen_H*sizeof(vector<double>));
       }
-      //cout<<"926\n";
-      //cout<<"fftValues_V size: "<<sizeof(fftValues_V)<<endl;
-      //cout<<"vector<double> size: "<<sizeof(vector<double>)<<endl;
-      //cout<<"ch: "<<ch<<endl;
-      //cout<<"freqCountLen_V: "<<freqCountLen_V<<endl;
-      if(ch<8){
-         for(int bin=0; bin<freqCountLen_V; bin++){
-            //cout<<"929 bin:"<<bin<<"\n";
-            grFFT[ch]->GetPoint(bin, f, p);
-            //cout<<"931\n";
-            fftValues_V[ch*freqCountLen_V+bin].push_back(p);
-
-            //cout<<"933\n";
-
-         }
-      }
-       else {
-
-         for(int bin=0; bin<freqCountLen_H; bin++){
-            grFFT[ch]->GetPoint(bin, f, p);
-            fftValues_H[(ch-8)*freqCountLen_H+bin].push_back(p);
-         }
-         //fftValues[ch][bin].push_back(p);
-      }
-
 
       maxFrac = FFTtools::getPeakVal(grFFT[ch], &maxFracBin);
       //cout<<"ch: "<<ch<<" macFrac: "<<maxFrac<<" maxFracBin: "<<maxFracBin<<endl;
@@ -971,9 +995,6 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       delete grFFT[ch];
 
    }
-
-   eventCount++;
-   //out<<"eventCount: "<<eventCount<<endl;
 
    summary->setFreqBinWidth(freqBinWidth_V, freqBinWidth_H);
 
@@ -1070,6 +1091,75 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       }
    }//end if if nchnlFilter=1
 
+   if (stationId == 3){
+
+   int cliffCount_string1, cliffCount_string2, cliffCount_string3;
+   cliffCount_string1 = cliffCount_string2 = cliffCount_string3 = 0;
+   //fout<<runNum<<","<<realAtriEvPtr->eventNumber<<endl;
+
+   for (int ch=0; ch<16; ch++){
+      grMedianFiltered[ch] = evProcessTools::getMedianFilteredGraph(grInt[ch], IRS2SamplePerBlock);
+      firstBlockMedian = grMedianFiltered[ch]->GetY()[0];
+      lastBlockMedian  = grMedianFiltered[ch]->GetY()[grMedianFiltered[ch]->GetN()-IRS2SamplePerBlock];
+      //gr1stDiffMedian[ch] = FFTtools::subtractGraphs(grMedianFiltered[ch], grInt[ch]);
+      //grSlope[ch] = FFTtools::getDerivative(grMedianFiltered[ch]);
+      //slopeVals = grSlope[ch]->GetY();
+      //slopeSum = fabs(std::accumulate(slopeVals, slopeVals+grSlope[ch]->GetN(), 0.));
+      //crossingTime.clear();
+      //crossingTime = evProcessTools::countZeroCrossings(grMedianFiltered[ch], numCross);
+      /*
+      cvs.cd(ch+1);
+      grInt[ch]->SetLineColor(kBlack);
+      grMedianFiltered[ch]->SetLineColor(kBlue);
+      //gr1stDiffMedian[ch]->SetLineColor(kRed);
+      grSlope[ch]->SetLineColor(kOrange);
+      grInt[ch]->Draw("AL");
+      grMedianFiltered[ch]->Draw("Lsame");
+      //gr1stDiffMedian[ch]->Draw("Lsame");
+      grSlope[ch]->Draw("Lsame");
+      */
+      //fout<<firstBlockMedian<<","<<lastBlockMedian<<","<<slopeSum<<","<<numCross;
+      //for (int c=0; c<numCross; c++) fout<<","<<crossingTime[c];
+      //fout<<endl;
+
+      double medianDiff = fabs(firstBlockMedian - lastBlockMedian);
+
+      if (ch%4 == 0){ //string 1
+          if (medianDiff > settings->cliff_threshold_A3_string1){
+             cliffCount_string1 += 1;
+          }
+      } else if (ch%4 == 1) { //string 2
+          if (medianDiff > settings->cliff_threshold_A3_string2){
+             cliffCount_string2 += 1;
+          }
+
+      } else if (ch%4 == 2){ //string 3
+          if (medianDiff > settings->cliff_threshold_A3_string3){
+             cliffCount_string3 += 1;
+          }
+
+      }
+
+   }
+
+   if (cliffCount_string1 > 3 || cliffCount_string2 > 3 || cliffCount_string3 > 3){ //if cliff is seen in all channels on the same string
+      cliffAlert = 1;
+      cliffEventCount += 1;
+      unpaddedEvent.clear();
+      cleanEvent.clear();
+      delete realAtriEvPtr;
+      for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grMedianFiltered[ch]; }
+      continue;
+   }
+
+   char filename[200];
+   int evN = realAtriEvPtr->eventNumber;
+   //sprintf(filename,"medianFilter_run%s_ev%d.C", runNum.c_str(), evN);
+   //cvs.SaveAs(filename);
+
+   }
+
+   fout<<runNum<<","<<realAtriEvPtr->eventNumber<<endl;
 
    /* CW filter */
 
@@ -1165,32 +1255,32 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    /* Constant N reco for surface filter */
 
-//   recoSuccess = false;
-//
-//   if(settings->constantNFilter > 0){
-//      while( !recoSuccess ){
-//
-//         stringstream ss;
-//         ss << /*ev*/rawAtriEvPtr->eventNumber;
-//         evStr = ss.str();
-//         fitsFileStr = fitsFile_tmp /*+ ".ev" + evStr*/ + ".constantN.fits";
-//         sprintf(fitsFile, fitsFileStr.c_str());
-//         constantNMaxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_constantNFilter(settings, cleanEvent, &clEnv, constantNDelays, constantNDelays_V, constantNDelays_H, goodChan, summary, fitsFile///*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/
-//         );
-//
-//         if( constantNMaxPixIdx < 0){ cerr<<"Error reconstructing - contant N\n"; return -1; }
-//         if(summary->constantNMaxPixCoherence != 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
-//         else { cout<<"constantNMaxPixCoherence returns 0!! Re-running reco...\n"; }
-//
-//      }
-//
-//      if(recordConstantNDir(settings, summary) < 0){ cerr<<"Error recording constant N dir\n"; return -1;}
-//
-//   }
-//
-//   /* Track engine object to compute all tracks */
-//   treg->computeAllTracks(unpaddedEvent);
-//   summary->setTreg(treg);
+   recoSuccess = true;
+
+   if(settings->constantNFilter > 0){
+      while( !recoSuccess ){
+
+         stringstream ss;
+         ss << /*ev*/rawAtriEvPtr->eventNumber;
+         evStr = ss.str();
+         fitsFileStr = fitsFile_tmp /*+ ".ev" + evStr*/ + ".constantN.fits";
+         sprintf(fitsFile, fitsFileStr.c_str());
+         constantNMaxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_constantNFilter(settings, cleanEvent, &clEnv, constantNDelays, constantNDelays_V, constantNDelays_H, goodChan, summary, fitsFile///*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/
+         );
+
+         if( constantNMaxPixIdx < 0){ cerr<<"Error reconstructing - contant N\n"; return -1; }
+         if(summary->constantNMaxPixCoherence != 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
+         else { cout<<"constantNMaxPixCoherence returns 0!! Re-running reco...\n"; }
+
+      }
+
+      if(recordConstantNDir(settings, summary) < 0){ cerr<<"Error recording constant N dir\n"; return -1;}
+
+   }
+
+   /* Track engine object to compute all tracks */
+   treg->computeAllTracks(unpaddedEvent);
+   summary->setTreg(treg);
 
    //****************************************************
    // END OF FILTER SECTION
@@ -1219,77 +1309,76 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    /* Reco with radiospline */
 
-//   recoSuccess = false;
-//
-//   while( !recoSuccess ){
-//   if(settings->beamformMethod == 1){
-//   if(settings->getSkymapMode == 0){
-//       err = reconstructCSW(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, fitsFile/*argv[5]*/);
-//   }
-//   else{
-//       maxPixIdx = reconstructCSWGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, summary);
-//   }
-//   } else {
-//   if(settings->getSkymapMode == 0){
-//
-//      //evStr = std::to_string(ev);
-//      stringstream ss;
-//      ss << /*ev*/rawAtriEvPtr->eventNumber;
-//      evStr = ss.str();
-//      fitsFileStr = fitsFile_tmp /*+ ".ev" + evStr*/ + ".fits";
-//      sprintf(fitsFile, fitsFileStr.c_str());
-//
-//      if(settings->skymapSearchMode == 0){ //no zoom mode
-//      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, snrRank, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*//*, calRecoDelays, dtHist*/);
-//
-//      if(settings->use2ndRayReco){
-//      fitsFileStr = fitsFile_tmp /*+ ".ev" + evStr*/ + ".2ndRay.fits";
-//      sprintf(fitsFile, fitsFileStr.c_str());
-//      maxPixIdx2 = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_2ndRayReco(settings, cleanEvent, &clEnv, recoRefracDelays, recoRefracDelays_V, recoRefracDelays_H, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
-//      }
-//
-//      if(settings->recordMapData == 1){
-//      for(int pix=0; pix<nDir*nLayer; pix++) mapDataHist[pix]->Fill(mapData[pix]);
-//      }
-//      } else { //zoom search mode
-//      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode(settings, cleanEvent, &clEnv, stationCenterDepth, antLocation, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile);
-//      }
-//   } else {
-//      maxPixIdx = reconstructXCorrEnvelopeGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, goodChan/*chanMask*/, summary);
-//
-//   }
-//
-//   }
-//   if( err<0 || maxPixIdx<0 || maxPixIdx2<0 ){ cerr<<"Error reconstructing\n"; return -1; }
-//   if(summary->maxPixCoherence != 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
-//   if(settings->use2ndRayReco==1){ if(summary->maxPixCoherence2 == 0.f) recoSuccess=false;}
-//   if(recoSuccess!=true) { cout<<"maxPixCoherence/2 returns 0!! Re-running reco...\n"; }
-//   }//end of while
-//
-//   //int recoFlag = record3DDiffGetFlag(summary, outputFile);
-//   //if( recoFlag ) recoFlagCnt++;
-//   if(settings->use2ndRayReco==0){
-//   summary->setFlag( (settings->skymapSearchMode)
-//                    ? record3DZoomedDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist)
-//                    : record3DDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist) );
-//   } else {
-//   if(settings->skymapSearchMode){ cerr<<"skymapSearchMode==1 & use2ndRayReco==1 incompatible!\n"; return -1;}
-//   else summary->setFlag(record3DDiffGetFlag_2ndRayReco(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist));
-//   }
-//   if(summary->flag > 0) recoFlagCnt++;
-//   maxPix[maxPixIdx]++;
-//
-//   if(settings->use2ndRayReco==0)
-//   compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
-//   else{
-//      if(summary->maxPixCoherence >= summary->maxPixCoherence2)
-//      compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
-//      else {
-//      cerr<<"2nd ray angles table not yet build! Angles will be default (-1)\n"; //return -1;
-//      //compute3DRecoAnglesWithRadioSplineForSinglePixel_2ndRayReco(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx2);
-//      }
-//   }
-//   summary->setRecoAngles(recoRecAngles, recoLauAngles);
+   recoSuccess = true;
+
+   while( !recoSuccess ){
+   if(settings->beamformMethod == 1){
+   if(settings->getSkymapMode == 0){
+       err = reconstructCSW(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, fitsFile/*argv[5]*/);
+   }
+   else{
+       maxPixIdx = reconstructCSWGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, summary);
+   }
+   } else {
+   //if(settings->getSkymapMode == 0){
+
+      //evStr = std::to_string(ev);
+      stringstream ss;
+      ss << /*ev*/rawAtriEvPtr->eventNumber;
+      evStr = ss.str();
+      fitsFileStr = fitsFile_tmp /*+ ".ev" + evStr*/ + ".fits";
+      sprintf(fitsFile, fitsFileStr.c_str());
+
+      if(settings->skymapSearchMode == 0){ //no zoom mode
+      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, snrRank, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*//*, calRecoDelays, dtHist*/);
+
+      if(settings->use2ndRayReco){
+      fitsFileStr = fitsFile_tmp /*+ ".ev" + evStr*/ + ".2ndRay.fits";
+      sprintf(fitsFile, fitsFileStr.c_str());
+      maxPixIdx2 = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_2ndRayReco(settings, cleanEvent, &clEnv, recoRefracDelays, recoRefracDelays_V, recoRefracDelays_H, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
+      }
+
+      if(settings->recordMapData == 1){
+      for(int pix=0; pix<nDir*nLayer; pix++) mapDataHist[pix]->Fill(mapData[pix]);
+      }
+      } else { //zoom search mode
+      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode(settings, cleanEvent, &clEnv, stationCenterDepth, antLocation, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile);
+      }
+   //} else {
+   //   maxPixIdx = reconstructXCorrEnvelopeGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, goodChan/*chanMask*/, summary);
+   //}
+
+   }
+   if( err<0 || maxPixIdx<0 || maxPixIdx2<0 ){ cerr<<"Error reconstructing\n"; return -1; }
+   if(summary->maxPixCoherence != 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
+   if(settings->use2ndRayReco==1){ if(summary->maxPixCoherence2 == 0.f) recoSuccess=false;}
+   if(recoSuccess!=true) { cout<<"maxPixCoherence/2 returns 0!! Re-running reco...\n"; }
+   }//end of while
+
+   //int recoFlag = record3DDiffGetFlag(summary, outputFile);
+   //if( recoFlag ) recoFlagCnt++;
+   if(settings->use2ndRayReco==0){
+   summary->setFlag( (settings->skymapSearchMode)
+                    ? record3DZoomedDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist)
+                    : record3DDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist) );
+   } else {
+   if(settings->skymapSearchMode){ cerr<<"skymapSearchMode==1 & use2ndRayReco==1 incompatible!\n"; return -1;}
+   else summary->setFlag(record3DDiffGetFlag_2ndRayReco(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist));
+   }
+   if(summary->flag > 0) recoFlagCnt++;
+   maxPix[maxPixIdx]++;
+
+   if(settings->use2ndRayReco==0)
+   compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
+   else{
+      if(summary->maxPixCoherence >= summary->maxPixCoherence2)
+      compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
+      else {
+      cerr<<"2nd ray angles table not yet build! Angles will be default (-1)\n"; //return -1;
+      //compute3DRecoAnglesWithRadioSplineForSinglePixel_2ndRayReco(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx2);
+      }
+   }
+   summary->setRecoAngles(recoRecAngles, recoLauAngles);
 
 
    dataTree->Fill();
@@ -1299,9 +1388,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    delete realAtriEvPtr;
    //delete summary;
 
-//   treg->clearForNextEvent();
+   treg->clearForNextEvent();
 
-   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ /*if(settings->cwFilter>0)*/ /*delete grFFT[ch];*/ }
+   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ /*if(settings->cwFilter>0)*/ /*delete grFFT[ch];*/ delete grMedianFiltered[ch]; /*delete gr1stDiffMedian[ch];*/ delete grSlope[ch]; }
 
    }//end of ev loop
 
@@ -1423,8 +1512,14 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    }
 
-   nChanBelowThres = 0;
-   maxTimeVec.clear();
+   //nChanBelowThres = 0;
+   //maxTimeVec.clear();
+   for(int s=0; s<4; s++){
+      nChanBelowThres_V[s]=0;
+      nChanBelowThres_H[s]=0;
+      for(int pol=0; pol<2; pol++)
+         maxTimeVec[s][pol].clear();
+   }
 
    for(int ch=0; ch<16; ch++){
 
@@ -1441,9 +1536,10 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    grMean[ch] = evProcessTools::getRollingMeanGraph(grInt[ch], IRS2SamplePerBlock);
    meanMax[ch] = evProcessTools::getMax(grMean[ch], &maxTime[ch]);
-   if(meanMax[ch]<(ch<8?threshold_V:threshold_H)){
-      nChanBelowThres += 1;
-      maxTimeVec.push_back(maxTime[ch]);
+   if(-1.*fabs(meanMax[ch])<(ch<8?threshold_V:threshold_H)){
+      if(ch<8) nChanBelowThres_V[ch%4] += 1;
+      else     nChanBelowThres_H[ch%4] += 1;
+      maxTimeVec[ch%4][ch<8?0:1].push_back(maxTime[ch]);
    }
 
    delete gr_v[ch];
@@ -1451,20 +1547,63 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    /* Check for offset block */
 
-   nChanBelowThres_Thres = (dropARA02D4BH?15:(dropARA03D4?12:16));
-   if( nChanBelowThres >= nChanBelowThres_Thres ){
-      timeRange = *max_element(maxTimeVec.begin(), maxTimeVec.end()) - *min_element(maxTimeVec.begin(), maxTimeVec.end());
-      //cout<<"max element: "<<*max_element(maxTimeVec.begin(), maxTimeVec.end())<<" min element: "<<*min_element(maxTimeVec.begin(), maxTimeVec.end())<<" timeRange: "<<timeRange<<endl;
-      if(timeRange < timeRangeCut){
-         offsetBlockAlert = 1;
-         offsetBlockEventCount += 1;
-         weightedOffsetBlockEventCount += weight;
-         unpaddedEvent.clear();
-         cleanEvent.clear();
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; }
-         continue;
+   /* A2 criteria: at least 2 offset block strings. An offset block string is defined as having offset blocks in both Vpols and at least 1
+    *  Hpol, and their offset time is within timeRangeCut
+    */
+
+   //nChanBelowThres_Thres = (dropARA02D4BH?15:(dropARA03D4?12:16));
+   if (AraSim_settings->DETECTOR_STATION == 2){
+   int nOffsetBlockString = 0;
+   for(int s=0; s<4; s++){
+      if (nChanBelowThres_V[s]==2){
+         timeRange = *max_element(maxTimeVec[s][0].begin(), maxTimeVec[s][0].end())
+                   - *min_element(maxTimeVec[s][0].begin(), maxTimeVec[s][0].end());
+         if(timeRange < timeRangeCut){
+            if(nChanBelowThres_H[s]>0){
+               timeRange = *max_element(maxTimeVec[s][1].begin(), maxTimeVec[s][1].end())
+                         - *min_element(maxTimeVec[s][1].begin(), maxTimeVec[s][1].end());
+               if(timeRange < timeRangeCut){
+                  nOffsetBlockString++;
+               }
+            }
+         }
       }
    }
+
+   //if( nChanBelowThres >= nChanBelowThres_Thres ){
+   //   timeRange = *max_element(maxTimeVec.begin(), maxTimeVec.end()) - *min_element(maxTimeVec.begin(), maxTimeVec.end());
+      //cout<<"max element: "<<*max_element(maxTimeVec.begin(), maxTimeVec.end())<<" min element: "<<*min_element(maxTimeVec.begin(), maxTimeVec.end())<<" timeRange: "<<timeRange<<endl;
+   //   if(timeRange < timeRangeCut){
+   if(nOffsetBlockString>1){
+      offsetBlockAlert = 1;
+      offsetBlockEventCount += 1;
+      weightedOffsetBlockEventCount += weight;
+      unpaddedEvent.clear();
+      cleanEvent.clear();
+      for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; }
+      continue;
+   //   }
+   }
+   }
+   else if (AraSim_settings->DETECTOR_STATION == 3){
+
+      for (int ch=0; ch<16; ch++){
+         grMedianFiltered[ch] = evProcessTools::getMedianFilteredGraph(grInt[ch], IRS2SamplePerBlock);
+         gr1stDiffMedian[ch] = FFTtools::subtractGraphs(grMedianFiltered[ch], grInt[ch]);
+         cvs.cd(ch+1);
+         grInt[ch]->SetLineColor(kBlack);
+         grMedianFiltered[ch]->SetLineColor(kBlue);
+         gr1stDiffMedian[ch]->SetLineColor(kRed);
+         grInt[ch]->Draw("AL");
+         grMedianFiltered[ch]->Draw("Lsame");
+         gr1stDiffMedian[ch]->Draw("Lsame");
+      }
+
+      cvs.SaveAs("medianFilter_test.C");
+
+
+   }
+
 
    numSatChan = getSaturation(settings, unpaddedEvent, satChan);
    summary->setSaturatedChannels(numSatChan, satChan);
@@ -1499,39 +1638,13 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
          freqCount_V = new int [freqCountLen_V];
          fill(&freqCount_V[0], &freqCount_V[freqCountLen_V], 0);
          freqBinWidth_V = evProcessTools::getFFTBinWidth(grFFT[ch]);
-         if(eventCount == 0) fftValues_V = new vector<double> [freqCountLen_V*8];
-         //if(eventCount == 0) fftValues_V = (vector<double>*)malloc(8*freqCountLen_V*sizeof(vector<double>));
       }
       else if (ch==8){
          freqCountLen_H = grFFT[ch]->GetN();
          freqCount_H = new int [freqCountLen_H];
          fill(&freqCount_H[0], &freqCount_H[freqCountLen_H], 0);
          freqBinWidth_H = evProcessTools::getFFTBinWidth(grFFT[ch]);
-         if(eventCount == 0) fftValues_H = new vector<double> [freqCountLen_H*8];
-         //if(eventCount == 0) fftValues_H = (vector<double>*)malloc(8*freqCountLen_H*sizeof(vector<double>));
       }
-
-      if(ch<8){
-         for(int bin=0; bin<freqCountLen_V; bin++){
-            //cout<<"929 bin:"<<bin<<"\n";
-            grFFT[ch]->GetPoint(bin, f, p);
-            //cout<<"931\n";
-            fftValues_V[ch*freqCountLen_V+bin].push_back(p);
-
-            //cout<<"933\n";
-
-         }
-      }
-       else {
-
-         for(int bin=0; bin<freqCountLen_H; bin++){
-            grFFT[ch]->GetPoint(bin, f, p);
-            fftValues_H[(ch-8)*freqCountLen_H+bin].push_back(p);
-         }
-         //fftValues[ch][bin].push_back(p);
-      }
-
-      eventCount++;
 
       maxFrac = FFTtools::getPeakVal(grFFT[ch], &maxFracBin);
       //cout<<"ch: "<<ch<<" macFrac: "<<maxFrac<<" maxFracBin: "<<maxFracBin<<endl;
@@ -1745,32 +1858,32 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    /* Constant N reco for surface filter */
 
-//   recoSuccess = false;
-//
-//   if(settings->constantNFilter > 0){
-//      while( !recoSuccess ){
-//
-//         stringstream ss;
-//         ss << ev/*rawAtriEvPtr->eventNumber*/;
-//         evStr = ss.str();
-//         fitsFileStr = fitsFile_tmp + /*".ev" + evStr +*/ ".constantN.fits";
-//         sprintf(fitsFile, fitsFileStr.c_str());
-//         constantNMaxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_constantNFilter(settings, cleanEvent, &clEnv, constantNDelays, constantNDelays_V, constantNDelays_H, goodChan, summary, fitsFile///*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/
-//         );
-//
-//         if( constantNMaxPixIdx < 0){ cerr<<"Error reconstructing - contant N\n"; return -1; }
-//         if(summary->constantNMaxPixCoherence != 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
-//         else { cout<<"constantNMaxPixCoherence returns 0!! Re-running reco...\n"; }
-//
-//      }
-//
-//      if(recordConstantNDir(settings, summary) < 0){ cerr<<"Error recording constant N dir\n"; return -1;}
-//
-//   }
-//
-//   /* Track engine object to compute all tracks */
-//   treg->computeAllTracks(unpaddedEvent);
-//   summary->setTreg(treg);
+   recoSuccess = true;
+
+   if(settings->constantNFilter > 0){
+      while( !recoSuccess ){
+
+         stringstream ss;
+         ss << ev/*rawAtriEvPtr->eventNumber*/;
+         evStr = ss.str();
+         fitsFileStr = fitsFile_tmp + /*".ev" + evStr +*/ ".constantN.fits";
+         sprintf(fitsFile, fitsFileStr.c_str());
+         constantNMaxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_constantNFilter(settings, cleanEvent, &clEnv, constantNDelays, constantNDelays_V, constantNDelays_H, goodChan, summary, fitsFile///*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/
+         );
+
+         if( constantNMaxPixIdx < 0){ cerr<<"Error reconstructing - contant N\n"; return -1; }
+         if(summary->constantNMaxPixCoherence != 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
+         else { cout<<"constantNMaxPixCoherence returns 0!! Re-running reco...\n"; }
+
+      }
+
+      if(recordConstantNDir(settings, summary) < 0){ cerr<<"Error recording constant N dir\n"; return -1;}
+
+   }
+
+   /* Track engine object to compute all tracks */
+   treg->computeAllTracks(unpaddedEvent);
+   summary->setTreg(treg);
 
    //****************************************************
    // END OF FILTER SECTION
@@ -1851,87 +1964,86 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    weightedRecoEventCount += weight;
    /* Reco with radiospline */
 
-//   recoSuccess = false;
-//
-//   while( !recoSuccess ){
-//   if(settings->beamformMethod == 1){
-//   if(settings->getSkymapMode == 0){
-//       err = reconstructCSW(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, fitsFile/*argv[5]*/);
-//   }
-//   else{
-//       maxPixIdx = reconstructCSWGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, summary);
-//   }
-//   } else {
-//   if(settings->getSkymapMode == 0){
-//
-//      //evStr = std::to_string(ev);
-//      stringstream ss;
-//      ss << ev;
-//      evStr = ss.str();
-//      fitsFileStr = fitsFile_tmp + /*".ev" + evStr +*/ ".fits";
-//      sprintf(fitsFile, fitsFileStr.c_str());
-//
-//      if(settings->skymapSearchMode == 0){ //no zoom mode
-//      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, snrRank, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
-//
-//      if(settings->use2ndRayReco){
-//      fitsFileStr = fitsFile_tmp + /*".ev" + evStr +*/ ".2ndRay.fits";
-//      sprintf(fitsFile, fitsFileStr.c_str());
-//      maxPixIdx2 = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_2ndRayReco(settings, cleanEvent, &clEnv, recoRefracDelays, recoRefracDelays_V, recoRefracDelays_H, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
-//      }
-//
-//      if(settings->recordMapData == 1){
-//      for(int pix=0; pix<nDir*nLayer; pix++) mapDataHist[pix]->Fill(mapData[pix]);
-//      }
-//      } else {//zoom search mode
-//      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode(settings, cleanEvent, &clEnv, stationCenterDepth, antLocation, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile);
-//      }
-//   } else {
-//      maxPixIdx = reconstructXCorrEnvelopeGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, goodChan/*chanMask*/, summary);
-//
-//   }
-//   }
-//
-//   if( err<0 || maxPixIdx<0 || maxPixIdx2<0 ){ cerr<<"Error reconstructing\n"; return -1; }
-//   if(summary->maxPixCoherence != 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
-//   if(settings->use2ndRayReco==1){ if(summary->maxPixCoherence2 == 0.f) recoSuccess=false;}
-//   if(recoSuccess!=true) { cout<<"maxPixCoherence/2 returns 0!! Re-running reco...\n"; }
-//   //else { cout<<"maxPixCoherence returns 0!! Re-running reco...\n"; }
-//   }//end of while
-//
-//   //int recoFlag = record3DDiffGetFlag(summary, outputFile);
-//   //if( recoFlag ) recoFlagCnt++;
-//   if(settings->use2ndRayReco==0){
-//   summary->setFlag( (settings->skymapSearchMode)
-//                    ? record3DZoomedDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist)
-//                    : record3DDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist) );
-//   } else {
-//   if(settings->skymapSearchMode){ cerr<<"skymapSearchMode==1 & use2ndRayReco==1 incompatible!\n"; return -1;}
-//   else summary->setFlag(record3DDiffGetFlag_2ndRayReco(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist));
-//   }
-//   if(summary->flag > 0) recoFlagCnt++;
-//   maxPix[maxPixIdx]++;
-//
-//   if(settings->use2ndRayReco==0)
-//   compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
-//   else{
-//      if(summary->maxPixCoherence >= summary->maxPixCoherence2)
-//      compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
-//      else {
-//      cerr<<"2nd ray angles table not yet build! Angles will be default (-1)\n"; //return -1;
-//      //compute3DRecoAnglesWithRadioSplineForSinglePixel_2ndRayReco(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx2);
-//      }
-//   }
-//   //compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
-//
-//   summary->setRecoAngles(recoRecAngles, recoLauAngles);
+   recoSuccess = true;
+
+   while( !recoSuccess ){
+   if(settings->beamformMethod == 1){
+   if(settings->getSkymapMode == 0){
+       err = reconstructCSW(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, fitsFile/*argv[5]*/);
+   }
+   else{
+       maxPixIdx = reconstructCSWGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, summary);
+   }
+   } else {
+   //if(settings->getSkymapMode == 0){
+
+      //evStr = std::to_string(ev);
+      stringstream ss;
+      ss << ev;
+      evStr = ss.str();
+      fitsFileStr = fitsFile_tmp + /*".ev" + evStr +*/ ".fits";
+      sprintf(fitsFile, fitsFileStr.c_str());
+
+      if(settings->skymapSearchMode == 0){ //no zoom mode
+      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, goodChan, snrRank, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
+
+      if(settings->use2ndRayReco){
+      fitsFileStr = fitsFile_tmp + /*".ev" + evStr +*/ ".2ndRay.fits";
+      sprintf(fitsFile, fitsFileStr.c_str());
+      maxPixIdx2 = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_2ndRayReco(settings, cleanEvent, &clEnv, recoRefracDelays, recoRefracDelays_V, recoRefracDelays_H, goodChan, summary, fitsFile/*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/);
+      }
+
+      if(settings->recordMapData == 1){
+      for(int pix=0; pix<nDir*nLayer; pix++) mapDataHist[pix]->Fill(mapData[pix]);
+      }
+      } else {//zoom search mode
+      maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode(settings, cleanEvent, &clEnv, stationCenterDepth, antLocation, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile);
+      }
+   //} else {
+   //   maxPixIdx = reconstructXCorrEnvelopeGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, goodChan/*chanMask*/, summary);
+   //}
+   }
+
+   if( err<0 || maxPixIdx<0 || maxPixIdx2<0 ){ cerr<<"Error reconstructing\n"; return -1; }
+   if(summary->maxPixCoherence != 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
+   if(settings->use2ndRayReco==1){ if(summary->maxPixCoherence2 == 0.f) recoSuccess=false;}
+   if(recoSuccess!=true) { cout<<"maxPixCoherence/2 returns 0!! Re-running reco...\n"; }
+   //else { cout<<"maxPixCoherence returns 0!! Re-running reco...\n"; }
+   }//end of while
+
+   //int recoFlag = record3DDiffGetFlag(summary, outputFile);
+   //if( recoFlag ) recoFlagCnt++;
+   if(settings->use2ndRayReco==0){
+   summary->setFlag( (settings->skymapSearchMode)
+                    ? record3DZoomedDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist)
+                    : record3DDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist) );
+   } else {
+   if(settings->skymapSearchMode){ cerr<<"skymapSearchMode==1 & use2ndRayReco==1 incompatible!\n"; return -1;}
+   else summary->setFlag(record3DDiffGetFlag_2ndRayReco(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist));
+   }
+   if(summary->flag > 0) recoFlagCnt++;
+   maxPix[maxPixIdx]++;
+
+   if(settings->use2ndRayReco==0)
+   compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
+   else{
+      if(summary->maxPixCoherence >= summary->maxPixCoherence2)
+      compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
+      else {
+      cerr<<"2nd ray angles table not yet build! Angles will be default (-1)\n"; //return -1;
+      //compute3DRecoAnglesWithRadioSplineForSinglePixel_2ndRayReco(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx2);
+      }
+   }
+   //compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
+
+   summary->setRecoAngles(recoRecAngles, recoLauAngles);
 
    dataTree->Fill();
    unpaddedEvent.clear();
    cleanEvent.clear();
    //delete summary;
-   //treg->clearForNextEvent();
-   for(int ch=0; ch<16; ch++){ /*delete gr_v[ch];*/ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ /*if(settings->cwFilter>0)*/ /*delete grFFT[ch];*/ }
+   treg->clearForNextEvent();
+   for(int ch=0; ch<16; ch++){ /*delete gr_v[ch];*/ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ /*if(settings->cwFilter>0)*/ /*delete grFFT[ch];*/ delete grMedianFiltered[ch]; delete gr1stDiffMedian[ch]; }
    }//end of ev loop
 
 }//end of dataType == 0
@@ -1941,141 +2053,41 @@ time_t t_after_event_loop = time(NULL);
 clock_t c_after_event_loop = clock();
 
 cout<<"runEventCount: "<<runEventCount<<" recoEventCount: "<<recoEventCount<<" trigEventCount: "<<trigEventCount<<endl;
-cout<<"cutWaveEventCount: "<<cutWaveEventCount<<" nonIncreasingSampleTimeEventCount: "<<nonIncreasingSampleTimeEventCount<<" cutWaveAndNonIncreasingEventCount: "<<cutWaveAndNonIncreasingEventCount<<" corruptD1EventCount: "<<corruptD1EventCount<<" corruptFirst3EventCount: "<<corruptFirst3EventCount<<endl;
+cout<<"cutWaveEventCount: "<<cutWaveEventCount<<" nonIncreasingSampleTimeEventCount: "<<nonIncreasingSampleTimeEventCount<<" cutWaveAndNonIncreasingEventCount: "<<cutWaveAndNonIncreasingEventCount<<" corruptD1EventCount: "<<corruptD1EventCount<<" corruptFirst3EventCount: "<<corruptFirst3EventCount<<" blockGapEventCount: "<<blockGapEventCount<<endl;
 cout<<"mistaggedSoftEventCount: "<<mistaggedSoftEventCount<<" offsetBlockEventCount: "<<offsetBlockEventCount<<" nchnlFilteredEventCount: "<<nchnlFilteredEventCount<<" cwFilteredEventCount: "<<cwFilteredEventCount<<" impulsivityFilteredEventCount: "<<impulsivityFilteredEventCount<<endl;
 
 runInfoTree->Fill();
 
-//outputFile->Write();
-//outputFile->Close();
+outputFile->Write();
+outputFile->Close();
+
+fout.close();
 
 clfftTeardown();
 err = tearDown(&clEnv);
 delete treg;
 delete summary;
-//if(settings->skymapSearchMode == 0){
-//   delete onion;
-//   free(recoDelays);
-//   free(recoDelays_V);
-//   free(recoDelays_H);
-//   if(settings->use2ndRayReco==1){
-//   free(recoRefracDelays);
-//   free(recoRefracDelays_V);
-//   free(recoRefracDelays_H);
-//   }
-//}
-//if(settings->constantNFilter > 0){
-//   delete onion_temp;
-//   free(constantNDelays);
-//   free(constantNDelays_V);
-//   free(constantNDelays_H);
-//}
-//delete settings;
+if(settings->skymapSearchMode == 0){
+   delete onion;
+   free(recoDelays);
+   free(recoDelays_V);
+   free(recoDelays_H);
+   if(settings->use2ndRayReco==1){
+   free(recoRefracDelays);
+   free(recoRefracDelays_V);
+   free(recoRefracDelays_H);
+   }
+}
+if(settings->constantNFilter > 0){
+   delete onion_temp;
+   free(constantNDelays);
+   free(constantNDelays_V);
+   free(constantNDelays_H);
+}
+delete settings;
 free(mapDataHist);
 free(mapData);
 
-if( !settings->readRecoSetupFile( recoSetupFile_fullPath )){
-
-   cerr<<"Error reading the recoSetupFile or invalid parameters !! Aborting now...\n";
-   return -1;
-   //cerr<<"Will use default reco setup file\n";
-   //settings->readRecoSetupFile("recoSetupFile_default.txt");
-   //outputFile = new TFile(("recoOut.recoSetupFile_default.txt.run"+runNum+".root").c_str(),"RECREATE","recoOut");
-   //fitsFile_tmp = "recoSkymap.recoSetupFile_default.txt.run" + runNum/* + ".fits"*/;
-
-} else {
-   cout<<"Obtained new reoSetupFile\n";
-   outputFile = new TFile((outputDir+"fftBaseline."+recoSetupFile+".run"+runNum+".root").c_str(),"RECREATE","fftBaseline");
-   fitsFile_tmp = outputDir + "recoSkymap." + recoSetupFile + ".run" + runNum/* + ".fits"*/;
-}
-
-//double median[16] = {-1000.};
-//double percentile_75[16] = {-1000.};
-//double percentile_25[16] = {-1000.};
-vector<double> tempVec;
-
-TGraph *gr_median[16];
-TGraph *gr_75[16];
-TGraph *gr_25[16];
-char grName[200];
-
-for(int ch=0; ch<8; ch++){
-   sprintf(grName,"gr_median_%d",ch);
-   gr_median[ch] = new TGraph();
-   gr_median[ch]->SetName(grName); gr_median[ch]->SetTitle(grName);
-   sprintf(grName,"gr_75_%d",ch);
-   gr_75[ch]     = new TGraph();
-   gr_75[ch]->SetName(grName); gr_75[ch]->SetTitle(grName);
-   sprintf(grName,"gr_25_%d",ch);
-   gr_25[ch]     = new TGraph();
-   gr_25[ch]->SetName(grName); gr_25[ch]->SetTitle(grName);
-   for(int bin=0; bin<freqCountLen_V; bin++){
-      tempVec.assign(fftValues_V[ch*freqCountLen_V+bin].begin(), fftValues_V[ch*freqCountLen_V+bin].end());
-      //median[ch] = getPercentile(tempVec, 0.5);
-      //percentile_75[ch] = getPercentile(tempVec, 0.75);
-      //percentile_25[ch] = getPercentile(tempVec, 0.25);
-      gr_median[ch]->SetPoint(bin, bin*freqBinWidth_V, getPercentile(tempVec, 0.5));
-      gr_75[ch]->SetPoint(bin, bin*freqBinWidth_V, getPercentile(tempVec, 0.75));
-      gr_25[ch]->SetPoint(bin, bin*freqBinWidth_V, getPercentile(tempVec, 0.25));
-      //cout<<"ch: "<<ch<<" 25%: "<<percentile_25[ch]<<" 50%: "<<median[ch]<<" 75%: "<<percentile_75[ch]<<endl;
-      tempVec.clear();
-   }
-   gr_median[ch]->Write();
-   gr_75[ch]->Write();
-   gr_25[ch]->Write();
-}
-for(int ch=8; ch<16; ch++){
-   sprintf(grName,"gr_median_%d",ch);
-   gr_median[ch] = new TGraph();
-   gr_median[ch]->SetName(grName); gr_median[ch]->SetTitle(grName);
-   sprintf(grName,"gr_75_%d",ch);
-   gr_75[ch]     = new TGraph();
-   gr_75[ch]->SetName(grName); gr_75[ch]->SetTitle(grName);
-   sprintf(grName,"gr_25_%d",ch);
-   gr_25[ch]     = new TGraph();
-   gr_25[ch]->SetName(grName); gr_25[ch]->SetTitle(grName);
-   for(int bin=0; bin<freqCountLen_H; bin++){
-      tempVec.assign(fftValues_H[(ch-8)*freqCountLen_H+bin].begin(), fftValues_H[(ch-8)*freqCountLen_H+bin].end());
-      //median[ch] = getPercentile(tempVec, 0.5);
-      //percentile_75[ch] = getPercentile(tempVec, 0.75);
-      //percentile_25[ch] = getPercentile(tempVec, 0.25);
-      gr_median[ch]->SetPoint(bin, bin*freqBinWidth_H, getPercentile(tempVec, 0.5));
-      gr_75[ch]->SetPoint(bin, bin*freqBinWidth_H, getPercentile(tempVec, 0.75));
-      gr_25[ch]->SetPoint(bin, bin*freqBinWidth_H, getPercentile(tempVec, 0.25));
-      //cout<<"ch: "<<ch<<" 25%: "<<percentile_25[ch]<<" 50%: "<<median[ch]<<" 75%: "<<percentile_75[ch]<<endl;
-      tempVec.clear();
-   }
-   gr_median[ch]->Write();
-   gr_75[ch]->Write();
-   gr_25[ch]->Write();
-}
-//outputFile->Write();
-outputFile->Close();
-
-delete settings;
-/*
-TH2F *fftValuesHist =new TH2F("fftValuesHist","fftValuesHist",(int)(1000/freqBinWidth_V),0,1000,500,-100,100);
-for(int bin=0; bin<freqCountLen_V; bin++){
-   for(int val=0; val<fftValues_V[bin].size(); val++){
-      fftValuesHist->Fill(bin*freqBinWidth_V,fftValues_V[bin].at(val));
-   }
-}
-*/
-/*
-TCanvas c1("c1","c1",800,800);
-//fftValuesHist->Draw("colz");
-c1.Divide(4,4);
-for(int ch=0; ch<16; ch++){
-   c1.cd(ch+1);
-   gr_median[ch]->Draw("AL");
-   gr_75[ch]->SetLineColor(kRed);
-   gr_75[ch]->Draw("Lsame");
-   gr_25[ch]->SetLineColor(kBlue);
-   gr_25[ch]->Draw("Lsame");
-}
-c1.SaveAs("fftValuesMedian.C");
-//c1.SaveAs("fftValuesHist.C");
-*/
 //recordTime(tmr,5);
 time_t t_program_end = time(NULL);
 clock_t c_program_end = clock();

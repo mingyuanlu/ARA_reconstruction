@@ -261,7 +261,9 @@ ifstream list;
 //list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_surfaceEvents_noisyRuns.txt");
 //list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_2SurfaceCut_surfaceEvents_noisyRuns.txt");
 //list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_snrMode1_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
-list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
+//list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
+list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_fullDataExpoFit_surfaceEvents_noisyRuns_old.txt");
+
 //list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEventRuns.txt");
 vector<int> listOfRuns;
 //vector<int> listOfEvents;
@@ -293,12 +295,37 @@ if (list.is_open() ){
       //}
       //listOfEvents.push_back(event);
    }
+}  else {
+   cerr<<"No noisy run list! Aborting...";
+   return -1;
 }
 
 list.close();
 
 int numNoisyRuns = listOfRuns.size();
 //vector< vector<int> > noisyRun;
+
+ifstream list2;
+list2.open("ARA02_calibrationRuns.txt");
+vector<int> listOfCalRuns;
+if(list2.is_open()){
+   while(list2.good()){
+
+      getline(list2, line, '\n');
+      if(line == "") break;
+      run = stoi(line);
+
+      cout<<"cal run: "<<run<<endl;
+      listOfCalRuns.push_back(run);
+
+   }
+} else {
+   cerr<<"No calibration run list! Aborting...";
+   return -1;
+}
+
+list2.close();
+int numCalRuns = listOfCalRuns.size();
 
 
 /*************    START LOOPING THROUGH EVENTS *********************************************************************
@@ -310,10 +337,10 @@ int numNoisyRuns = listOfRuns.size();
  * Then a list fo remaining events will be produced for iterative reconstruction.
  *******************************************************************************************************************/
 
-bool passThermalCut, passSurfaceCut, passCalpulserCut, passDeepPulserCut, passCorruptionCut, passNoisyRunCut, passThermalImpulsivityCut, passCWCut, passNumSatChanCut, passSurfaceCut_2, passCalpulserTimeCut;
-double nPassCorruption, nPassThermalCut, nPassSurfaceCut, nPassDeepPulserCut, nPassNoisyRunCut, nPassCalpulserCut, nPassImpulsivityCut, nPassHighPassFilter, nPassThermalImpulsivityCut, nPassCWCut, nPassNumSatChanCut, nPassSurfaceCut_2, nPassCalpulserTimeCut;
+bool passThermalCut, passSurfaceCut, passCalpulserCut, passDeepPulserCut, passCorruptionCut, passNoisyRunCut, passThermalImpulsivityCut, passCWCut, passNumSatChanCut, passSurfaceCut_2, passCalpulserTimeCut, passCalRunCut;
+double nPassCorruption, nPassThermalCut, nPassSurfaceCut, nPassDeepPulserCut, nPassNoisyRunCut, nPassCalpulserCut, nPassImpulsivityCut, nPassHighPassFilter, nPassThermalImpulsivityCut, nPassCWCut, nPassNumSatChanCut, nPassSurfaceCut_2, nPassCalpulserTimeCut, nPassCalRunCut;
 double nCut0, nCut1, nCut2, nCut3, nCut4, nCut5, nCut6, nCut7, nCut3p5, nCut1p5, nCut0p5, nCut6p5, nCut4p5;
-nPassCorruption = nPassThermalCut = nPassSurfaceCut = nPassDeepPulserCut = nPassNoisyRunCut = nPassCalpulserCut = nPassImpulsivityCut = nPassHighPassFilter = nPassThermalImpulsivityCut = nPassCWCut = nPassNumSatChanCut = nPassSurfaceCut_2 = nPassCalpulserTimeCut = 0.;
+nPassCorruption = nPassThermalCut = nPassSurfaceCut = nPassDeepPulserCut = nPassNoisyRunCut = nPassCalpulserCut = nPassImpulsivityCut = nPassHighPassFilter = nPassThermalImpulsivityCut = nPassCWCut = nPassNumSatChanCut = nPassSurfaceCut_2 = nPassCalpulserTimeCut = nPassCalRunCut = 0.;
 nCut0 = nCut1 = nCut2 = nCut3 = nCut4 = nCut5 = nCut6 = nCut7 = nCut3p5 = nCut1p5 = nCut0p5 = nCut6p5 = nCut4p5 = 0.;
 
 bool passImpulsivityCut;
@@ -547,7 +574,9 @@ for(int i=3; i<argc; i++){
    if(type<=3) fftRes = 1/(379e-9)/1e6;
    else        fftRes = 1/(499e-9)/1e6;
 
-   //Exclude certain runs:
+   //Exclude calibration runs:
+   if( isInCalibrationRun(listOfCalRuns, runNum) ) continue;
+   /*
    //Cal sweep
    if(runNum>=3177 && runNum<=3186) continue;
    if(runNum>=3302 && runNum<=3311) continue;
@@ -557,7 +586,7 @@ for(int i=3; i<argc; i++){
    if(runNum==7100)                 continue;
    //Cal sweep
    if(runNum>=7625 && runNum<=7686) continue;
-
+   */
 
    //int event  = atoi(  fin.substr(fin.find("event")+5, fin.find(".txt")-fin.find("event")-4).c_str() );
    TFile fp1( argv[i] );
@@ -600,6 +629,7 @@ for(int i=3; i<argc; i++){
    //cout<<"eventTrigType: "<<dummyData->eventTrigType<<endl;
    //if(dummyData->eventNumber != 127378) continue;
 
+   /*
    //Exclude the offset-block events and block-gap events
    if(runNum==2889 && dummyData->eventNumber==108253) continue;
    if(runNum==2759 && dummyData->eventNumber==8625) continue;
@@ -607,7 +637,7 @@ for(int i=3; i<argc; i++){
    if(runNum==6842 && dummyData->eventNumber==324) continue;
    //block-gap
    if(runNum==4429 && dummyData->eventNumber==34200) continue;
-
+   */
 
 
 
@@ -1737,7 +1767,8 @@ for(int i=3; i<argc; i++){
    }//end of entry
 
    numSurfaceEventsInRun->Fill(numSurfaceEventPerRun);
-   if(numSurfaceEventPerRun>=14){ //Expo fit to 100% data numSurfaceEventPerRun, at 0.01 run the numSurfaceEventPerRun is 13.63
+   cout<<runNum<<","<<numSurfaceEventPerRun<<endl;
+   if(numSurfaceEventPerRun>=14){ //Expo fit to 100% data numSurfaceEventPerRun, at 0.01 run the numSurfaceEventPerRun is 13.10
       outputFile<<runNum<<","<<numSurfaceEventPerRun<<endl;
    }
 

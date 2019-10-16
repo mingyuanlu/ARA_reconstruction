@@ -366,7 +366,12 @@ int computeRecoDelaysWithConstantNForSinglePixel(const int nAnt, const float zCe
                                      Healpix_Onion *onion,
                                      float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                                      const int pix);
-
+int computeRecoDelaysWithNoBoundConstantNForSinglePixel(
+                                    const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
+                                     //const float radius, const int nSideExp,
+                                     Healpix_Onion *onion,
+                                     float *recoDelays, float *recoDelays_V, float *recoDelays_H,
+                                     const int pix);
 int computeZoomedRecoDelaysWithConstantN(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
                                      //const float radius, const int nSideExp,
                                      Healpix_Onion *onion,
@@ -454,6 +459,7 @@ TGraph *impulsivityMeasure(TGraph * wf, double *impulsivity/*TGraph * distance_c
 TGraph *bipolarnessMeasure(TGraph *wf, double *bipolarness/*, TGraph *grCumuSumCDF*/);
 void getPosNegPowerPeakAndDeltaT(TGraph *wf, double *posPowerPeak, double *negPowerPeak, double *deltaT, int nIntSamp=50);
 void getChannelSlidingV2SNR(const vector<TGraph *>& cleanEvent, int nIntSamp_V, int nIntSamp_H, float *snrArray);
+void getChannelSlidingV2SNRPeakIntoWaveformTime(const vector<TGraph *>& cleanEvent, int nIntSamp_V, int nIntSamp_H, float *peakTime);
 void getChannelTotalPowerSNR(const vector<TGraph *>& cleanEvent, int nIntSamp_V, int nIntSamp_H, float *snrArray);
 void computeSNR(recoSettings * settings, const vector<TGraph *>& cleanEvent, recoData *summary);
 int getCWCount_iterFreqWindow(vector<TGraph *>& grFFT, double fftRes, int iterThres);

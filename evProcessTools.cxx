@@ -1693,6 +1693,64 @@ TGraph* evProcessTools::getRollingMeanGraph(TGraph *grInt, int samplePerBlock){
    return grMean;
 }
 
+
+/*
+ * Returns a median filtered graph with a window size samplePerBlock.
+ */
+
+TGraph* evProcessTools::getMedianFilteredGraph(TGraph *grInt, int samplePerBlock){
+
+   int nSamp = grInt->GetN();
+   double t0, t1, v0, v1;
+   grInt->GetPoint(0, t0, v0);
+   grInt->GetPoint(1, t1, v1);
+   double wInt = t1 - t0;
+   TGraph *grCrop;
+   //TGraph *grMean = new TGraph();
+   TGraph *grMedianFiltered = new TGraph();
+   double *y;
+
+   for(int i=0; i<nSamp-samplePerBlock; i++){
+      grCrop = FFTtools::cropWave(grInt, t0+i*wInt, t0+(i+samplePerBlock)*wInt);
+      //grMean->SetPoint(i, wInt*i, evProcessTools::getMean(grCrop));
+      y = grCrop->GetY();
+      grMedianFiltered->SetPoint(i, t0+wInt*i, TMath::Median(grCrop->GetN(), y));
+      delete grCrop;
+      //delete y;
+   }
+
+   for (int i=nSamp-samplePerBlock; i<nSamp; i++){
+      grCrop = FFTtools::cropWave(grInt, t0+i*wInt, t0+(nSamp-1)*wInt);
+      y = grCrop->GetY();
+      grMedianFiltered->SetPoint(i, t0+wInt*i, TMath::Median(grCrop->GetN(), y));
+      delete grCrop;
+      //delete y;
+
+   }
+
+   return grMedianFiltered;
+}
+
+vector<double> evProcessTools::countZeroCrossings(TGraph *gr, int& numCross){
+
+   numCross = 0;
+   vector<double> crossTime;
+   double t0, v0, t1, v1;
+
+   for (int i=0; i<gr->GetN()-1; i++){
+      gr->GetPoint(i,   t0, v0);
+      gr->GetPoint(i+1, t1, v1);
+
+      if (v0*v1<=0){ //zero crossing
+         numCross += 1;
+         crossTime.push_back((t0+t1)/2.);
+      }
+   }
+
+   return crossTime;
+
+}
+
 double evProcessTools::getMean(TGraph *gr){
 
 double v, t, mean;

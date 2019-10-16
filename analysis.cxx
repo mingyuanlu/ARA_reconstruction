@@ -236,6 +236,15 @@ utime_runStart = utime_runEnd = 0;
  double timeRange;
  vector<double> maxTimeVec[4][2];
 
+ /*
+  * Variables used in detecting cliff events in A3
+  */
+
+int cliffAlert;
+double *voltValues;
+double firstBlockSamples[IRS2SamplePerBlock];
+double lastBlockSamples[IRS2SamplePerBlock];
+
 /*
  * Variables used in nchnlFilter > 0 case
  */
@@ -270,6 +279,7 @@ int mistaggedSoftEventCount, offsetBlockEventCount;
 mistaggedSoftEventCount = offsetBlockEventCount = 0;
 int nchnlFilteredEventCount, cwFilteredEventCount, impulsivityFilteredEventCount;
 nchnlFilteredEventCount = cwFilteredEventCount = impulsivityFilteredEventCount = 0;
+int cliffEventCount = 0;
 int corruptFirst3EventCount = 0;
 int corruptD1EventCount = 0;
 int blockGapEventCount = 0;
@@ -279,6 +289,7 @@ double weightedOffsetBlockEventCount = 0.;
 double weightedNchnlFilteredEventCount = 0.;
 double weightedCWFilteredEventCount = 0.;
 double weightedImpulsivityFilteredEventCount = 0.;
+double weightedCliffEventCount = 0.;
 runInfoTree->Branch("runEventCount",  &runEventCount);
 runInfoTree->Branch("runRFEventCount", &runRFEventCount);
 runInfoTree->Branch("runCalEventCount", &runCalEventCount);
@@ -297,6 +308,7 @@ runInfoTree->Branch("nchnlFilteredEventCount", &nchnlFilteredEventCount);
 runInfoTree->Branch("impulsivityFilteredEventCount", &impulsivityFilteredEventCount);
 runInfoTree->Branch("corruptFirst3EventCount", &corruptFirst3EventCount);
 runInfoTree->Branch("corruptD1EventCount", &corruptD1EventCount);
+runInfoTree->Branch("cliffEventCount", &cliffEventCount);
 runInfoTree->Branch("weightedTrigEventCount", &weightedTrigEventCount);
 runInfoTree->Branch("weightedRecoEventCount", &weightedRecoEventCount);
 runInfoTree->Branch("weightedOffsetBlockEventCount", &weightedOffsetBlockEventCount);
@@ -304,6 +316,7 @@ runInfoTree->Branch("weightedNchnlFilteredEventCount", &weightedNchnlFilteredEve
 runInfoTree->Branch("weightedCWFilteredEventCount", &weightedCWFilteredEventCount);
 runInfoTree->Branch("weightedImpulsivityFilteredEventCount", &weightedImpulsivityFilteredEventCount);
 runInfoTree->Branch("blockGapEventCount", &blockGapEventCount);
+runInfoTree->Branch("weightedCliffEventCount", &weightedCliffEventCount);
 
 if(settings->dataType == 1)//real events
 {
@@ -550,6 +563,7 @@ if( err<0 ){
    TGraph *grCumuSum[16];
    TGraph *grCumuSumCDF[16];
 
+   double firstBlockMedian, lastBlockMedian;
 
 if(settings->dataType == 1){
 /*
@@ -715,7 +729,10 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
 //***********CHECK FIRTS 3 EVENTS CORRUPTION*************************
 
-   if ( stationId == 2 && realAtriEvPtr->unixTime >= corruptFirst3EventStartTime && realAtriEvPtr->eventNumber < corruptEventEndEventNumber){
+   if (( stationId == 2 && realAtriEvPtr->unixTime >= corruptFirst3EventStartTime_A2 && realAtriEvPtr->eventNumber < corruptEventEndEventNumber)
+   ||
+   (stationId == 3 && realAtriEvPtr->unixTime >= corruptFirst3EventStartTime_A3 && realAtriEvPtr->eventNumber < corruptEventEndEventNumber_A3))
+   {
       corruptFirst3EventCount+=1;
       delete realAtriEvPtr;
       continue;
@@ -874,41 +891,98 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    }//end of ch
 
    /* Check for offset block */
-   /* Criteria: at least 2 offset block strings. An offset block string is defined as having offset blocks in both Vpols and at least 1
+   /* A2 criteria: at least 2 offset block strings. An offset block string is defined as having offset blocks in both Vpols and at least 1
     *  Hpol, and their offset time is within timeRangeCut for Vpol & Hpol resoectively.
     */
 
-   //nChanBelowThres_Thres = (dropARA02D4BH?15:(dropARA03D4?12:16));
-   int nOffsetBlockString = 0;
-   for(int s=0; s<4; s++){
-      if (nChanBelowThres_V[s]==2){
-         timeRange = *max_element(maxTimeVec[s][0].begin(), maxTimeVec[s][0].end())
-                   - *min_element(maxTimeVec[s][0].begin(), maxTimeVec[s][0].end());
-         if(timeRange < timeRangeCut){
-            if(nChanBelowThres_H[s]>0){
-               timeRange = *max_element(maxTimeVec[s][1].begin(), maxTimeVec[s][1].end())
-                         - *min_element(maxTimeVec[s][1].begin(), maxTimeVec[s][1].end());
-               if(timeRange < timeRangeCut){
-                  nOffsetBlockString++;   
+   if (stationId == 2){
+
+      //nChanBelowThres_Thres = (dropARA02D4BH?15:(dropARA03D4?12:16));
+      int nOffsetBlockString = 0;
+      for(int s=0; s<4; s++){
+         if (nChanBelowThres_V[s]==2){
+            timeRange = *max_element(maxTimeVec[s][0].begin(), maxTimeVec[s][0].end())
+                      - *min_element(maxTimeVec[s][0].begin(), maxTimeVec[s][0].end());
+            if(timeRange < timeRangeCut){
+               if(nChanBelowThres_H[s]>0){
+                  timeRange = *max_element(maxTimeVec[s][1].begin(), maxTimeVec[s][1].end())
+                            - *min_element(maxTimeVec[s][1].begin(), maxTimeVec[s][1].end());
+                  if(timeRange < timeRangeCut){
+                     nOffsetBlockString++;
+                  }
                }
             }
          }
       }
+
+      //if( nChanBelowThres >= nChanBelowThres_Thres ){
+      //   timeRange = *max_element(maxTimeVec.begin(), maxTimeVec.end()) - *min_element(maxTimeVec.begin(), maxTimeVec.end());
+         //cout<<"max element: "<<*max_element(maxTimeVec.begin(), maxTimeVec.end())<<" min element: "<<*min_element(maxTimeVec.begin(), maxTimeVec.end())<<" timeRange: "<<timeRange<<endl;
+      //   if(timeRange < timeRangeCut){
+      if(nOffsetBlockString>1){
+         offsetBlockAlert = 1;
+         offsetBlockEventCount += 1;
+         unpaddedEvent.clear();
+         cleanEvent.clear();
+         delete realAtriEvPtr;
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; }
+         continue;
+      //   }
+      }
    }
 
-   //if( nChanBelowThres >= nChanBelowThres_Thres ){
-   //   timeRange = *max_element(maxTimeVec.begin(), maxTimeVec.end()) - *min_element(maxTimeVec.begin(), maxTimeVec.end());
-      //cout<<"max element: "<<*max_element(maxTimeVec.begin(), maxTimeVec.end())<<" min element: "<<*min_element(maxTimeVec.begin(), maxTimeVec.end())<<" timeRange: "<<timeRange<<endl;
-   //   if(timeRange < timeRangeCut){
-   if(nOffsetBlockString>1){
-      offsetBlockAlert = 1;
-      offsetBlockEventCount += 1;
-      unpaddedEvent.clear();
-      cleanEvent.clear();
-      delete realAtriEvPtr;
-      for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; }
-      continue;
-   //   }
+   else if (stationId == 3){
+
+      /* Check for cliff event
+      /* Check if a cliff string exists. If so, the event is considered a cliff event and discarded.
+      /* A cliff string is defined as either string 1,2,3 where all 4 channels on it shows |median difference| > predefined thresholds
+      */
+
+      int cliffCount_string1, cliffCount_string2, cliffCount_string3;
+      cliffCount_string1 = cliffCount_string2 = cliffCount_string3 = 0;
+
+      for (int ch=0; ch<16; ch++){
+
+         int len = grInt[ch]->GetN();
+         voltValues = grInt[ch]->GetY();
+
+         for (int s=0; s<IRS2SamplePerBlock; s++){
+            firstBlockSamples[s] = voltValues[s];
+            lastBlockSamples[s]  = voltValues[len-IRS2SamplePerBlock+s];
+         }
+
+         firstBlockMedian = TMath::Median(IRS2SamplePerBlock, firstBlockSamples);
+         lastBlockMedian  = TMath::Median(IRS2SamplePerBlock, lastBlockSamples);
+
+         double medianDiff = fabs(firstBlockMedian - lastBlockMedian);
+
+         if (ch%4 == 0){ //string 1
+             if (medianDiff > settings->cliff_threshold_A3_string1){
+                cliffCount_string1 += 1;
+             }
+         } else if (ch%4 == 1) { //string 2
+             if (medianDiff > settings->cliff_threshold_A3_string2){
+                cliffCount_string2 += 1;
+             }
+
+         } else if (ch%4 == 2){ //string 3
+             if (medianDiff > settings->cliff_threshold_A3_string3){
+                cliffCount_string3 += 1;
+             }
+         }
+
+      }//end of ch
+
+      if (cliffCount_string1 > 3 || cliffCount_string2 > 3 || cliffCount_string3 > 3){ //if cliff is seen in all channels on the same string
+         cliffAlert = 1;
+         cliffEventCount += 1;
+         unpaddedEvent.clear();
+         cleanEvent.clear();
+         delete realAtriEvPtr;
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; }
+         continue;
+      }
+
    }
 
    numSatChan = getSaturation(settings, unpaddedEvent, satChan);
@@ -1226,7 +1300,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
        maxPixIdx = reconstructCSWGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, summary);
    }
    } else {
-   if(settings->getSkymapMode == 0){
+   //if(settings->getSkymapMode == 0){
 
       //evStr = std::to_string(ev);
       stringstream ss;
@@ -1250,10 +1324,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       } else { //zoom search mode
       maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode(settings, cleanEvent, &clEnv, stationCenterDepth, antLocation, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile);
       }
-   } else {
-      maxPixIdx = reconstructXCorrEnvelopeGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, goodChan/*chanMask*/, summary);
-
-   }
+   //} else {
+   //   maxPixIdx = reconstructXCorrEnvelopeGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, goodChan/*chanMask*/, summary);
+   //}
 
    }
    if( err<0 || maxPixIdx<0 || maxPixIdx2<0 ){ cerr<<"Error reconstructing\n"; return -1; }
@@ -1452,42 +1525,98 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    delete gr_v[ch];
    }//end of ch
 
-   /* Check for offset block */
-   /* Criteria: at least 2 offset block strings. An offset block string is defined as having offset blocks in both Vpols and at least 1
-    *  Hpol, and their offset time is within timeRangeCut
-    */
+   if (AraSim_settings->DETECTOR_STATION==2){
 
-   //nChanBelowThres_Thres = (dropARA02D4BH?15:(dropARA03D4?12:16));
-   int nOffsetBlockString = 0;
-   for(int s=0; s<4; s++){
-      if (nChanBelowThres_V[s]==2){
-         timeRange = *max_element(maxTimeVec[s][0].begin(), maxTimeVec[s][0].end())
-                   - *min_element(maxTimeVec[s][0].begin(), maxTimeVec[s][0].end());
-         if(timeRange < timeRangeCut){
-            if(nChanBelowThres_H[s]>0){
-               timeRange = *max_element(maxTimeVec[s][1].begin(), maxTimeVec[s][1].end())
-                         - *min_element(maxTimeVec[s][1].begin(), maxTimeVec[s][1].end());
-               if(timeRange < timeRangeCut){
-                  nOffsetBlockString++;
+      /* Check for offset block */
+      /* Criteria: at least 2 offset block strings. An offset block string is defined as having offset blocks in both Vpols and at least 1
+       *  Hpol, and their offset time is within timeRangeCut
+       */
+
+      //nChanBelowThres_Thres = (dropARA02D4BH?15:(dropARA03D4?12:16));
+      int nOffsetBlockString = 0;
+      for(int s=0; s<4; s++){
+         if (nChanBelowThres_V[s]==2){
+            timeRange = *max_element(maxTimeVec[s][0].begin(), maxTimeVec[s][0].end())
+                      - *min_element(maxTimeVec[s][0].begin(), maxTimeVec[s][0].end());
+            if(timeRange < timeRangeCut){
+               if(nChanBelowThres_H[s]>0){
+                  timeRange = *max_element(maxTimeVec[s][1].begin(), maxTimeVec[s][1].end())
+                            - *min_element(maxTimeVec[s][1].begin(), maxTimeVec[s][1].end());
+                  if(timeRange < timeRangeCut){
+                     nOffsetBlockString++;
+                  }
                }
             }
          }
       }
-   }
 
-   //if( nChanBelowThres >= nChanBelowThres_Thres ){
-   //   timeRange = *max_element(maxTimeVec.begin(), maxTimeVec.end()) - *min_element(maxTimeVec.begin(), maxTimeVec.end());
-      //cout<<"max element: "<<*max_element(maxTimeVec.begin(), maxTimeVec.end())<<" min element: "<<*min_element(maxTimeVec.begin(), maxTimeVec.end())<<" timeRange: "<<timeRange<<endl;
-   //   if(timeRange < timeRangeCut){
-   if(nOffsetBlockString>1){
-      offsetBlockAlert = 1;
-      offsetBlockEventCount += 1;
-      weightedOffsetBlockEventCount += weight;
-      unpaddedEvent.clear();
-      cleanEvent.clear();
-      for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; }
-      continue;
-   //   }
+      //if( nChanBelowThres >= nChanBelowThres_Thres ){
+      //   timeRange = *max_element(maxTimeVec.begin(), maxTimeVec.end()) - *min_element(maxTimeVec.begin(), maxTimeVec.end());
+         //cout<<"max element: "<<*max_element(maxTimeVec.begin(), maxTimeVec.end())<<" min element: "<<*min_element(maxTimeVec.begin(), maxTimeVec.end())<<" timeRange: "<<timeRange<<endl;
+      //   if(timeRange < timeRangeCut){
+      if(nOffsetBlockString>1){
+         offsetBlockAlert = 1;
+         offsetBlockEventCount += 1;
+         weightedOffsetBlockEventCount += weight;
+         unpaddedEvent.clear();
+         cleanEvent.clear();
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; }
+         continue;
+      //   }
+      }
+   }
+   else if (AraSim_settings->DETECTOR_STATION==3){
+
+      /* Check for cliff event
+      /* Check if a cliff string exists. If so, the event is considered a cliff event and discarded.
+      /* A cliff string is defined as either string 1,2,3 where all 4 channels on it shows |median difference| > predefined thresholds
+      */
+
+      int cliffCount_string1, cliffCount_string2, cliffCount_string3;
+      cliffCount_string1 = cliffCount_string2 = cliffCount_string3 = 0;
+
+      for (int ch=0; ch<16; ch++){
+
+         int len = grInt[ch]->GetN();
+         voltValues = grInt[ch]->GetY();
+
+         for (int s=0; s<IRS2SamplePerBlock; s++){
+            firstBlockSamples[s] = voltValues[s];
+            lastBlockSamples[s]  = voltValues[len-IRS2SamplePerBlock+s];
+         }
+
+         firstBlockMedian = TMath::Median(IRS2SamplePerBlock, firstBlockSamples);
+         lastBlockMedian  = TMath::Median(IRS2SamplePerBlock, lastBlockSamples);
+
+         double medianDiff = fabs(firstBlockMedian - lastBlockMedian);
+
+         if (ch%4 == 0){ //string 1
+             if (medianDiff > settings->cliff_threshold_A3_string1){
+                cliffCount_string1 += 1;
+             }
+         } else if (ch%4 == 1) { //string 2
+             if (medianDiff > settings->cliff_threshold_A3_string2){
+                cliffCount_string2 += 1;
+             }
+
+         } else if (ch%4 == 2){ //string 3
+             if (medianDiff > settings->cliff_threshold_A3_string3){
+                cliffCount_string3 += 1;
+             }
+         }
+
+      }//end of ch
+
+      if (cliffCount_string1 > 3 || cliffCount_string2 > 3 || cliffCount_string3 > 3){ //if cliff is seen in all channels on the same string
+         cliffAlert = 1;
+         cliffEventCount += 1;
+         weightedCliffEventCount += weight;
+         unpaddedEvent.clear();
+         cleanEvent.clear();
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; }
+         continue;
+      }
+
    }
 
    numSatChan = getSaturation(settings, unpaddedEvent, satChan);
@@ -1860,7 +1989,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
        maxPixIdx = reconstructCSWGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, chanMask, summary);
    }
    } else {
-   if(settings->getSkymapMode == 0){
+   //if(settings->getSkymapMode == 0){
 
       //evStr = std::to_string(ev);
       stringstream ss;
@@ -1884,10 +2013,9 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       } else {//zoom search mode
       maxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode(settings, cleanEvent, &clEnv, stationCenterDepth, antLocation, recoDelays, recoDelays_V, recoDelays_H, goodChan, summary, fitsFile);
       }
-   } else {
-      maxPixIdx = reconstructXCorrEnvelopeGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, goodChan/*chanMask*/, summary);
-
-   }
+   //} else {
+   //   maxPixIdx = reconstructXCorrEnvelopeGetMaxPix(settings, cleanEvent, &clEnv, recoDelays, recoDelays_V, recoDelays_H, nDir, goodChan/*chanMask*/, summary);
+   //}
    }
 
    if( err<0 || maxPixIdx<0 || maxPixIdx2<0 ){ cerr<<"Error reconstructing\n"; return -1; }

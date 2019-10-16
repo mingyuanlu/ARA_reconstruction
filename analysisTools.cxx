@@ -51,6 +51,10 @@ cutParameter::~cutParameter() { /*default destructor*/ }
 ARA02_cutValues::ARA02_cutValues(){ initialize(); }
 ARA02_cutValues::~ARA02_cutValues(){ /* default destructor */ }
 
+ARA03_cutValues::ARA03_cutValues(){ initialize(); }
+ARA03_cutValues::~ARA03_cutValues(){ /* default destructor */ }
+
+
 void ARA02_cutValues::initialize(){
 
 
@@ -253,6 +257,30 @@ void ARA02_cutValues::setValue(cutParameter& param, double _val, double _plus, d
    param.minus = _minus;
 
 }
+
+void ARA03_cutValues::setValue(cutParameter& param, double _val, double _plus, double _minus){
+
+   param.val = _val;
+   param.plus = _plus;
+   param.minus = _minus;
+
+}
+
+void ARA03_cutValues::initialize(){
+      setValue(zenMin[0], -20.69046186485236,  0, 0); // plus: cut region is larger minus: cut regin is smaller
+      setValue(zenMin[1], -21.906032056707886, 0, 0);
+
+      setValue(zenMax[0], -12.94687186089013, 0, 0);
+      setValue(zenMax[1], -14.337983472752098, 0, 0);
+
+      setValue(aziMin[0], 59.52637689493247, 0, 0);
+      setValue(aziMin[1], 333.26133343753344, 0, 0);
+
+      setValue(aziMax[0], 67.34121862517262, 0, 0);
+      setValue(aziMax[1], 341.25032248832935, 0, 0);
+}
+
+
 
 
 bool isCW_coincidence(bool &isVpolCW, bool &isHpolCW, int &maxCountFreqBin_V, int &maxCountFreqBin_H, recoData *dummyData, int cwBinThres){
@@ -621,6 +649,22 @@ bool isNearNoisyRun(const vector<int>& noisyRuns, int runNum, int plusMinusRunNu
 
 }
 
+bool isInCalibrationRun(const vector<int>& calRuns, int runNum){
+
+
+   bool isCal = false;
+
+   for(int run=0; run<calRuns.size(); run++){
+      if(calRuns[run] == runNum){
+         isCal=true;
+         break;
+      }
+   }
+
+   return isCal;
+
+}
+
 bool isDeepPulser(string STATION, recoData *dummyData, int runNum){
 
    bool passDeepPulserCut = false;
@@ -655,9 +699,9 @@ bool isCalpulserTime(string STATION, recoData *dummyData){
 
 bool isCalpulser(float &inBoxTheta, float &inBoxPhi, string STATION, recoData *dummyData, Healpix_Onion onion, recoSettings *settings, int type){
 
-   ARA02_cutValues *cutValues;
+   //ARA02_cutValues *cutValues;
 
-   if(STATION == "ARA02") cutValues = new ARA02_cutValues();
+   //if(STATION == "ARA02") cutValues = new ARA02_cutValues();
    //ARA03: to be implemented
 
    bool inBox = false;
@@ -669,74 +713,94 @@ bool isCalpulser(float &inBoxTheta, float &inBoxPhi, string STATION, recoData *d
    inBoxPhi   = 0.f;
 
    int nLayer = settings->nLayer;
-
+   cout<<"nLayer: "<<nLayer<<endl;
    int nAnt = (string(settings->recoPolType)=="both"?16:8);
    int numIter = nAnt - settings->nchnlCut + 1;
 
-   for(int iter=0; iter<numIter; iter++){
+   if (STATION == "ARA02"){
 
-      //int maxPixIdx = dummyData->iterMaxPixIdx.at(iter);
-      //float maxPixCoherence = dummyData->iterMaxPixCoherence.at(iter);
-      int maxPixIdx = dummyData->iterMaxPixIdxEachLayer.at(iter*nLayer+0);
-      float maxPixCoherence = dummyData->iterMaxPixCoherenceEachLayer.at(iter*nLayer+0);
-      //cout<<"maxPixIdx: "<<maxPixIdx<<" layer: "<<maxPixIdx/nDir<<" maxPixCoherence: "<<maxPixCoherence<<endl;
-      float theta = 90.f-TMath::RadToDeg()*onion.getPointing(maxPixIdx).theta;
-      float phi   = TMath::RadToDeg()*onion.getPointing(maxPixIdx).phi;
+      ARA02_cutValues *cutValues = new ARA02_cutValues();
+
+      for(int iter=0; iter<numIter; iter++){
+
+         //int maxPixIdx = dummyData->iterMaxPixIdx.at(iter);
+         //float maxPixCoherence = dummyData->iterMaxPixCoherence.at(iter);
+         int maxPixIdx = dummyData->iterMaxPixIdxEachLayer.at(iter*nLayer+0);
+         float maxPixCoherence = dummyData->iterMaxPixCoherenceEachLayer.at(iter*nLayer+0);
+         //cout<<"maxPixIdx: "<<maxPixIdx<<" layer: "<<maxPixIdx/nDir<<" maxPixCoherence: "<<maxPixCoherence<<endl;
+         float theta = 90.f-TMath::RadToDeg()*onion.getPointing(maxPixIdx).theta;
+         float phi   = TMath::RadToDeg()*onion.getPointing(maxPixIdx).phi;
 
 
-      iterInBox = false;
-      /*** Box 1 ***/
-      ///if( theta > zenMin[0] && theta < zenMax[0] && phi > aziMin[0] && phi < aziMax[0] ) { inBox = true; iterInBox = true;}
+         iterInBox = false;
+         /*** Box 1 ***/
+         ///if( theta > zenMin[0] && theta < zenMax[0] && phi > aziMin[0] && phi < aziMax[0] ) { inBox = true; iterInBox = true;}
 
-      /*** Box 2 ***/
-      //if( type != 3){
-      //if( (theta > zenMin[1] && theta < zenMax[1] && phi > aziMin[1] && phi < aziMax[1]) ){ inBox = true; iterInBox = true;}
-      //}
+         /*** Box 2 ***/
+         //if( type != 3){
+         //if( (theta > zenMin[1] && theta < zenMax[1] && phi > aziMin[1] && phi < aziMax[1]) ){ inBox = true; iterInBox = true;}
+         //}
 
-      if( STATION == "ARA02"){
 
-         for(int box=0; box<cutValues->nBoxes; box++){
 
-            // 0: D5BV, 1: D6BV, 2: D5BV Mirror, only for type 5
-            if(box<2){
+            for(int box=0; box<cutValues->nBoxes; box++){
 
-               if( theta > cutValues->zenMin[box].val && theta < cutValues->zenMax[box].val && phi > cutValues->aziMin[box].val && phi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
+               // 0: D5BV, 1: D6BV, 2: D5BV Mirror, only for type 5
+               if(box<2){
 
-            } else {
-
-               if( type == 5 ){
                   if( theta > cutValues->zenMin[box].val && theta < cutValues->zenMax[box].val && phi > cutValues->aziMin[box].val && phi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
+
+               } else {
+
+                  if( type == 5 ){
+                     if( theta > cutValues->zenMin[box].val && theta < cutValues->zenMax[box].val && phi > cutValues->aziMin[box].val && phi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
+                  }
                }
             }
+
+
+         /*** Box 3 & 4 ***/
+         //if ( type == 3 ){
+         //   if( (theta > zenMin[2] && theta < zenMax[2] && phi > aziMin[2] && phi < aziMax[2])
+         //     ||(theta > zenMin[3] && theta < zenMax[3] && phi > aziMin[3] && phi < aziMax[3])){ inBox = true; iterInBox = true;}
+         //}
+
+         if(iterInBox){
+            inBoxCount++;
+            inBoxTheta += theta;
+            inBoxPhi   += phi;
          }
-      } else {
-         //ARA03: to be implemented
+
+      }//end of iter
+
+      //if (!inBox) passCalpulserCut = true;
+      //else passSurfaceCut = false;
+
+      if(inBoxCount > 0 ){
+
+         inBoxTheta /= (float)inBoxCount;
+         inBoxPhi   /= (float)inBoxCount;
       }
 
-      /*** Box 3 & 4 ***/
-      //if ( type == 3 ){
-      //   if( (theta > zenMin[2] && theta < zenMax[2] && phi > aziMin[2] && phi < aziMax[2])
-      //     ||(theta > zenMin[3] && theta < zenMax[3] && phi > aziMin[3] && phi < aziMax[3])){ inBox = true; iterInBox = true;}
-      //}
+      delete cutValues;
+   }//end of A2
+   else if (STATION == "ARA03"){
 
-      if(iterInBox){
-         inBoxCount++;
-         inBoxTheta += theta;
-         inBoxPhi   += phi;
+      cout<<"789\n";
+      ARA03_cutValues *A3_cutValues = new ARA03_cutValues();
+      cout<<"791\n";
+      float theta = 90.f-TMath::RadToDeg()*onion.getPointing(dummyData->maxPixIdxEachLayer.at(0)).theta;
+      float phi   = TMath::RadToDeg()*onion.getPointing(dummyData->maxPixIdxEachLayer.at(0)).phi;
+
+      cout<<"nBoxes: "<<A3_cutValues->nBoxes<<endl;
+      for(int box=0; box<A3_cutValues->nBoxes; box++){
+
+         if( theta > A3_cutValues->zenMin[box].val && theta < A3_cutValues->zenMax[box].val && phi > A3_cutValues->aziMin[box].val && phi < A3_cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
+
       }
 
-   }//end of iter
 
-   //if (!inBox) passCalpulserCut = true;
-   //else passSurfaceCut = false;
-
-   if(inBoxCount > 0 ){
-
-      inBoxTheta /= (float)inBoxCount;
-      inBoxPhi   /= (float)inBoxCount;
-   }
-
-   delete cutValues;
+   }//end of A3
 
    return inBox;
 }
@@ -1250,4 +1314,82 @@ double getAzimuthInRangeFraction(recoData* dummyData, recoSettings* settings, He
    }
 
    return (double)inRangePixCount/(double)settings->topN;
+}
+
+bool shouldExclude(string STATION, int runNum){
+
+   bool exclude = false;
+
+   ifstream list;
+   ifstream list2;
+   vector<int> listOfRuns;
+   vector<int> listOfCalRuns;
+   string line;
+   int run, event;
+   char line_char[200];
+
+
+   if (STATION=="ARA02"){
+
+      list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_fullDataExpoFit_surfaceEvents_noisyRuns.txt");
+      list2.open("ARA02_calibrationRuns.txt");
+   }
+   else if (STATION=="ARA03"){
+      list.open("ARA03_anomalousRuns.txt");
+      list2.open("ARA03_calibrationRuns.txt");
+   }
+
+   if (list.is_open() ){
+
+      while (list.good()){
+
+         getline(list, line, '\n');
+         if (line == "") break;
+         run = stoi(line);
+
+         //if(event >= 10){
+            //cout<<"run: "<<run/*<<" event: "<<event*/<<endl;
+            //cout<<"run: "<<run<<" event: "<<event<<endl;
+            listOfRuns.push_back(run);
+         //}
+         //listOfEvents.push_back(event);
+      }
+   }  else {
+      cerr<<"No noisy run list! Aborting...";
+      return -1;
+   }
+
+   list.close();
+
+   int numNoisyRuns = listOfRuns.size();
+   //vector< vector<int> > noisyRun;
+
+   if(list2.is_open()){
+      while(list2.good()){
+
+         getline(list2, line, '\n');
+         if(line == "") break;
+         run = stoi(line);
+
+         //cout<<"cal run: "<<run<<endl;
+         listOfCalRuns.push_back(run);
+
+      }
+   }  else {
+      cerr<<"No calibration run list! Aborting...";
+      return -1;
+   }
+
+   list2.close();
+   int numCalRuns = listOfCalRuns.size();
+
+   if (isNearNoisyRun(listOfRuns, runNum, 0)){
+      exclude = true;
+   }
+
+   if (isInCalibrationRun(listOfCalRuns, runNum)){
+      exclude = true;
+   }
+
+   return exclude;
 }

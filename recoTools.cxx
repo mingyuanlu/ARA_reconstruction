@@ -7054,26 +7054,26 @@ cvs.SaveAs("testPValueDist.C");
 /*
  * Write FITS file
  */
+if (settings->getSkymapMode==0){
+   cout<<"Creating Healpix map and writing to FITS....\n";
+   //arr<float> MArr = arr<float>(&M[0], (size_t)nDir);
+   //cout<<"maxPixIdx: "<<rank[0]<<" nDir: "<<nDir<<endl;
+   //cout<<"layer: "<<rank[0]/nDir<<endl;
+   arr<float> MArr = arr<float>(&M[nDir*(rank[0] / nDir)], (size_t)nDir);
+   Healpix_Map<float> skyMap = Healpix_Map<float>(MArr, HEALPIX_ORDERING);
 
-cout<<"Creating Healpix map and writing to FITS....\n";
-//arr<float> MArr = arr<float>(&M[0], (size_t)nDir);
-//cout<<"maxPixIdx: "<<rank[0]<<" nDir: "<<nDir<<endl;
-//cout<<"layer: "<<rank[0]/nDir<<endl;
-arr<float> MArr = arr<float>(&M[nDir*(rank[0] / nDir)], (size_t)nDir);
-Healpix_Map<float> skyMap = Healpix_Map<float>(MArr, HEALPIX_ORDERING);
+   fitshandle fitsOut;
+   //#ifdef CSW
+   //char filename[] = "testCSWSkyMap.fits";
+   //#else
+   //char filename[] = "testXCorrSkyMap.fits";
+   //#endif
+   remove(filename);
+   fitsOut.create(filename);
 
-fitshandle fitsOut;
-//#ifdef CSW
-//char filename[] = "testCSWSkyMap.fits";
-//#else
-//char filename[] = "testXCorrSkyMap.fits";
-//#endif
-remove(filename);
-fitsOut.create(filename);
-
-write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
-cout<<"Healpix map written\n";
-
+   write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
+   cout<<"Healpix map written\n";
+}
 /* If want to run iterative reconstruciton */
 
 float *MIter;
@@ -10486,26 +10486,26 @@ cvs.SaveAs("testPValueDist.C");
 /*
  * Write FITS file
  */
+if (settings->getSkymapMode==0){
+   cout<<"Creating Healpix map and writing to FITS....\n";
+   //arr<float> MArr = arr<float>(&M[0], (size_t)nDir);
+   //cout<<"maxPixIdx: "<<rank[0]<<" nDir: "<<nDir<<endl;
+   //cout<<"layer: "<<rank[0]/nDir<<endl;
+   arr<float> MArr = arr<float>(&M[nDir*(rank[0] / nDir)], (size_t)nDir);
+   Healpix_Map<float> skyMap = Healpix_Map<float>(MArr, HEALPIX_ORDERING);
 
-cout<<"Creating Healpix map and writing to FITS....\n";
-//arr<float> MArr = arr<float>(&M[0], (size_t)nDir);
-//cout<<"maxPixIdx: "<<rank[0]<<" nDir: "<<nDir<<endl;
-//cout<<"layer: "<<rank[0]/nDir<<endl;
-arr<float> MArr = arr<float>(&M[nDir*(rank[0] / nDir)], (size_t)nDir);
-Healpix_Map<float> skyMap = Healpix_Map<float>(MArr, HEALPIX_ORDERING);
+   fitshandle fitsOut;
+   //#ifdef CSW
+   //char filename[] = "testCSWSkyMap.fits";
+   //#else
+   //char filename[] = "testXCorrSkyMap.fits";
+   //#endif
+   remove(filename);
+   fitsOut.create(filename);
 
-fitshandle fitsOut;
-//#ifdef CSW
-//char filename[] = "testCSWSkyMap.fits";
-//#else
-//char filename[] = "testXCorrSkyMap.fits";
-//#endif
-remove(filename);
-fitsOut.create(filename);
-
-write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
-cout<<"Healpix map written\n";
-
+   write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
+   cout<<"Healpix map written\n";
+}
 //int nSideExp = 7;
 //Healpix_Base hpBase = Healpix_Base(pow(2,nSideExp), NEST/*RING*/, SET_NSIDE);
 /*
@@ -11331,26 +11331,26 @@ cvs.SaveAs("testPValueDist.C");
 /*
  * Write FITS file
  */
+if (settings->getSkymapMode==0){
+   cout<<"Creating Healpix map and writing to FITS....\n";
+   //arr<float> MArr = arr<float>(&M[0], (size_t)nDir);
+   //cout<<"maxPixIdx: "<<rank[0]<<" nDir: "<<nDir<<endl;
+   //cout<<"layer: "<<rank[0]/nDir<<endl;
+   arr<float> MArr = arr<float>(&M[nDir*(rank[0] / nDir)], (size_t)nDir);
+   Healpix_Map<float> skyMap = Healpix_Map<float>(MArr, HEALPIX_ORDERING);
 
-cout<<"Creating Healpix map and writing to FITS....\n";
-//arr<float> MArr = arr<float>(&M[0], (size_t)nDir);
-//cout<<"maxPixIdx: "<<rank[0]<<" nDir: "<<nDir<<endl;
-//cout<<"layer: "<<rank[0]/nDir<<endl;
-arr<float> MArr = arr<float>(&M[nDir*(rank[0] / nDir)], (size_t)nDir);
-Healpix_Map<float> skyMap = Healpix_Map<float>(MArr, HEALPIX_ORDERING);
+   fitshandle fitsOut;
+   //#ifdef CSW
+   //char filename[] = "testCSWSkyMap.fits";
+   //#else
+   //char filename[] = "testXCorrSkyMap.fits";
+   //#endif
+   remove(filename);
+   fitsOut.create(filename);
 
-fitshandle fitsOut;
-//#ifdef CSW
-//char filename[] = "testCSWSkyMap.fits";
-//#else
-//char filename[] = "testXCorrSkyMap.fits";
-//#endif
-remove(filename);
-fitsOut.create(filename);
-
-write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
-cout<<"Healpix map written\n";
-
+   write_Healpix_map_to_fits(fitsOut, skyMap, PLANCK_FLOAT32);
+   cout<<"Healpix map written\n";
+}
 //int nSideExp = 7;
 //Healpix_Base hpBase = Healpix_Base(pow(2,nSideExp), NEST/*RING*/, SET_NSIDE);
 /*
@@ -14552,6 +14552,123 @@ double coordSrc[3], coordTrg[3];
    return 0;
 }
 
+int computeRecoDelaysWithNoBoundConstantNForSinglePixel(
+                                    const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
+                                     //const float radius, const int nSideExp,
+                                     Healpix_Onion *onion,
+                                     float *recoDelays, float *recoDelays_V, float *recoDelays_H,
+                                     const int pix)
+{
+
+if(zCenter > 0 ) cerr<<"zCenter should be negative under the ice surfac\n";
+/*
+ * Initializing Healpix base
+ */
+//if(nSideExp < 0 || nSideExp > 7){ cerr<<"Invalid nSideExp\n"; return -1; }
+//int nSide = pow(2, nSideExp);
+//Healpix_Base hpBase = Healpix_Base(nSide, RING, SET_NSIDE);
+//int nDir = hpBase.Npix();
+//pointing pt;
+//cout<<"Healpix base initialization success. nDir: "<<nDir<<endl;
+
+/*
+ * Initialize variables related to Healpix_Onion
+ */
+
+int nDir   = onion->nDir;
+int nLayer = onion->nLayer;
+cout<<"Healpix_Onion info obtained. nDir: "<<nDir<<" nLayer: "<<nLayer<<endl;
+
+
+/*
+ * Get delay from each pixel direction
+ */
+
+//float *recoDelays;
+//recoDelays  = (float*)malloc(nDir*nAnt*sizeof(float));
+//recoDelays_V= (float*)malloc(nDir*(nAnt/2)*sizeof(float));
+//recoDelays_H= (float*)malloc(nDir*(nAnt/2)*sizeof(float));
+float test_r, test_zenith, test_azimuth;
+
+float tempDelay, meanDelay=0.f;
+vector<float> solvedDelay;
+double coordSrc[3], coordTrg[3];
+//cout<<"recoDelays:\n";
+//for(int layer=0; layer<nLayer; layer++){
+
+   //test_r = onion->layerRadii[layer];
+   test_r = onion->getLayerRadius( pix );
+
+   //for(int pix=0; pix<nDir; pix++){
+
+      //pt = hpBase.pix2ang( pix );
+      //test_zenith  = pt.theta; //  in radians
+      //test_azimuth = pt.phi  ;
+
+      test_zenith  = onion->getPointing( pix ).theta; // in radians
+      test_azimuth = onion->getPointing( pix ).phi  ;
+
+      coordSrc[0] = test_r*sin(test_zenith)*cos(test_azimuth);
+      coordSrc[1] = test_r*sin(test_zenith)*sin(test_azimuth);
+      coordSrc[2] = test_r*cos(test_zenith);
+   //
+   //   if(coordSrc[2] > fabs(zCenter)){
+//
+   //   cerr<<"Warning!! Source above ice surface. The different index of refraction in air is _NOT_ implemented!"<<endl;
+   //   for(int k=0; k<nAnt; k++){
+   //     recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k] = -1e10;;
+   //     if(k<8) recoDelays_V[/*layer*nDir*nAnt/2 + pix*nAnt/2 + */k]   = recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k];
+   //     else    recoDelays_H[/*layer*nDir*nAnt/2 + pix*nAnt/2 + */k-8] = recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k];
+   //   }
+   //   } else if ( (zCenter + coordSrc[2]) <= -3000){
+//
+   //   cerr<<"Warning!! Source is in bedrock"<<endl;
+   //   for(int k=0; k<nAnt; k++){
+   //     recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k] = -1e10;;
+   //     if(k<8) recoDelays_V[/*layer*nDir*nAnt/2 + pix*nAnt/2 + */k]   = recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k];
+   //     else    recoDelays_H[/*layer*nDir*nAnt/2 + pix*nAnt/2 + */k-8] = recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k];
+   //   }
+   //   } else {
+   //
+      //cout<<"coordSrc: "<<coordSrc[0]<<"\t"<<coordSrc[1]<<"\t"<<coordSrc[2]<<endl;
+
+      for(int k=0; k<nAnt; k++){
+
+      coordTrg[0] = (antLoc[k][0]);
+      coordTrg[1] = (antLoc[k][1]);
+      coordTrg[2] = (antLoc[k][2]);
+
+
+      /* Assume simple spherical wave propagation with homogeneous isotropic ice */
+      tempDelay = nIce * sqrt( (coordTrg[0] - coordSrc[0])*(coordTrg[0] - coordSrc[0])
+                             + (coordTrg[1] - coordSrc[1])*(coordTrg[1] - coordSrc[1])
+                             + (coordTrg[2] - coordSrc[2])*(coordTrg[2] - coordSrc[2])
+                             ) / speedOfLight;
+      solvedDelay.push_back(tempDelay);
+      //cout<<tempDelay<<" ";
+      recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k] = tempDelay;
+
+      }
+      //cout<<endl;
+      meanDelay = getMeanDelay( solvedDelay );
+      //cout<<"meanDelay = "<<meanDelay<<endl;
+
+      for(int k=0; k<nAnt; k++){
+         recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k] -= meanDelay;
+         //cout<<recoDelays[pix*nAnt + k]<<" ";
+         if(k<8) recoDelays_V[/*layer*nDir*nAnt/2 + pix*nAnt/2 + */k]   = recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k];
+         else    recoDelays_H[/*layer*nDir*nAnt/2 + pix*nAnt/2 + */k-8] = recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k];
+      //cout<<"End of assigning delays\n";
+      }//end of nAnt
+      //cout<<endl;
+      //}//end of else
+   //}//end of pix
+//}//end of layer
+
+   return 0;
+}
+
+
 int computeZoomedRecoDelaysWithConstantN(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
                                      //const float radius, const int nSideExp,
                                      Healpix_Onion *onion,
@@ -15552,6 +15669,117 @@ nchnlArray[1] = totalPassedVpol;
 nchnlArray[2] = totalPassedHpol;
 */
 }
+
+/*
+ * Returns the sliding V^2 SNR peak time as the number of sigmas between the V^2 peak and mean for all channels. This is Thomas' definition of SNR
+ */
+void getChannelSlidingV2SNRPeakIntoWaveformTime(const vector<TGraph *>& cleanEvent, int nIntSamp_V, int nIntSamp_H, float *peakTime){
+
+   double sigma;
+   double mean;
+   double absPeak;
+   double statsArray[2]={0};
+
+   double t, v;
+   int bin;
+
+   double ti, t0, t1, v0, v1;
+   double wInt;
+   int maxBin;
+
+   TGraph *v2Gr = new TGraph();
+
+   for ( int ch=0; ch<(int)cleanEvent.size(); ch++){
+
+         absPeak = 0.;
+         //passThreshold[ch] = 0;
+         //saturated[ch]= 0;
+         //AraAntPol::AraAntPol_t polType = tempGeom->getStationInfo(stationId)->getAntennaInfo(ch)->polType;
+
+         cleanEvent[ch]->GetPoint(0,t0,v0);
+         cleanEvent[ch]->GetPoint(1,t1,v1);
+         wInt = t1-t0;
+         ti = t0;
+
+         //if ( polType == AraAntPol::kVertical ){
+         //          //cout<<"mean="<<mean<<"\tsigma="<<sigma<<endl;
+         //gr = theEvent->getGraphFromRFChan(ch);
+         //gr = cleanEvent[ch];
+         //volts = gr->GetY();
+
+         v2Gr = evProcessTools::getSqrtVoltageSquaredSummedWaveform(cleanEvent[ch], (ch<8?nIntSamp_V:nIntSamp_H));
+
+         bin   = v2Gr->GetN();
+         //setMeanAndSigmaInNoMax(gr,statsArray);
+         setMeanAndSigmaInNoMax(v2Gr, statsArray);
+
+         mean  = statsArray[0];
+         sigma = statsArray[1];
+
+         for (int binCounter=0; binCounter<bin; binCounter++){
+
+            v2Gr->GetPoint(binCounter, t, v);
+
+            /* check if SNR > threshold*sigma */
+            //if ( fabs(v - mean) > threshold * sigma ){
+            if( fabs(v-mean) > absPeak ){
+               //totalPassedChnl += 1;
+               //passThreshold[ch] = 1;
+               absPeak = fabs(v-mean);
+               maxBin = binCounter;
+               //if( ch<8 ) totalPassedVpol += 1;
+               //else       totalPassedHpol += 1;
+               //if ( polType == AraAntPol::kVertical){ totalPassedVpol += 1;
+               //} else if ( polType == AraAntPol::kHorizontal){ totalPassedHpol += 1;
+               //} else { cerr<<"********************* polType not vpol or hpol !!! ***********************"<<endl;
+               //}
+               //break;
+            }
+
+            /* check if saturated at +/- 1000mV */
+            //if( fabs( fabs(v) - 1000. ) < 0.5 ){
+
+            //   saturated[ch] = 1;
+            //}
+
+
+         }//end of binCounter
+
+      peakTime[ch] = wInt * (double)(maxBin);
+
+      //delete gr;
+      //if(sigma>0)
+      //snrArray[ch] = static_cast<float>(absPeak / sigma);
+      //else
+      //snrArray[ch] = 0.f;
+
+      ///cout<<"ch: "<<ch<<" sigma: "<<sigma<<" snr: "<<snrArray[ch]<<endl;
+      delete v2Gr;
+
+   }//end of ch
+   /*
+   for(int ch=0; ch<16; ch++){
+
+   goodChan[ch] = (chanMask[ch] && passThreshold[ch] );
+   if( saturated[ch] ) goodChan[ch] = 0;
+
+   totalPassedChnl += goodChan[ch];
+   totalSatChnl    += saturated[ch];
+   if(ch<8){ totalPassedVpol += goodChan[ch]; totalSatVpol += saturated[ch]; }
+   else    { totalPassedHpol += goodChan[ch]; totalSatHpol += saturated[ch]; }
+
+   }
+   */
+/* only look at Vpols now */
+/*
+numSatChan = totalSatVpol;
+
+nchnlArray[0] = totalPassedChnl;
+nchnlArray[1] = totalPassedVpol;
+nchnlArray[2] = totalPassedHpol;
+*/
+}
+
 
 /*
  * Returns the total-power SNR as the ratio of (Total integrated power of S+N - Total integrated power of N) / (Total integrated power of N * (1ns/T)). This is the definition from RNO-related discussions

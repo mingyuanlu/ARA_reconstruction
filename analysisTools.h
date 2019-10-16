@@ -43,7 +43,8 @@
 #include "signal.hh"
 #include "IceModel.h"
 
-#define CORRUPT_EVENT_START_TIME 1448485911 //ARA02 run 3 start time
+#define CORRUPT_EVENT_START_TIME_A2 1448485911 //ARA02 run 3 start time
+#define CORRUPT_EVENT_START_TIME_A3 1448835608 //ARA03 run6002 start time
 #define CORRUPT_EVENT_END_EVENT_NUMBER 4
 #define ZEN_BAND_MAX -41
 #define ZEN_BAND_MIN -46
@@ -111,6 +112,49 @@ public:
 
 };
 
+class ARA03_cutValues /*: public TObject*/
+{
+private:
+
+protected:
+
+public:
+
+   ARA03_cutValues();
+   ~ARA03_cutValues();
+
+   //CW impulsivity
+   cutParameter cwImpCut[4];
+
+   //Thermal box cut
+   cutParameter coherenceCut_inBand[4];
+   cutParameter snrCut_inBand[4];
+   cutParameter coherenceCut_outOfBand[4];
+   cutParameter snrCut_outOfBand[4];
+   cutParameter snrCut[4];
+
+   //Impulsivity cut
+   cutParameter impCut;
+
+   //Calpulser cut
+   static const int nBoxes = 2;
+   cutParameter zenMin[nBoxes];
+   cutParameter zenMax[nBoxes];
+   cutParameter aziMin[nBoxes];
+   cutParameter aziMax[nBoxes];
+
+   //Surface cut
+   //cutParameter surfaceCut_constantN;
+   cutParameter surfaceCut_constantN[4];
+   cutParameter surfaceCut_iterReco;
+
+   void initialize();
+   void setValue(cutParameter& param, double _val, double _plus, double _minus);
+
+   //ClassDef(ARA02_cutValues, 1);
+
+};
+
 bool isCW_coincidence(bool &isVpolCW, bool &isHpolCW, int &maxCountFreqBin_V, int &maxCountFreqBin_H, recoData *dummyData, int cwBinThres);
 bool isCW_freqWindow(bool &isVpolCW, bool &isHpolCW, bool& isXpolCW, recoData *dummyData, double fftRes);
 bool isLowFreqDominance(int& lowFreqCount_V, int& lowFreqCount_H, recoData *dummyData, double highPassFreq, int lowFreqCountThres);
@@ -119,6 +163,7 @@ bool isSurface(recoData *dummyData, double surfaceCut_1);
 bool isIterSurface(double &zenMaj, recoData *dummyData, Healpix_Onion onion, recoSettings *settings, double zenRange, double surfaceCut_2);
 float getZenMaj(const vector<float>& iterZenVec, float zenRange);
 bool isNearNoisyRun(const vector<int>& noisyRuns, int runNum, int plusMinusRunNum);
+bool isInCalibrationRun(const vector<int>& calRuns, int runNum);
 bool isDeepPulser(string STATION, recoData *dummyData, int runNum);
 bool isCalpulserTime(string STATION, recoData *dummyData);
 bool isCalpulser(float &inBoxTheta, float &inBoxPhi, string STATION, recoData *dummyData, Healpix_Onion onion, recoSettings *settings, int type);
@@ -130,4 +175,5 @@ void getAvgAngXingPixels(int& avgThetaPixCount, int& avgPhiPixCount, recoData* d
 TH1F *getCumulative(TH1F *hist, bool cdf);
 double getZenithInRangeFraction(recoData* dummyData, recoSettings* settings, Healpix_Onion onion, const double angThres);
 double getAzimuthInRangeFraction(recoData* dummyData, recoSettings* settings, Healpix_Onion onion, const double angThres);
+bool shouldExclude(string STATION, int runNum);
 #endif
