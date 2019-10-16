@@ -713,7 +713,7 @@ bool isCalpulser(float &inBoxTheta, float &inBoxPhi, string STATION, recoData *d
    inBoxPhi   = 0.f;
 
    int nLayer = settings->nLayer;
-   cout<<"nLayer: "<<nLayer<<endl;
+   //cout<<"nLayer: "<<nLayer<<endl;
    int nAnt = (string(settings->recoPolType)=="both"?16:8);
    int numIter = nAnt - settings->nchnlCut + 1;
 
