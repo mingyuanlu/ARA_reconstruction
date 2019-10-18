@@ -675,7 +675,9 @@ bool isDeepPulser(string STATION, recoData *dummyData, int runNum){
       }
    }
    else if ( STATION == "ARA03" ){
-      //to be implemented
+      if (!(runNum >= 3810 && runNum <= 3811) && !(runNum >= 3820 && runNum <=3822)){
+         passDeepPulserCut = true;
+      }
    }
 
    return !passDeepPulserCut;
