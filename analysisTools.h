@@ -124,14 +124,14 @@ public:
    ~ARA03_cutValues();
 
    //CW impulsivity
-   cutParameter cwImpCut[4];
+   cutParameter cwImpCut[5];
 
    //Thermal box cut
-   cutParameter coherenceCut_inBand[4];
-   cutParameter snrCut_inBand[4];
-   cutParameter coherenceCut_outOfBand[4];
-   cutParameter snrCut_outOfBand[4];
-   cutParameter snrCut[4];
+   cutParameter coherenceCut_inBand[5];
+   cutParameter snrCut_inBand[5];
+   cutParameter coherenceCut_outOfBand[5];
+   cutParameter snrCut_outOfBand[5];
+   cutParameter snrCut[5];
 
    //Impulsivity cut
    cutParameter impCut;
@@ -145,7 +145,7 @@ public:
 
    //Surface cut
    //cutParameter surfaceCut_constantN;
-   cutParameter surfaceCut_constantN[4];
+   cutParameter surfaceCut_constantN[5];
    cutParameter surfaceCut_iterReco;
 
    void initialize();
