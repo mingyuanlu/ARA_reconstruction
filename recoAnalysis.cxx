@@ -1806,10 +1806,11 @@ for(int i=4; i<argc; i++){
 //
 //   }
 //
-   cout<<runNum<<endl;
+   //cout<<runNum<<endl;
+   /*
    if  ( passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && !lowFreqDominance && passBVSNRCut){
 
-      cout<<runNum<<","<<dummyData->eventNumber<<endl;
+      //cout<<runNum<<","<<dummyData->eventNumber<<endl;
 
       outputFile<<runNum<<","<<dummyData->eventNumber;
       for(int ch=0; ch<8; ch++) outputFile<<","<<dummyData->slidingV2SNR[ch];
@@ -1821,12 +1822,12 @@ for(int i=4; i<argc; i++){
       //zen_bvEventTime->Fill(dummyData->unixTime, 90.f-dummyData->constantNZen);
       //cout<<"1802\n";
    }
-
+   */
    if(/*isCW &&*/passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut && !lowFreqDominance ){
 
 
 
-      cout<<"run: "<<runNum<<" event: "<<dummyData->eventNumber<<" SNR: "<<snr<<endl;
+      //cout<<"run: "<<runNum<<" event: "<<dummyData->eventNumber<<" SNR: "<<snr<<endl;
 //      _snrHist->Fill(snr, dummyData->weight);
       //outputFile<<snr<<",";
 //
