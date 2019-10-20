@@ -155,6 +155,8 @@ for(int i=4; i<argc; i++){
    string fin(argv[i]);
    int runNum = atoi(  fin.substr(fin.find("run")+3, fin.find(".root")-fin.find("run")-2).c_str() );
 
+   cout<<"runNum: "<<runNum<<endl;
+
    TFile fp( argv[i] );
 
    if( fp.IsZombie() ){ cerr<<"File "<<argv[i]<<" is zombie. Skipping..."<<endl; continue; }
@@ -674,7 +676,7 @@ for(int i=4; i<argc; i++){
    string fin(argv[i]);
    int runNum = atoi(  fin.substr(fin.find("run")+3, fin.find(".root")-fin.find("run")-2).c_str() );
 
-
+   cout<<"runNum: "<<runNum<<endl;
    //Exclude calibration runs:
    if(STATION=="ARA02"){
       if( isInCalibrationRun(listOfCalRuns, runNum) ) continue;
