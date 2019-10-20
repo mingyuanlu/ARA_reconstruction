@@ -83,7 +83,7 @@ ofstream outputFile(argv[3],std::ofstream::out|std::ofstream::app);
 ////list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
 //list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_fullDataExpoFit_surfaceEvents_noisyRuns.txt");
 //
-//vector<int> listOfRuns;
+vector<int> listOfRuns;
 ////vector<int> listOfEvents;
 //string line;
 //int run, event;
@@ -125,7 +125,7 @@ ofstream outputFile(argv[3],std::ofstream::out|std::ofstream::app);
 //
 //ifstream list2;
 //list2.open("ARA02_calibrationRuns.txt");
-//vector<int> listOfCalRuns;
+vector<int> listOfCalRuns;
 //if(list2.is_open()){
 //   while(list2.good()){
 //
@@ -160,10 +160,16 @@ for(int i=4; i<argc; i++){
    if( fp.IsZombie() ){ cerr<<"File "<<argv[i]<<" is zombie. Skipping..."<<endl; continue; }
    if( fp.TestBit(TFile::kRecovered) ){ cerr<<"File "<<argv[i]<<" is recovered file. Skipping..."<<endl; continue; }
 
-   if (!isNearNoisyRun(listOfRuns, runNum, 0) && !isInCalibrationRun(listOfCalRuns, runNum)){
-   //recoSettingsTree->Add( argv[i] );
-   //dataTree->Add( argv[i] );
-   runInfoTree->Add( argv[i] );
+   if (STATION=="ARA02"){
+      if (!isNearNoisyRun(listOfRuns, runNum, 0) && !isInCalibrationRun(listOfCalRuns, runNum)){
+         //recoSettingsTree->Add( argv[i] );
+         //dataTree->Add( argv[i] );
+         runInfoTree->Add( argv[i] );
+      }
+   } else if (STATION=="ARA03"){
+      if(!shouldExclude(STATION, runNum)){
+         runInfoTree->Add( argv[i] );
+      }
    }
 
    fp.Close();
@@ -193,9 +199,9 @@ int runStartTime, runEndTime;
 int runRFEventCount, runCalEventCount, runSoftEventCount;
 double weightedOffsetBlockEventCount, weightedImpulsivityFilteredEventCount, weightedTrigEventCount;
 */
-int runEventCount, runRFEventCount, runCalEventCount, runSoftEventCount, trigEventCount, recoEventCount, utime_runStart, utime_runEnd, cutWaveEventCount, nonIncreasingSampleTimeEventCount, cutWaveAndNonIncreasingEventCount, mistaggedSoftEventCount, offsetBlockEventCount, cwFilteredEventCount, nchnlFilteredEventCount, impulsivityFilteredEventCount, corruptFirst3EventCount, corruptD1EventCount;
+int runEventCount, runRFEventCount, runCalEventCount, runSoftEventCount, trigEventCount, recoEventCount, utime_runStart, utime_runEnd, cutWaveEventCount, nonIncreasingSampleTimeEventCount, cutWaveAndNonIncreasingEventCount, mistaggedSoftEventCount, offsetBlockEventCount, cwFilteredEventCount, nchnlFilteredEventCount, impulsivityFilteredEventCount, corruptFirst3EventCount, corruptD1EventCount, cliffEventCount;
 
-double weightedTrigEventCount, weightedRecoEventCount, weightedOffsetBlockEventCount, weightedNchnlFilteredEventCount, weightedCWFilteredEventCount, weightedImpulsivityFilteredEventCount;
+double weightedTrigEventCount, weightedRecoEventCount, weightedOffsetBlockEventCount, weightedNchnlFilteredEventCount, weightedCWFilteredEventCount, weightedImpulsivityFilteredEventCount, weightedCliffEventCount;
 
 int runStartTime, runEndTime;
 
@@ -243,12 +249,14 @@ runInfoTree->SetBranchAddress("nchnlFilteredEventCount", &nchnlFilteredEventCoun
 runInfoTree->SetBranchAddress("impulsivityFilteredEventCount", &impulsivityFilteredEventCount);
 runInfoTree->SetBranchAddress("corruptFirst3EventCount", &corruptFirst3EventCount);
 runInfoTree->SetBranchAddress("corruptD1EventCount", &corruptD1EventCount);
+runInfoTree->SetBranchAddress("cliffEventCount", &cliffEventCount);
 runInfoTree->SetBranchAddress("weightedTrigEventCount", &weightedTrigEventCount);
 runInfoTree->SetBranchAddress("weightedRecoEventCount", &weightedRecoEventCount); //
 runInfoTree->SetBranchAddress("weightedOffsetBlockEventCount", &weightedOffsetBlockEventCount);
 runInfoTree->SetBranchAddress("weightedNchnlFilteredEventCount", &weightedNchnlFilteredEventCount);
 runInfoTree->SetBranchAddress("weightedCWFilteredEventCount", &weightedCWFilteredEventCount);//
 runInfoTree->SetBranchAddress("weightedImpulsivityFilteredEventCount", &weightedImpulsivityFilteredEventCount);
+runInfoTree->SetBranchAddress("weightedCliffEventCount", &weightedCliffEventCount);
 
 int totalRunEventCount, totalRFEventCount, totalCalEventCount, totalSoftEventCount, totalTrigEventCount, totalRecoEventCount, totalCutWaveEventCount, totalNonIncreasingSampleTimeEventCount, totalCutWaveAndNonIncreasingEventCount, totalMistaggedSoftEventCount, totalOffsetBlockEventCount, totalCWFilteredEventCount, totalNchnlFilteredEventCount, totalImpulsivityFilteredEventCount, totalCorruptFirst3EventCount, totalCorruptD1EventCount, totalBlockGapEventCount, totalCliffEventCount;
 
