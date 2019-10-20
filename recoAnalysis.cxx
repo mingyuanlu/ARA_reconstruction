@@ -78,73 +78,73 @@ cout<<"STATION: "<<STATION<<" type: "<<type<<endl;
 
 ofstream outputFile(argv[3],std::ofstream::out|std::ofstream::app);
 
-ifstream list;
-
-//list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
-list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_fullDataExpoFit_surfaceEvents_noisyRuns.txt");
-
-vector<int> listOfRuns;
-//vector<int> listOfEvents;
-string line;
-int run, event;
-char line_char[200];
-
-if (list.is_open() ){
-
-   while (list.good()){
-
-      getline(list, line, '\n');
-      if (line == "") break;
-      run = stoi(line);
-
-      /*
-      getline(list, line, ',');
-      if (line=="") break;
-      run = stoi(line);
-      getline(list, line, '\n');
-      if (line=="") break;
-      event = stoi(line);
-      //getline(list, line, '\n');
-      */
-      //if(event >= 10){
-         cout<<"run: "<<run/*<<" event: "<<event*/<<endl;
-         //cout<<"run: "<<run<<" event: "<<event<<endl;
-         listOfRuns.push_back(run);
-      //}
-      //listOfEvents.push_back(event);
-   }
-}  else {
-   cerr<<"No noisy run list! Aborting...";
-   return -1;
-}
-
-list.close();
-
-int numNoisyRuns = listOfRuns.size();
-//vector< vector<int> > noisyRun;
-
-ifstream list2;
-list2.open("ARA02_calibrationRuns.txt");
-vector<int> listOfCalRuns;
-if(list2.is_open()){
-   while(list2.good()){
-
-      getline(list2, line, '\n');
-      if(line == "") break;
-      run = stoi(line);
-
-      cout<<"cal run: "<<run<<endl;
-      listOfCalRuns.push_back(run);
-
-   }
-}  else {
-   cerr<<"No calibration run list! Aborting...";
-   return -1;
-}
-
-list2.close();
-int numCalRuns = listOfCalRuns.size();
-
+//ifstream list;
+//
+////list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
+//list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_fullDataExpoFit_surfaceEvents_noisyRuns.txt");
+//
+//vector<int> listOfRuns;
+////vector<int> listOfEvents;
+//string line;
+//int run, event;
+//char line_char[200];
+//
+//if (list.is_open() ){
+//
+//   while (list.good()){
+//
+//      getline(list, line, '\n');
+//      if (line == "") break;
+//      run = stoi(line);
+//
+//      /*
+//      getline(list, line, ',');
+//      if (line=="") break;
+//      run = stoi(line);
+//      getline(list, line, '\n');
+//      if (line=="") break;
+//      event = stoi(line);
+//      //getline(list, line, '\n');
+//      */
+//      //if(event >= 10){
+//         cout<<"run: "<<run/*<<" event: "<<event*/<<endl;
+//         //cout<<"run: "<<run<<" event: "<<event<<endl;
+//         listOfRuns.push_back(run);
+//      //}
+//      //listOfEvents.push_back(event);
+//   }
+//}  else {
+//   cerr<<"No noisy run list! Aborting...";
+//   return -1;
+//}
+//
+//list.close();
+//
+//int numNoisyRuns = listOfRuns.size();
+////vector< vector<int> > noisyRun;
+//
+//ifstream list2;
+//list2.open("ARA02_calibrationRuns.txt");
+//vector<int> listOfCalRuns;
+//if(list2.is_open()){
+//   while(list2.good()){
+//
+//      getline(list2, line, '\n');
+//      if(line == "") break;
+//      run = stoi(line);
+//
+//      cout<<"cal run: "<<run<<endl;
+//      listOfCalRuns.push_back(run);
+//
+//   }
+//}  else {
+//   cerr<<"No calibration run list! Aborting...";
+//   return -1;
+//}
+//
+//list2.close();
+//int numCalRuns = listOfCalRuns.size();
+//
 
 /*TChain*/TTree *recoSettingsTree/*=new TChain("recoSettingsTree")*/;
 /*TChain*/TTree *dataTree/*=new TChain("dataTree")*/;
@@ -250,13 +250,13 @@ runInfoTree->SetBranchAddress("weightedNchnlFilteredEventCount", &weightedNchnlF
 runInfoTree->SetBranchAddress("weightedCWFilteredEventCount", &weightedCWFilteredEventCount);//
 runInfoTree->SetBranchAddress("weightedImpulsivityFilteredEventCount", &weightedImpulsivityFilteredEventCount);
 
-int totalRunEventCount, totalRFEventCount, totalCalEventCount, totalSoftEventCount, totalTrigEventCount, totalRecoEventCount, totalCutWaveEventCount, totalNonIncreasingSampleTimeEventCount, totalCutWaveAndNonIncreasingEventCount, totalMistaggedSoftEventCount, totalOffsetBlockEventCount, totalCWFilteredEventCount, totalNchnlFilteredEventCount, totalImpulsivityFilteredEventCount, totalCorruptFirst3EventCount, totalCorruptD1EventCount, totalBlockGapEventCount;
+int totalRunEventCount, totalRFEventCount, totalCalEventCount, totalSoftEventCount, totalTrigEventCount, totalRecoEventCount, totalCutWaveEventCount, totalNonIncreasingSampleTimeEventCount, totalCutWaveAndNonIncreasingEventCount, totalMistaggedSoftEventCount, totalOffsetBlockEventCount, totalCWFilteredEventCount, totalNchnlFilteredEventCount, totalImpulsivityFilteredEventCount, totalCorruptFirst3EventCount, totalCorruptD1EventCount, totalBlockGapEventCount, totalCliffEventCount;
 
-totalRunEventCount = totalRFEventCount = totalCalEventCount = totalSoftEventCount = totalTrigEventCount = totalRecoEventCount = totalCutWaveEventCount = totalNonIncreasingSampleTimeEventCount = totalCutWaveAndNonIncreasingEventCount = totalMistaggedSoftEventCount = totalOffsetBlockEventCount = totalCWFilteredEventCount = totalNchnlFilteredEventCount = totalImpulsivityFilteredEventCount = totalCorruptFirst3EventCount = totalCorruptD1EventCount = totalBlockGapEventCount = 0;
+totalRunEventCount = totalRFEventCount = totalCalEventCount = totalSoftEventCount = totalTrigEventCount = totalRecoEventCount = totalCutWaveEventCount = totalNonIncreasingSampleTimeEventCount = totalCutWaveAndNonIncreasingEventCount = totalMistaggedSoftEventCount = totalOffsetBlockEventCount = totalCWFilteredEventCount = totalNchnlFilteredEventCount = totalImpulsivityFilteredEventCount = totalCorruptFirst3EventCount = totalCorruptD1EventCount = totalBlockGapEventCount = totalCliffEventCount = 0;
 
-double totalWeightedTrigEventCount, totalWeightedRecoEventCount, totalWeightedOffsetBlockEventCount, totalWeightedNchnlFilteredEventCount, totalWeightedCWFilteredEventCount, totalWeightedImpulsivityFilteredEventCount;
+double totalWeightedTrigEventCount, totalWeightedRecoEventCount, totalWeightedOffsetBlockEventCount, totalWeightedNchnlFilteredEventCount, totalWeightedCWFilteredEventCount, totalWeightedImpulsivityFilteredEventCount, totalWeightedCliffEventCount;
 
-totalWeightedTrigEventCount = totalWeightedRecoEventCount = totalWeightedOffsetBlockEventCount = totalWeightedNchnlFilteredEventCount = totalWeightedCWFilteredEventCount = totalWeightedImpulsivityFilteredEventCount = 0.;
+totalWeightedTrigEventCount = totalWeightedRecoEventCount = totalWeightedOffsetBlockEventCount = totalWeightedNchnlFilteredEventCount = totalWeightedCWFilteredEventCount = totalWeightedImpulsivityFilteredEventCount = totalWeightedCliffEventCount = 0.;
 
 int totalLiveTime=0;
 
@@ -308,7 +308,10 @@ for(int run=0; run<runInfoTree->GetEntries(); run++){
    totalWeightedNchnlFilteredEventCount       += weightedNchnlFilteredEventCount;
    totalWeightedCWFilteredEventCount          += weightedCWFilteredEventCount;
    totalWeightedImpulsivityFilteredEventCount += weightedImpulsivityFilteredEventCount;
-
+   if (STATION=="ARA03"){
+      totalCliffEventCount                    += cliffEventCount;
+      totalWeightedCliffEventCount            += weightedCliffEventCount;
+   }
    if(runStartTime<startTimeMin) startTimeMin=runStartTime;
    if(runEndTime>endTimeMax)     endTimeMax=runEndTime+1;
 
@@ -321,7 +324,7 @@ for(int run=0; run<runInfoTree->GetEntries(); run++){
 printf("totalRunEventCount: %d\ttotalTrigEventCount: %d\ttotalRecoEventCount: %d\ntotalLiveTime :%ds\n", totalRunEventCount, totalTrigEventCount, totalRecoEventCount, totalLiveTime);
 printf("totalRFEventCount: %d\ttotalCalEventCount: %d\ttotalSoftEventCount: %d\n", totalRFEventCount, totalCalEventCount, totalSoftEventCount);
 printf("totalCutWaveEventCount: %d\ttotalNonIncreasingSampleTimeEventCount: %d\ttotalCutWaveAndNonIncreasingEventCount: %d\ncutWave ratio: %f\tnonIncreasing ratio: %f\tcutWaveAndNonIncreasing ratio: %f\n", totalCutWaveEventCount, totalNonIncreasingSampleTimeEventCount, totalCutWaveAndNonIncreasingEventCount, (float)totalCutWaveEventCount/(float)totalRunEventCount, (float)totalNonIncreasingSampleTimeEventCount/(float)totalRunEventCount, (float)totalCutWaveAndNonIncreasingEventCount/(float)totalRunEventCount);
-printf("totalMistaggedSoftEventCount: %d\ttotalOffsetBlockEventCount: %d\ttotalCWFilteredEventCount: %d\ttotalNchnlFilteredEventCount: %d\ttotalCorruptFirst3EventCount: %d\ttotalCorruptD1EventCount: %d\nmistag soft ratio: %f\toffset ratio: %f\tCW ratio: %f\tnchnl ratio: %f\tfirst3 ratio: %f\tcorupt D1 ratio: %f\n\n", totalMistaggedSoftEventCount, totalOffsetBlockEventCount, totalCWFilteredEventCount, totalNchnlFilteredEventCount, totalCorruptFirst3EventCount, totalCorruptD1EventCount, (float)totalMistaggedSoftEventCount/(float)totalRunEventCount, (float)totalOffsetBlockEventCount/(float)totalRunEventCount, (float)totalCWFilteredEventCount/(float)totalRunEventCount, (float)totalNchnlFilteredEventCount/(float)totalRunEventCount, (float)totalCorruptFirst3EventCount/(float)totalRunEventCount, (float)totalCorruptD1EventCount/(float)totalRunEventCount);
+printf("totalMistaggedSoftEventCount: %d\ttotalOffsetBlockEventCount: %d\ttotalCWFilteredEventCount: %d\ttotalNchnlFilteredEventCount: %d\ttotalCorruptFirst3EventCount: %d\ttotalCorruptD1EventCount: %d\ttotalCliffEventCount: %d\nmistag soft ratio: %f\toffset ratio: %f\tCW ratio: %f\tnchnl ratio: %f\tfirst3 ratio: %f\tcorupt D1 ratio: %f\n\n", totalMistaggedSoftEventCount, totalOffsetBlockEventCount, totalCWFilteredEventCount, totalNchnlFilteredEventCount, totalCorruptFirst3EventCount, totalCorruptD1EventCount, totalCliffEventCount, (float)totalMistaggedSoftEventCount/(float)totalRunEventCount, (float)totalOffsetBlockEventCount/(float)totalRunEventCount, (float)totalCWFilteredEventCount/(float)totalRunEventCount, (float)totalNchnlFilteredEventCount/(float)totalRunEventCount, (float)totalCorruptFirst3EventCount/(float)totalRunEventCount, (float)totalCorruptD1EventCount/(float)totalRunEventCount);
 
 //int Nentries = dataTree->GetEntries();
 //cout<<"Total number of dataTree events: "<<Nentries<<endl;
@@ -598,6 +601,10 @@ for(int i=0; i<5; i++){
 
 
 ARA02_cutValues *cutValues = new ARA02_cutValues();
+if (STATION=="ARA03"){
+   delete cutValues;
+   ARA03_cutValues *cutValues = new ARA03_cutValues();
+}
 
 cout<<"impCut: "<<cutValues->impCut.val<<endl;
 double postThermalAvgImpulsivityCut = cutValues->impCut.val;
@@ -661,7 +668,11 @@ for(int i=4; i<argc; i++){
 
 
    //Exclude calibration runs:
-   if( isInCalibrationRun(listOfCalRuns, runNum) ) continue;
+   if(STATION=="ARA02"){
+      if( isInCalibrationRun(listOfCalRuns, runNum) ) continue;
+   } else if (STATION=="ARA03"){
+      if (shouldExclude(STATION, runNum)) continue;
+   }
    /*
    //Cal sweep
    if(runNum>=3177 && runNum<=3186) continue;
@@ -1933,6 +1944,10 @@ for(int i=4; i<argc; i++){
       */
    }//if pass all other cuts except CW and thermal
 
+   if (passThermalCut && passCWCut && passDeepPulserCut && passCalpulserTimeCut && passCalpulserCut){
+      constantNZenHist->Fill(90.f-dummyData->constantNZen, dummyData->weight);
+   }
+
 
    }//end of entry
 
@@ -2399,96 +2414,102 @@ c17.SaveAs(filename);
 //_snrCumuHist->Draw();
 //c18.SaveAs(filename);
 
-TCanvas c20("c20","c20",800,800);
-coherence_snr_nMinusCoherenceSNR->Draw("colz");
-coherence_snr_nMinusCoherenceSNR->SetTitle("All - Thermal Cut - SNR Cut;SNR;Coherence");
-c20.SetLogz();
-pca1.SetLineColor(kRed);
-pca2.SetLineColor(kBlue);
-//pca1.Draw("same");
-//pca2.Draw("same");
-cutPoint->SetMarkerStyle(4);
-//cutPoint->SetMarkerSize(3);
-cutPoint->Draw("psame");
-//sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_pca_outOfBand.C", STATION.c_str(), type);
-sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_c_snr_inBand.C", STATION.c_str(), type);
-//c20.SaveAs(filename);
-sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_c_snr_inBand.pdf", STATION.c_str(), type);
-//c20.SaveAs(filename);
+//TCanvas c20("c20","c20",800,800);
+//coherence_snr_nMinusCoherenceSNR->Draw("colz");
+//coherence_snr_nMinusCoherenceSNR->SetTitle("All - Thermal Cut - SNR Cut;SNR;Coherence");
+//c20.SetLogz();
+//pca1.SetLineColor(kRed);
+//pca2.SetLineColor(kBlue);
+////pca1.Draw("same");
+////pca2.Draw("same");
+//cutPoint->SetMarkerStyle(4);
+////cutPoint->SetMarkerSize(3);
+//cutPoint->Draw("psame");
+////sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_pca_outOfBand.C", STATION.c_str(), type);
+//sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_c_snr_inBand.C", STATION.c_str(), type);
+////c20.SaveAs(filename);
+//sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_c_snr_inBand.pdf", STATION.c_str(), type);
+////c20.SaveAs(filename);
+//
+//
+//TCanvas c21("c21","c21",1200,800);
+//c21.Divide(2,1);
+//c21.cd(1);
+//frame->Draw();
+//coherence_snr_nMinusCoherence->Draw("Psame");
+//frame->SetTitle(";SNR;Coherence");
+//frame->GetYaxis()->SetTitleOffset(1.3);
+//coherence_snr_nMinusCoherence->GetXaxis()->SetRangeUser(0,40);
+//coherence_snr_nMinusCoherence->GetYaxis()->SetRangeUser(0,1);
+//coherence_snr_nMinusCoherence->SetMarkerStyle(8);
+//coherence_snr_nMinusSNR->SetMarkerStyle(5);
+//coherence_snr_nMinusSNR->Draw("psame");
+//TLine snrLine(cutValues->snrCut[type-1].val,0,cutValues->snrCut[type-1].val,1);
+//TLine cohLine(0,cutValues->coherenceCut_inBand[type-1].val,40,cutValues->coherenceCut_inBand[type-1].val);
+//snrLine.Draw("same");
+//cohLine.Draw("same");
+//c21.cd(2);
+//frame->Draw();
+//coherence_snr_nMinusSurface->Draw("Psame");
+//frame->SetTitle(";SNR;Coherence");
+//frame->GetYaxis()->SetTitleOffset(1.3);
+//coherence_snr_nMinusSurface->GetXaxis()->SetRangeUser(0,40);
+//coherence_snr_nMinusSurface->GetYaxis()->SetRangeUser(0,1);
+//coherence_snr_nMinusSurface->SetMarkerStyle(4);
+//coherence_snr_nMinusCal->SetMarkerStyle(2);
+//coherence_snr_nMinusCal->Draw("psame");
+//snrLine.Draw("same");
+//cohLine.Draw("same");
+//sprintf(filename,"%s_type%d_snrMode1_nMinusCuts_c_snr_inBand.C", STATION.c_str(), type);
+////c21.SaveAs(filename);
+//sprintf(filename,"%s_type%d_snrMode1_nMinusCuts_c_snr_inBand.pdf", STATION.c_str(), type);
+////c21.SaveAs(filename);
+//
+//TCanvas c22("c22","c22",800,800);
+//zen_azi_nMinusSurface->Draw();
+//zen_azi_nMinusCal->Draw("same");
+//zen_azi_nMinusSurface->SetMarkerStyle(8);
+//zen_azi_nMinusCal->SetMarkerStyle(5);
+////TLine surfLine(0,cutValues->surfaceCut_constantN.val,360,cutValues->surfaceCut_constantN.val);
+////surfLine.Draw("same");
+//zen_azi_nMinusSurface->SetTitle(";Reco Azimuth [#circ];Reco Zenith [#circ]");
+//sprintf(filename,"%s_type%d_snrMode1_nMinusSurfaceCal_zen_azi.C", STATION.c_str(), type);
+////c22.SaveAs(filename);
+//sprintf(filename,"%s_type%d_snrMode1_nMinusSurfaceCal_zen_azi.pdf", STATION.c_str(), type);
+////c22.SaveAs(filename);
+//
+//TCanvas c23("c23","c23",800,800);
+//c23.Divide(2,2);
+//c23.cd(1);
+//zenHist->Draw();
+//c23.cd(2);
+//aziHist->Draw();
+//c23.cd(3);
+//zen_c_hist->Draw("colz");
+//c23.cd(4);
+//zen_azi_rf->Draw("colz");
+//sprintf(filename,"recoAnalysis_23_type%d.C", type);
+////c23.SaveAs(filename);
+//
+//TCanvas c24("c24","c24",1200,800);
+//c24.Divide(3,1);
+//c24.cd(1);
+//bvEventTime->Draw();
+//bvEventTime->SetTitle("BV Events;Unix Time [s];Count");
+//c24.cd(2);
+//azi_bvEventTime->Draw("colz");
+//azi_bvEventTime->SetTitle("BV Events;Unix Time [s];Quasi-planewave Reco Azi [#circ]");
+//c24.cd(3);
+//zen_bvEventTime->Draw("colz");
+//zen_bvEventTime->SetTitle("BV Events;Unix Time [s];Quasi-planewave Reco Zen [#circ]");
+//sprintf(filename,"recoAnalysis_24_type%d.C", type);
+//c24.SaveAs(filename);
 
+TCanvas c35("c35","c35",800,800);
+constantNZenHist->Draw("colz");
+constantNZenHist->SetTitle("Quasi-planewave Reco;Reco Zenith [#circ];Entry");
+c35.SaveAs("recoAnalysis_35.C");
 
-TCanvas c21("c21","c21",1200,800);
-c21.Divide(2,1);
-c21.cd(1);
-frame->Draw();
-coherence_snr_nMinusCoherence->Draw("Psame");
-frame->SetTitle(";SNR;Coherence");
-frame->GetYaxis()->SetTitleOffset(1.3);
-coherence_snr_nMinusCoherence->GetXaxis()->SetRangeUser(0,40);
-coherence_snr_nMinusCoherence->GetYaxis()->SetRangeUser(0,1);
-coherence_snr_nMinusCoherence->SetMarkerStyle(8);
-coherence_snr_nMinusSNR->SetMarkerStyle(5);
-coherence_snr_nMinusSNR->Draw("psame");
-TLine snrLine(cutValues->snrCut[type-1].val,0,cutValues->snrCut[type-1].val,1);
-TLine cohLine(0,cutValues->coherenceCut_inBand[type-1].val,40,cutValues->coherenceCut_inBand[type-1].val);
-snrLine.Draw("same");
-cohLine.Draw("same");
-c21.cd(2);
-frame->Draw();
-coherence_snr_nMinusSurface->Draw("Psame");
-frame->SetTitle(";SNR;Coherence");
-frame->GetYaxis()->SetTitleOffset(1.3);
-coherence_snr_nMinusSurface->GetXaxis()->SetRangeUser(0,40);
-coherence_snr_nMinusSurface->GetYaxis()->SetRangeUser(0,1);
-coherence_snr_nMinusSurface->SetMarkerStyle(4);
-coherence_snr_nMinusCal->SetMarkerStyle(2);
-coherence_snr_nMinusCal->Draw("psame");
-snrLine.Draw("same");
-cohLine.Draw("same");
-sprintf(filename,"%s_type%d_snrMode1_nMinusCuts_c_snr_inBand.C", STATION.c_str(), type);
-//c21.SaveAs(filename);
-sprintf(filename,"%s_type%d_snrMode1_nMinusCuts_c_snr_inBand.pdf", STATION.c_str(), type);
-//c21.SaveAs(filename);
-
-TCanvas c22("c22","c22",800,800);
-zen_azi_nMinusSurface->Draw();
-zen_azi_nMinusCal->Draw("same");
-zen_azi_nMinusSurface->SetMarkerStyle(8);
-zen_azi_nMinusCal->SetMarkerStyle(5);
-//TLine surfLine(0,cutValues->surfaceCut_constantN.val,360,cutValues->surfaceCut_constantN.val);
-//surfLine.Draw("same");
-zen_azi_nMinusSurface->SetTitle(";Reco Azimuth [#circ];Reco Zenith [#circ]");
-sprintf(filename,"%s_type%d_snrMode1_nMinusSurfaceCal_zen_azi.C", STATION.c_str(), type);
-//c22.SaveAs(filename);
-sprintf(filename,"%s_type%d_snrMode1_nMinusSurfaceCal_zen_azi.pdf", STATION.c_str(), type);
-//c22.SaveAs(filename);
-
-TCanvas c23("c23","c23",800,800);
-c23.Divide(2,2);
-c23.cd(1);
-zenHist->Draw();
-c23.cd(2);
-aziHist->Draw();
-c23.cd(3);
-zen_c_hist->Draw("colz");
-c23.cd(4);
-zen_azi_rf->Draw("colz");
-sprintf(filename,"recoAnalysis_23_type%d.C", type);
-//c23.SaveAs(filename);
-
-TCanvas c24("c24","c24",1200,800);
-c24.Divide(3,1);
-c24.cd(1);
-bvEventTime->Draw();
-bvEventTime->SetTitle("BV Events;Unix Time [s];Count");
-c24.cd(2);
-azi_bvEventTime->Draw("colz");
-azi_bvEventTime->SetTitle("BV Events;Unix Time [s];Quasi-planewave Reco Azi [#circ]");
-c24.cd(3);
-zen_bvEventTime->Draw("colz");
-zen_bvEventTime->SetTitle("BV Events;Unix Time [s];Quasi-planewave Reco Zen [#circ]");
-sprintf(filename,"recoAnalysis_24_type%d.C", type);
-c24.SaveAs(filename);
 
 return 0;
 }
