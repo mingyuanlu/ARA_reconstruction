@@ -267,7 +267,7 @@ void ARA03_cutValues::setValue(cutParameter& param, double _val, double _plus, d
 }
 
 void ARA03_cutValues::initialize(){
-   
+
       setValue(zenMin[0], -20.69046186485236,  0, 0); // plus: cut region is larger minus: cut regin is smaller
       setValue(zenMin[1], -21.906032056707886, 0, 0);
 
@@ -293,11 +293,11 @@ void ARA03_cutValues::initialize(){
       setValue(coherenceCut_outOfBand[3], 0.13405305621526215, 0, 0);
       setValue(coherenceCut_outOfBand[4], 0.1179968361363821, 0, 0);
 
-      setValue(surfaceCut_constantN[0], 33.85936, 0, 0)
-      setValue(surfaceCut_constantN[1], 33.85936, 0, 0)
-      setValue(surfaceCut_constantN[2], 33.85936, 0, 0)
-      setValue(surfaceCut_constantN[3], 33.85936, 0, 0)
-      setValue(surfaceCut_constantN[4], 33.85936, 0, 0)
+      setValue(surfaceCut_constantN[0], 33.85936, 0, 0);
+      setValue(surfaceCut_constantN[1], 33.85936, 0, 0);
+      setValue(surfaceCut_constantN[2], 33.85936, 0, 0);
+      setValue(surfaceCut_constantN[3], 33.85936, 0, 0);
+      setValue(surfaceCut_constantN[4], 33.85936, 0, 0);
 
 }
 
