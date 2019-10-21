@@ -1727,7 +1727,7 @@ for(int i=4; i<argc; i++){
    }
 
    //if(passDeepPulserCut && passThermalCut && passCalpulserCut && passSurfaceCut) runHist->Fill(runNum);
-   if( /*passNumSatChanCut && *//*passCWCut*/!lowFreqDominance && passDeepPulserCut && passThermalCut /*&& passSNRCut*/ && /*passThermalImpulsivityCut &&*/ passCalpulserCut && passCalpulserTimeCut && (!passSurfaceCut /*|| !passSurfaceCut_2*/)) surfaceRunHist->Fill(runNum);
+   if( /*passNumSatChanCut && *//*passCWCut*/!lowFreqDominance && passDeepPulserCut && passThermalCut && passSNRCut && /*passThermalImpulsivityCut &&*/ passCalpulserCut && passCalpulserTimeCut && (!passSurfaceCut /*|| !passSurfaceCut_2*/)) surfaceRunHist->Fill(runNum);
    //if( /*passNumSatChanCut &&*/ /*passCWCut &&*/ passDeepPulserCut && passThermalCut && passSurfaceCut && passSurfaceCut_2){ impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight); outputFile<<avgImpulsivity<<","; }
 //   //if( !lowFreqDominance && passDeepPulserCut){
 //   if( passCWCut && passDeepPulserCut ){
@@ -2177,7 +2177,7 @@ fout.Close();
 
 TCanvas c4("c4","c4",800,800);
 surfaceRunHist->Draw();
-sprintf(filename,"surfaceRunHist_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_%s_type%d.C", STATION.c_str(), type);
+sprintf(filename,"surfaceRunHist_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_%s_type%d.C", STATION.c_str(), type);
 c4.SaveAs(filename);
 
 /*
