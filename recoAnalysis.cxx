@@ -1612,11 +1612,11 @@ for(int i=4; i<argc; i++){
          }
       }
 
-   if(passCWCut && passThermalCut &&/* passThermalImpulsivityCut &&*/ passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) //impulsivityHist_nMinusImp->Fill( avgImpulsivity, dummyData->weight);
+   if(passCWCut && passThermalCut &&/* passThermalImpulsivityCut &&*/ passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut /*&& passSurfaceCut_2 && passNoisyRunCut*/ ) //impulsivityHist_nMinusImp->Fill( avgImpulsivity, dummyData->weight);
    {
       snr_nMinusSNR->Fill(snr, dummyData->weight);
       // cout<<"snr: "<<snr<<endl;
-      //outputFile<<snr<<",";
+      outputFile<<snr<<",";
       if(inBand){
          //coherence_snr_nMinusSNR->Fill(snr, coherence, dummyData->weight);
          coherence_snr_nMinusSNR->SetPoint(pcount_nMinusSNR, snr, coherence);
@@ -1655,28 +1655,29 @@ for(int i=4; i<argc; i++){
          pcount_nMinusCal++;
       }
    }
+
    if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut /*&& passSurfaceCut && passSurfaceCut_2 */&& passNoisyRunCut )
    {
-   zen_nMinusSurface->Fill((passSurfaceCut?zenMaj:90.f-dummyData->constantNZen));
-   zen_azi_nMinusSurface->Fill(dummyData->constantNAzi, (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen), dummyData->weight);
-   double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
+      zen_nMinusSurface->Fill((passSurfaceCut?zenMaj:90.f-dummyData->constantNZen));
+      zen_azi_nMinusSurface->Fill(dummyData->constantNAzi, (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen), dummyData->weight);
+      double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
 
-   if(inBand){
-      //coherence_snr_nMinusSurface->Fill(snr, coherence, dummyData->weight);
-      coherence_snr_nMinusSurface->SetPoint(pcount_nMinusSurface, snr, coherence);
-      pcount_nMinusSurface++;
-   }
+      if(inBand){
+         //coherence_snr_nMinusSurface->Fill(snr, coherence, dummyData->weight);
+         coherence_snr_nMinusSurface->SetPoint(pcount_nMinusSurface, snr, coherence);
+         pcount_nMinusSurface++;
+      }
 
-   if(theta_temp > 52 && theta_temp < 57 && dummyData->constantNAzi > 235 && dummyData->constantNAzi < 245){
-      //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
-   } else {
-      zen_nMinusSurface_noSPSEvents->Fill(theta_temp, dummyData->weight);
-      sinzen_nMinusSurface_noSPSEvents->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
-      //outputFile<<theta_temp<<endl;
-   }
+      if(theta_temp > 52 && theta_temp < 57 && dummyData->constantNAzi > 235 && dummyData->constantNAzi < 245){
+         //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
+      } else {
+         zen_nMinusSurface_noSPSEvents->Fill(theta_temp, dummyData->weight);
+         sinzen_nMinusSurface_noSPSEvents->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+         //outputFile<<theta_temp<<endl;
+      }
 
 
-   //outputFile<<(passSurfaceCut?zenMaj:90.f-dummyData->constantNZen)<<",";
+      //outputFile<<(passSurfaceCut?zenMaj:90.f-dummyData->constantNZen)<<",";
    }
 
 
@@ -1726,7 +1727,7 @@ for(int i=4; i<argc; i++){
    }
 
    //if(passDeepPulserCut && passThermalCut && passCalpulserCut && passSurfaceCut) runHist->Fill(runNum);
-   if( /*passNumSatChanCut && *//*passCWCut*/!lowFreqDominance && passDeepPulserCut && passThermalCut && passSNRCut && /*passThermalImpulsivityCut &&*/ passCalpulserCut && passCalpulserTimeCut && (!passSurfaceCut || !passSurfaceCut_2)) surfaceRunHist->Fill(runNum);
+   if( /*passNumSatChanCut && *//*passCWCut*/!lowFreqDominance && passDeepPulserCut && passThermalCut /*&& passSNRCut*/ && /*passThermalImpulsivityCut &&*/ passCalpulserCut && passCalpulserTimeCut && (!passSurfaceCut /*|| !passSurfaceCut_2*/)) surfaceRunHist->Fill(runNum);
    //if( /*passNumSatChanCut &&*/ /*passCWCut &&*/ passDeepPulserCut && passThermalCut && passSurfaceCut && passSurfaceCut_2){ impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight); outputFile<<avgImpulsivity<<","; }
 //   //if( !lowFreqDominance && passDeepPulserCut){
 //   if( passCWCut && passDeepPulserCut ){
@@ -2173,12 +2174,12 @@ impulsivityHist_avg->Write();
 fout.Close();
 */
 
-/*
+
 TCanvas c4("c4","c4",800,800);
 surfaceRunHist->Draw();
-sprintf(filename,"surfaceRunHist_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_%s_type%d.C", STATION.c_str(), type);
+sprintf(filename,"surfaceRunHist_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_%s_type%d.C", STATION.c_str(), type);
 c4.SaveAs(filename);
-*/
+
 /*
 sprintf(filename, "%s_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEventRuns.txt", STATION.c_str());
 ofstream noisyRunFile(filename, ofstream::out|ofstream::app);
@@ -2519,7 +2520,7 @@ c17.SaveAs(filename);
 TCanvas c35("c35","c35",800,800);
 constantNZenHist->Draw("colz");
 constantNZenHist->SetTitle("Quasi-planewave Reco;Reco Zenith [#circ];Entry");
-c35.SaveAs("recoAnalysis_35.C");
+//c35.SaveAs("recoAnalysis_35.C");
 
 
 return 0;
