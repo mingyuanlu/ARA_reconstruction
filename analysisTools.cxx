@@ -299,6 +299,12 @@ void ARA03_cutValues::initialize(){
       setValue(surfaceCut_constantN[3], 33.85936, 0, 0);
       setValue(surfaceCut_constantN[4], 33.85936, 0, 0);
 
+      setValue(snrCut[0], 8.71564, 0, 0);
+      setValue(snrCut[1], 7.89814, 0, 0);
+      setValue(snrCut[2], 8.71564, 0, 0);
+      setValue(snrCut[3], 8.71564, 0, 0);
+      setValue(snrCut[4], 8.71564, 0, 0);
+
 }
 
 
