@@ -78,7 +78,7 @@ cout<<"STATION: "<<STATION<<" type: "<<type<<endl;
 
 ofstream outputFile(argv[3],std::ofstream::out|std::ofstream::app);
 
-//ifstream list;
+ifstream list;
 ////A2 noisy runs
 ////list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
 //list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_fullDataExpoFit_surfaceEvents_noisyRuns.txt");
