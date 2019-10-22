@@ -79,50 +79,54 @@ cout<<"STATION: "<<STATION<<" type: "<<type<<endl;
 ofstream outputFile(argv[3],std::ofstream::out|std::ofstream::app);
 
 //ifstream list;
-//
+////A2 noisy runs
 ////list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
 //list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_fullDataExpoFit_surfaceEvents_noisyRuns.txt");
 //
+
+//A3 noisy runs
+list.open("ARA03_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_surfaceEvents_noisyRuns.txt");
+
 vector<int> listOfRuns;
-////vector<int> listOfEvents;
-//string line;
-//int run, event;
-//char line_char[200];
-//
-//if (list.is_open() ){
-//
-//   while (list.good()){
-//
-//      getline(list, line, '\n');
-//      if (line == "") break;
-//      run = stoi(line);
-//
-//      /*
-//      getline(list, line, ',');
-//      if (line=="") break;
-//      run = stoi(line);
-//      getline(list, line, '\n');
-//      if (line=="") break;
-//      event = stoi(line);
-//      //getline(list, line, '\n');
-//      */
-//      //if(event >= 10){
-//         cout<<"run: "<<run/*<<" event: "<<event*/<<endl;
-//         //cout<<"run: "<<run<<" event: "<<event<<endl;
-//         listOfRuns.push_back(run);
-//      //}
-//      //listOfEvents.push_back(event);
-//   }
-//}  else {
-//   cerr<<"No noisy run list! Aborting...";
-//   return -1;
-//}
-//
-//list.close();
-//
-//int numNoisyRuns = listOfRuns.size();
-////vector< vector<int> > noisyRun;
-//
+//vector<int> listOfEvents;
+string line;
+int run, event;
+char line_char[200];
+
+if (list.is_open() ){
+
+   while (list.good()){
+
+      getline(list, line, '\n');
+      if (line == "") break;
+      run = stoi(line);
+
+      /*
+      getline(list, line, ',');
+      if (line=="") break;
+      run = stoi(line);
+      getline(list, line, '\n');
+      if (line=="") break;
+      event = stoi(line);
+      //getline(list, line, '\n');
+      */
+      //if(event >= 10){
+         cout<<"run: "<<run/*<<" event: "<<event*/<<endl;
+         //cout<<"run: "<<run<<" event: "<<event<<endl;
+         listOfRuns.push_back(run);
+      //}
+      //listOfEvents.push_back(event);
+   }
+}  else {
+   cerr<<"No noisy run list! Aborting...";
+   return -1;
+}
+
+list.close();
+
+int numNoisyRuns = listOfRuns.size();
+//vector< vector<int> > noisyRun;
+
 //ifstream list2;
 //list2.open("ARA02_calibrationRuns.txt");
 vector<int> listOfCalRuns;
@@ -169,7 +173,7 @@ for(int i=4; i<argc; i++){
          runInfoTree->Add( argv[i] );
       }
    } else if (STATION=="ARA03"){
-      if(!shouldExclude(STATION, runNum)){
+      if (/*!isNearNoisyRun(listOfRuns, runNum, 0) &&*/ !shouldExclude(STATION, runNum)){
          runInfoTree->Add( argv[i] );
       }
    }
@@ -1436,7 +1440,7 @@ for(int i=4; i<argc; i++){
 
 
 
-   nCut3p5            += (passCWCut && passDeepPulserCut && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
+   //nCut3p5            += (passCWCut && passDeepPulserCut && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
 
    //nPassSuE19aceCut    += passSuE19aceCut * dummyData->weight;
    //nCut3              += (passCorruptionCut && passThermalCut && passSuE19aceCut) * dummyData->weight;
@@ -1445,23 +1449,28 @@ for(int i=4; i<argc; i++){
    //if((passCorruptionCut && passThermalCut /*&& passSuE19aceCut*/ && passDeepPulserCut)){ outputFile<<dummyData->unixTime<<","<<dummyData->eventNumber<<endl; }
 
 
-   nCut4             += (passCWCut && passDeepPulserCut && passThermalCut && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
+   //nCut4             += (passCWCut && passDeepPulserCut && passThermalCut && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
+   nCut4             += (passCWCut && passDeepPulserCut && passThermalCut && passSurfaceCut /*&& passSurfaceCut_2*/) * dummyData->weight;
    //if (passCWCut && passDeepPulserCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passCalpulserCut)  snrHist[3]->Fill(dummyData->inWindowSNR, dummyData->weight);
 
 
-   nCut4p5           += (passCWCut && passDeepPulserCut && passThermalCut && passSNRCut && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
+   //nCut4p5           += (passCWCut && passDeepPulserCut && passThermalCut && passSNRCut && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
+   nCut4p5           += (passCWCut && passDeepPulserCut && passThermalCut && passSNRCut && passSurfaceCut /*&& passSurfaceCut_2*/) * dummyData->weight;
 
    //nPassNoisyRunCut   += passNoisyRunCut * dummyData->weight;
    //nCut5              += (/*passCorruptionCut &&*/ passThermalCut /*&& passSuE19aceCut*/ && passDeepPulserCut && passCalpulserCut && passNoisyRunCut) * dummyData->weight;
 
-   nCut6              += (passCWCut && passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
+   //nCut6              += (passCWCut && passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
+   nCut6              += (passCWCut && passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passSurfaceCut /*&& passSurfaceCut_2*/) * dummyData->weight;
 
+   //nCut6p5            += (passCWCut && passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
+   nCut6p5            += (passCWCut && passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut /*&& passSurfaceCut_2*/) * dummyData->weight;
 
-   nCut6p5            += (passCWCut && passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
    //if (passNumSatChanCut && passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2) snrHist[4]->Fill(dummyData->inWindowSNR, dummyData->weight);
 
 
-   nCut7              += (passCWCut && passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passNoisyRunCut && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
+   //nCut7              += (passCWCut && passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passNoisyRunCut && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
+   nCut7              += (passCWCut && passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passNoisyRunCut && passSurfaceCut /*&& passSurfaceCut_2*/) * dummyData->weight;
 
 //   if(/*passNumSatChanCut &&*//*passHighPassFilter && passImpulsivityCut*/passCWCut && passThermalCut && passThermalImpulsivityCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut/*&& passNoisyRunCut*/ && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut){
 //   //if(passCalpulserCut){
@@ -1616,7 +1625,7 @@ for(int i=4; i<argc; i++){
    {
       snr_nMinusSNR->Fill(snr, dummyData->weight);
       // cout<<"snr: "<<snr<<endl;
-      outputFile<<snr<<",";
+      //outputFile<<snr<<",";
       if(inBand){
          //coherence_snr_nMinusSNR->Fill(snr, coherence, dummyData->weight);
          coherence_snr_nMinusSNR->SetPoint(pcount_nMinusSNR, snr, coherence);
@@ -2057,7 +2066,7 @@ outputFile.close();
 printf("totalRunEventCount: %d\ttotalTrigEventCount: %d\ttotalRecoEventCount: %d\ntotalLiveTime :%ds\n", totalRunEventCount, totalTrigEventCount, totalRecoEventCount, totalLiveTime);
 printf("totalRFEventCount: %d\ttotalCalEventCount: %d\ttotalSoftEventCount: %d\n", totalRFEventCount, totalCalEventCount, totalSoftEventCount);
 printf("totalCutWaveEventCount: %d\ttotalNonIncreasingSampleTimeEventCount: %d\ttotalCutWaveAndNonIncreasingEventCount: %d\ncutWave ratio: %f\tnonIncreasing ratio: %f\tcutWaveAndNonIncreasing ratio: %f\n", totalCutWaveEventCount, totalNonIncreasingSampleTimeEventCount, totalCutWaveAndNonIncreasingEventCount, (float)totalCutWaveEventCount/(float)totalRunEventCount, (float)totalNonIncreasingSampleTimeEventCount/(float)totalRunEventCount, (float)totalCutWaveAndNonIncreasingEventCount/(float)totalRunEventCount);
-printf("totalMistaggedSoftEventCount: %d\ttotalOffsetBlockEventCount: %d\ttotalCWFilteredEventCount: %d\ttotalNchnlFilteredEventCount: %d\ttotalCorruptFirst3EventCount: %d\ttotalCorruptD1EventCount: %d\ttotalBlockGapEventCount: %d\nmistag soft ratio: %f\toffset ratio: %f\tCW ratio: %f\tnchnl ratio: %f\tfirst3 ratio: %f\tcorrupt D1 ratio: %f\tblock-gap ratio: %f\n", totalMistaggedSoftEventCount, totalOffsetBlockEventCount, totalCWFilteredEventCount, totalNchnlFilteredEventCount, totalCorruptFirst3EventCount, totalCorruptD1EventCount, totalBlockGapEventCount, (float)totalMistaggedSoftEventCount/(float)totalRunEventCount, (float)totalOffsetBlockEventCount/(float)totalRunEventCount, (float)totalCWFilteredEventCount/(float)totalRunEventCount, (float)totalNchnlFilteredEventCount/(float)totalRunEventCount, (float)totalCorruptFirst3EventCount/(float)totalRunEventCount, (float)totalCorruptD1EventCount/(float)totalRunEventCount, (float)totalBlockGapEventCount/(float)totalRunEventCount);
+printf("totalMistaggedSoftEventCount: %d\ttotalOffsetBlockEventCount: %d\ttotalCWFilteredEventCount: %d\ttotalNchnlFilteredEventCount: %d\ttotalCorruptFirst3EventCount: %d\ttotalCorruptD1EventCount: %d\ttotalBlockGapEventCount: %d\ttotalCliffEventCount: %d\nmistag soft ratio: %f\toffset ratio: %f\tCW ratio: %f\tnchnl ratio: %f\tfirst3 ratio: %f\tcorrupt D1 ratio: %f\tblock-gap ratio: %f\tcliff ratio: %f\n", totalMistaggedSoftEventCount, totalOffsetBlockEventCount, totalCWFilteredEventCount, totalNchnlFilteredEventCount, totalCorruptFirst3EventCount, totalCorruptD1EventCount, totalBlockGapEventCount, totalCliffEventCount, (float)totalMistaggedSoftEventCount/(float)totalRunEventCount, (float)totalOffsetBlockEventCount/(float)totalRunEventCount, (float)totalCWFilteredEventCount/(float)totalRunEventCount, (float)totalNchnlFilteredEventCount/(float)totalRunEventCount, (float)totalCorruptFirst3EventCount/(float)totalRunEventCount, (float)totalCorruptD1EventCount/(float)totalRunEventCount, (float)totalBlockGapEventCount/(float)totalRunEventCount, (float)totalCliffEventCount/(float)totalRunEventCount);
 
 
 printf("totalRecoEventCount: %d\trfEventCount: %f\tcalEventCount: %f\tsoftEventCount: %f\n", totalRecoEventCount, rfEventCount, calEventCount, softEventCount);
@@ -2074,7 +2083,7 @@ printf("nPassCWCut %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nP
 printf("nPassDeepPulserCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassDeepPulserCut, (float)nPassDeepPulserCut/(float)rfEventCount, nCut2, (float)nCut2/(float)rfEventCount);
 printf("nPassSurfaceCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassSurfaceCut, (float)nPassSurfaceCut/(float)rfEventCount, nCut3, (float)nCut3/(float)rfEventCount);
 //printf("nPassThermalImpulsivityCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassThermalImpulsivityCut, (float)nPassThermalImpulsivityCut/(float)rfEventCount, nCut3p5, (float)nCut3p5/(float)rfEventCount);
-printf("nPassSurfaceCut_2: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassSurfaceCut_2, (float)nPassSurfaceCut_2/(float)rfEventCount, nCut3p5, (float)nCut3p5/(float)rfEventCount);
+//printf("nPassSurfaceCut_2: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassSurfaceCut_2, (float)nPassSurfaceCut_2/(float)rfEventCount, nCut3p5, (float)nCut3p5/(float)rfEventCount);
 printf("nPassThermalCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassThermalCut, (float)nPassThermalCut/(float)rfEventCount, nCut4, (float)nCut4/(float)rfEventCount);
 printf("nPassSNRCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassSNRCut, (float)nPassSNRCut/(float)rfEventCount, nCut4p5, (float)nCut4p5/(float)rfEventCount);
 //printf("nPassNoisyRunCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassNoisyRunCut, (float)nPassNoisyRunCut/(float)rfEventCount, nCut5, (float)nCut5/(float)rfEventCount);
@@ -2178,7 +2187,7 @@ fout.Close();
 TCanvas c4("c4","c4",800,800);
 surfaceRunHist->Draw();
 sprintf(filename,"surfaceRunHist_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_%s_type%d.C", STATION.c_str(), type);
-c4.SaveAs(filename);
+//c4.SaveAs(filename);
 
 /*
 sprintf(filename, "%s_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEventRuns.txt", STATION.c_str());
