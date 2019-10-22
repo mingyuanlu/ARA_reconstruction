@@ -1835,7 +1835,7 @@ for(int i=4; i<argc; i++){
       //cout<<"1802\n";
    }
    */
-   if(/*isCW &&*/passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut && !lowFreqDominance ){
+   if(/*isCW &&*/passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut /*&& passSurfaceCut_2 */&& passNoisyRunCut && !lowFreqDominance ){
 
 
 
@@ -1967,6 +1967,12 @@ for(int i=4; i<argc; i++){
 
    if (passThermalCut && passCWCut && passDeepPulserCut && passCalpulserTimeCut && passCalpulserCut){
       constantNZenHist->Fill(90.f-dummyData->constantNZen, dummyData->weight);
+   }
+
+   if(/*isCW &&*/passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut /*&& passSurfaceCut_2 */&& passNoisyRunCut && !lowFreqDominance && passNoisyRunCut ){
+
+      outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<","<<coherence<<","<<snr<<","<<90.f-dummyData->recoZen<<","<<dummyData->recoAzi<<","<<90.f-dummyData->constantNZen<<endl;
+
    }
 
 
