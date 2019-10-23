@@ -1690,20 +1690,20 @@ snrHist[0]->Draw();
 sprintf(filename, "%s Config %d;SNR;Signal Efficiency From Trigger", STATION.c_str(), type);
 snrHist[0]->SetTitle(filename);
 for(int i=1; i<6; i++) snrHist[i]->Draw("same");
-sprintf(filename, "%s_type%d_snrMode1_postCutTunedThermalSNRSurfaceCut_signalEffiencyVsSNR.C", STATION.c_str(), type);
-//c5.SaveAs(filename);
-/*
+sprintf(filename, "%s_type%d_snrMode1_postCutTunedThermalSNRSurfaceCut_enrichedStat_signalEffiencyVsSNR.C", STATION.c_str(), type);
+c5.SaveAs(filename);
+
 sprintf(filename, "%s_type%d_signalEffiencyVsSNR.root", STATION.c_str(), type);
 TFile ff(filename, "update");
 for(int i=0; i<6; i++) {
    //snrHist[i]->Write();
-   sprintf(filename, "hist_%d_tunedThermalSNRSurfaceCut", i);
+   sprintf(filename, "hist_%d_tunedThermalSNRSurfaceCut_enrichedStat", i);
    snrHist[i]->SetName(filename);
    snrHist[i]->Write();
 }
 //snrHist_all->Write();
 ff.Close();
-*/
+
 /*
 TCanvas c6("c6","c6",800,800);
 impulsivityHist_nMinusCW->Draw();
@@ -1842,7 +1842,7 @@ c17.cd(3);
 inRangeThetaPhiFracHist->Draw("colz");
 c17.SaveAs(filename);
 */
-
+/*
 TCanvas c18("c18","c18",1200,800);
 c18.Divide(2,1);
 c18.cd(1);
@@ -1894,7 +1894,7 @@ for(int bin=1; bin<=nbins-1; bin++){
 
 sprintf(filename,"%s_type%d_E%s_passAllCuts_sinzen.C", STATION.c_str(), type, ENERGY.c_str());
 c18.SaveAs(filename);
-
+*/
 return 0;
 }
 
