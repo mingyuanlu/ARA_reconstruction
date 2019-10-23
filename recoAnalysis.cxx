@@ -2193,7 +2193,7 @@ fout.Close();
 TCanvas c4("c4","c4",800,800);
 surfaceRunHist->Draw();
 sprintf(filename,"surfaceRunHist_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_%s_type%d.C", STATION.c_str(), type);
-//c4.SaveAs(filename);
+c4.SaveAs(filename);
 
 /*
 sprintf(filename, "%s_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEventRuns.txt", STATION.c_str());
