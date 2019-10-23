@@ -739,6 +739,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    }
 
    double average[16]={0.};
+   std::fill(&goodChan[0], &goodChan[16], 1);
 
    for(int a=0;a<16;a++)
    {//Loop the 16 channels
@@ -780,10 +781,12 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          if(stationId==3 && utime_runStart>=dropD4Time && (a%4==3)){
             gr_v[a]->SetPoint(pc, times-addDelay, 0.); //Drop 2014 ARA03 D4
             dropARA03D4 = true;
+            goodChan[a] = 0;
          }
          else if(stationId==2 && a==15){
             gr_v[a]->SetPoint(pc, times-addDelay, 0.);//Drop ARA02 D4BH
             dropARA02D4BH = true;
+            goodChan[a] = 0;
          }
          else {
             gr_v[a]->SetPoint(pc, times - addDelay, volts);
@@ -865,7 +868,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    for(int ch=0; ch<16; ch++){
 
-   goodChan[ch] = chanMask[ch];
+   goodChan[ch] = (chanMask[ch] && goodChan[ch]);
 
    if(ch<8){wInt=/*0.4*/settings->wInt_V; maxSamp=/*2048*/settings->maxPaddedSample;}
    else{wInt=/*0.625*/settings->wInt_H; maxSamp=/*2048*/settings->maxPaddedSample;}
@@ -1426,6 +1429,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    } else continue;
 
    double average[16]={0.};
+   std::fill(&goodChan[0], &goodChan[16], 1);
 
    for(int a=0;a<16;a++)
    {
@@ -1441,6 +1445,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
          for(int s=64; s<nSamp; s++){
             gr_v[AraRootChannel-1]->SetPoint(s-64, report->stations[0].strings[string_i].antennas[antenna_i].time_mimic[s], 0.);
          }
+         goodChan[AraRootChannel-1] = 0;
       }
       else if(AraSim_settings->DETECTOR_STATION==3 && AraRootChannel%4==0 && settings->dropARA03D4==1)
       {
@@ -1448,6 +1453,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
          for(int s=64; s<nSamp; s++){
             gr_v[AraRootChannel-1]->SetPoint(s-64, report->stations[0].strings[string_i].antennas[antenna_i].time_mimic[s], 0.);
          }
+         goodChan[AraRootChannel-1] = 0;
       }
       else
       {
@@ -1503,7 +1509,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    for(int ch=0; ch<16; ch++){
 
-   goodChan[ch] = chanMask[ch];
+   goodChan[ch] = (chanMask[ch] && goodChan[ch]);
 
    if(ch<8){wInt=/*0.4*/settings->wInt_V; maxSamp=/*2048*/settings->maxPaddedSample;/* maxSamp = gr_v[0]->GetN()*4;*/ }
    else{    wInt=/*0.625*/settings->wInt_H; maxSamp=/*2048*/settings->maxPaddedSample;/* maxSamp = gr_v[8]->GetN()*4;*/ }

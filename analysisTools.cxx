@@ -267,6 +267,7 @@ void ARA03_cutValues::setValue(cutParameter& param, double _val, double _plus, d
 }
 
 void ARA03_cutValues::initialize(){
+
       setValue(zenMin[0], -20.69046186485236,  0, 0); // plus: cut region is larger minus: cut regin is smaller
       setValue(zenMin[1], -21.906032056707886, 0, 0);
 
@@ -278,6 +279,32 @@ void ARA03_cutValues::initialize(){
 
       setValue(aziMax[0], 67.34121862517262, 0, 0);
       setValue(aziMax[1], 341.25032248832935, 0, 0);
+
+      setValue(coherenceCut_inBand[0], 0.11275648719329028, 0, 0);
+      setValue(coherenceCut_inBand[1], 0.110346841009487, 0, 0);
+      setValue(coherenceCut_inBand[2], 0.12952438549708992, 0, 0);
+      setValue(coherenceCut_inBand[3], 0.13509604925615804, 0, 0);
+      setValue(coherenceCut_inBand[4], 0.13808832137661245, 0, 0);
+
+
+      setValue(coherenceCut_outOfBand[0], 0.10576148784369732, 0, 0);
+      setValue(coherenceCut_outOfBand[1], 0.10543057598952935, 0, 0);
+      setValue(coherenceCut_outOfBand[2], 0.12942327085362615, 0, 0);
+      setValue(coherenceCut_outOfBand[3], 0.13405305621526215, 0, 0);
+      setValue(coherenceCut_outOfBand[4], 0.1179968361363821, 0, 0);
+
+      setValue(surfaceCut_constantN[0], 33.85936, 0, 0);
+      setValue(surfaceCut_constantN[1], 33.85936, 0, 0);
+      setValue(surfaceCut_constantN[2], 33.85936, 0, 0);
+      setValue(surfaceCut_constantN[3], 33.85936, 0, 0);
+      setValue(surfaceCut_constantN[4], 33.85936, 0, 0);
+
+      setValue(snrCut[0], 8.71564, 0, 0);
+      setValue(snrCut[1], 7.89814, 0, 0);
+      setValue(snrCut[2], 8.71564, 0, 0);
+      setValue(snrCut[3], 8.71564, 0, 0);
+      setValue(snrCut[4], 8.71564, 0, 0);
+
 }
 
 
@@ -675,7 +702,9 @@ bool isDeepPulser(string STATION, recoData *dummyData, int runNum){
       }
    }
    else if ( STATION == "ARA03" ){
-      //to be implemented
+      if (!(runNum >= 3810 && runNum <= 3811) && !(runNum >= 3820 && runNum <=3822)){
+         passDeepPulserCut = true;
+      }
    }
 
    return !passDeepPulserCut;
