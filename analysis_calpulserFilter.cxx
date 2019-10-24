@@ -1290,8 +1290,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       ARA03_cutValues *cutValues = new ARA03_cutValues();
    }
 
-   bool inCalBox = false;
-   bool inIterCalBox = false;
+   bool inBox = false;
+   bool iterInBox = false;
    int type;
 
 
@@ -1317,12 +1317,12 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    else if(stationId==3){
       for(int box=0; box<cutValues->nBoxes; box++){
 
-         if( calTheta > cutValues->zenMin[box].val && calTheta < cutValues->zenMax[box].val && calPhi > cutValues->aziMin[box].val && calPhi < cutValues->aziMax[box].val ) { inCalBox = true; inIterCalBox = true;}
+         if( calTheta > cutValues->zenMin[box].val && calTheta < cutValues->zenMax[box].val && calPhi > cutValues->aziMin[box].val && calPhi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
 
       }
    }
 
-   if (inCalBox || inIterCalBox){
+   if (inBox || iterInBox){
       calpulserFilteredEventCount+=1;
       unpaddedEvent.clear();
       cleanEvent.clear();
