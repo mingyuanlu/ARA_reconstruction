@@ -1310,7 +1310,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          } else {
 
             if( type == 5 ){
-               if( theta > cutValues->zenMin[box].val && theta < cutValues->zenMax[box].val && phi > cutValues->aziMin[box].val && phi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
+               if( calTheta > cutValues->zenMin[box].val && calTheta < cutValues->zenMax[box].val && CalPhi > cutValues->aziMin[box].val && calPhi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
             }
          }
       }
