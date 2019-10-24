@@ -1270,7 +1270,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          //fitsFileStr = fitsFile_tmp /*+ ".ev" + evStr*/ + ".40m.fits";
          //sprintf(fitsFile, fitsFileStr.c_str());
          float coherence_temp = 0.f;
-         calpulserMaxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_calpulserFilter(settings, cleanEvent, &clEnv, calpulserDelays, calpulserDelays_V, calpulserDelays_H, goodChan, summary, &coherence_temp/*, fitsFile*////*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/
+         calpulserMaxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_calpulserFilter(settings, cleanEvent, &clEnv, calpulserDelays, calpulserDelays_V, calpulserDelays_H, goodChan, summary, coherence_temp/*, fitsFile*////*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/
          );
 
          if( calpulserMaxPixIdx < 0){ cerr<<"Error reconstructing - calpulser\n"; return -1; }
@@ -1310,7 +1310,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          } else {
 
             if( type == 5 ){
-               if( calTheta > cutValues->zenMin[box].val && calTheta < cutValues->zenMax[box].val && CalPhi > cutValues->aziMin[box].val && calPhi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
+               if( calTheta > cutValues->zenMin[box].val && calTheta < cutValues->zenMax[box].val && calPhi > cutValues->aziMin[box].val && calPhi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
             }
          }
       }
