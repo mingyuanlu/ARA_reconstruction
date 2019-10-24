@@ -11446,9 +11446,9 @@ cout<<"Memories deallocated\n";
 return maxPixIdx;
 }
 
-int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_calpulserNFilter(recoSettings *settings, vector<TGraph *>& cleanEvent,
+int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_calpulserFilter(recoSettings *settings, vector<TGraph *>& cleanEvent,
                                                                   recoEnvData *clEnv, float *recoDelays, float *recoDelays_V,
-                                                                  float *recoDelays_H, const int *chanMask, recoData *summary/*, char *filename*//*, float *mapData*/)
+                                                                  float *recoDelays_H, const int *chanMask, recoData *summary, float& coherence_temp/*, char *filename*//*, float *mapData*/)
 {
 
 cout<<"Entered reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_calpulserFilter method\n";
@@ -12137,6 +12137,7 @@ for(int idx=0; idx<nDir; idx++){
 */
 maxPixIdx = rank[0];
 cout<<"max: "<<M[rank[0]]<<endl;
+coherence_temp = M[rank[0]];
 //summary->setConstantNMaxPixInfo(rank[0], M[rank[0]]);
 
 /*

@@ -635,6 +635,7 @@ else                                maxPix = (int*)calloc(12*pow(2,settings->nSi
 int maxPixIdx = 0;
 int maxPixIdx2 = 0;
 int constantNMaxPixIdx = 0;
+int calpulserMaxPixIdx = 0;
 float *mapData = (float*)calloc(nDir*nLayer, sizeof(float));
 char histName[200];
 TH1F **mapDataHist = (TH1F**)malloc(nDir*nLayer*sizeof(TH1F*));
@@ -1263,16 +1264,17 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    if(settings->calpulserFilter > 0){
       while( !recoSuccess ){
 
-         stringstream ss;
-         ss << /*ev*/rawAtriEvPtr->eventNumber;
-         evStr = ss.str();
-         fitsFileStr = fitsFile_tmp /*+ ".ev" + evStr*/ + ".40m.fits";
-         sprintf(fitsFile, fitsFileStr.c_str());
-         calpulserMaxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_calpulserFilter(settings, cleanEvent, &clEnv, calpulserDelays, calpulserDelays_V, calpulserDelays_H, goodChan, summary/*, fitsFile*////*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/
+         //stringstream ss;
+         //ss << /*ev*/rawAtriEvPtr->eventNumber;
+         //evStr = ss.str();
+         //fitsFileStr = fitsFile_tmp /*+ ".ev" + evStr*/ + ".40m.fits";
+         //sprintf(fitsFile, fitsFileStr.c_str());
+         float coherence_temp = 0.f;
+         calpulserMaxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_calpulserFilter(settings, cleanEvent, &clEnv, calpulserDelays, calpulserDelays_V, calpulserDelays_H, goodChan, summary, &coherence_temp/*, fitsFile*////*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/
          );
 
          if( calpulserMaxPixIdx < 0){ cerr<<"Error reconstructing - calpulser\n"; return -1; }
-         if(summary->calpulserMaxPixCoherence != 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
+         if(coherence_temp/*summary->calpulserMaxPixCoherence*/ > 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
          else { cout<<"calMaxPixCoherence returns 0!! Re-running reco...\n"; }
 
       }
@@ -1281,8 +1283,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    }
 
-   float calTheta = 90.f-TMath::RadToDeg()*onion_temp_2.getPointing(calpulserMaxPixIdx).theta;
-   float calPhi   = TMath::RadToDeg()*onion_temp_2.getPointing(calpulserMaxPixIdx).phi;
+   float calTheta = 90.f-TMath::RadToDeg()*onion_temp_2->getPointing(calpulserMaxPixIdx).theta;
+   float calPhi   = TMath::RadToDeg()*onion_temp_2->getPointing(calpulserMaxPixIdx).phi;
 
    ARA02_cutValues *cutValues = new ARA02_cutValues();
    if (stationId==3){
