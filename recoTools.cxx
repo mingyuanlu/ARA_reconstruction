@@ -14469,7 +14469,7 @@ double coordSrc[3], coordTrg[3];
       cout<<"coordTrg: "<<coordTrg[0]<<"\t"<<coordTrg[1]<<"\t"<<coordTrg[2]<<endl;
       if (Detector2Cylinder(coordSrc, coordTrg, zCenter, &r, &zRec, &zSrc) != 0)
       std::cout << "ERROR: couldn't convert to cylindrical coordinates." << std::endl;
-
+      cout<<"r: "<<r<<" zRec: "<<zRec<<" zSrc: "<<zSrc<<endl;
       tempDelay = static_cast<float>(ray.GetPropagationTime(r, zRec, zSrc));
       cout<<"tempDelay: "<<tempDelay<<" ";
       if( tempDelay > 1.f )
