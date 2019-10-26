@@ -374,6 +374,12 @@ int computeRecoDelaysWithNoBoundConstantNForSinglePixel(
                                      Healpix_Onion *onion,
                                      float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                                      const int pix);
+int computeRecoDelaysWithNoBoundConstantNForSinglePoint_cartesianCoord(
+                                    const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
+                                     //const float radius, const int nSideExp,
+                                     //Healpix_Onion *onion,
+                                     float *recoDelays, float *recoDelays_V, float *recoDelays_H,
+                                     const double *srcLoc);
 int computeZoomedRecoDelaysWithConstantN(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
                                      //const float radius, const int nSideExp,
                                      Healpix_Onion *onion,
