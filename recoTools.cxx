@@ -14451,8 +14451,8 @@ double coordSrc[3], coordTrg[3];
       coordSrc[1] = srcLoc[1];
       coordSrc[2] = srcLoc[2];
 
-      //cout<<"coordSrc: "<<coordSrc[0]<<"\t"<<coordSrc[1]<<"\t"<<coordSrc[2]<<endl;
-      //cout<<"nAnt: "<<nAnt<<endl;
+      cout<<"coordSrc: "<<coordSrc[0]<<"\t"<<coordSrc[1]<<"\t"<<coordSrc[2]<<endl;
+      cout<<"nAnt: "<<nAnt<<endl;
       //cout<<"tempDelay:\n";
       double stationMeanX, stationMeanY, stationMeanZ;
       stationMeanX = stationMeanY = stationMeanZ = 0.;
@@ -14503,8 +14503,8 @@ double coordSrc[3], coordTrg[3];
 
       for(int k=0; k<nAnt; k++){
 
-      if(recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k] > 1.f ){
-         recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k] -= meanDelay;
+      if(recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k] > -1.f ){
+         //recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k] -= meanDelay;
          //cout<<recoDelays[layer*nDir*nAnt + pix*nAnt + k]<<" ";
          if(k<8) recoDelays_V[/*layer*nDir*nAnt/2 + pix*nAnt/2 + */k]   = recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k];
          else    recoDelays_H[/*layer*nDir*nAnt/2 + pix*nAnt/2 + */k-8] = recoDelays[/*layer*nDir*nAnt + pix*nAnt + */k];
