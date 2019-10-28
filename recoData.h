@@ -215,7 +215,11 @@ public:
    int cwIterCount;
    void setCWIterCount(int _cwIterCount);
 
-   ClassDef(recoData, 20);
+//ClassDef 21
+   double spikeyRatio;
+   void setSpikeyRatio(double _spikeyRatio);
+
+   ClassDef(recoData, 21);
 
 };
 

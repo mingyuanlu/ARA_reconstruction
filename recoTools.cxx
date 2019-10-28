@@ -18062,3 +18062,55 @@ TGraph *subtractDBGraphs(TGraph *gr1, TGraph *gr2){
 
    return gr3;
 }
+
+bool isSpikeyStringEvent(int statioId, bool dropARA03D4, float *snr, const TGraph *fft, double &spikeyRatio){
+
+   if (statioId != 3){ //Only A3 has such problem
+      spikeyRatio = 0.;
+       return false;
+    }
+
+   double ch0DbThreshold = 55;
+   double ch0FreqLow = 191; //MHz
+   double ch0FreqHigh=201; //MHz
+
+   double peakPower = 0.;
+   double peakFreq  = 0.;
+   double f, p;
+
+   //double maxV[16];
+   //std::fill(0., &maxV[0], &maxV[16]);
+   double avgSNR[4];
+
+   for (int b=0; b<fft[0]->GetN(); b++){
+
+      fft[0]->GetPoint(b, f, p);
+      if (f>ch0FreqLow){
+         if (p>peakPower){
+            peakPower = p;
+            peakFreq  = f;
+         }
+      }
+      if (f>ch0FreqHigh) break;
+
+   }//end of b
+
+   if (peakPower > ch0DbThreshold){ //chan 0 peak power in range (191, 201)MHz is above 55 DB, qualifies to check for spikey amplitudes
+
+      for (int string=0; string<4; string++){
+         avgSNR[string] = (snr[string] + snr[string+4] + snr[string+12])/3.; //TH don't seem to see the spike, so exclude
+      }
+
+      if(dropARA03D4) spikeyRatio = 2. * avgSNR[0] / (avgSNR[1] + avgSNR[2]);
+      else            spikeyRatio = 3. * avgSNR[0] / (avgSNR[1] + avgSNR[2] + avgSNR[4]);
+
+      /*
+      if (spikeyRatio > spikeyRatioThreshold){
+         return true;
+      }
+      */
+
+   }
+
+   return false;
+}
