@@ -1270,7 +1270,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    }
 
    /* A3 spikey D1 filter */
-   if (isSpikeyStringEvent(stationId, dropARA03D4, snrArray, grFFT, spikeyRatio)){
+   if (isSpikeyStringEvent(stationId, dropARA03D4, /*snrArray,*/grInt, grFFT, spikeyRatio)){
 
       corruptD1EventCount+=1;
       unpaddedEvent.clear();
@@ -1924,7 +1924,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    }
 
    /* A3 spikey D1 filter */
-   if (isSpikeyStringEvent(AraSim_settings->DETECTOR_STATION, dropARA03D4, snrArray, grFFT, spikeyRatio)){
+   if (isSpikeyStringEvent(AraSim_settings->DETECTOR_STATION, dropARA03D4, /*snrArray,*/ grInt, grFFT, spikeyRatio)){
 
       corruptD1EventCount+=1;
       weightedCorruptD1EventCount += weight;

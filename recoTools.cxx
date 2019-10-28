@@ -18063,7 +18063,7 @@ TGraph *subtractDBGraphs(TGraph *gr1, TGraph *gr2){
    return gr3;
 }
 
-bool isSpikeyStringEvent(int stationId, bool dropARA03D4, float *snr, TGraph** fft, double &spikeyRatio){
+bool isSpikeyStringEvent(int stationId, bool dropARA03D4, /*float *snr, */TGraph** wf, TGraph** fft, double &spikeyRatio){
 
    spikeyRatio = 0.;
 
@@ -18079,8 +18079,9 @@ bool isSpikeyStringEvent(int stationId, bool dropARA03D4, float *snr, TGraph** f
    double peakFreq  = 0.;
    double f, p;
 
-   //double maxV[16];
-   //std::fill(0., &maxV[0], &maxV[16]);
+   double maxV[16];
+   int maxVIdx;
+   std::fill(0., &maxV[0], &maxV[16]);
    double avgSNR[4];
 
    for (int b=0; b<fft[0]->GetN(); b++){
@@ -18098,9 +18099,15 @@ bool isSpikeyStringEvent(int stationId, bool dropARA03D4, float *snr, TGraph** f
 
    if (peakPower > ch0DbThreshold){ //chan 0 peak power in range (191, 201)MHz is above 55 DB, qualifies to check for spikey amplitudes
 
+      for(int ch=0; ch<16; ch++){
+         maxV[ch] = sqrt(FFTtools::getPeakSqVal(wf[ch], &maxVIdx))
+      }
+
       for (int string=0; string<4; string++){
-         avgSNR[string] = (snr[string] + snr[string+4] + snr[string+12])/3.; //TH don't seem to see the spike, so exclude
-         cout<<"strings: "<<string<<" snr: "<<snr[string]<<" "<<snr[string+4]<<" "<<snr[string+12]<<" avgSNR: "<<avgSNR[string]<<endl;
+         //avgSNR[string] = (snr[string] + snr[string+4] + snr[string+12])/3.; //TH don't seem to see the spike, so exclude
+         //cout<<"strings: "<<string<<" snr: "<<snr[string]<<" "<<snr[string+4]<<" "<<snr[string+12]<<" avgSNR: "<<avgSNR[string]<<endl;
+         avgSNR[string] = (maxV[string] + maxV[string+4] + maxV[string+12])/3.; //TH don't seem to see the spike, so exclude
+         cout<<"strings: "<<string<<" maxV: "<<maxV[string]<<" "<<maxV[string+4]<<" "<<maxV[string+12]<<" avgMaxV: "<<avgSNR[string]<<endl;
       }
 
       if(dropARA03D4) spikeyRatio = 2. * avgSNR[0] / (avgSNR[1] + avgSNR[2]);
