@@ -673,6 +673,8 @@ TH1F *bvEventTime = new TH1F("bvEventTime","bvEventTime", endTimeMax-startTimeMi
 TH2F *azi_bvEventTime = new TH2F("azi_bvEventTime","azi_bvEventTime", endTimeMax-startTimeMin+1, startTimeMin, endTimeMax, 360/0.4, 1, 360);
 TH2F *zen_bvEventTime = new TH2F("zen_bvEventTime","zen_bvEventTime", endTimeMax-startTimeMin+1, startTimeMin, endTimeMax, 180/0.4, -90, 90);
 
+TH1F *spikeyRatioHist = new TH1F("spikeyRatioHist". "spikeyRatioHist", 100, 0,10);
+
 
 //for(int entry=0; entry<Nentries; entry++){
 for(int i=4; i<argc; i++){
@@ -805,6 +807,8 @@ for(int i=4; i<argc; i++){
    //   if(dummyData->slidingV2SNR[ch]<7) passBVSNRCut = false;
    //}
 
+
+   spikeyRatioHist->Fill(dummyData->spikeyRatio);
 
 
    //isCW = isCW_coincidence(isVpolCW, isHpolCW, maxCountFreqBin_V, maxCountFreqBin_H, dummyData, cwBinThres);
@@ -1971,7 +1975,7 @@ for(int i=4; i<argc; i++){
 
    if(/*isCW &&*/passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut /*&& passSurfaceCut_2 */&& passNoisyRunCut && !lowFreqDominance && passNoisyRunCut ){
 
-      outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<","<<coherence<<","<<snr<<","<<90.f-dummyData->recoZen<<","<<dummyData->recoAzi<<","<<90.f-dummyData->constantNZen<<endl;
+      //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<","<<coherence<<","<<snr<<","<<90.f-dummyData->recoZen<<","<<dummyData->recoAzi<<","<<90.f-dummyData->constantNZen<<endl;
 
    }
 
@@ -2193,7 +2197,7 @@ fout.Close();
 TCanvas c4("c4","c4",800,800);
 surfaceRunHist->Draw();
 sprintf(filename,"surfaceRunHist_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_%s_type%d.C", STATION.c_str(), type);
-c4.SaveAs(filename);
+//c4.SaveAs(filename);
 
 /*
 sprintf(filename, "%s_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEventRuns.txt", STATION.c_str());
@@ -2537,6 +2541,11 @@ constantNZenHist->Draw("colz");
 constantNZenHist->SetTitle("Quasi-planewave Reco;Reco Zenith [#circ];Entry");
 //c35.SaveAs("recoAnalysis_35.C");
 
+
+TCanvas c36("c36","c36", 800, 800);
+spikeyRatioHist->Draw();
+spikeyRatioHist->SetTitle("A3 Config 2 Burnsample RF;Spikey Ratio [unitless];Entry");
+c36.SaveAs("recoAnalysis_36.C");
 
 return 0;
 }
