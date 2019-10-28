@@ -18081,7 +18081,7 @@ bool isSpikeyStringEvent(int stationId, bool dropARA03D4, /*float *snr, */TGraph
 
    double maxV[16];
    int maxVIdx;
-   std::fill(0., &maxV[0], &maxV[16]);
+   std::fill(&maxV[0], &maxV[16], 0.);
    double avgSNR[4];
 
    for (int b=0; b<fft[0]->GetN(); b++){
@@ -18100,7 +18100,7 @@ bool isSpikeyStringEvent(int stationId, bool dropARA03D4, /*float *snr, */TGraph
    if (peakPower > ch0DbThreshold){ //chan 0 peak power in range (191, 201)MHz is above 55 DB, qualifies to check for spikey amplitudes
 
       for(int ch=0; ch<16; ch++){
-         maxV[ch] = sqrt(FFTtools::getPeakSqVal(wf[ch], &maxVIdx))
+         maxV[ch] = sqrt(FFTtools::getPeakSqVal(wf[ch], &maxVIdx));
       }
 
       for (int string=0; string<4; string++){
