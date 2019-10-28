@@ -18065,9 +18065,10 @@ TGraph *subtractDBGraphs(TGraph *gr1, TGraph *gr2){
 
 bool isSpikeyStringEvent(int stationId, bool dropARA03D4, float *snr, TGraph** fft, double &spikeyRatio){
 
+   spikeyRatio = 0.;
+
    if (stationId != 3){ //Only A3 has such problem
-      spikeyRatio = 0.;
-       return false;
+      return false;
     }
 
    double ch0DbThreshold = 55;
@@ -18099,10 +18100,13 @@ bool isSpikeyStringEvent(int stationId, bool dropARA03D4, float *snr, TGraph** f
 
       for (int string=0; string<4; string++){
          avgSNR[string] = (snr[string] + snr[string+4] + snr[string+12])/3.; //TH don't seem to see the spike, so exclude
+         cout<<"strings: "<<string<<" snr: "<<snr[string]<<" "<<snr[string+4]<<" "<<snr[string+12]<<" avgSNR: "<<avgSNR[string]<<endl;
       }
 
       if(dropARA03D4) spikeyRatio = 2. * avgSNR[0] / (avgSNR[1] + avgSNR[2]);
       else            spikeyRatio = 3. * avgSNR[0] / (avgSNR[1] + avgSNR[2] + avgSNR[4]);
+
+      cout<<"spikeyRatio: "<<spikeyRatio<<endl;
 
       /*
       if (spikeyRatio > spikeyRatioThreshold){
