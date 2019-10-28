@@ -18111,7 +18111,7 @@ bool isSpikeyStringEvent(int stationId, bool dropARA03D4, /*float *snr, */TGraph
       }
 
       if(dropARA03D4) spikeyRatio = 2. * avgSNR[0] / (avgSNR[1] + avgSNR[2]);
-      else            spikeyRatio = 3. * avgSNR[0] / (avgSNR[1] + avgSNR[2] + avgSNR[4]);
+      else            spikeyRatio = 3. * avgSNR[0] / (avgSNR[1] + avgSNR[2] + avgSNR[3]);
 
       cout<<"spikeyRatio: "<<spikeyRatio<<endl;
 
