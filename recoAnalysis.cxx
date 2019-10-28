@@ -673,7 +673,7 @@ TH1F *bvEventTime = new TH1F("bvEventTime","bvEventTime", endTimeMax-startTimeMi
 TH2F *azi_bvEventTime = new TH2F("azi_bvEventTime","azi_bvEventTime", endTimeMax-startTimeMin+1, startTimeMin, endTimeMax, 360/0.4, 1, 360);
 TH2F *zen_bvEventTime = new TH2F("zen_bvEventTime","zen_bvEventTime", endTimeMax-startTimeMin+1, startTimeMin, endTimeMax, 180/0.4, -90, 90);
 
-TH1F *spikeyRatioHist = new TH1F("spikeyRatioHist". "spikeyRatioHist", 100, 0,10);
+TH1F *spikeyRatioHist = new TH1F("spikeyRatioHist", "spikeyRatioHist", 100, 0,10);
 
 
 //for(int entry=0; entry<Nentries; entry++){
