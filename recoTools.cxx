@@ -18097,7 +18097,7 @@ bool isSpikeyStringEvent(int stationId, bool dropARA03D4, /*float *snr, */TGraph
 
    }//end of b
 
-   if (peakPower > ch0DbThreshold){ //chan 0 peak power in range (191, 201)MHz is above 55 DB, qualifies to check for spikey amplitudes
+   //if (peakPower > ch0DbThreshold){ //chan 0 peak power in range (191, 201)MHz is above 55 DB, qualifies to check for spikey amplitudes
 
       for(int ch=0; ch<16; ch++){
          maxV[ch] = sqrt(FFTtools::getPeakSqVal(wf[ch], &maxVIdx));
@@ -18121,7 +18121,7 @@ bool isSpikeyStringEvent(int stationId, bool dropARA03D4, /*float *snr, */TGraph
       }
       */
 
-   }
+   //}
 
    return false;
 }
