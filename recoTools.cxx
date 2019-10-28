@@ -18063,7 +18063,7 @@ TGraph *subtractDBGraphs(TGraph *gr1, TGraph *gr2){
    return gr3;
 }
 
-bool isSpikeyStringEvent(int statioId, bool dropARA03D4, float *snr, TGraph* fft, double &spikeyRatio){
+bool isSpikeyStringEvent(int statioId, bool dropARA03D4, float *snr, TGraph** fft, double &spikeyRatio){
 
    if (statioId != 3){ //Only A3 has such problem
       spikeyRatio = 0.;
