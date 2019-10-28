@@ -1270,7 +1270,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    }
 
    /* A3 spikey D1 filter */
-   if (isSpikeyStringEvent(stationdId, dropARA03D4, snrArray, grFFT, spikeyRatio)){
+   if (isSpikeyStringEvent(stationId, dropARA03D4, snrArray, grFFT, spikeyRatio)){
 
       corruptD1EventCount+=1;
       unpaddedEvent.clear();
