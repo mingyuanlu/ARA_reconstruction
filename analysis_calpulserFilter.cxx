@@ -1321,6 +1321,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       cout<<"calTheta: "<<calTheta<<" calPhi: "<<calPhi<<endl;
       for(int box=0; box<cutValues->nBoxes; box++){
 
+         cout<<"box: "<<box<<" zenMin: "<<cutValues->zenMin[box].val<<" zenMax: "<<cutValues->zenMax[box].val<<" aziMin: "<<cutValues->aziMin[box].val<<" aziMax: "<<cutValues->aziMax[box].val <<endl;
+
          if( calTheta > cutValues->zenMin[box].val && calTheta < cutValues->zenMax[box].val && calPhi > cutValues->aziMin[box].val && calPhi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
 
       }
