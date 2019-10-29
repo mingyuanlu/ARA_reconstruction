@@ -1180,6 +1180,21 @@ for(int i=4; i<argc; i++){
    inBoxTheta = inBoxPhi = 0.f;
    passCalpulserCut = !isCalpulser(inBoxTheta, inBoxPhi, STATION, dummyData, onion, settings, type);
 
+      bool inBox = false;
+      bool iterInBox  = false;
+      ARA03_cutValues *A3_cutValues = new ARA03_cutValues();
+      //cout<<"791\n";
+      float theta = 90.f-TMath::RadToDeg()*onion.getPointing(dummyData->maxPixIdxEachLayer.at(0)).theta;
+      float phi   = TMath::RadToDeg()*onion.getPointing(dummyData->maxPixIdxEachLayer.at(0)).phi;
+
+      //cout<<"nBoxes: "<<A3_cutValues->nBoxes<<endl;
+      for(int box=0; box<A3_cutValues->nBoxes; box++){
+
+         if( theta > A3_cutValues->zenMin[box].val && theta < A3_cutValues->zenMax[box].val && phi > A3_cutValues->aziMin[box].val && phi < A3_cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
+
+      }
+      outputFile<<"run: "<<runNum<<" eventNumber: "<<dummyData->eventNumber<<" theta: "<<theta<<" phi: "<<phi<<" inBox: "<<inBox<<endl;
+
 //   bool inBox = false;
 //
 //   bool iterInBox = false;
@@ -1193,6 +1208,7 @@ for(int i=4; i<argc; i++){
 //      int maxPixIdx = dummyData->iterMaxPixIdxEachLayer.at(iter*nLayer+0);
 //      float maxPixCoherence = dummyData->iterMaxPixCoherenceEachLayer.at(iter*nLayer+0);
 //      //cout<<"maxPixIdx: "<<maxPixIdx<<" layer: "<<maxPixIdx/nDir<<" maxPixCoherence: "<<maxPixCoherence<<endl;
+//      int maxPixIdx = dummyData->maxPixIdxEachLayer.at(0);
 //      float theta = 90.f-TMath::RadToDeg()*onion.getPointing(maxPixIdx).theta;
 //      float phi   = TMath::RadToDeg()*onion.getPointing(maxPixIdx).phi;
 //
@@ -1971,7 +1987,7 @@ for(int i=4; i<argc; i++){
 
    if(/*isCW &&*/passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut /*&& passSurfaceCut_2 */&& passNoisyRunCut && !lowFreqDominance && passNoisyRunCut ){
 
-      outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<","<<coherence<<","<<snr<<","<<90.f-dummyData->recoZen<<","<<dummyData->recoAzi<<","<<90.f-dummyData->constantNZen<<endl;
+      //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<","<<coherence<<","<<snr<<","<<90.f-dummyData->recoZen<<","<<dummyData->recoAzi<<","<<90.f-dummyData->constantNZen<<endl;
 
    }
 
