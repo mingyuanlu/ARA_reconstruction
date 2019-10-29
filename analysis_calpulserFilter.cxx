@@ -1317,11 +1317,14 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    }
    else if(stationId==3){
+
+      cout<<"calTheta: "<<calTheta<<" calPhi: "<<calPhi<<endl;
       for(int box=0; box<cutValues->nBoxes; box++){
 
          if( calTheta > cutValues->zenMin[box].val && calTheta < cutValues->zenMax[box].val && calPhi > cutValues->aziMin[box].val && calPhi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
 
       }
+      cout<<"inBox: "<<inBox<<endl;
    }
 
    if (inBox || iterInBox){
