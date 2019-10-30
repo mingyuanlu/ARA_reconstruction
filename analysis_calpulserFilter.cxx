@@ -544,6 +544,12 @@ if( settings->constantNFilter > 0){
 float *calpulserDelays, *calpulserDelays_V, *calpulserDelays_H;
 Healpix_Onion *onion_temp_2;
 
+ARA02_cutValues *cutValues = new ARA02_cutValues();
+if (rawEvPtr->stationId==3){
+   delete cutValues;
+   ARA03_cutValues *cutValues = new ARA03_cutValues();
+}
+
 if( settings->calpulserFilter > 0){
 
    calpulserDelays   = (float*)malloc(1*nDir*nAnt*sizeof(float));
@@ -1286,11 +1292,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    float calTheta = 90.f-TMath::RadToDeg()*onion_temp_2->getPointing(calpulserMaxPixIdx).theta;
    float calPhi   = TMath::RadToDeg()*onion_temp_2->getPointing(calpulserMaxPixIdx).phi;
 
-   ARA02_cutValues *cutValues = new ARA02_cutValues();
-   if (stationId==3){
-      delete cutValues;
-      ARA03_cutValues *cutValues = new ARA03_cutValues();
-   }
+
 
    bool inBox = false;
    bool iterInBox = false;
