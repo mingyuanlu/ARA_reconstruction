@@ -545,9 +545,13 @@ float *calpulserDelays, *calpulserDelays_V, *calpulserDelays_H;
 Healpix_Onion *onion_temp_2;
 
 //ARA02_cutValues *cutValues = new ARA02_cutValues();
+if(rawEvPtr->stationId==2 && settings->calpulserFilter==1){
+   cerr<<"Calpulser filter is not inplemented for station 2! Aborting....\n";
+   return -1;
+}
 //if (rawEvPtr->stationId==3){
 //   delete cutValues;
-   ARA03_cutValues *cutValues = new ARA03_cutValues();
+ARA03_cutValues *cutValues = new ARA03_cutValues();
 //}
 
 if( settings->calpulserFilter > 0){
