@@ -2544,8 +2544,10 @@ constantNZenHist->SetTitle("Quasi-planewave Reco;Reco Zenith [#circ];Entry");
 
 TCanvas c36("c36","c36", 800, 800);
 spikeyRatioHist->Draw();
-spikeyRatioHist->SetTitle("A3 Config 2 Burnsample RF;Spikey Ratio [unitless];Entry");
-c36.SaveAs("recoAnalysis_36.C");
+snprintf(filename,"A3 Config %d Burnsample RF;Spikey Ratio [unitless];Entry", type);
+spikeyRatioHist->SetTitle(filename);
+snprintf(filename, "%s_type%d_spikeyRatio_noCut.C", STATION.c_str(), type)
+c36.SaveAs(filename);
 
 return 0;
 }
