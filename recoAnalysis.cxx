@@ -734,7 +734,8 @@ for(int i=4; i<argc; i++){
    double orderedArray[16];
    int orderedArrayPolType[16];
 
-   int listOfEventsToCheck[26] = {3121, 10691, 24903, 36564, 36587, 36683, 41472, 46650, 62391, 75243, 87416, 87756, 87921, 90634, 97693, 97749, 98420, 107651, 112232, 114149, 116883, 127987, 135379, 136746, 138013};
+   //int listOfEventsToCheck[26] = {3121, 10691, 24903, 36564, 36587, 36683, 41472, 46650, 62391, 75243, 87416, 87756, 87921, 90634, 97693, 97749, 98420, 107651, 112232, 114149, 116883, 127987, 135379, 136746, 138013};
+   int listOfEventsToCheck[2] = {52, 5388};
 
    for(int entry=0; entry<Nentries; entry++){
    //if(Nentries > 100) {  if(  entry % (Nentries/100) == 0  ){ cout<<"Progess: "<<entry / (Nentries/100) <<"%\n"; } }
@@ -752,7 +753,7 @@ for(int i=4; i<argc; i++){
    if(runNum==4429 && dummyData->eventNumber==34200) { totalBlockGapEventCount++; continue; }
    */
    bool toCheck = false;
-   for (int e=0; e<26; e++){
+   for (int e=0; e<2; e++){
       if (dummyData->eventNumber == listOfEventsToCheck[e]){
          toCheck = true;
          break;
