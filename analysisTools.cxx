@@ -36,7 +36,7 @@ int getRunType(string STATION, int runNum){
          type = 3;
       } else if ( runNum >= 6005 && runNum <= 7653 ){
          type = 4;
-      }giu else if (runNum >= 1902 && runNum <=3103 ){
+      } else if (runNum >= 1902 && runNum <=3103 ){
          type = 5;
       } else {
          type = 0;
