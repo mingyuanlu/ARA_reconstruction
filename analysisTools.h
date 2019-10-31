@@ -148,6 +148,8 @@ public:
    cutParameter surfaceCut_constantN[5];
    cutParameter surfaceCut_iterReco;
 
+   cutParameter spikeyRatioCut[5];
+
    void initialize();
    void setValue(cutParameter& param, double _val, double _plus, double _minus);
 
