@@ -265,6 +265,12 @@ int *freqCount_V, *freqCount_H;
 double freqBinWidth_V, freqBinWidth_H;
 
 /*
+ * Variables used in A3 spikey event detection
+ */
+
+double spikeyRatio;
+
+/*
  * Constants used
 
 /* End of conditional variables pre-declaration */
@@ -290,6 +296,7 @@ double weightedNchnlFilteredEventCount = 0.;
 double weightedCWFilteredEventCount = 0.;
 double weightedImpulsivityFilteredEventCount = 0.;
 double weightedCliffEventCount = 0.;
+double weightedCorruptD1EventCount = 0.;
 runInfoTree->Branch("runEventCount",  &runEventCount);
 runInfoTree->Branch("runRFEventCount", &runRFEventCount);
 runInfoTree->Branch("runCalEventCount", &runCalEventCount);
@@ -317,6 +324,7 @@ runInfoTree->Branch("weightedCWFilteredEventCount", &weightedCWFilteredEventCoun
 runInfoTree->Branch("weightedImpulsivityFilteredEventCount", &weightedImpulsivityFilteredEventCount);
 runInfoTree->Branch("blockGapEventCount", &blockGapEventCount);
 runInfoTree->Branch("weightedCliffEventCount", &weightedCliffEventCount);
+runInfoTree->Branch("weightedCorruptD1EventCount", &weightedCorruptD1EventCount);
 
 if(settings->dataType == 1)//real events
 {
@@ -1044,7 +1052,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       delete grCDF[ch];
       delete grCumuSum[ch];
       //delete grCumuSumCDF[ch];
-      delete grFFT[ch];
+      //delete grFFT[ch];
 
    }
 
@@ -1098,7 +1106,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          unpaddedEvent.clear();
          cleanEvent.clear();
          delete realAtriEvPtr;
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/}
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ delete grFFT[ch];}
          continue;
       }
 
@@ -1121,7 +1129,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          unpaddedEvent.clear();
          cleanEvent.clear();
          delete realAtriEvPtr;
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/}
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ delete grFFT[ch];}
          continue;
       }
       else {
@@ -1230,7 +1238,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          unpaddedEvent.clear();
          cleanEvent.clear();
          delete realAtriEvPtr;
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ /*delete grCDF[ch];*/ }
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ /*delete grCDF[ch];*/ delete grFFT[ch]; }
          continue;
 
       }
@@ -1260,6 +1268,20 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       if(recordConstantNDir(settings, summary) < 0){ cerr<<"Error recording constant N dir\n"; return -1;}
 
    }
+
+   /* A3 spikey D1 filter */
+   if (isSpikeyStringEvent(stationId, dropARA03D4, /*snrArray,*/grInt, grFFT, spikeyRatio)){
+
+      corruptD1EventCount+=1;
+      unpaddedEvent.clear();
+      cleanEvent.clear();
+      delete realAtriEvPtr;
+      for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ /*delete grCDF[ch];*/ delete grFFT[ch];}
+      continue;
+
+   }
+
+   summary->setSpikeyRatio(spikeyRatio);
 
    /* Track engine object to compute all tracks */
    treg->computeAllTracks(unpaddedEvent);
@@ -1373,7 +1395,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    treg->clearForNextEvent();
 
-   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ /*if(settings->cwFilter>0)*/ /*delete grFFT[ch];*/ }
+   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ /*if(settings->cwFilter>0)*/ delete grFFT[ch]; }
 
    }//end of ev loop
 
@@ -1677,7 +1699,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       delete grCDF[ch];
       delete grCumuSum[ch];
       //delete grCumuSumCDF[ch];
-      delete grFFT[ch];
+      //delete grFFT[ch];
 
    }
 
@@ -1736,7 +1758,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
          weightedImpulsivityFilteredEventCount += weight;
          unpaddedEvent.clear();
          cleanEvent.clear();
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/}
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/delete grFFT[ch];}
          continue;
       }
 
@@ -1760,7 +1782,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
          //cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl;
          unpaddedEvent.clear();
          cleanEvent.clear();
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/}
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ delete grFFT[ch];}
          continue;
       }
       else {
@@ -1870,7 +1892,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
          weightedCWFilteredEventCount += weight;
          unpaddedEvent.clear();
          cleanEvent.clear();
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ /*delete grCDF[ch]; */}
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grFFT[ch]; /*delete grCDF[ch]; */}
          continue;
 
       }
@@ -1898,6 +1920,18 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       }
 
       if(recordConstantNDir(settings, summary) < 0){ cerr<<"Error recording constant N dir\n"; return -1;}
+
+   }
+
+   /* A3 spikey D1 filter */
+   if (isSpikeyStringEvent(AraSim_settings->DETECTOR_STATION, dropARA03D4, /*snrArray,*/ grInt, grFFT, spikeyRatio)){
+
+      corruptD1EventCount+=1;
+      weightedCorruptD1EventCount += weight;
+      unpaddedEvent.clear();
+      cleanEvent.clear();
+      for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ /*delete grCDF[ch];*/ delete grFFT[ch];}
+      continue;
 
    }
 
@@ -2063,7 +2097,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    cleanEvent.clear();
    //delete summary;
    treg->clearForNextEvent();
-   for(int ch=0; ch<16; ch++){ /*delete gr_v[ch];*/ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ /*if(settings->cwFilter>0)*/ /*delete grFFT[ch];*/ }
+   for(int ch=0; ch<16; ch++){ /*delete gr_v[ch];*/ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ /*if(settings->cwFilter>0)*/ delete grFFT[ch]; }
    }//end of ev loop
 
 }//end of dataType == 0

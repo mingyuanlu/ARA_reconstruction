@@ -544,6 +544,16 @@ if( settings->constantNFilter > 0){
 float *calpulserDelays, *calpulserDelays_V, *calpulserDelays_H;
 Healpix_Onion *onion_temp_2;
 
+//ARA02_cutValues *cutValues = new ARA02_cutValues();
+if(rawEvPtr->stationId==2 && settings->calpulserFilter==1){
+   cerr<<"Calpulser filter is not inplemented for station 2! Aborting....\n";
+   return -1;
+}
+//if (rawEvPtr->stationId==3){
+//   delete cutValues;
+ARA03_cutValues *cutValues = new ARA03_cutValues();
+//}
+
 if( settings->calpulserFilter > 0){
 
    calpulserDelays   = (float*)malloc(1*nDir*nAnt*sizeof(float));
@@ -1286,11 +1296,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    float calTheta = 90.f-TMath::RadToDeg()*onion_temp_2->getPointing(calpulserMaxPixIdx).theta;
    float calPhi   = TMath::RadToDeg()*onion_temp_2->getPointing(calpulserMaxPixIdx).phi;
 
-   ARA02_cutValues *cutValues = new ARA02_cutValues();
-   if (stationId==3){
-      delete cutValues;
-      ARA03_cutValues *cutValues = new ARA03_cutValues();
-   }
+
 
    bool inBox = false;
    bool iterInBox = false;
@@ -1317,11 +1323,16 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    }
    else if(stationId==3){
+
+      cout<<"calTheta: "<<calTheta<<" calPhi: "<<calPhi<<endl;
       for(int box=0; box<cutValues->nBoxes; box++){
+
+         cout<<"box: "<<box<<" zenMin: "<<cutValues->zenMin[box].val<<" zenMax: "<<cutValues->zenMax[box].val<<" aziMin: "<<cutValues->aziMin[box].val<<" aziMax: "<<cutValues->aziMax[box].val <<endl;
 
          if( calTheta > cutValues->zenMin[box].val && calTheta < cutValues->zenMax[box].val && calPhi > cutValues->aziMin[box].val && calPhi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
 
       }
+      cout<<"inBox: "<<inBox<<endl;
    }
 
    if (inBox || iterInBox){

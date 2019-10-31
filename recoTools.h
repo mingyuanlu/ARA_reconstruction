@@ -474,4 +474,5 @@ int getCWCount_iterFreqWindow(vector<TGraph *>& grFFT, double fftRes, int iterTh
 TGraph *truncateCWFreq(TGraph *gr, double cwFreq, double fftRes);
 bool isCW_freqWindow(double& cwFreq, bool &isVpolCW, bool &isHpolCW, bool& isXpolCW, int *peakBin, double freqBinWidth_V, double freqBinWidth_H, double fftRes, int cwBinThres);
 TGraph *subtractDBGraphs(TGraph *gr1, TGraph *gr2);
+bool isSpikeyStringEvent(int statioId, bool dropARA03D4, /*float *snr,*/ TGraph** wf, TGraph** fft, double &spikeyRatio);
 #endif

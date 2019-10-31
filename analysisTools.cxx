@@ -309,6 +309,12 @@ void ARA03_cutValues::initialize(){
       setValue(snrCut[3], 8.71564, 0, 0);
       setValue(snrCut[4], 8.71564, 0, 0);
 
+      setValue(spikeyRatioCut[0], 2.4055, 0, 0);
+      setValue(spikeyRatioCut[0], 2.5267, 0, 0);
+      setValue(spikeyRatioCut[0], 3.5007, 0, 0);
+      setValue(spikeyRatioCut[0], 3.9877, 0, 0);
+      setValue(spikeyRatioCut[0], 3.6174, 0, 0);
+
 }
 
 
