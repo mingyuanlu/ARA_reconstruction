@@ -18070,7 +18070,7 @@ bool isSpikeyStringEvent(int stationId, bool dropARA03D4, /*float *snr, */TGraph
    if (stationId != 3){ //Only A3 has such problem
       return false;
     }
-
+   /*
    double ch0DbThreshold = 55;
    double ch0FreqLow = 191; //MHz
    double ch0FreqHigh=201; //MHz
@@ -18078,12 +18078,12 @@ bool isSpikeyStringEvent(int stationId, bool dropARA03D4, /*float *snr, */TGraph
    double peakPower = 0.;
    double peakFreq  = 0.;
    double f, p;
-
+   */
    double maxV[16];
    int maxVIdx;
    std::fill(&maxV[0], &maxV[16], 0.);
    double avgSNR[4];
-
+   /*
    for (int b=0; b<fft[0]->GetN(); b++){
 
       fft[0]->GetPoint(b, f, p);
@@ -18096,7 +18096,7 @@ bool isSpikeyStringEvent(int stationId, bool dropARA03D4, /*float *snr, */TGraph
       if (f>ch0FreqHigh) break;
 
    }//end of b
-
+   */
    //if (peakPower > ch0DbThreshold){ //chan 0 peak power in range (191, 201)MHz is above 55 DB, qualifies to check for spikey amplitudes
 
       for(int ch=0; ch<16; ch++){
@@ -18107,7 +18107,7 @@ bool isSpikeyStringEvent(int stationId, bool dropARA03D4, /*float *snr, */TGraph
          //avgSNR[string] = (snr[string] + snr[string+4] + snr[string+12])/3.; //TH don't seem to see the spike, so exclude
          //cout<<"strings: "<<string<<" snr: "<<snr[string]<<" "<<snr[string+4]<<" "<<snr[string+12]<<" avgSNR: "<<avgSNR[string]<<endl;
          avgSNR[string] = (maxV[string] + maxV[string+4] + maxV[string+12])/3.; //TH don't seem to see the spike, so exclude
-         cout<<"strings: "<<string<<" maxV: "<<maxV[string]<<" "<<maxV[string+4]<<" "<<maxV[string+12]<<" avgMaxV: "<<avgSNR[string]<<endl;
+         //cout<<"strings: "<<string<<" maxV: "<<maxV[string]<<" "<<maxV[string+4]<<" "<<maxV[string+12]<<" avgMaxV: "<<avgSNR[string]<<endl;
       }
 
       if(dropARA03D4) spikeyRatio = 2. * avgSNR[0] / (avgSNR[1] + avgSNR[2]);
