@@ -95,6 +95,8 @@ using namespace std;
 
    cwIterCount = 0;
 
+   spikeyRatio = 0.;
+
    }
 
 
@@ -604,6 +606,10 @@ using namespace std;
       cwIterCount = _cwIterCount;
    }
 
+   void recoData::setSpikeyRatio(double _spikeyRatio){
+      spikeyRatio = _spikeyRatio;
+   }
+
    void recoData::duplicate(recoSettings *settings, recoData *old){
 
    int *_topMaxPixIdx         = (int*)calloc(old->topN, sizeof(int));
@@ -705,6 +711,7 @@ using namespace std;
       setTotalPowerSNRByChannel(ch, old->totalPowerSNR[ch]);
    }
    setCWIterCount(old->cwIterCount);
+   setSpikeyRatio(old->spikeyRatio);
 /*
    weight = old->weight;
 
@@ -817,5 +824,6 @@ using namespace std;
    std::fill(&slidingV2SNR[0], &slidingV2SNR[16], 0.f);
    std::fill(&totalPowerSNR[0], &totalPowerSNR[16], 0.f);
    cwIterCount = 0;
+   spikeyRatio = 0.;
 
    }

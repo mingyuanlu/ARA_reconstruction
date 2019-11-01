@@ -344,6 +344,8 @@ int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_2ndRayReco(recoSettings *setti
                     recoData *summary, char *filename, float *mapData);
 int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_constantNFilter(recoSettings *settings, vector<TGraph *>& cleanEvent,
                                                                   recoEnvData *clEnv, float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask, recoData *summary, char *filename/*, float *mapData*/);
+int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_calpulserFilter(recoSettings *settings, vector<TGraph *>& cleanEvent,
+                                                                  recoEnvData *clEnv, float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask, recoData *summary, float& coherence_temp/*, char *filename*//*, float *mapData*/);
 int reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
                     const float stationCenterDepth, const vector<vector<double> >& antLocation,
                     float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask,
@@ -372,6 +374,12 @@ int computeRecoDelaysWithNoBoundConstantNForSinglePixel(
                                      Healpix_Onion *onion,
                                      float *recoDelays, float *recoDelays_V, float *recoDelays_H,
                                      const int pix);
+int computeRecoDelaysWithNoBoundConstantNForSinglePoint_cartesianCoord(
+                                    const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
+                                     //const float radius, const int nSideExp,
+                                     //Healpix_Onion *onion,
+                                     float *recoDelays, float *recoDelays_V, float *recoDelays_H,
+                                     const double *srcLoc);
 int computeZoomedRecoDelaysWithConstantN(const int nAnt, const float zCenter, const vector<vector<double> >& antLoc,
                                      //const float radius, const int nSideExp,
                                      Healpix_Onion *onion,
@@ -466,4 +474,5 @@ int getCWCount_iterFreqWindow(vector<TGraph *>& grFFT, double fftRes, int iterTh
 TGraph *truncateCWFreq(TGraph *gr, double cwFreq, double fftRes);
 bool isCW_freqWindow(double& cwFreq, bool &isVpolCW, bool &isHpolCW, bool& isXpolCW, int *peakBin, double freqBinWidth_V, double freqBinWidth_H, double fftRes, int cwBinThres);
 TGraph *subtractDBGraphs(TGraph *gr1, TGraph *gr2);
+bool isSpikeyStringEvent(int statioId, bool dropARA03D4, /*float *snr,*/ TGraph** wf, TGraph** fft, double &spikeyRatio);
 #endif

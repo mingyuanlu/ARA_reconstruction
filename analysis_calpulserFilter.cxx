@@ -30,6 +30,7 @@
 #include "recoSettings.h"
 #include "recoData.h"
 #include "trackEngine.h"
+#include "analysisTools.h"
 
 #include "Detector.h"
 #include "Trigger.h"
@@ -265,12 +266,6 @@ int *freqCount_V, *freqCount_H;
 double freqBinWidth_V, freqBinWidth_H;
 
 /*
- * Variables used in A3 spikey event detection
- */
-
-double spikeyRatio;
-
-/*
  * Constants used
 
 /* End of conditional variables pre-declaration */
@@ -285,6 +280,7 @@ int mistaggedSoftEventCount, offsetBlockEventCount;
 mistaggedSoftEventCount = offsetBlockEventCount = 0;
 int nchnlFilteredEventCount, cwFilteredEventCount, impulsivityFilteredEventCount;
 nchnlFilteredEventCount = cwFilteredEventCount = impulsivityFilteredEventCount = 0;
+int calpulserFilteredEventCount = 0;
 int cliffEventCount = 0;
 int corruptFirst3EventCount = 0;
 int corruptD1EventCount = 0;
@@ -296,7 +292,7 @@ double weightedNchnlFilteredEventCount = 0.;
 double weightedCWFilteredEventCount = 0.;
 double weightedImpulsivityFilteredEventCount = 0.;
 double weightedCliffEventCount = 0.;
-double weightedCorruptD1EventCount = 0.;
+double weightedCalpulserFilteredEventCount = 0.;
 runInfoTree->Branch("runEventCount",  &runEventCount);
 runInfoTree->Branch("runRFEventCount", &runRFEventCount);
 runInfoTree->Branch("runCalEventCount", &runCalEventCount);
@@ -324,7 +320,8 @@ runInfoTree->Branch("weightedCWFilteredEventCount", &weightedCWFilteredEventCoun
 runInfoTree->Branch("weightedImpulsivityFilteredEventCount", &weightedImpulsivityFilteredEventCount);
 runInfoTree->Branch("blockGapEventCount", &blockGapEventCount);
 runInfoTree->Branch("weightedCliffEventCount", &weightedCliffEventCount);
-runInfoTree->Branch("weightedCorruptD1EventCount", &weightedCorruptD1EventCount);
+runInfoTree->Branch("calpulserFilteredEventCount", &calpulserFilteredEventCount);
+runInfoTree->Branch("weightedCalpulserFilteredEventCount", &weightedCalpulserFilteredEventCount);
 
 if(settings->dataType == 1)//real events
 {
@@ -544,6 +541,31 @@ if( settings->constantNFilter > 0){
 }
 
 
+float *calpulserDelays, *calpulserDelays_V, *calpulserDelays_H;
+Healpix_Onion *onion_temp_2;
+
+//ARA02_cutValues *cutValues = new ARA02_cutValues();
+if(rawEvPtr->stationId==2 && settings->calpulserFilter==1){
+   cerr<<"Calpulser filter is not inplemented for station 2! Aborting....\n";
+   return -1;
+}
+//if (rawEvPtr->stationId==3){
+//   delete cutValues;
+ARA03_cutValues *cutValues = new ARA03_cutValues();
+//}
+
+if( settings->calpulserFilter > 0){
+
+   calpulserDelays   = (float*)malloc(1*nDir*nAnt*sizeof(float));
+   calpulserDelays_V = (float*)malloc(1*nDir*(nAnt/2)*sizeof(float));
+   calpulserDelays_H = (float*)malloc(1*nDir*(nAnt/2)*sizeof(float));
+   onion_temp_2 = new Healpix_Onion(nSideExp, 1, 40, 40);
+
+   err = compute3DRecoDelaysWithRadioSpline(nAnt, -1.f*stationCenterDepth, antLocation,
+                                            onion_temp_2, calpulserDelays, calpulserDelays_V, calpulserDelays_H);
+
+}
+
 //recordTime(tmr,2);
 time_t t_after_recoDelays = time(NULL);
 clock_t c_after_recoDelays = clock();
@@ -623,6 +645,7 @@ else                                maxPix = (int*)calloc(12*pow(2,settings->nSi
 int maxPixIdx = 0;
 int maxPixIdx2 = 0;
 int constantNMaxPixIdx = 0;
+int calpulserMaxPixIdx = 0;
 float *mapData = (float*)calloc(nDir*nLayer, sizeof(float));
 char histName[200];
 TH1F **mapDataHist = (TH1F**)malloc(nDir*nLayer*sizeof(TH1F*));
@@ -1052,7 +1075,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       delete grCDF[ch];
       delete grCumuSum[ch];
       //delete grCumuSumCDF[ch];
-      //delete grFFT[ch];
+      delete grFFT[ch];
 
    }
 
@@ -1106,7 +1129,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          unpaddedEvent.clear();
          cleanEvent.clear();
          delete realAtriEvPtr;
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ delete grFFT[ch];}
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/}
          continue;
       }
 
@@ -1129,7 +1152,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          unpaddedEvent.clear();
          cleanEvent.clear();
          delete realAtriEvPtr;
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ delete grFFT[ch];}
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/}
          continue;
       }
       else {
@@ -1238,11 +1261,89 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          unpaddedEvent.clear();
          cleanEvent.clear();
          delete realAtriEvPtr;
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ /*delete grCDF[ch];*/ delete grFFT[ch]; }
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ /*delete grCDF[ch];*/ }
          continue;
 
       }
    }
+
+   /* 40m skymap reco for calpulser filter */
+
+   recoSuccess = false;
+
+   if(settings->calpulserFilter > 0){
+      while( !recoSuccess ){
+
+         //stringstream ss;
+         //ss << /*ev*/rawAtriEvPtr->eventNumber;
+         //evStr = ss.str();
+         //fitsFileStr = fitsFile_tmp /*+ ".ev" + evStr*/ + ".40m.fits";
+         //sprintf(fitsFile, fitsFileStr.c_str());
+         float coherence_temp = 0.f;
+         calpulserMaxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_calpulserFilter(settings, cleanEvent, &clEnv, calpulserDelays, calpulserDelays_V, calpulserDelays_H, goodChan, summary, coherence_temp/*, fitsFile*////*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/
+         );
+
+         if( calpulserMaxPixIdx < 0){ cerr<<"Error reconstructing - calpulser\n"; return -1; }
+         if(coherence_temp/*summary->calpulserMaxPixCoherence*/ > 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
+         else { cout<<"calMaxPixCoherence returns 0!! Re-running reco...\n"; }
+
+      }
+
+      //if(recordConstantNDir(settings, summary) < 0){ cerr<<"Error recording constant N dir\n"; return -1;}
+
+   }
+
+   float calTheta = 90.f-TMath::RadToDeg()*onion_temp_2->getPointing(calpulserMaxPixIdx).theta;
+   float calPhi   = TMath::RadToDeg()*onion_temp_2->getPointing(calpulserMaxPixIdx).phi;
+
+
+
+   bool inBox = false;
+   bool iterInBox = false;
+   int type;
+
+
+   if (stationId==2){
+
+      type = getRunType("ARA02",stoi(runNum));
+      for(int box=0; box<cutValues->nBoxes; box++){
+
+         // 0: D5BV, 1: D6BV, 2: D5BV Mirror, only for type 5
+         if(box<2){
+
+            if( calTheta > cutValues->zenMin[box].val && calTheta < cutValues->zenMax[box].val && calPhi > cutValues->aziMin[box].val && calPhi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
+
+         } else {
+
+            if( type == 5 ){
+               if( calTheta > cutValues->zenMin[box].val && calTheta < cutValues->zenMax[box].val && calPhi > cutValues->aziMin[box].val && calPhi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
+            }
+         }
+      }
+
+   }
+   else if(stationId==3){
+
+      cout<<"calTheta: "<<calTheta<<" calPhi: "<<calPhi<<endl;
+      for(int box=0; box<cutValues->nBoxes; box++){
+
+         cout<<"box: "<<box<<" zenMin: "<<cutValues->zenMin[box].val<<" zenMax: "<<cutValues->zenMax[box].val<<" aziMin: "<<cutValues->aziMin[box].val<<" aziMax: "<<cutValues->aziMax[box].val <<endl;
+
+         if( calTheta > cutValues->zenMin[box].val && calTheta < cutValues->zenMax[box].val && calPhi > cutValues->aziMin[box].val && calPhi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
+
+      }
+      cout<<"inBox: "<<inBox<<endl;
+   }
+
+   if (inBox || iterInBox){
+      calpulserFilteredEventCount+=1;
+      unpaddedEvent.clear();
+      cleanEvent.clear();
+      delete realAtriEvPtr;
+      for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ /*delete grCDF[ch];*/ }
+      continue;
+   }
+
 
    /* Constant N reco for surface filter */
 
@@ -1268,20 +1369,6 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       if(recordConstantNDir(settings, summary) < 0){ cerr<<"Error recording constant N dir\n"; return -1;}
 
    }
-
-   /* A3 spikey D1 filter */
-   if (isSpikeyStringEvent(stationId, dropARA03D4, /*snrArray,*/grInt, grFFT, spikeyRatio)){
-
-      corruptD1EventCount+=1;
-      unpaddedEvent.clear();
-      cleanEvent.clear();
-      delete realAtriEvPtr;
-      for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ /*delete grCDF[ch];*/ delete grFFT[ch];}
-      continue;
-
-   }
-
-   summary->setSpikeyRatio(spikeyRatio);
 
    /* Track engine object to compute all tracks */
    treg->computeAllTracks(unpaddedEvent);
@@ -1395,7 +1482,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    treg->clearForNextEvent();
 
-   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ /*if(settings->cwFilter>0)*/ delete grFFT[ch]; }
+   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ /*if(settings->cwFilter>0)*/ /*delete grFFT[ch];*/ }
 
    }//end of ev loop
 
@@ -1699,7 +1786,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       delete grCDF[ch];
       delete grCumuSum[ch];
       //delete grCumuSumCDF[ch];
-      //delete grFFT[ch];
+      delete grFFT[ch];
 
    }
 
@@ -1758,7 +1845,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
          weightedImpulsivityFilteredEventCount += weight;
          unpaddedEvent.clear();
          cleanEvent.clear();
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/delete grFFT[ch];}
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/}
          continue;
       }
 
@@ -1782,7 +1869,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
          //cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl;
          unpaddedEvent.clear();
          cleanEvent.clear();
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ delete grFFT[ch];}
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/}
          continue;
       }
       else {
@@ -1892,7 +1979,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
          weightedCWFilteredEventCount += weight;
          unpaddedEvent.clear();
          cleanEvent.clear();
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; delete grFFT[ch]; /*delete grCDF[ch]; */}
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ /*delete grCDF[ch]; */}
          continue;
 
       }
@@ -1922,20 +2009,6 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       if(recordConstantNDir(settings, summary) < 0){ cerr<<"Error recording constant N dir\n"; return -1;}
 
    }
-
-   /* A3 spikey D1 filter */
-   if (isSpikeyStringEvent(AraSim_settings->DETECTOR_STATION, dropARA03D4, /*snrArray,*/ grInt, grFFT, spikeyRatio)){
-
-      corruptD1EventCount+=1;
-      weightedCorruptD1EventCount += weight;
-      unpaddedEvent.clear();
-      cleanEvent.clear();
-      for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ /*delete grCDF[ch];*/ delete grFFT[ch];}
-      continue;
-
-   }
-
-   summary->setSpikeyRatio(spikeyRatio);
 
    /* Track engine object to compute all tracks */
    treg->computeAllTracks(unpaddedEvent);
@@ -2099,7 +2172,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    cleanEvent.clear();
    //delete summary;
    treg->clearForNextEvent();
-   for(int ch=0; ch<16; ch++){ /*delete gr_v[ch];*/ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ /*if(settings->cwFilter>0)*/ delete grFFT[ch]; }
+   for(int ch=0; ch<16; ch++){ /*delete gr_v[ch];*/ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ /*if(settings->cwFilter>0)*/ /*delete grFFT[ch];*/ }
    }//end of ev loop
 
 }//end of dataType == 0
@@ -2110,7 +2183,7 @@ clock_t c_after_event_loop = clock();
 
 cout<<"runEventCount: "<<runEventCount<<" recoEventCount: "<<recoEventCount<<" trigEventCount: "<<trigEventCount<<endl;
 cout<<"cutWaveEventCount: "<<cutWaveEventCount<<" nonIncreasingSampleTimeEventCount: "<<nonIncreasingSampleTimeEventCount<<" cutWaveAndNonIncreasingEventCount: "<<cutWaveAndNonIncreasingEventCount<<" corruptD1EventCount: "<<corruptD1EventCount<<" corruptFirst3EventCount: "<<corruptFirst3EventCount<<" blockGapEventCount: "<<blockGapEventCount<<endl;
-cout<<"mistaggedSoftEventCount: "<<mistaggedSoftEventCount<<" offsetBlockEventCount: "<<offsetBlockEventCount<<" nchnlFilteredEventCount: "<<nchnlFilteredEventCount<<" cwFilteredEventCount: "<<cwFilteredEventCount<<" impulsivityFilteredEventCount: "<<impulsivityFilteredEventCount<<endl;
+cout<<"mistaggedSoftEventCount: "<<mistaggedSoftEventCount<<" offsetBlockEventCount: "<<offsetBlockEventCount<<" nchnlFilteredEventCount: "<<nchnlFilteredEventCount<<" cwFilteredEventCount: "<<cwFilteredEventCount<<" impulsivityFilteredEventCount: "<<impulsivityFilteredEventCount<<" calpulserFilteredEventCount: "<<calpulserFilteredEventCount<<endl;
 
 runInfoTree->Fill();
 
@@ -2138,6 +2211,13 @@ if(settings->constantNFilter > 0){
    free(constantNDelays_V);
    free(constantNDelays_H);
 }
+if(settings->calpulserFilter > 0){
+   delete onion_temp_2;
+   free(calpulserDelays);
+   free(calpulserDelays_V);
+   free(calpulserDelays_H);
+}
+
 delete settings;
 free(mapDataHist);
 free(mapData);

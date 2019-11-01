@@ -673,6 +673,8 @@ TH1F *bvEventTime = new TH1F("bvEventTime","bvEventTime", endTimeMax-startTimeMi
 TH2F *azi_bvEventTime = new TH2F("azi_bvEventTime","azi_bvEventTime", endTimeMax-startTimeMin+1, startTimeMin, endTimeMax, 360/0.4, 1, 360);
 TH2F *zen_bvEventTime = new TH2F("zen_bvEventTime","zen_bvEventTime", endTimeMax-startTimeMin+1, startTimeMin, endTimeMax, 180/0.4, -90, 90);
 
+TH1F *spikeyRatioHist = new TH1F("spikeyRatioHist", "spikeyRatioHist", 100, 0,10);
+
 
 //for(int entry=0; entry<Nentries; entry++){
 for(int i=4; i<argc; i++){
@@ -732,6 +734,9 @@ for(int i=4; i<argc; i++){
    double orderedArray[16];
    int orderedArrayPolType[16];
 
+   //int listOfEventsToCheck[26] = {3121, 10691, 24903, 36564, 36587, 36683, 41472, 46650, 62391, 75243, 87416, 87756, 87921, 90634, 97693, 97749, 98420, 107651, 112232, 114149, 116883, 127987, 135379, 136746, 138013};
+   int listOfEventsToCheck[2] = {52, 5388};
+
    for(int entry=0; entry<Nentries; entry++){
    //if(Nentries > 100) {  if(  entry % (Nentries/100) == 0  ){ cout<<"Progess: "<<entry / (Nentries/100) <<"%\n"; } }
    dataTree->GetEntry(entry);
@@ -747,7 +752,15 @@ for(int i=4; i<argc; i++){
    //block-gap
    if(runNum==4429 && dummyData->eventNumber==34200) { totalBlockGapEventCount++; continue; }
    */
+   bool toCheck = false;
+   for (int e=0; e<2; e++){
+      if (dummyData->eventNumber == listOfEventsToCheck[e]){
+         toCheck = true;
+         break;
+      }
+   }
 
+   if (!toCheck) continue;
 
 
    if(dummyData->eventTrigType == 0) rfEventCount+=dummyData->weight;
@@ -805,6 +818,8 @@ for(int i=4; i<argc; i++){
    //   if(dummyData->slidingV2SNR[ch]<7) passBVSNRCut = false;
    //}
 
+
+   spikeyRatioHist->Fill(dummyData->spikeyRatio);
 
 
    //isCW = isCW_coincidence(isVpolCW, isHpolCW, maxCountFreqBin_V, maxCountFreqBin_H, dummyData, cwBinThres);
@@ -1180,6 +1195,21 @@ for(int i=4; i<argc; i++){
    inBoxTheta = inBoxPhi = 0.f;
    passCalpulserCut = !isCalpulser(inBoxTheta, inBoxPhi, STATION, dummyData, onion, settings, type);
 
+      bool inBox = false;
+      bool iterInBox  = false;
+      ARA03_cutValues *A3_cutValues = new ARA03_cutValues();
+      //cout<<"791\n";
+      float theta = 90.f-TMath::RadToDeg()*onion.getPointing(dummyData->maxPixIdxEachLayer.at(0)).theta;
+      float phi   = TMath::RadToDeg()*onion.getPointing(dummyData->maxPixIdxEachLayer.at(0)).phi;
+
+      //cout<<"nBoxes: "<<A3_cutValues->nBoxes<<endl;
+      for(int box=0; box<A3_cutValues->nBoxes; box++){
+
+         if( theta > A3_cutValues->zenMin[box].val && theta < A3_cutValues->zenMax[box].val && phi > A3_cutValues->aziMin[box].val && phi < A3_cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
+
+      }
+      outputFile<<"run: "<<runNum<<" eventNumber: "<<dummyData->eventNumber<<" theta: "<<theta<<" phi: "<<phi<<" inBox: "<<inBox<<endl;
+
 //   bool inBox = false;
 //
 //   bool iterInBox = false;
@@ -1193,6 +1223,7 @@ for(int i=4; i<argc; i++){
 //      int maxPixIdx = dummyData->iterMaxPixIdxEachLayer.at(iter*nLayer+0);
 //      float maxPixCoherence = dummyData->iterMaxPixCoherenceEachLayer.at(iter*nLayer+0);
 //      //cout<<"maxPixIdx: "<<maxPixIdx<<" layer: "<<maxPixIdx/nDir<<" maxPixCoherence: "<<maxPixCoherence<<endl;
+//      int maxPixIdx = dummyData->maxPixIdxEachLayer.at(0);
 //      float theta = 90.f-TMath::RadToDeg()*onion.getPointing(maxPixIdx).theta;
 //      float phi   = TMath::RadToDeg()*onion.getPointing(maxPixIdx).phi;
 //
@@ -1971,7 +2002,7 @@ for(int i=4; i<argc; i++){
 
    if(/*isCW &&*/passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut /*&& passSurfaceCut_2 */&& passNoisyRunCut && !lowFreqDominance && passNoisyRunCut ){
 
-      outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<","<<coherence<<","<<snr<<","<<90.f-dummyData->recoZen<<","<<dummyData->recoAzi<<","<<90.f-dummyData->constantNZen<<endl;
+      //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<","<<coherence<<","<<snr<<","<<90.f-dummyData->recoZen<<","<<dummyData->recoAzi<<","<<90.f-dummyData->constantNZen<<endl;
 
    }
 
@@ -2537,6 +2568,13 @@ constantNZenHist->Draw("colz");
 constantNZenHist->SetTitle("Quasi-planewave Reco;Reco Zenith [#circ];Entry");
 //c35.SaveAs("recoAnalysis_35.C");
 
+
+TCanvas c36("c36","c36", 800, 800);
+spikeyRatioHist->Draw();
+sprintf(filename,"A3 Config %d Burnsample RF;Spikey Ratio [unitless];Entry", type);
+spikeyRatioHist->SetTitle(filename);
+sprintf(filename, "%s_type%d_spikeyRatio_noCut.C", STATION.c_str(), type);
+//c36.SaveAs(filename);
 
 return 0;
 }

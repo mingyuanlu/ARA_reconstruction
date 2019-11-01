@@ -107,6 +107,8 @@ void recoSettings::initialize(){
   cliff_threshold_A3_string2 = 45;
   cliff_threshold_A3_string3 = 100;
 
+  calpulserFilter = 0;
+
   //remark = "Default.";
   snprintf(remark, sizeof(remark), "Default.");
 
@@ -199,6 +201,7 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
                cliff_threshold_A3_string2 = atof( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "cliff_threshold_A3_string3")
                cliff_threshold_A3_string3 = atof( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "calpulserFilter") calpulserFilter = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label != "") cerr<<"Undefined parameter detected. Label: "<<label<<endl;
          }
       }
@@ -281,7 +284,8 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
       if( (unsigned)(applyA2Ch6Correction-0) > 1){cerr<<"applyA2Ch6Correction: "<<applyA2Ch6Correction<<endl; errCnt++; }
       if( cliff_threshold_A3_string1 < 0 ){       cerr<<"cliff_threshold_A3_string1: "<<cliff_threshold_A3_string1<<endl; errCnt++; }
       if( cliff_threshold_A3_string2 < 0 ){       cerr<<"cliff_threshold_A3_string2: "<<cliff_threshold_A3_string2<<endl; errCnt++; }
-      if( cliff_threshold_A3_string3 < 0 ){       cerr<<"cliff_threshold_A3_string3: "<<cliff_threshold_A3_string3<<endl; errCnt++; } 
+      if( cliff_threshold_A3_string3 < 0 ){       cerr<<"cliff_threshold_A3_string3: "<<cliff_threshold_A3_string3<<endl; errCnt++; }
+      if( (unsigned)(calpulserFilter-0) > 1){     cerr<<"calpulserFilter: "<<calpulserFilter<<endl; errCnt++; }
       if(errCnt > 0) return false;
 
    } else { cerr<<"Unable to open "<<sf<<endl; return false; }

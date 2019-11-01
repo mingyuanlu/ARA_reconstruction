@@ -142,7 +142,9 @@ public:
    cliff_threshold_A3_string2:
       Default: 45. The threshold in mV for the absolute difference between the first and last sample of the 64-sample median-filtered waveform in A3 string 2 (ch%4==1), above which the waveform is considered a cliff waveform
    cliff_threshold_A3_string3:
-      Default: 100. The threshold in mV for the absolute difference between the first and last sample of the 64-sample median-filtered waveform in A3 string 3 (ch%4==2), above which the waveform is considered a cliff waveform   
+      Default: 100. The threshold in mV for the absolute difference between the first and last sample of the 64-sample median-filtered waveform in A3 string 3 (ch%4==2), above which the waveform is considered a cliff waveform
+   calpulserFilter:
+      Default: 0. 0: no run-time calpulser filtering. 1: run-time calpulser filtering. NB only applicable for A3!
    remark:
       Default "". Any remark one wishes to add to the reco setup file. The remarks will then be carried along in the analysis output ROOT file. Note that number of characters should not exceed CSTRING_MAX defined in recoSettings.h
 */
@@ -257,7 +259,10 @@ public:
    double cliff_threshold_A3_string2;
    double cliff_threshold_A3_string3;
 
-   ClassDef(recoSettings, 20); //2: convert all string parameters to char
+   //ClassDef 21
+   int calpulserFilter;
+
+   ClassDef(recoSettings, 21); //2: convert all string parameters to char
                               //3: add openCLDeviceType and openCLMaxNumberOfDevices parameters
 };
 
