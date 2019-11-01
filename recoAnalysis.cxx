@@ -614,11 +614,11 @@ for(int i=0; i<5; i++){
 }
 
 
-ARA02_cutValues *cutValues = new ARA02_cutValues();
-if (STATION=="ARA03"){
-   delete cutValues;
+//ARA02_cutValues *cutValues = new ARA02_cutValues();
+//if (STATION=="ARA03"){
+//   delete cutValues;
    ARA03_cutValues *cutValues = new ARA03_cutValues();
-}
+//}
 
 cout<<"impCut: "<<cutValues->impCut.val<<endl;
 double postThermalAvgImpulsivityCut = cutValues->impCut.val;
