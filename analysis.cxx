@@ -1935,6 +1935,8 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    }
 
+   summary->setSpikeyRatio(spikeyRatio);
+
    /* Track engine object to compute all tracks */
    treg->computeAllTracks(unpaddedEvent);
    summary->setTreg(treg);
