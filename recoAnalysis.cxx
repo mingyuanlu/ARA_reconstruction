@@ -1099,7 +1099,7 @@ for(int i=4; i<argc; i++){
    //}
    float zenRange = 3.;
    double zenMaj;
-   //passSurfaceCut_2 = !isIterSurface(zenMaj, dummyData, onion, settings, zenRange, surfaceCut_2);
+   passSurfaceCut_2 = !isIterSurface(zenMaj, dummyData, onion, settings, zenRange, surfaceCut_2);
 
 //
 //   cout<<"zenMaj in func: "<<zenMaj<<endl;
@@ -1189,8 +1189,8 @@ for(int i=4; i<argc; i++){
    */
    float inBoxTheta, inBoxPhi;
    inBoxTheta = inBoxPhi = 0.f;
-   //passCalpulserCut = !isCalpulser(inBoxTheta, inBoxPhi, STATION, dummyData, onion, settings, type);
-
+   passCalpulserCut = !isCalpulser(inBoxTheta, inBoxPhi, STATION, dummyData, onion, settings, type);
+      /*
       bool inBox = false;
       bool iterInBox  = false;
       ARA03_cutValues *A3_cutValues = new ARA03_cutValues();
@@ -1211,6 +1211,7 @@ for(int i=4; i<argc; i++){
          }
 
       }
+      */
       //outputFile<<"run: "<<runNum<<" eventNumber: "<<dummyData->eventNumber<<" theta: "<<theta<<" phi: "<<phi<<" inBox: "<<inBox<<endl;
 //   bool inBox = false;
 //
