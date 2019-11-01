@@ -1207,10 +1207,10 @@ for(int i=4; i<argc; i++){
       //cout<<"nBoxes: "<<A3_cutValues->nBoxes<<endl;
       for(int box=0; box<A3_cutValues->nBoxes; box++){
 
-         if( theta > A3_cutValues->zenMin[box].val && theta < A3_cutValues->zenMax[box].val && phi > A3_cutValues->aziMin[box].val && phi < A3_cutValues->aziMax[box].val ) { 
+         if( theta > A3_cutValues->zenMin[box].val && theta < A3_cutValues->zenMax[box].val && phi > A3_cutValues->aziMin[box].val && phi < A3_cutValues->aziMax[box].val ) {
             inBox = true;
             iterInBox = true;
-            outputFile<<"run: "<<runNum<<" eventNumber: "<<dummyData->eventNumber<<" theta: "<<theta<<" phi: "<<phi
+            outputFile<<"run: "<<runNum<<" eventNumber: "<<dummyData->eventNumber<<" theta: "<<theta<<" phi: "<<phi<<endl;
          }
 
       }
