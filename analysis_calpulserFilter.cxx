@@ -494,7 +494,7 @@ if( settings->skymapSearchMode == 0){ //No zoom search
       recoRefracDelays_V= (float*)malloc(nLayer*nDir*(nAnt/2)*sizeof(float));
       recoRefracDelays_H= (float*)malloc(nLayer*nDir*(nAnt/2)*sizeof(float));
    }
-
+   /*
    if(settings->iceModel == 1){
    err = computeRecoDelaysWithConstantN(nAnt, -1.f*stationCenterDepth, antLocation,
                                         //radius, nSideExp,
@@ -511,7 +511,7 @@ if( settings->skymapSearchMode == 0){ //No zoom search
 
    } else { cerr<<"Undefined iceModel parameter\n"; return -1; }
    if( err<0 ){ cerr<<"Error computing reco delays\n"; return -1; }
-
+   */
 } else {// zoom search mode
 
    //Dir = 12 * pow(2, settings->nSideExpEnd) * pow(2, settings->nSideExpEnd);
@@ -535,7 +535,7 @@ if( settings->constantNFilter > 0){
    constantNDelays_H = (float*)malloc(1*nDir*(nAnt/2)*sizeof(float));
    onion_temp = new Healpix_Onion(nSideExp, 1, 5000, 5000);
 
-   err = computeRecoDelaysWithNoBoundConstantN(nAnt, -1.f*stationCenterDepth, antLocation,
+   //err = computeRecoDelaysWithNoBoundConstantN(nAnt, -1.f*stationCenterDepth, antLocation,
                                                onion_temp, constantNDelays, constantNDelays_V, constantNDelays_H);
 
 }
@@ -1296,58 +1296,59 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    float calTheta = 90.f-TMath::RadToDeg()*onion_temp_2->getPointing(calpulserMaxPixIdx).theta;
    float calPhi   = TMath::RadToDeg()*onion_temp_2->getPointing(calpulserMaxPixIdx).phi;
 
+   summary->setRecoDir(TMath::RadToDeg()*onion_temp_2->getPointing(calpulserMaxPixIdx).theta, TMath::RadToDeg()*onion_temp_2->getPointing(calpulserMaxPixIdx).phi);
 
 
-   bool inBox = false;
-   bool iterInBox = false;
-   int type;
-
-
-   if (stationId==2){
-
-      type = getRunType("ARA02",stoi(runNum));
-      for(int box=0; box<cutValues->nBoxes; box++){
-
-         // 0: D5BV, 1: D6BV, 2: D5BV Mirror, only for type 5
-         if(box<2){
-
-            if( calTheta > cutValues->zenMin[box].val && calTheta < cutValues->zenMax[box].val && calPhi > cutValues->aziMin[box].val && calPhi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
-
-         } else {
-
-            if( type == 5 ){
-               if( calTheta > cutValues->zenMin[box].val && calTheta < cutValues->zenMax[box].val && calPhi > cutValues->aziMin[box].val && calPhi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
-            }
-         }
-      }
-
-   }
-   else if(stationId==3){
-
-      cout<<"calTheta: "<<calTheta<<" calPhi: "<<calPhi<<endl;
-      for(int box=0; box<cutValues->nBoxes; box++){
-
-         cout<<"box: "<<box<<" zenMin: "<<cutValues->zenMin[box].val<<" zenMax: "<<cutValues->zenMax[box].val<<" aziMin: "<<cutValues->aziMin[box].val<<" aziMax: "<<cutValues->aziMax[box].val <<endl;
-
-         if( calTheta > cutValues->zenMin[box].val && calTheta < cutValues->zenMax[box].val && calPhi > cutValues->aziMin[box].val && calPhi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
-
-      }
-      cout<<"inBox: "<<inBox<<endl;
-   }
-
-   if (inBox || iterInBox){
-      calpulserFilteredEventCount+=1;
-      unpaddedEvent.clear();
-      cleanEvent.clear();
-      delete realAtriEvPtr;
-      for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ /*delete grCDF[ch];*/ }
-      continue;
-   }
-
+   //bool inBox = false;
+   //bool iterInBox = false;
+   //int type;
+//
+//
+   //if (stationId==2){
+//
+   //   type = getRunType("ARA02",stoi(runNum));
+   //   for(int box=0; box<cutValues->nBoxes; box++){
+//
+   //      // 0: D5BV, 1: D6BV, 2: D5BV Mirror, only for type 5
+   //      if(box<2){
+//
+   //         if( calTheta > cutValues->zenMin[box].val && calTheta < cutValues->zenMax[box].val && calPhi > cutValues->aziMin[box].val && calPhi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
+//
+   //      } else {
+//
+   //         if( type == 5 ){
+   //            if( calTheta > cutValues->zenMin[box].val && calTheta < cutValues->zenMax[box].val && calPhi > cutValues->aziMin[box].val && calPhi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
+   //         }
+   //      }
+   //   }
+//
+   //}
+   //else if(stationId==3){
+//
+   //   cout<<"calTheta: "<<calTheta<<" calPhi: "<<calPhi<<endl;
+   //   for(int box=0; box<cutValues->nBoxes; box++){
+//
+   //      cout<<"box: "<<box<<" zenMin: "<<cutValues->zenMin[box].val<<" zenMax: "<<cutValues->zenMax[box].val<<" aziMin: "<<cutValues->aziMin[box].val<<" aziMax: "<<cutValues->aziMax[box].val <<endl;
+//
+   //      if( calTheta > cutValues->zenMin[box].val && calTheta < cutValues->zenMax[box].val && calPhi > cutValues->aziMin[box].val && calPhi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
+//
+   //   }
+   //   cout<<"inBox: "<<inBox<<endl;
+   //}
+//
+   //if (inBox || iterInBox){
+   //   calpulserFilteredEventCount+=1;
+   //   unpaddedEvent.clear();
+   //   cleanEvent.clear();
+   //   delete realAtriEvPtr;
+   //   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ /*delete grCDF[ch];*/ }
+   //   continue;
+   //}
+   //
 
    /* Constant N reco for surface filter */
 
-   recoSuccess = false;
+   recoSuccess = true;
 
    if(settings->constantNFilter > 0){
       while( !recoSuccess ){
@@ -1401,7 +1402,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    /* Reco with radiospline */
 
-   recoSuccess = false;
+   recoSuccess = true;
 
    while( !recoSuccess ){
    if(settings->beamformMethod == 1){
@@ -1449,28 +1450,28 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    //int recoFlag = record3DDiffGetFlag(summary, outputFile);
    //if( recoFlag ) recoFlagCnt++;
-   if(settings->use2ndRayReco==0){
-   summary->setFlag( (settings->skymapSearchMode)
-                    ? record3DZoomedDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist)
-                    : record3DDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist) );
-   } else {
-   if(settings->skymapSearchMode){ cerr<<"skymapSearchMode==1 & use2ndRayReco==1 incompatible!\n"; return -1;}
-   else summary->setFlag(record3DDiffGetFlag_2ndRayReco(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist));
-   }
-   if(summary->flag > 0) recoFlagCnt++;
-   maxPix[maxPixIdx]++;
-
-   if(settings->use2ndRayReco==0)
-   compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
-   else{
-      if(summary->maxPixCoherence >= summary->maxPixCoherence2)
-      compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
-      else {
-      cerr<<"2nd ray angles table not yet build! Angles will be default (-1)\n"; //return -1;
-      //compute3DRecoAnglesWithRadioSplineForSinglePixel_2ndRayReco(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx2);
-      }
-   }
-   summary->setRecoAngles(recoRecAngles, recoLauAngles);
+   //if(settings->use2ndRayReco==0){
+   //summary->setFlag( (settings->skymapSearchMode)
+   //                 ? record3DZoomedDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist)
+   //                 : record3DDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist) );
+   //} else {
+   //if(settings->skymapSearchMode){ cerr<<"skymapSearchMode==1 & use2ndRayReco==1 incompatible!\n"; return -1;}
+   //else summary->setFlag(record3DDiffGetFlag_2ndRayReco(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist));
+   //}
+   //if(summary->flag > 0) recoFlagCnt++;
+   //maxPix[maxPixIdx]++;
+//
+   //if(settings->use2ndRayReco==0)
+   //compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
+   //else{
+   //   if(summary->maxPixCoherence >= summary->maxPixCoherence2)
+   //   compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
+   //   else {
+   //   cerr<<"2nd ray angles table not yet build! Angles will be default (-1)\n"; //return -1;
+   //   //compute3DRecoAnglesWithRadioSplineForSinglePixel_2ndRayReco(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx2);
+   //   }
+   //}
+   //summary->setRecoAngles(recoRecAngles, recoLauAngles);
 
 
    dataTree->Fill();
