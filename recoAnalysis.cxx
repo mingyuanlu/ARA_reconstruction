@@ -1032,7 +1032,7 @@ for(int i=4; i<argc; i++){
 
 //passThermalCut = !isThermal_boxCut(inBand, settings, dummyData, onion,  cutValues->snrCut_inBand[type-1].val, cutValues->coherenceCut_inBand[type-1].val, cutValues->snrCut_outOfBand[type-1].val, cutValues->coherenceCut_outOfBand[type-1].val);
 
-
+   cout<<"1035\n";
    zenHist->Fill(90.f-dummyData->recoZen);
    aziHist->Fill(dummyData->recoAzi);
    zen_c_hist->Fill(dummyData->maxPixCoherence, 90.f-dummyData->recoZen);
@@ -1090,7 +1090,7 @@ for(int i=4; i<argc; i++){
       passSNRCut = true;
    }
 
-
+   cout<<"1093\n";
    /***** 3. Surface cut ********************/
 
    surfaceCut_1 = cutValues->surfaceCut_constantN[type-1].val;
@@ -1099,7 +1099,7 @@ for(int i=4; i<argc; i++){
    //if(90.f-dummyData->constantNZen < /*SURFACE_CUT*/surfaceCut_1){
    //   passSurfaceCut = true;
    //}
-
+   cout<<"1102\n";
    float zenRange = 3.;
    double zenMaj;
    //passSurfaceCut_2 = !isIterSurface(zenMaj, dummyData, onion, settings, zenRange, surfaceCut_2);
@@ -1139,7 +1139,7 @@ for(int i=4; i<argc; i++){
 //
 //   } else passSurfaceCut_2 = true; //if no majority zenith can be found through iter reco, use solely the constantN zenith to check whether passed surface cut or not
 //   //{  zenMaj = 90.f - onion.getPointing(iterMaxPixIdxEachLayer[3]).theta * TMath::RadToDeg(); }
-
+cout<<"1142\n";
    /***** 4. Deep pulser time cut ***********/
    passDeepPulserCut = !isDeepPulser(STATION, dummyData, runNum);
    /*
@@ -1149,7 +1149,7 @@ for(int i=4; i<argc; i++){
       }
    }
    */
-
+cout<<"1152\n";
    /***** Calpulser sweep time cut **********/
 
    passCalpulserTimeCut = !isCalpulserTime(STATION, dummyData);
@@ -1192,7 +1192,7 @@ for(int i=4; i<argc; i++){
    aziMin[3] = 67.30;
    aziMax[3] = 75.25;
    */
-
+cout<<"1195\n";
    float inBoxTheta, inBoxPhi;
    inBoxTheta = inBoxPhi = 0.f;
    passCalpulserCut = !isCalpulser(inBoxTheta, inBoxPhi, STATION, dummyData, onion, settings, type);
@@ -1217,7 +1217,7 @@ for(int i=4; i<argc; i++){
 
       }
       //outputFile<<"run: "<<runNum<<" eventNumber: "<<dummyData->eventNumber<<" theta: "<<theta<<" phi: "<<phi<<" inBox: "<<inBox<<endl;
-
+cout<<"1220\n";
 //   bool inBox = false;
 //
 //   bool iterInBox = false;
@@ -1298,7 +1298,7 @@ for(int i=4; i<argc; i++){
    //if(runNum >= 4795 && runNum <= 4800) passNoisyRunCut = false; //DP
    //if(runNum >= 3 && runNum <=60 && runNum != 50) passNoisyRunCut = false; //Corrupted wf
    //if(runNum == 4787 || runNum==4785 ) passNoisyRunCut = false; //DP
-
+cout<<"1301\n";
 
    /********* Calibration run exclusion *********/
    //passCalRunCut = !isInCalibrationRun(listOfCalRuns, runNum);
@@ -1407,7 +1407,7 @@ for(int i=4; i<argc; i++){
    //passCWCut = ( !isCW || (isCW && isRecoverableByImp(isVpolCW, isHpolCW, isXpolCW, dummyData, impCut, highPassFreq) )) && !lowFreqDominance;
    passCWCut = !lowFreqDominance;
 
-
+cout<<"1410\n";
    /****** Check if pass thermal impulsivity cut ********/
 /*
       std::fill(&impulsivity[0], &impulsivity[16], 0.);
@@ -1439,7 +1439,7 @@ for(int i=4; i<argc; i++){
    //if(dummyData->numSatChan  <= 3){ //Need at least 5 channels in reconstruction
      passNumSatChanCut = true;
    //}
-
+cout<<"1442\n";
    //passThermalImpulsivityCut=1;
    //passNoisyRunCut = 1;
    //nPassNumSatChanCut += passNumSatChanCut * dummyData->weight;
