@@ -1099,7 +1099,7 @@ for(int i=4; i<argc; i++){
    //}
    float zenRange = 3.;
    double zenMaj;
-   passSurfaceCut_2 = !isIterSurface(zenMaj, dummyData, onion, settings, zenRange, surfaceCut_2);
+   //passSurfaceCut_2 = !isIterSurface(zenMaj, dummyData, onion, settings, zenRange, surfaceCut_2);
 
 //
 //   cout<<"zenMaj in func: "<<zenMaj<<endl;
