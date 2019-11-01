@@ -1195,7 +1195,7 @@ cout<<"1152\n";
 cout<<"1195\n";
    float inBoxTheta, inBoxPhi;
    inBoxTheta = inBoxPhi = 0.f;
-   passCalpulserCut = !isCalpulser(inBoxTheta, inBoxPhi, STATION, dummyData, onion, settings, type);
+   //passCalpulserCut = !isCalpulser(inBoxTheta, inBoxPhi, STATION, dummyData, onion, settings, type);
 
       bool inBox = false;
       bool iterInBox  = false;
