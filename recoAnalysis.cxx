@@ -740,7 +740,7 @@ for(int i=4; i<argc; i++){
    for(int entry=0; entry<Nentries; entry++){
    //if(Nentries > 100) {  if(  entry % (Nentries/100) == 0  ){ cout<<"Progess: "<<entry / (Nentries/100) <<"%\n"; } }
    dataTree->GetEntry(entry);
-   cout<<"eventTrigType: "<<dummyData->eventTrigType<<endl;
+   //cout<<"eventTrigType: "<<dummyData->eventTrigType<<endl;
    //if(dummyData->eventNumber != 127378) continue;
 
    //Exclude the offset-block events and block-gap events
@@ -752,6 +752,7 @@ for(int i=4; i<argc; i++){
    //block-gap
    if(runNum==4429 && dummyData->eventNumber==34200) { totalBlockGapEventCount++; continue; }
    */
+   /*
    bool toCheck = false;
    for (int e=0; e<2; e++){
       if (dummyData->eventNumber == listOfEventsToCheck[e]){
@@ -761,7 +762,7 @@ for(int i=4; i<argc; i++){
    }
 
    if (!toCheck) continue;
-
+   */
 
    if(dummyData->eventTrigType == 0) rfEventCount+=dummyData->weight;
    else if (dummyData->eventTrigType == 1) calEventCount+=dummyData->weight;
