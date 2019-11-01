@@ -1099,10 +1099,11 @@ for(int i=4; i<argc; i++){
    //if(90.f-dummyData->constantNZen < /*SURFACE_CUT*/surfaceCut_1){
    //   passSurfaceCut = true;
    //}
-
+   /*
    float zenRange = 3.;
    double zenMaj;
    passSurfaceCut_2 = !isIterSurface(zenMaj, dummyData, onion, settings, zenRange, surfaceCut_2);
+   */
 //
 //   cout<<"zenMaj in func: "<<zenMaj<<endl;
 //   iterZenVec.clear();
