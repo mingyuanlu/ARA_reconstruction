@@ -536,7 +536,7 @@ if( settings->constantNFilter > 0){
    onion_temp = new Healpix_Onion(nSideExp, 1, 5000, 5000);
 
    //err = computeRecoDelaysWithNoBoundConstantN(nAnt, -1.f*stationCenterDepth, antLocation,
-                                               onion_temp, constantNDelays, constantNDelays_V, constantNDelays_H);
+   //                                            onion_temp, constantNDelays, constantNDelays_V, constantNDelays_H);
 
 }
 
