@@ -1374,8 +1374,10 @@ bool shouldExclude(string STATION, int runNum){
       list2.open("ARA02_calibrationRuns.txt");
    }
    else if (STATION=="ARA03"){
-      list.open("ARA03_anomalousRuns.txt");
+      //list.open("ARA03_anomalousRuns.txt");
+      list.open("ARA03_excludedRuns.txt");
       list2.open("ARA03_calibrationRuns.txt");
+
    }
 
    if (list.is_open() ){
