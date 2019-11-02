@@ -752,6 +752,19 @@ for(int i=4; i<argc; i++){
    //block-gap
    if(runNum==4429 && dummyData->eventNumber==34200) { totalBlockGapEventCount++; continue; }
    */
+
+
+   //Exclude the spikey D1 events
+   if( (runNum==850 && dummyData->eventNumber==95159) ||
+       (runNum==1115 && dummyData->eventNumber==76709) ||
+       (runNum==1164 && dummyData->eventNumber==68655) ||
+       (runNum==1169 && dummyData->eventNumber==97563) ||
+       (runNum==1414 && dummyData->eventNumber==66784) ||
+    ){
+      continue;
+   }
+
+
    /*
    bool toCheck = false;
    for (int e=0; e<2; e++){
@@ -1664,8 +1677,8 @@ for(int i=4; i<argc; i++){
       }
    }
 
-
-   if(passCWCut &&/* passThermalCut &&*//* passThermalImpulsivityCut &&*/ passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) //impulsivityHist_nMinusImp->Fill( avgImpulsivity, dummyData->weight);
+//   if(passCWCut &&/* passThermalCut &&*//* passThermalImpulsivityCut &&*/ passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) //impulsivityHist_nMinusImp->Fill( avgImpulsivity, dummyData->weight);
+   if(passCWCut &&/* passThermalCut &&*//* passThermalImpulsivityCut &&*/ passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut /*&& passSurfaceCut_2 &&*/ passNoisyRunCut ) //impulsivityHist_nMinusImp->Fill( avgImpulsivity, dummyData->weight);
    {
       if(inBand){
       //snr_nMinusSNR->Fill(snr, dummyData->weight);
@@ -1681,7 +1694,7 @@ for(int i=4; i<argc; i++){
    }   else {
       //outputFile<<coherence<<","<<snr<<endl;
    }
-      //outputFile<<coherence<<","<<snr<<","<<inBand<<endl;
+      outputFile<<coherence<<","<<snr<<","<<inBand<<endl;
 
    }
 
