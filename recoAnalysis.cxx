@@ -159,7 +159,7 @@ for(int i=4; i<argc; i++){
    string fin(argv[i]);
    int runNum = atoi(  fin.substr(fin.find("run")+3, fin.find(".root")-fin.find("run")-2).c_str() );
 
-   cout<<"runNum: "<<runNum<<endl;
+   //cout<<"runNum: "<<runNum<<endl;
 
    TFile fp( argv[i] );
 
@@ -173,7 +173,7 @@ for(int i=4; i<argc; i++){
          runInfoTree->Add( argv[i] );
       }
    } else if (STATION=="ARA03"){
-      if (/*!isNearNoisyRun(listOfRuns, runNum, 0) &&*/ !shouldExclude(STATION, runNum)){
+      if (!isNearNoisyRun(listOfRuns, runNum, 0) && !shouldExclude(STATION, runNum)){
          runInfoTree->Add( argv[i] );
       }
    }
@@ -614,11 +614,11 @@ for(int i=0; i<5; i++){
 }
 
 
-ARA02_cutValues *cutValues = new ARA02_cutValues();
-if (STATION=="ARA03"){
-   delete cutValues;
+//ARA02_cutValues *cutValues = new ARA02_cutValues();
+//if (STATION=="ARA03"){
+//   delete cutValues;
    ARA03_cutValues *cutValues = new ARA03_cutValues();
-}
+//}
 
 cout<<"impCut: "<<cutValues->impCut.val<<endl;
 double postThermalAvgImpulsivityCut = cutValues->impCut.val;
@@ -682,7 +682,7 @@ for(int i=4; i<argc; i++){
    string fin(argv[i]);
    int runNum = atoi(  fin.substr(fin.find("run")+3, fin.find(".root")-fin.find("run")-2).c_str() );
 
-   cout<<"runNum: "<<runNum<<endl;
+   //cout<<"runNum: "<<runNum<<endl;
    //Exclude calibration runs:
    if(STATION=="ARA02"){
       if( isInCalibrationRun(listOfCalRuns, runNum) ) continue;
@@ -752,6 +752,20 @@ for(int i=4; i<argc; i++){
    //block-gap
    if(runNum==4429 && dummyData->eventNumber==34200) { totalBlockGapEventCount++; continue; }
    */
+
+
+   //Exclude the spikey D1 events
+   if( (runNum==850 && dummyData->eventNumber==95159) ||
+       (runNum==1115 && dummyData->eventNumber==76709) ||
+       (runNum==1164 && dummyData->eventNumber==68655) ||
+       (runNum==1169 && dummyData->eventNumber==97563) ||
+       (runNum==1414 && dummyData->eventNumber==66784)
+    ){
+      continue;
+   }
+
+
+   /*
    bool toCheck = false;
    for (int e=0; e<2; e++){
       if (dummyData->eventNumber == listOfEventsToCheck[e]){
@@ -761,7 +775,7 @@ for(int i=4; i<argc; i++){
    }
 
    if (!toCheck) continue;
-
+   */
 
    if(dummyData->eventTrigType == 0) rfEventCount+=dummyData->weight;
    else if (dummyData->eventTrigType == 1) calEventCount+=dummyData->weight;
@@ -1031,7 +1045,6 @@ for(int i=4; i<argc; i++){
 
 //passThermalCut = !isThermal_boxCut(inBand, settings, dummyData, onion,  cutValues->snrCut_inBand[type-1].val, cutValues->coherenceCut_inBand[type-1].val, cutValues->snrCut_outOfBand[type-1].val, cutValues->coherenceCut_outOfBand[type-1].val);
 
-
    zenHist->Fill(90.f-dummyData->recoZen);
    aziHist->Fill(dummyData->recoAzi);
    zen_c_hist->Fill(dummyData->maxPixCoherence, 90.f-dummyData->recoZen);
@@ -1089,7 +1102,6 @@ for(int i=4; i<argc; i++){
       passSNRCut = true;
    }
 
-
    /***** 3. Surface cut ********************/
 
    surfaceCut_1 = cutValues->surfaceCut_constantN[type-1].val;
@@ -1098,10 +1110,10 @@ for(int i=4; i<argc; i++){
    //if(90.f-dummyData->constantNZen < /*SURFACE_CUT*/surfaceCut_1){
    //   passSurfaceCut = true;
    //}
-
    float zenRange = 3.;
    double zenMaj;
    passSurfaceCut_2 = !isIterSurface(zenMaj, dummyData, onion, settings, zenRange, surfaceCut_2);
+
 //
 //   cout<<"zenMaj in func: "<<zenMaj<<endl;
 //   iterZenVec.clear();
@@ -1137,7 +1149,6 @@ for(int i=4; i<argc; i++){
 //
 //   } else passSurfaceCut_2 = true; //if no majority zenith can be found through iter reco, use solely the constantN zenith to check whether passed surface cut or not
 //   //{  zenMaj = 90.f - onion.getPointing(iterMaxPixIdxEachLayer[3]).theta * TMath::RadToDeg(); }
-
    /***** 4. Deep pulser time cut ***********/
    passDeepPulserCut = !isDeepPulser(STATION, dummyData, runNum);
    /*
@@ -1147,7 +1158,6 @@ for(int i=4; i<argc; i++){
       }
    }
    */
-
    /***** Calpulser sweep time cut **********/
 
    passCalpulserTimeCut = !isCalpulserTime(STATION, dummyData);
@@ -1190,26 +1200,32 @@ for(int i=4; i<argc; i++){
    aziMin[3] = 67.30;
    aziMax[3] = 75.25;
    */
-
    float inBoxTheta, inBoxPhi;
    inBoxTheta = inBoxPhi = 0.f;
    passCalpulserCut = !isCalpulser(inBoxTheta, inBoxPhi, STATION, dummyData, onion, settings, type);
-
+      /*
       bool inBox = false;
       bool iterInBox  = false;
       ARA03_cutValues *A3_cutValues = new ARA03_cutValues();
       //cout<<"791\n";
-      float theta = 90.f-TMath::RadToDeg()*onion.getPointing(dummyData->maxPixIdxEachLayer.at(0)).theta;
-      float phi   = TMath::RadToDeg()*onion.getPointing(dummyData->maxPixIdxEachLayer.at(0)).phi;
+      //float theta = 90.f-TMath::RadToDeg()*onion.getPointing(dummyData->maxPixIdxEachLayer.at(0)).theta;
+      //float phi   = TMath::RadToDeg()*onion.getPointing(dummyData->maxPixIdxEachLayer.at(0)).phi;
+      float theta = 90.f - dummyData->recoZen;
+      float phi   = dummyData->recoAzi;
 
       //cout<<"nBoxes: "<<A3_cutValues->nBoxes<<endl;
       for(int box=0; box<A3_cutValues->nBoxes; box++){
 
-         if( theta > A3_cutValues->zenMin[box].val && theta < A3_cutValues->zenMax[box].val && phi > A3_cutValues->aziMin[box].val && phi < A3_cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
+         if( theta > A3_cutValues->zenMin[box].val && theta < A3_cutValues->zenMax[box].val && phi > A3_cutValues->aziMin[box].val && phi < A3_cutValues->aziMax[box].val ) {
+            inBox = true;
+            iterInBox = true;
+            //outputFile<<"run: "<<runNum<<" eventNumber: "<<dummyData->eventNumber<<" theta: "<<theta<<" phi: "<<phi<<endl;
+            outputFile<<runNum<<","<<dummyData->eventNumber<<","<<theta<<","<<phi<<endl;
+         }
 
       }
-      outputFile<<"run: "<<runNum<<" eventNumber: "<<dummyData->eventNumber<<" theta: "<<theta<<" phi: "<<phi<<" inBox: "<<inBox<<endl;
-
+      */
+      //outputFile<<"run: "<<runNum<<" eventNumber: "<<dummyData->eventNumber<<" theta: "<<theta<<" phi: "<<phi<<" inBox: "<<inBox<<endl;
 //   bool inBox = false;
 //
 //   bool iterInBox = false;
@@ -1290,7 +1306,6 @@ for(int i=4; i<argc; i++){
    //if(runNum >= 4795 && runNum <= 4800) passNoisyRunCut = false; //DP
    //if(runNum >= 3 && runNum <=60 && runNum != 50) passNoisyRunCut = false; //Corrupted wf
    //if(runNum == 4787 || runNum==4785 ) passNoisyRunCut = false; //DP
-
 
    /********* Calibration run exclusion *********/
    //passCalRunCut = !isInCalibrationRun(listOfCalRuns, runNum);
@@ -1399,7 +1414,6 @@ for(int i=4; i<argc; i++){
    //passCWCut = ( !isCW || (isCW && isRecoverableByImp(isVpolCW, isHpolCW, isXpolCW, dummyData, impCut, highPassFreq) )) && !lowFreqDominance;
    passCWCut = !lowFreqDominance;
 
-
    /****** Check if pass thermal impulsivity cut ********/
 /*
       std::fill(&impulsivity[0], &impulsivity[16], 0.);
@@ -1431,7 +1445,6 @@ for(int i=4; i<argc; i++){
    //if(dummyData->numSatChan  <= 3){ //Need at least 5 channels in reconstruction
      passNumSatChanCut = true;
    //}
-
    //passThermalImpulsivityCut=1;
    //passNoisyRunCut = 1;
    //nPassNumSatChanCut += passNumSatChanCut * dummyData->weight;
@@ -1664,8 +1677,8 @@ for(int i=4; i<argc; i++){
       }
    }
 
-
-   if(passCWCut &&/* passThermalCut &&*//* passThermalImpulsivityCut &&*/ passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) //impulsivityHist_nMinusImp->Fill( avgImpulsivity, dummyData->weight);
+//   if(passCWCut &&/* passThermalCut &&*//* passThermalImpulsivityCut &&*/ passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) //impulsivityHist_nMinusImp->Fill( avgImpulsivity, dummyData->weight);
+   if(passCWCut &&/* passThermalCut &&*//* passThermalImpulsivityCut &&*/ passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut /*&& passSurfaceCut_2 */&& passNoisyRunCut ) //impulsivityHist_nMinusImp->Fill( avgImpulsivity, dummyData->weight);
    {
       if(inBand){
       //snr_nMinusSNR->Fill(snr, dummyData->weight);
@@ -1681,7 +1694,7 @@ for(int i=4; i<argc; i++){
    }   else {
       //outputFile<<coherence<<","<<snr<<endl;
    }
-      //outputFile<<coherence<<","<<snr<<","<<inBand<<endl;
+      outputFile<<coherence<<","<<snr<<","<<inBand<<endl;
 
    }
 

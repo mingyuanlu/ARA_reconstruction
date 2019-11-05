@@ -18063,7 +18063,7 @@ TGraph *subtractDBGraphs(TGraph *gr1, TGraph *gr2){
    return gr3;
 }
 
-bool isSpikeyStringEvent(int stationId, bool dropARA03D4, /*float *snr, */TGraph** wf, TGraph** fft, double &spikeyRatio){
+bool isSpikeyStringEvent(int stationId, bool dropARA03D4, /*float *snr, */TGraph** wf, /*TGraph** fft,*/ double &spikeyRatio){
 
    spikeyRatio = 0.;
 
