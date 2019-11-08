@@ -1348,7 +1348,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    /* Constant N reco for surface filter */
 
-   recoSuccess = true;
+   recoSuccess = false;
 
    if(settings->constantNFilter > 0){
       while( !recoSuccess ){
