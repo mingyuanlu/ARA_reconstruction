@@ -1061,14 +1061,14 @@ for(int i=4; i<argc; i++){
       zen_bestHypo = 90.f-dummyData->recoZen;
       azi_bestHypo = dummyData->recoAzi;
       coherence = dummyData->maxPixCoherence;
-      maxPixLayerHist->Fill(onion->getLayerNumber(dummyData->maxPixIdx))
+      maxPixLayerHist->Fill(onion.getLayerNumber(dummyData->maxPixIdx))
 
    } else {
 
       zen_bestHypo = 90.f-theta;
       azi_bestHypo = phi;
       coherence = dummyData->maxPixCoherence2;
-      maxPixLayerHist->Fill(onion->getLayerNumber(dummyData->maxPixIdx2))
+      maxPixLayerHist->Fill(onion.getLayerNumber(dummyData->maxPixIdx2))
 
    }
 
