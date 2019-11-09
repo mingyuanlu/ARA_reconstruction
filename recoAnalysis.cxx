@@ -675,6 +675,7 @@ TH2F *zen_bvEventTime = new TH2F("zen_bvEventTime","zen_bvEventTime", endTimeMax
 
 TH1F *spikeyRatioHist = new TH1F("spikeyRatioHist", "spikeyRatioHist", 100, 0,10);
 
+TH1D *maxPixLayerHist = new TH1D("maxPixLayerHist","maxPixLayerHist",50,-0.5, 49.5);
 
 //for(int entry=0; entry<Nentries; entry++){
 for(int i=4; i<argc; i++){
@@ -1060,12 +1061,14 @@ for(int i=4; i<argc; i++){
       zen_bestHypo = 90.f-dummyData->recoZen;
       azi_bestHypo = dummyData->recoAzi;
       coherence = dummyData->maxPixCoherence;
+      maxPixLayerHist->Fill(onion->getLayerNumber(dummyData->maxPixIdx))
 
    } else {
 
       zen_bestHypo = 90.f-theta;
       azi_bestHypo = phi;
       coherence = dummyData->maxPixCoherence2;
+      maxPixLayerHist->Fill(onion->getLayerNumber(dummyData->maxPixIdx2))
 
    }
 
@@ -2588,6 +2591,10 @@ sprintf(filename,"A3 Config %d Burnsample RF;Spikey Ratio [unitless];Entry", typ
 spikeyRatioHist->SetTitle(filename);
 sprintf(filename, "%s_type%d_spikeyRatio_noCut.C", STATION.c_str(), type);
 //c36.SaveAs(filename);
+
+TCanvas c37("c37","c37",800,800);
+maxPixLayerHist->Draw();
+c37.SaveAs("recoAnalysis_37.C");
 
 return 0;
 }
