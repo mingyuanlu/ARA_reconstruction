@@ -17737,7 +17737,7 @@ TGraph * impulsivityMeasure(TGraph * wf, double *impulsivity/*TGraph * distance_
 
 
   double total = /*g->getSumV2()*/FFTtools::sumVoltageSquared(g, 0, g->GetN()-1);
-  if( fabs(total - 0) < 1e-9) { *impulsivity = 0; return distance_cdf; }
+  if( fabs(total - 0) < 1e-9) { *impulsivity = 0; delete g; return distance_cdf; }
   double sumv2 = 0;
 
 
