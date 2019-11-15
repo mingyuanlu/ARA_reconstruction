@@ -18150,7 +18150,7 @@ int loadEventListFile(string filename, vector<int>& eventList){
 
       }
    }  else {
-      cerr<<"No "<<listType<<" event list!\n";
+      cerr<<"No "<<filename<<endl;
       return -1;
    }
 
@@ -18163,7 +18163,7 @@ bool isInEventList(const vector<int>& eventList, int eventNumber){
    bool isIn = false;
    for (int i=0; i<(int)eventList.size(); i++){
       if (eventList[i] == eventNumber){
-         inIn = true;
+         isIn = true;
          break;
       }
    }
