@@ -18125,3 +18125,48 @@ bool isSpikeyStringEvent(int stationId, bool dropARA03D4, /*float *snr, */TGraph
 
    return false;
 }
+
+int loadEventListFile(string filename, vector<int>& eventList){
+
+   ifstream list;
+   //char filename[200]
+   //list.open("ARA0"+to_string(stationId)+"_"+listType+"_run"+runNum+".txt");
+   list.open(filename);
+
+   //vector<int> listOfRuns;
+   //vector<int> listOfEvents;
+   string line;
+   int event;
+   char line_char[200];
+
+   if (list.is_open() ){
+
+      while (list.good()){
+
+         getline(list, line, '\n');
+         if (line == "") break;
+         event = stoi(line);
+         eventList.push_back(event);
+
+      }
+   }  else {
+      cerr<<"No "<<listType<<" event list!\n";
+      return -1;
+   }
+
+   list.close();
+   return 1;
+}
+
+bool isInEventList(const vector<int>& eventList, int eventNumber){
+
+   bool isIn = false;
+   for (int i=0; i<(int)eventList.size(); i++){
+      if (eventList[i] == eventNumber){
+         inIn = true;
+         break;
+      }
+   }
+
+   return isIn;
+}
