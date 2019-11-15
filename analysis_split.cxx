@@ -398,19 +398,19 @@ if(settings->dataType == 1)//real events
 
       if(settings->calpulserEventListFilter){
          err = loadEventListFile("/data/user/mlu27/analysis/lists/ARA0"+to_string(rawEvPtr->stationId)+"_calpulserEventList_run"+runNum+".txt", listOfCalpulserEvents);
-         if (err<0){ cerr<<"Error reading calpulserEventList! Aborting...";return -1; }
+         if (err<0){ cerr<<"Error reading calpulserEventList! Aborting..."<<endl; return -1; }
          else { cout<<"Loaded calpulserEventList for run "<<runNum<<", Nruns: "<<listOfCalpulserEvents.size()<<endl; }
       }
 
       if(settings->surfaceEventListFilter){
          err = loadEventListFile("/data/user/mlu27/analysis/lists/ARA0"+to_string(rawEvPtr->stationId)+"_surfaceEventList_run"+runNum+".txt", listOfSurfaceEvents);
-         if (err<0){ cerr<<"Error reading surfaceEventList! Aborting...";return -1; }
+         if (err<0){ cerr<<"Error reading surfaceEventList! Aborting..."<<endl; return -1; }
          else { cout<<"Loaded surfaceEventList for run "<<runNum<<", Nruns: "<<listOfSurfaceEvents.size()<<endl; }
       }
 
       if(settings->snrCutEventListFilter){
          err = loadEventListFile("/data/user/mlu27/analysis/lists/ARA0"+to_string(rawEvPtr->stationId)+"_snrCutEventList_run"+runNum+".txt", listOfSNRCutEvents);
-         if (err<0){ cerr<<"Error reading snrCutEventList! Aborting...";return -1; }
+         if (err<0){ cerr<<"Error reading snrCutEventList! Aborting..."<<endl; return -1; }
          else { cout<<"Loaded snrCutEventList for run "<<runNum<<", Nruns: "<<listOfSNRCutEvents.size()<<endl; }
       }
 
