@@ -154,8 +154,8 @@ vector<int> listOfCalRuns;
 /*TChain*/TTree *dataTree/*=new TChain("dataTree")*/;
 TChain *runInfoTree=new TChain("runInfoTree");
 TTree *runInfoTree_temp;
-int rfEventCount = 0;
-runInfoTree_temp->SetBranchAddress("runRFEventCount", &rfEventCount);
+int rfEventCount_temp = 0;
+runInfoTree_temp->SetBranchAddress("runRFEventCount", &rfEventCount_temp);
 
 for(int i=4; i<argc; i++){
 
@@ -183,8 +183,8 @@ for(int i=4; i<argc; i++){
 
    runInfoTree_temp = (TTree*)fp->Get("runInfoTree");
    runInfoTree_temp->GetEntry(0);
-   if(rfEventCount<1){
-      cerr<<"Run: "runNum<<" has "<<rfEventCount<<" total RF events!"<<endl;
+   if(rfEventCount_temp<1){
+      cerr<<"Run: "runNum<<" has "<<rfEventCount_temp<<" total RF events!"<<endl;
    }
 
    delete runInfoTree_temp;
