@@ -743,7 +743,7 @@ for(int i=4; i<argc; i++){
    dataTree->GetEntry(entry);
    //cout<<"eventTrigType: "<<dummyData->eventTrigType<<endl;
    //if(dummyData->eventNumber != 127378) continue;
-
+   cout<<"eventNumber: "<<dummyData->eventNumber<<endl;
    //Exclude the offset-block events and block-gap events
    /*
    if(runNum==2889 && dummyData->eventNumber==108253) { totalOffsetBlockEventCount++; continue; }
@@ -2592,9 +2592,9 @@ spikeyRatioHist->SetTitle(filename);
 sprintf(filename, "%s_type%d_spikeyRatio_noCut.C", STATION.c_str(), type);
 //c36.SaveAs(filename);
 
-TCanvas c37("c37","c37",800,800);
-maxPixLayerHist->Draw();
-c37.SaveAs("recoAnalysis_37.C");
+//TCanvas c37("c37","c37",800,800);
+//maxPixLayerHist->Draw();
+//c37.SaveAs("recoAnalysis_37.C");
 
 return 0;
 }
