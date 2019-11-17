@@ -184,7 +184,7 @@ for(int i=4; i<argc; i++){
    runInfoTree_temp = (TTree*)fp.Get("runInfoTree");
    runInfoTree_temp->SetBranchAddress("runRFEventCount", &rfEventCount_temp);
    runInfoTree_temp->GetEntry(0);
-   cout<<"runRFEventCount: "<<"rfEventCount_temp"<<endl;
+   cout<<"runRFEventCount: "<<rfEventCount_temp<<endl;
    if(rfEventCount_temp<1){
       cerr<<"Run: "<<runNum<<" has "<<rfEventCount_temp<<" total RF events!"<<endl;
    }
