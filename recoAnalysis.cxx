@@ -181,10 +181,10 @@ for(int i=4; i<argc; i++){
       }
    }
 
-   runInfoTree_temp = (TTree*)fp->Get("runInfoTree");
+   runInfoTree_temp = (TTree*)fp.Get("runInfoTree");
    runInfoTree_temp->GetEntry(0);
    if(rfEventCount_temp<1){
-      cerr<<"Run: "runNum<<" has "<<rfEventCount_temp<<" total RF events!"<<endl;
+      cerr<<"Run: "<<runNum<<" has "<<rfEventCount_temp<<" total RF events!"<<endl;
    }
 
    delete runInfoTree_temp;
