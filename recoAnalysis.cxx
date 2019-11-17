@@ -153,6 +153,9 @@ vector<int> listOfCalRuns;
 /*TChain*/TTree *recoSettingsTree/*=new TChain("recoSettingsTree")*/;
 /*TChain*/TTree *dataTree/*=new TChain("dataTree")*/;
 TChain *runInfoTree=new TChain("runInfoTree");
+TTree *runInfoTree_temp;
+int rfEventCount = 0;
+runInfoTree_temp->SetBranchAddress("runRFEventCount", &rfEventCount);
 
 for(int i=4; i<argc; i++){
 
@@ -178,6 +181,13 @@ for(int i=4; i<argc; i++){
       }
    }
 
+   runInfoTree_temp = (TTree*)fp->Get("runInfoTree");
+   runInfoTree_temp->GetEntry(0);
+   if(rfEventCount<1){
+      cerr<<"Run: "runNum<<" has "<<rfEventCount<<" total RF events!"<<endl;
+   }
+
+   delete runInfoTree_temp;
    fp.Close();
 }
 
@@ -298,7 +308,10 @@ for(int run=0; run<runInfoTree->GetEntries(); run++){
    totalCWFilteredEventCount += cwFilteredEventCount;
    totalNchnlFilteredEventCount += nchnlFilteredEventCount;
    totalCorruptFirst3EventCount += corruptFirst3EventCount;
+
 */
+
+
 
    totalRunEventCount                         += runEventCount;
    totalRFEventCount                          += runRFEventCount;
