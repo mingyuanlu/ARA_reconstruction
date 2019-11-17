@@ -604,6 +604,7 @@ if(settings->dataType == 1){
 
    int utime, utime_runStart, utime_runEnd;
 */
+
    eventTree->GetEntry(0);
    utime_runStart=utime_runEnd=rawAtriEvPtr->unixTime;
 
@@ -616,8 +617,12 @@ if(settings->dataType == 1){
  * Loop over events once to determine run start/end time
  */
 
-   for(int ev=1; ev<runEventCount/*numEntries*/; ev++){
+   for(int ev=0; ev<runEventCount/*numEntries*/; ev++){
       eventTree->GetEntry(ev);
+
+      /* Implement batch split */
+      if (rawAtriEvPtr->eventNumber % settings->split != settings->batchNumber) continue;
+
       if(rawAtriEvPtr->unixTime < utime_runStart) utime_runStart=rawAtriEvPtr->unixTime;
       if(rawAtriEvPtr->unixTime > utime_runEnd  ) utime_runEnd  =rawAtriEvPtr->unixTime;
       if(rawAtriEvPtr->isRFTrigger()){
@@ -710,6 +715,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    if(rawAtriEvPtr->eventNumber != settings->recoEventIndex) continue;
    }
 
+   /* Implement batch split */
+   if (rawAtriEvPtr->eventNumber % settings->split != settings->batchNumber) continue;
 
    //cout<<"Code loop ev: "<<ev<<" eventId: "<<rawAtriEvPtr->eventId<<" eventNumber: "<<rawAtriEvPtr->eventNumber<<endl;
    summary->setEventId(rawAtriEvPtr->eventId);
@@ -1482,7 +1489,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    //delete summary;
 
    treg->clearForNextEvent();
-
+t p
    for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ /*if(settings->cwFilter>0)*/ /*delete grFFT[ch];*/ }
 
    }//end of ev loop
@@ -1506,6 +1513,9 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    if(settings->recoEventIndex > -1){ //check if only want to reconstruct a specified event
    if(ev != settings->recoEventIndex) continue;
    }
+
+   /* Implement batch split */
+   if (ev % settings->split != settings->batchNumber) continue;
 
    summary->setEventNumber(ev);
 
