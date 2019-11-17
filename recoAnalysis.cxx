@@ -153,7 +153,7 @@ vector<int> listOfCalRuns;
 /*TChain*/TTree *recoSettingsTree/*=new TChain("recoSettingsTree")*/;
 /*TChain*/TTree *dataTree/*=new TChain("dataTree")*/;
 TChain *runInfoTree=new TChain("runInfoTree");
-TTree *runInfoTree_temp;
+TTree *runInfoTree_temp = new TTree();
 int rfEventCount_temp = 0;
 runInfoTree_temp->SetBranchAddress("runRFEventCount", &rfEventCount_temp);
 
