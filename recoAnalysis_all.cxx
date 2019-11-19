@@ -262,7 +262,10 @@ ifstream list;
 //list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_2SurfaceCut_surfaceEvents_noisyRuns.txt");
 //list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_snrMode1_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
 //list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
-list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_fullDataExpoFit_surfaceEvents_noisyRuns_old.txt");
+//list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_fullDataExpoFit_surfaceEvents_noisyRuns_old.txt");
+
+//A3 noisy runs
+list.open("ARA03_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_surfaceEvents_noisyRuns.txt");
 
 //list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEventRuns.txt");
 vector<int> listOfRuns;
@@ -537,7 +540,8 @@ for(int i=0; i<5; i++){
 }
 
 
-ARA02_cutValues *cutValues = new ARA02_cutValues();
+//ARA02_cutValues *cutValues = new ARA02_cutValues();
+ARA03_cutValues *cutValues = new ARA03_cutValues();
 
 cout<<"impCut: "<<cutValues->impCut.val<<endl;
 double postThermalAvgImpulsivityCut = cutValues->impCut.val;
@@ -575,7 +579,9 @@ for(int i=3; i<argc; i++){
    else        fftRes = 1/(499e-9)/1e6;
 
    //Exclude calibration runs:
-   if( isInCalibrationRun(listOfCalRuns, runNum) ) continue;
+   //if( isInCalibrationRun(listOfCalRuns, runNum) ) continue;
+   if (shouldExclude(STATION, runNum)) continue;
+
    /*
    //Cal sweep
    if(runNum>=3177 && runNum<=3186) continue;
@@ -639,6 +645,16 @@ for(int i=3; i<argc; i++){
    if(runNum==4429 && dummyData->eventNumber==34200) continue;
    */
 
+
+   //Exclude the spikey D1 events
+   if( (runNum==850 && dummyData->eventNumber==95159) ||
+       (runNum==1115 && dummyData->eventNumber==76709) ||
+       (runNum==1164 && dummyData->eventNumber==68655) ||
+       (runNum==1169 && dummyData->eventNumber==97563) ||
+       (runNum==1414 && dummyData->eventNumber==66784)
+    ){
+      continue;
+   }
 
 
    if(dummyData->eventTrigType == 0) rfEventCount+=dummyData->weight;
@@ -945,6 +961,9 @@ for(int i=3; i<argc; i++){
    float zenRange = 3.;
    double zenMaj;
    passSurfaceCut_2 = !isIterSurface(zenMaj, dummyData, onion, settings, zenRange, surfaceCut_2);
+
+   //ARA03
+   passSurfaceCut_2 = true;
 
    if (!(passSurfaceCut && passSurfaceCut_2)){
 
@@ -2051,8 +2070,9 @@ c20.cd(1);
 zen_nMinusNoisyRunSurface->Draw();
 c20.cd(2);
 sinzen_nMinusNoisyRunSurface->Draw();
+//sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunSurface_zen_sinzen_postCut.C", STATION.c_str());
 sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunSurface_zen_sinzen_postCut.C", STATION.c_str());
-//c20.SaveAs(filename);
+c20.SaveAs(filename);
 /*
 c20.Divide(4,1);
 c20.cd(1);
@@ -2088,15 +2108,16 @@ fp.Close();
 
 TCanvas c21("c21","c21",800,800);
 zen_azi_nMinusNoisyRunSurface->Draw("colz");
-zen_azi_nMinusNoisyRunSurface->SetTitle("ARA02 [All Minus Noisy Run & Surface Cut] Events;Azimith [#circ];Zenith [#circ]");
-sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunsSurface_coincidenceCWNoImp_zen_azi.C", STATION.c_str());
-//c21.SaveAs(filename);
+zen_azi_nMinusNoisyRunSurface->SetTitle("ARA03 [All Minus Noisy Run & Surface Cut] Events;Azimith [#circ];Zenith [#circ]");
+//sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunsSurface_coincidenceCWNoImp_zen_azi.C", STATION.c_str());
+sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunsSurface_zen_azi.C", STATION.c_str());
+c21.SaveAs(filename);
 
 TCanvas c10("c10","c10",800,800);
 zen_azi_nMinusCal->Draw("colz");
 zen_azi_nMinusCal->SetTitle(";Azimuth [#circ];Zenith [#circ]");
 sprintf(filename, "%s_type%d_snrMode1_nMinusCal_zen_azi.C", STATION.c_str(), type);
-//c10.SaveAs(filename);
+c10.SaveAs(filename);
 
 /*
 TCanvas c11("c11","c11",800,800);
