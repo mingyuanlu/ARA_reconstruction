@@ -629,6 +629,15 @@ for(int i=3; i<argc; i++){
 
    numSurfaceEventPerRun = 0;
 
+   char tempName[200];
+   sprintf(tempName, "%s_run%d_surfaceEventList.csv", STATION.c_str(), runNum);
+   ofstream surfaceEventList(tempName,std::ofstream::out|std::ofstream::app);
+
+   sprintf(tempName, "%s_run%d_calpulserEventList.csv", STATION.c_str(), runNum);
+   ofstream calpulserEventList(tempName,std::ofstream::out|std::ofstream::app);
+
+
+
    for(int entry=0; entry<Nentries; entry++){
    //if(Nentries > 100) {  if(  entry % (Nentries/100) == 0  ){ cout<<"Progess: "<<entry / (Nentries/100) <<"%\n"; } }
    dataTree->GetEntry(entry);
@@ -954,6 +963,9 @@ for(int i=3; i<argc; i++){
    surfaceCut_1 = cutValues->surfaceCut_constantN[type-1].val;
    passSurfaceCut = !isSurface(dummyData, surfaceCut_1);
 
+   if (!passSurfaceCut){
+      surfaceEventList<<dummyData->eventNumber<<endl;
+   }
    //if(90.f-dummyData->constantNZen < /*SURFACE_CUT*/surfaceCut_1){
    //   passSurfaceCut = true;
    //}
@@ -1069,6 +1081,9 @@ for(int i=3; i<argc; i++){
    inBoxTheta = inBoxPhi = 0.f;
    passCalpulserCut = !isCalpulser(inBoxTheta, inBoxPhi, STATION, dummyData, onion, settings, type);
 
+   if(!passCalpulserCut){
+      calpulserEventList<<dummyData->eventNumber<<endl;
+   }
 //   bool inBox = false;
 //
 //   bool iterInBox = false;
@@ -1786,10 +1801,13 @@ for(int i=3; i<argc; i++){
    }//end of entry
 
    numSurfaceEventsInRun->Fill(numSurfaceEventPerRun);
-   cout<<runNum<<","<<numSurfaceEventPerRun<<endl;
-   if(numSurfaceEventPerRun>=14){ //Expo fit to 100% data numSurfaceEventPerRun, at 0.01 run the numSurfaceEventPerRun is 13.10
-      outputFile<<runNum<<","<<numSurfaceEventPerRun<<endl;
-   }
+   //cout<<runNum<<","<<numSurfaceEventPerRun<<endl;
+   //if(numSurfaceEventPerRun>=14){ //Expo fit to 100% data numSurfaceEventPerRun, at 0.01 run the numSurfaceEventPerRun is 13.10
+   //   outputFile<<runNum<<","<<numSurfaceEventPerRun<<endl;
+   //}
+
+surfaceEventList.close();
+calpulserEventList.close();
 
 delete dataTree;
 delete recoSettingsTree;
@@ -1798,6 +1816,7 @@ fp1.Close();
 }//end of file
 
 outputFile.close();
+
 
 printf("totalRecoEventCount: %d\trfEventCount: %f\tcalEventCount: %f\tsoftEventCount: %f\n", totalRecoEventCount, rfEventCount, calEventCount, softEventCount);
 //printf("nPassCorruption: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassCorruption, (float)nPassCorruption/(float)E19EventCount, nCut1, (float)nCut1/(float)E19EventCount);
@@ -1911,17 +1930,27 @@ impulsivityHist_avg->Write();
 fout.Close();
 */
 
-/*
+
 TCanvas c4("c4","c4",1200,800);
 c4.Divide(2,1);
 c4.cd(1);
 surfaceRunHist->Draw();
-surfaceRunHist->SetTitle("A2 Full Data;Run Number;Number of Surface Events");
+//surfaceRunHist->SetTitle("A2 Full Data;Run Number;Number of Surface Events");
+surfaceRunHist->SetTitle("A3 Full Data;Run Number;Number of Surface Events");
 int maxCount = surfaceRunHist->GetBinContent(surfaceRunHist->GetMaximumBin());
-TLine l2013(2792,0.5,2792,maxCount*1.5);
-TLine l2014(4763,0.5,4763,maxCount*1.5);
-TLine l2015(6638,0.5,6638,maxCount*1.5);
-TLine l2016(8246,0.5,8246,maxCount*1.5);
+
+//A2
+//TLine l2013(2792,0.5,2792,maxCount*1.5);
+//TLine l2014(4763,0.5,4763,maxCount*1.5);
+//TLine l2015(6638,0.5,6638,maxCount*1.5);
+//TLine l2016(8246,0.5,8246,maxCount*1.5);
+
+//A3
+TLine l2013(1901,0.5,1901,maxCount*1.5);
+TLine l2014(3683,0.5,3683,maxCount*1.5);
+TLine l2015(6150,0.5,6150,maxCount*1.5);
+TLine l2016(7808,0.5,7808,maxCount*1.5);
+
 l2013.SetLineColor(kRed);
 l2014.SetLineColor(kRed);
 l2015.SetLineColor(kRed);
@@ -1935,18 +1964,29 @@ l2014.Draw("same");
 l2015.Draw("same");
 l2016.Draw("same");
 TLatex latex;
-latex.DrawLatex(900,100,"2013");
-latex.DrawLatex(3400,100,"2014");
-latex.DrawLatex(5200,100,"2015");
-latex.DrawLatex(7000,100,"2016");
+
+//A2
+//latex.DrawLatex(900,100,"2013");
+//latex.DrawLatex(3400,100,"2014");
+//latex.DrawLatex(5200,100,"2015");
+//latex.DrawLatex(7000,100,"2016");
+
+latex.DrawLatex(400,100,"2013");
+latex.DrawLatex(2500,100,"2014");
+latex.DrawLatex(4500,100,"2015");
+latex.DrawLatex(6500,100,"2016");
+
 //gPad->SetLogy();
 
 c4.cd(2);
 numSurfaceEventsInRun->Draw();
-numSurfaceEventsInRun->SetTitle("A2 Full Data;Number of Surface Events in Run;Number of Runs");
-sprintf(filename,"surfaceRunHist_numSurfaceEventsInRun_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_%s_fullData_tunedCut_allTypes.C", STATION.c_str());
+//numSurfaceEventsInRun->SetTitle("A2 Full Data;Number of Surface Events in Run;Number of Runs");
+numSurfaceEventsInRun->SetTitle("A3 Full Data;Number of Surface Events in Run;Number of Runs");
+//sprintf(filename,"surfaceRunHist_numSurfaceEventsInRun_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_%s_fullData_tunedCut_allTypes.C", STATION.c_str());
+sprintf(filename,"surfaceRunHist_numSurfaceEventsInRun_vnchnl3NoMasking_noMaskSat_snrMode1_%s_fullData_tunedCut_allTypes.C", STATION.c_str());
+
 c4.SaveAs(filename);
-*/
+
 
 
 
@@ -2072,7 +2112,7 @@ c20.cd(2);
 sinzen_nMinusNoisyRunSurface->Draw();
 //sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunSurface_zen_sinzen_postCut.C", STATION.c_str());
 sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunSurface_zen_sinzen_postCut.C", STATION.c_str());
-c20.SaveAs(filename);
+//c20.SaveAs(filename);
 /*
 c20.Divide(4,1);
 c20.cd(1);
@@ -2111,13 +2151,13 @@ zen_azi_nMinusNoisyRunSurface->Draw("colz");
 zen_azi_nMinusNoisyRunSurface->SetTitle("ARA03 [All Minus Noisy Run & Surface Cut] Events;Azimith [#circ];Zenith [#circ]");
 //sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunsSurface_coincidenceCWNoImp_zen_azi.C", STATION.c_str());
 sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunsSurface_zen_azi.C", STATION.c_str());
-c21.SaveAs(filename);
+//c21.SaveAs(filename);
 
 TCanvas c10("c10","c10",800,800);
 zen_azi_nMinusCal->Draw("colz");
 zen_azi_nMinusCal->SetTitle(";Azimuth [#circ];Zenith [#circ]");
 sprintf(filename, "%s_type%d_snrMode1_nMinusCal_zen_azi.C", STATION.c_str(), type);
-c10.SaveAs(filename);
+//c10.SaveAs(filename);
 
 /*
 TCanvas c11("c11","c11",800,800);
