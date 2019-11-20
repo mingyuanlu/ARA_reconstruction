@@ -481,7 +481,7 @@ int startRun=0;
 int endRun  =9000;
 TH1I *runHist = new TH1I("runHist","runHist", endRun-startRun+1, startRun-0.5, endRun+0.5);
 TH1I *surfaceRunHist = new TH1I("surfaceRunHist","surfaceRunHist", endRun-startRun+1, startRun-0.5, endRun+0.5);
-TH1I *numSurfaceEventsInRun = new TH1I("numSurfaceEventsInRun","numSurfaceEventsInRun", 100001,-0.5,100000.5);
+TH1I *numSurfaceEventsInRun = new TH1I("numSurfaceEventsInRun","numSurfaceEventsInRun", 10001,-0.5,10000.5);
 int numSurfaceEventPerRun = 0;
 
 int maxFreqBin[16];
@@ -1588,7 +1588,7 @@ for(int i=3; i<argc; i++){
    //    numSurfaceEventPerRun++;
     //}
 
-    if( /*passNumSatChanCut && *//*passCWCut*/!lowFreqDominance && passDeepPulserCut /*&& passThermalCut */&& passSNRCut && /*passThermalImpulsivityCut &&*/ passCalpulserCut && passCalpulserTimeCut && (!passSurfaceCut || !passSurfaceCut_2)){ //For calpulserFilter+constantNFilter events
+    if( /*passNumSatChanCut && *//*passCWCut*/!lowFreqDominance && passDeepPulserCut /*&& passThermalCut */&& passSNRCut && /*passThermalImpulsivityCut &&*/ passCalpulserCut && passCalpulserTimeCut && (!passSurfaceCut)){ //For calpulserFilter+constantNFilter events
        surfaceRunHist->Fill(runNum);
        //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
        numSurfaceEventPerRun++;
@@ -1813,7 +1813,7 @@ for(int i=3; i<argc; i++){
    }//end of entry
 
    numSurfaceEventsInRun->Fill(numSurfaceEventPerRun);
-   //cout<<runNum<<","<<numSurfaceEventPerRun<<endl;
+   cout<<runNum<<","<<numSurfaceEventPerRun<<endl;
    //if(numSurfaceEventPerRun>=14){ //Expo fit to 100% data numSurfaceEventPerRun, at 0.01 run the numSurfaceEventPerRun is 13.10
    //   outputFile<<runNum<<","<<numSurfaceEventPerRun<<endl;
    //}
