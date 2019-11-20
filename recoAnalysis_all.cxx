@@ -1079,7 +1079,15 @@ cout<<"1038\n";
 
    float inBoxTheta, inBoxPhi;
    inBoxTheta = inBoxPhi = 0.f;
-   passCalpulserCut = !isCalpulser(inBoxTheta, inBoxPhi, STATION, dummyData, onion, settings, type);
+   //passCalpulserCut = !isCalpulser(inBoxTheta, inBoxPhi, STATION, dummyData, onion, settings, type);
+   passCalpulserCut = true;
+
+   for(int box=0; box<cutValues->nBoxes; box++){
+
+      if( 90.f-dummyData->recoZen > cutValues->zenMin[box].val && 90.f-dummyData->recoZen < cutValues->zenMax[box].val && dummyData->recoAzi > cutValues->aziMin[box].val && dummyData->recoAzi < cutValues->aziMax[box].val ) { /*inBox = true; iterInBox = true;*/ passCalpulserCut = false;}
+
+   }
+
 cout<<"1083\n";
    if(!passCalpulserCut){
       calpulserEventList<<dummyData->eventNumber<<endl;
