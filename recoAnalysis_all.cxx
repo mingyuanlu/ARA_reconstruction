@@ -641,7 +641,7 @@ for(int i=3; i<argc; i++){
    for(int entry=0; entry<Nentries; entry++){
    //if(Nentries > 100) {  if(  entry % (Nentries/100) == 0  ){ cout<<"Progess: "<<entry / (Nentries/100) <<"%\n"; } }
    dataTree->GetEntry(entry);
-   cout<<"eventTrigType: "<<dummyData->eventTrigType<<endl;
+   //cout<<"eventTrigType: "<<dummyData->eventTrigType<<endl;
    //if(dummyData->eventNumber != 127378) continue;
 
    /*
