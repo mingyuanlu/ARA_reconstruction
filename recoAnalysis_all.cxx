@@ -481,7 +481,7 @@ int startRun=0;
 int endRun  =9000;
 TH1I *runHist = new TH1I("runHist","runHist", endRun-startRun+1, startRun-0.5, endRun+0.5);
 TH1I *surfaceRunHist = new TH1I("surfaceRunHist","surfaceRunHist", endRun-startRun+1, startRun-0.5, endRun+0.5);
-TH1I *numSurfaceEventsInRun = new TH1I("numSurfaceEventsInRun","numSurfaceEventsInRun", 10001,-0.5,10000.5);
+TH1I *numSurfaceEventsInRun = new TH1I("numSurfaceEventsInRun","numSurfaceEventsInRun", 100001,-0.5,100000.5);
 int numSurfaceEventPerRun = 0;
 
 int maxFreqBin[16];
@@ -956,7 +956,7 @@ for(int i=3; i<argc; i++){
       passSNRCut = true;
    }
 
-cout<<"960\n";
+
    /***** 3. Surface cut ********************/
 
    surfaceCut_1 = cutValues->surfaceCut_constantN[type-1].val;
@@ -964,7 +964,7 @@ cout<<"960\n";
 
    if (!passSurfaceCut){
       cout<<"Does not pass surface cut: "<<90.f-dummyData->constantNZen<<endl;
-      surfaceEventList<<dummyData->eventNumber<<endl;
+      surfaceEventList<<dummyData->eventNumber<<","<<90.f-dummyData->constantNZen<<endl;
    }
    //if(90.f-dummyData->constantNZen < /*SURFACE_CUT*/surfaceCut_1){
    //   passSurfaceCut = true;
@@ -1035,7 +1035,7 @@ cout<<"960\n";
    */
 
    /***** Calpulser sweep time cut **********/
-cout<<"1038\n";
+
    passCalpulserTimeCut = !isCalpulserTime(STATION, dummyData);
 /*
    if( STATION == "ARA02" ){
@@ -1088,7 +1088,6 @@ cout<<"1038\n";
 
    }
 
-cout<<"1083\n";
    if(!passCalpulserCut){
       calpulserEventList<<dummyData->eventNumber<<endl;
    }
@@ -1171,7 +1170,6 @@ cout<<"1083\n";
    //if(runNum >= 4795 && runNum <= 4800) passNoisyRunCut = false; //DP
    //if(runNum >= 3 && runNum <=60 && runNum != 50) passNoisyRunCut = false; //Corrupted wf
    //if(runNum == 4787 || runNum==4785 ) passNoisyRunCut = false; //DP
-cout<<"1166\n";
 
    /* Check if CW-tagged event can be recovered by surviving the impulsivity cut */
    /*
