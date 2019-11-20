@@ -1712,7 +1712,7 @@ for(int i=4; i<argc; i++){
    }   else {
       //outputFile<<coherence<<","<<snr<<endl;
    }
-      outputFile<<coherence<<","<<snr<<","<<inBand<<endl;
+      //outputFile<<coherence<<","<<snr<<","<<inBand<<endl;
 
    }
 
@@ -1732,6 +1732,8 @@ for(int i=4; i<argc; i++){
       zen_nMinusSurface->Fill((passSurfaceCut?zenMaj:90.f-dummyData->constantNZen));
       zen_azi_nMinusSurface->Fill(dummyData->constantNAzi, (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen), dummyData->weight);
       double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
+
+      outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<","<<dummyData->constantNZen<<","<<dummyData->constantNAzi<<endl;
 
       if(inBand){
          //coherence_snr_nMinusSurface->Fill(snr, coherence, dummyData->weight);
@@ -1755,7 +1757,7 @@ for(int i=4; i<argc; i++){
    if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut /*&& passSurfaceCut && passSurfaceCut_2 *//*&& passNoisyRunCut*/ )
    {
    //zen_nMinusSurface->Fill((passSurfaceCut?zenMaj:90.f-dummyData->constantNZen));
-   //zen_azi_nMinusSurface->Fill(dummyData->constantNAzi, (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen), dummyData->weight);
+   zen_azi_nMinusSurface->Fill(dummyData->constantNAzi, (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen), dummyData->weight);
    //double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
    double theta_temp = 90.f-dummyData->constantNZen;
    if(theta_temp > 52 && theta_temp < 57 && dummyData->constantNAzi > 235 && dummyData->constantNAzi < 245){
