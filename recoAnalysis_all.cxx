@@ -853,7 +853,6 @@ for(int i=3; i<argc; i++){
 //
 
 
-cout<<"856\n";
 
    bool lowFreqDominance = false;
    int lowFreqCountThres = 4;
@@ -876,7 +875,7 @@ cout<<"856\n";
    //isCW = (isVpolCW || isHpolCW);
    //cout<<"isCW: "<<isCW<<endl;
    //passCWCut = (!isCW);
-cout<<"879\n";
+
    maxCountFreq_V_hist->Fill(dummyData->maxCountFreq_V, dummyData->weight);
    maxCountFreq_H_hist->Fill(dummyData->maxCountFreq_H, dummyData->weight);
 
@@ -893,7 +892,7 @@ cout<<"879\n";
       dFHist_H->Fill( dummyData->freqBinWidth_H * (dummyData->maxFreqBin[ch] - maxCountFreqBin_H) );
       }
    }
-cout<<"896\n";
+
    /***** 1. Spikey event rejection *********/
 /*
    if( !(dummyData->unixTime >= CORRUPT_EVENT_START_TIME && dummyData->eventNumber < CORRUPT_EVENT_END_EVENT_NUMBER) ){
@@ -973,7 +972,7 @@ cout<<"960\n";
 
    float zenRange = 3.;
    double zenMaj;
-   passSurfaceCut_2 = !isIterSurface(zenMaj, dummyData, onion, settings, zenRange, surfaceCut_2);
+   //passSurfaceCut_2 = !isIterSurface(zenMaj, dummyData, onion, settings, zenRange, surfaceCut_2);
 cout<<"977\n";
    //ARA03
    passSurfaceCut_2 = true;
