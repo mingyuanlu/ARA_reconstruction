@@ -973,7 +973,7 @@ cout<<"960\n";
    float zenRange = 3.;
    double zenMaj;
    //passSurfaceCut_2 = !isIterSurface(zenMaj, dummyData, onion, settings, zenRange, surfaceCut_2);
-cout<<"977\n";
+
    //ARA03
    passSurfaceCut_2 = true;
 
@@ -1035,7 +1035,7 @@ cout<<"977\n";
    */
 
    /***** Calpulser sweep time cut **********/
-
+cout<<"1038\n";
    passCalpulserTimeCut = !isCalpulserTime(STATION, dummyData);
 /*
    if( STATION == "ARA02" ){
@@ -1080,7 +1080,7 @@ cout<<"977\n";
    float inBoxTheta, inBoxPhi;
    inBoxTheta = inBoxPhi = 0.f;
    passCalpulserCut = !isCalpulser(inBoxTheta, inBoxPhi, STATION, dummyData, onion, settings, type);
-
+cout<<"1083\n";
    if(!passCalpulserCut){
       calpulserEventList<<dummyData->eventNumber<<endl;
    }
@@ -1163,7 +1163,7 @@ cout<<"977\n";
    //if(runNum >= 4795 && runNum <= 4800) passNoisyRunCut = false; //DP
    //if(runNum >= 3 && runNum <=60 && runNum != 50) passNoisyRunCut = false; //Corrupted wf
    //if(runNum == 4787 || runNum==4785 ) passNoisyRunCut = false; //DP
-
+cout<<"1166\n";
 
    /* Check if CW-tagged event can be recovered by surviving the impulsivity cut */
    /*
@@ -1262,7 +1262,7 @@ cout<<"977\n";
 
    }
    */
-   double impCut = cutValues->cwImpCut[type-1].val; //impulsivityCut[type-1];
+   //double impCut = cutValues->cwImpCut[type-1].val; //impulsivityCut[type-1];
    impCut = 1/*0.2579306*//*0.2384656*/;
    //passCWCut = ( !isCW || (isCW && passHighPassFilter && passImpulsivityCut )) && !lowFreqDominance;
    //passCWCut = ( !isCW || (isCW && isRecoverableByImp(isVpolCW, isHpolCW, isXpolCW, dummyData, impCut, highPassFreq) )) && !lowFreqDominance;
