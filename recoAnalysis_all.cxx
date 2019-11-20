@@ -641,7 +641,7 @@ for(int i=3; i<argc; i++){
    for(int entry=0; entry<Nentries; entry++){
    //if(Nentries > 100) {  if(  entry % (Nentries/100) == 0  ){ cout<<"Progess: "<<entry / (Nentries/100) <<"%\n"; } }
    dataTree->GetEntry(entry);
-   //cout<<"eventTrigType: "<<dummyData->eventTrigType<<endl;
+   cout<<"eventTrigType: "<<dummyData->eventTrigType<<endl;
    //if(dummyData->eventNumber != 127378) continue;
 
    /*
@@ -853,7 +853,7 @@ for(int i=3; i<argc; i++){
 //
 
 
-
+cout<<"856\n";
 
    bool lowFreqDominance = false;
    int lowFreqCountThres = 4;
@@ -876,7 +876,7 @@ for(int i=3; i<argc; i++){
    //isCW = (isVpolCW || isHpolCW);
    //cout<<"isCW: "<<isCW<<endl;
    //passCWCut = (!isCW);
-
+cout<<"879\n";
    maxCountFreq_V_hist->Fill(dummyData->maxCountFreq_V, dummyData->weight);
    maxCountFreq_H_hist->Fill(dummyData->maxCountFreq_H, dummyData->weight);
 
@@ -893,7 +893,7 @@ for(int i=3; i<argc; i++){
       dFHist_H->Fill( dummyData->freqBinWidth_H * (dummyData->maxFreqBin[ch] - maxCountFreqBin_H) );
       }
    }
-
+cout<<"896\n";
    /***** 1. Spikey event rejection *********/
 /*
    if( !(dummyData->unixTime >= CORRUPT_EVENT_START_TIME && dummyData->eventNumber < CORRUPT_EVENT_END_EVENT_NUMBER) ){
@@ -957,7 +957,7 @@ for(int i=3; i<argc; i++){
       passSNRCut = true;
    }
 
-
+cout<<"960\n";
    /***** 3. Surface cut ********************/
 
    surfaceCut_1 = cutValues->surfaceCut_constantN[type-1].val;
@@ -974,7 +974,7 @@ for(int i=3; i<argc; i++){
    float zenRange = 3.;
    double zenMaj;
    passSurfaceCut_2 = !isIterSurface(zenMaj, dummyData, onion, settings, zenRange, surfaceCut_2);
-
+cout<<"977\n";
    //ARA03
    passSurfaceCut_2 = true;
 
