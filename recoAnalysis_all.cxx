@@ -631,10 +631,10 @@ for(int i=3; i<argc; i++){
 
    char tempName[200];
    sprintf(tempName, "%s_run%d_surfaceEventList.csv", STATION.c_str(), runNum);
-   ofstream surfaceEventList(tempName,std::ofstream::out|std::ofstream::app);
+   ofstream surfaceEventList(tempName,std::ofstream::out|std::ofstream::trunc);
 
    sprintf(tempName, "%s_run%d_calpulserEventList.csv", STATION.c_str(), runNum);
-   ofstream calpulserEventList(tempName,std::ofstream::out|std::ofstream::app);
+   ofstream calpulserEventList(tempName,std::ofstream::out|std::ofstream::trunc);
 
 
 
