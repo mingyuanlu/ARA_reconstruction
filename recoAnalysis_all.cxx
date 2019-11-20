@@ -964,7 +964,7 @@ for(int i=3; i<argc; i++){
    passSurfaceCut = !isSurface(dummyData, surfaceCut_1);
 
    if (!passSurfaceCut){
-      cout<<<"Does not pass surface cut: "<90.f-dummyData->constantNZen<<endl;
+      cout<<<"Does not pass surface cut: "<<90.f-dummyData->constantNZen<<endl;
       surfaceEventList<<dummyData->eventNumber<<endl;
    }
    //if(90.f-dummyData->constantNZen < /*SURFACE_CUT*/surfaceCut_1){
