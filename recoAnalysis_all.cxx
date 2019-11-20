@@ -1263,7 +1263,7 @@ cout<<"1166\n";
    }
    */
    //double impCut = cutValues->cwImpCut[type-1].val; //impulsivityCut[type-1];
-   impCut = 1/*0.2579306*//*0.2384656*/;
+   //impCut = 1/*0.2579306*//*0.2384656*/;
    //passCWCut = ( !isCW || (isCW && passHighPassFilter && passImpulsivityCut )) && !lowFreqDominance;
    //passCWCut = ( !isCW || (isCW && isRecoverableByImp(isVpolCW, isHpolCW, isXpolCW, dummyData, impCut, highPassFreq) )) && !lowFreqDominance;
    passCWCut = !lowFreqDominance;
