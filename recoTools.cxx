@@ -18148,14 +18148,14 @@ int loadEventListFile(string filename, vector<int>& eventList){
 
          size_t found = line.find(',');
          if (found == string::npos){
-            run = stoi(line);
-            vec.push_back(run);
+            event = stoi(line);
+            eventList.push_back(event);
          } else {
-            run = stoi(line.substr(0,found));
-            vec.push_back(run);
+            event = stoi(line.substr(0,found));
+            eventList.push_back(event);
          }
 
-         cout<<"run: "<<run<<endl;
+         cout<<"event: "<<event<<endl;
 
       }
    }  else {
