@@ -1837,13 +1837,16 @@ fp1.Close();
 
 }//end of file
 
-outputFile.close();
 
 for (std::map<int, int>::iterator it=nSurfMap.begin(); it!=nSurfMap.end(); it++){
    cout<<"Run: "<<it->first<<" Nsurf: "<<it->second<<endl;
-   numSurfaceEventsInRun->Fill(it->second);
+   //numSurfaceEventsInRun->Fill(it->second);
+   if(it->second >= 8){ //Expo fit to A3 100% data numSurfaceEventPerRun, at 0.01 run the numSurfaceEventPerRun is 7.525
+      outputFile<<it->first<<","<<it->second<<endl;
+   }
 }
 
+outputFile.close();
 
 printf("totalRecoEventCount: %d\trfEventCount: %f\tcalEventCount: %f\tsoftEventCount: %f\n", totalRecoEventCount, rfEventCount, calEventCount, softEventCount);
 //printf("nPassCorruption: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassCorruption, (float)nPassCorruption/(float)E19EventCount, nCut1, (float)nCut1/(float)E19EventCount);
@@ -2012,7 +2015,7 @@ numSurfaceEventsInRun->SetTitle("A3 Full Data;Number of Surface Events in Run;Nu
 //sprintf(filename,"surfaceRunHist_numSurfaceEventsInRun_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_%s_fullData_tunedCut_allTypes.C", STATION.c_str());
 sprintf(filename,"surfaceRunHist_numSurfaceEventsInRun_vnchnl3NoMasking_noMaskSat_snrMode1_%s_fullData_tunedCut_allTypes.C", STATION.c_str());
 
-c4.SaveAs(filename);
+//c4.SaveAs(filename);
 
 
 
