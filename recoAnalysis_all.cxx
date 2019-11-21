@@ -967,7 +967,7 @@ for(int i=3; i<argc; i++){
    passSurfaceCut = !isSurface(dummyData, surfaceCut_1);
 
    if (!passSurfaceCut){
-      cout<<"Does not pass surface cut: "<<90.f-dummyData->constantNZen<<endl;
+      //cout<<"Does not pass surface cut: "<<90.f-dummyData->constantNZen<<endl;
       surfaceEventList<<dummyData->eventNumber<<","<<90.f-dummyData->constantNZen<<endl;
    }
    //if(90.f-dummyData->constantNZen < /*SURFACE_CUT*/surfaceCut_1){
@@ -1595,7 +1595,7 @@ for(int i=3; i<argc; i++){
     if( /*passNumSatChanCut && *//*passCWCut*/!lowFreqDominance && passDeepPulserCut /*&& passThermalCut */&& passSNRCut && /*passThermalImpulsivityCut &&*/ passCalpulserCut && passCalpulserTimeCut && (!passSurfaceCut)){ //For calpulserFilter+constantNFilter events
        surfaceRunHist->Fill(runNum);
        //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
-       cout<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
+       //cout<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
        numSurfaceEventPerRun++;
     }
    //if( /*passNumSatChanCut &&*/ /*passCWCut &&*/ passDeepPulserCut && passThermalCut && passSurfaceCut && passSurfaceCut_2){ impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight); outputFile<<avgImpulsivity<<","; }
