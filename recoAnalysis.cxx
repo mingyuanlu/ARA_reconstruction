@@ -1108,7 +1108,7 @@ for(int i=4; i<argc; i++){
    //   else passThermalCut = false;
 
    //}
-   cout<<"coherence: "<<coherence<<endl;
+   cout<<"coherence: "<<coherence<<" snr: "<<snr<<endl;
    if(coherence > coherenceCutValue) passThermalCut = true;
    else passThermalCut = false;
       //passThermalCut = true;
