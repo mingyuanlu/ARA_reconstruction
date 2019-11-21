@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <algorithm>
+#include <map>
 
 #include "RawIcrrStationEvent.h"
 #include "RawAtriStationEvent.h"
@@ -567,6 +568,9 @@ TH1F *avgPhiXingHist = new TH1F("avgPhiXingHist","avgPhiXingHist",500+1,0.5,500+
 TH1F *inRangeThetaFracHist = new TH1F("inRangeThetaFracHist","inRangeThetaFracHist",100,0,1);
 TH1F *inRangePhiFracHist = new TH1F("inRangePhiFracHist","inRangePhiFracHist",100,0,1);
 TH2F *inRangeThetaPhiFracHist = new TH2F("inRangeThetaPhiFracHist","inRangeThetaPhiFracHist",100,0,1,100,0,1);
+
+std::map<int, int> nSurfMap;
+
 
 //for(int entry=0; entry<Nentries; entry++){
 for(int i=3; i<argc; i++){
@@ -1812,7 +1816,12 @@ for(int i=3; i<argc; i++){
 
    }//end of entry
 
-   numSurfaceEventsInRun->Fill(numSurfaceEventPerRun);
+   if (nSurfMap.find(runNum) != nSurfMap.end()){
+      nSurfMap[runNum] += numSurfaceEventPerRun;
+   } else {
+      nSurfMap[runNum] = numSurfaceEventPerRun;
+   }
+   //numSurfaceEventsInRun->Fill(numSurfaceEventPerRun);
    cout<<runNum<<","<<numSurfaceEventPerRun<<endl;
    //if(numSurfaceEventPerRun>=14){ //Expo fit to 100% data numSurfaceEventPerRun, at 0.01 run the numSurfaceEventPerRun is 13.10
    //   outputFile<<runNum<<","<<numSurfaceEventPerRun<<endl;
@@ -1828,6 +1837,10 @@ fp1.Close();
 }//end of file
 
 outputFile.close();
+
+for (std::map<int, int>::iterator it=nSurfMap.begin(); it!=nSurfMap.end(); it++){
+   numSurfaceEventsInRun->Fill(it->second);
+}
 
 
 printf("totalRecoEventCount: %d\trfEventCount: %f\tcalEventCount: %f\tsoftEventCount: %f\n", totalRecoEventCount, rfEventCount, calEventCount, softEventCount);
