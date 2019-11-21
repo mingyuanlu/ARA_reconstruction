@@ -768,7 +768,7 @@ for(int i=4; i<argc; i++){
    //block-gap
    if(runNum==4429 && dummyData->eventNumber==34200) { totalBlockGapEventCount++; continue; }
    */
-
+   if (dummyData->eventNumber != 131864) continue;
 
    //Exclude the spikey D1 events
    if( (runNum==850 && dummyData->eventNumber==95159) ||
