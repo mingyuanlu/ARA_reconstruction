@@ -1595,6 +1595,7 @@ for(int i=3; i<argc; i++){
     if( /*passNumSatChanCut && *//*passCWCut*/!lowFreqDominance && passDeepPulserCut /*&& passThermalCut */&& passSNRCut && /*passThermalImpulsivityCut &&*/ passCalpulserCut && passCalpulserTimeCut && (!passSurfaceCut)){ //For calpulserFilter+constantNFilter events
        surfaceRunHist->Fill(runNum);
        //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
+       cout<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
        numSurfaceEventPerRun++;
     }
    //if( /*passNumSatChanCut &&*/ /*passCWCut &&*/ passDeepPulserCut && passThermalCut && passSurfaceCut && passSurfaceCut_2){ impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight); outputFile<<avgImpulsivity<<","; }
@@ -1839,6 +1840,7 @@ fp1.Close();
 outputFile.close();
 
 for (std::map<int, int>::iterator it=nSurfMap.begin(); it!=nSurfMap.end(); it++){
+   cout<<"Run: "<<it->first<<" Nsurf: "<<it->second<<endl;
    numSurfaceEventsInRun->Fill(it->second);
 }
 
