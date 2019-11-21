@@ -18170,3 +18170,38 @@ bool isInEventList(const vector<int>& eventList, int eventNumber){
 
    return isIn;
 }
+
+int getEventList(ifstream& ifs, vector<int>& vec){
+
+   //vector<int> listOfRuns;
+   //vector<int> listOfEvents;
+   string line;
+   int run, event;
+   char line_char[200];
+
+   if (ifs.is_open() ){
+
+      while (ifs.good()){
+
+         getline(list, line, '\n');
+         if (line == "") break;
+
+         size_t found = line.find(',');
+         if (found == string::npos){
+            run = stoi(line);
+            vec.push_back(run);
+         } else {
+            run = stoi(line.substr(0,found));
+            vec.push_back(run)
+         }
+
+         cout<<"run: "<<run<<endl;
+
+      }
+   }  else {
+      cerr<<"No event list! Aborting...";
+      return -1;
+   }
+
+   return 1;
+}
