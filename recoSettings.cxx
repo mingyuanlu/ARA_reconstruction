@@ -114,7 +114,7 @@ void recoSettings::initialize(){
 
   calpulserEventListFilter = 0;
   surfaceEventListFilter = 0;
-  snrCutEventListFilter = 0;
+  snrCutFilter = 0;
 
   //remark = "Default.";
   snprintf(remark, sizeof(remark), "Default.");
@@ -215,8 +215,8 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
                calpulserEventListFilter = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "surfaceEventListFilter")
                surfaceEventListFilter = atoi( line.substr(line.find_first_of("=")+1).c_str() );
-            else if(label == "snrCutEventListFilter")
-               snrCutEventListFilter = atoi( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "snrCutFilter")
+               snrCutFilter = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label != "") cerr<<"Undefined parameter detected. Label: "<<label<<endl;
          }
       }
@@ -305,7 +305,7 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
       if( batchNumber < 0 || batchNumber >= split ){     cerr<<"batchNumber: "<<batchNumber<<endl; errCnt++; }
       if( (unsigned)(calpulserEventListFilter-0) > 1){   cerr<<"calpulserEventListFilter: "<<calpulserEventListFilter<<endl; errCnt++; }
       if( (unsigned)(surfaceEventListFilter-0) > 1){     cerr<<"surfaceEventListFilter: "<<surfaceEventListFilter<<endl; errCnt++; }
-      if( (unsigned)(snrCutEventListFilter-0) > 1){      cerr<<"snrCutEventListFilter: "<<snrCutEventListFilter<<endl; errCnt++; }
+      if( (unsigned)(snrCutFilter-0) > 1){        cerr<<"snrCutFilter: "<<snrCutFilter<<endl; errCnt++; }
       if(errCnt > 0) return false;
 
    } else { cerr<<"Unable to open "<<sf<<endl; return false; }

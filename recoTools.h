@@ -477,5 +477,5 @@ TGraph *subtractDBGraphs(TGraph *gr1, TGraph *gr2);
 bool isSpikeyStringEvent(int statioId, bool dropARA03D4, /*float *snr,*/ TGraph** wf, /*TGraph** fft,*/ double &spikeyRatio);
 int loadEventListFile(string filename, vector<int>& eventList);
 bool isInEventList(const vector<int>& eventList, int eventNumber);
-int getEventList(ifstream& ifs, vector<int>& vec);
+//int getEventList(ifstream& ifs, vector<int>& vec);
 #endif

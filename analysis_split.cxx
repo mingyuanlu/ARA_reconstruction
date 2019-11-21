@@ -282,10 +282,11 @@ vector<int> listOfCalpulserEvents;
 vector<int> listOfSurfaceEvents;
 
 /*
- * Variables used in settings->snrCutEventListFilter=1 case. Only implemented for A3 now
+ * Variables used in settings->snrCutFilter=1 case. Only implemented for A3 now
  */
 
-vector<int> listOfSNRCutEvents;
+ARA03_cutValues *cutValues = new ARA03_cutValues();
+int type;
 
 /*
  * Constants used
@@ -397,23 +398,23 @@ if(settings->dataType == 1)//real events
    if (rawEvPtr->stationId==3){//list only exists for A3 now
 
       if(settings->calpulserEventListFilter){
-         err = loadEventListFile("/data/user/mlu27/analysis/lists/ARA0"+to_string(rawEvPtr->stationId)+"_calpulserEventList_run"+runNum+".txt", listOfCalpulserEvents);
+         err = loadEventListFile("/data/user/mlu27/analysis/ARA03_analysis_event_lists/ARA0"+to_string(rawEvPtr->stationId)+"_run"+runNum+"_calpulserEventList.csv", listOfCalpulserEvents);
          if (err<0){ cerr<<"Error reading calpulserEventList! Aborting..."<<endl; return -1; }
          else { cout<<"Loaded calpulserEventList for run "<<runNum<<", Nruns: "<<listOfCalpulserEvents.size()<<endl; }
       }
 
       if(settings->surfaceEventListFilter){
-         err = loadEventListFile("/data/user/mlu27/analysis/lists/ARA0"+to_string(rawEvPtr->stationId)+"_surfaceEventList_run"+runNum+".txt", listOfSurfaceEvents);
+         err = loadEventListFile("/data/user/mlu27/analysis/ARA03_analysis_event_lists/ARA0"+to_string(rawEvPtr->stationId)+"_run"+runNum+"_surfaceEventList.csv", listOfSurfaceEvents);
          if (err<0){ cerr<<"Error reading surfaceEventList! Aborting..."<<endl; return -1; }
          else { cout<<"Loaded surfaceEventList for run "<<runNum<<", Nruns: "<<listOfSurfaceEvents.size()<<endl; }
       }
-
+      /*
       if(settings->snrCutEventListFilter){
          err = loadEventListFile("/data/user/mlu27/analysis/lists/ARA0"+to_string(rawEvPtr->stationId)+"_snrCutEventList_run"+runNum+".txt", listOfSNRCutEvents);
          if (err<0){ cerr<<"Error reading snrCutEventList! Aborting..."<<endl; return -1; }
          else { cout<<"Loaded snrCutEventList for run "<<runNum<<", Nruns: "<<listOfSNRCutEvents.size()<<endl; }
       }
-
+      */
    }
 
 }
@@ -658,7 +659,12 @@ if(settings->dataType == 1){
    cout<<"utime_runStart: "<<utime_runStart<<" dropD4Time: "<<dropD4Time<<endl;
    cout<<"Run time span: "<<utime_runEnd-utime_runStart<<endl;
 
+   type = getRunType("ARA0"+to_string(rawAtriEvPtr->stationId), stoi(runNum));
+   cout<<"Station: "<<rawAtriEvPtr->stationId<<" run: "<<runNum<<" config: "<<type<<endl;
+
 }//end of if dataType = 1
+
+
 /*
  * Start looping events for analysis
  */
@@ -1338,15 +1344,20 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          }
       }
 
-      if(settings->snrCutEventListFilter){
-         if(isInEventList(listOfSNRCutEvents, realAtriEvPtr->eventNumber)){
-            snrCutEventCount += 1;
-            unpaddedEvent.clear();
-            cleanEvent.clear();
-            delete realAtriEvPtr;
-            for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ /*delete grCDF[ch];*/ /*delete grFFT[ch];*/}
-            continue;
-         }
+      if(settings->snrCutFilter){
+         //if(isInEventList(listOfSNRCutEvents, realAtriEvPtr->eventNumber)){
+         double snr;
+         if(string(settings->recoPolType)=="vpol"){ snr = dummyData->inWindowSNR_V; }
+         else if(string(settings->recoPolType)=="hpol"){ snr = dummyData->inWindowSNR_H; }
+
+         if (snr < cutValues->snrCut[type-1].val){
+               snrCutEventCount += 1;
+               unpaddedEvent.clear();
+               cleanEvent.clear();
+               delete realAtriEvPtr;
+               for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ /*delete grCDF[ch];*/ /*delete grFFT[ch];*/}
+               continue;
+            }
       }
 
    }

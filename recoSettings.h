@@ -153,8 +153,8 @@ public:
       Default 0. 0: no event filter from list of know calpuler events. 1. filter  events from that list
    surfaceEventListFilter:
       Default 0. 0: no event filter from list of know surface events. 1. filter  events from that list
-   snrCutEventListFilter:
-      Default 0. 0: no event filter from list of know below-snr-cut events. 1. filter  events from that list
+   snrCutFilter:
+      Default 0. 0: no event filter with analysis level SNR cut. 1. filter  events with SNR below cut value
 
    remark:
       Default "". Any remark one wishes to add to the reco setup file. The remarks will then be carried along in the analysis output ROOT file. Note that number of characters should not exceed CSTRING_MAX defined in recoSettings.h
@@ -278,7 +278,7 @@ public:
    int batchNumber;
    int calpulserEventListFilter;
    int surfaceEventListFilter;
-   int snrCutEventListFilter;
+   int snrCutFilter;
 
    ClassDef(recoSettings, 22); //2: convert all string parameters to char
                               //3: add openCLDeviceType and openCLMaxNumberOfDevices parameters
