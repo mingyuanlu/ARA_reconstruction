@@ -18148,14 +18148,14 @@ int loadEventListFile(string filename, vector<int>& eventList){
 
          size_t found = line.find(',');
          if (found == string::npos){
-            event = stoi(line);
-            eventList.push_back(event);
+            run = stoi(line);
+            vec.push_back(run);
          } else {
-            event = stoi(line.substr(0,found));
-            eventList.push_back(event)
+            run = stoi(line.substr(0,found));
+            vec.push_back(run);
          }
 
-         cout<<"event: "<<event<<endl;
+         cout<<"run: "<<run<<endl;
 
       }
    }  else {
@@ -18179,7 +18179,7 @@ bool isInEventList(const vector<int>& eventList, int eventNumber){
 
    return isIn;
 }
-/*
+
 int getEventList(ifstream& ifs, vector<int>& vec){
 
    //vector<int> listOfRuns;
@@ -18214,4 +18214,3 @@ int getEventList(ifstream& ifs, vector<int>& vec){
 
    return 1;
 }
-*/
