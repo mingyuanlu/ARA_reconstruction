@@ -30,6 +30,7 @@
 #include "recoSettings.h"
 #include "recoData.h"
 #include "trackEngine.h"
+#include "analysisTools.h"
 
 #include "Detector.h"
 #include "Trigger.h"
