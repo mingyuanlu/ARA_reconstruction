@@ -1348,8 +1348,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       if(settings->snrCutFilter){
          //if(isInEventList(listOfSNRCutEvents, realAtriEvPtr->eventNumber)){
          double snr;
-         if(string(settings->recoPolType)=="vpol"){ snr = dummyData->inWindowSNR_V; }
-         else if(string(settings->recoPolType)=="hpol"){ snr = dummyData->inWindowSNR_H; }
+         if(string(settings->recoPolType)=="vpol"){ snr = summary>inWindowSNR_V; }
+         else if(string(settings->recoPolType)=="hpol"){ snr = summary->inWindowSNR_H; }
 
          if (snr < cutValues->snrCut[type-1].val){
                snrCutEventCount += 1;
