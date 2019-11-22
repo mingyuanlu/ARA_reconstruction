@@ -18179,7 +18179,7 @@ bool isInEventList(const vector<int>& eventList, int eventNumber){
 
    return isIn;
 }
-
+/*
 int getEventList(ifstream& ifs, vector<int>& vec){
 
    //vector<int> listOfRuns;
@@ -18214,3 +18214,4 @@ int getEventList(ifstream& ifs, vector<int>& vec){
 
    return 1;
 }
+*/
