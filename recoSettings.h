@@ -145,6 +145,17 @@ public:
       Default: 100. The threshold in mV for the absolute difference between the first and last sample of the 64-sample median-filtered waveform in A3 string 3 (ch%4==2), above which the waveform is considered a cliff waveform
    calpulserFilter:
       Default: 0. 0: no run-time calpulser filtering. 1: run-time calpulser filtering. NB only applicable for A3!
+   split:
+      Default: 1. Number of batches to split the run into. The hashing is through a simple "%" operator.
+   batchNumber:
+      Default 0. When eventNumber % split ==  batchNumber, process the event
+   calpulserEventListFilter:
+      Default 0. 0: no event filter from list of know calpuler events. 1. filter  events from that list
+   surfaceEventListFilter:
+      Default 0. 0: no event filter from list of know surface events. 1. filter  events from that list
+   snrCutFilter:
+      Default 0. 0: no event filter with analysis level SNR cut. 1. filter  events with SNR below cut value
+
    remark:
       Default "". Any remark one wishes to add to the reco setup file. The remarks will then be carried along in the analysis output ROOT file. Note that number of characters should not exceed CSTRING_MAX defined in recoSettings.h
 */
@@ -262,7 +273,14 @@ public:
    //ClassDef 21
    int calpulserFilter;
 
-   ClassDef(recoSettings, 21); //2: convert all string parameters to char
+   //classDef 22
+   int split;
+   int batchNumber;
+   int calpulserEventListFilter;
+   int surfaceEventListFilter;
+   int snrCutFilter;
+
+   ClassDef(recoSettings, 22); //2: convert all string parameters to char
                               //3: add openCLDeviceType and openCLMaxNumberOfDevices parameters
 };
 

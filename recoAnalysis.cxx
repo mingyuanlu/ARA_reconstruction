@@ -153,6 +153,9 @@ vector<int> listOfCalRuns;
 /*TChain*/TTree *recoSettingsTree/*=new TChain("recoSettingsTree")*/;
 /*TChain*/TTree *dataTree/*=new TChain("dataTree")*/;
 TChain *runInfoTree=new TChain("runInfoTree");
+TTree *runInfoTree_temp = new TTree();
+int rfEventCount_temp = 0;
+
 
 for(int i=4; i<argc; i++){
 
@@ -178,6 +181,15 @@ for(int i=4; i<argc; i++){
       }
    }
 
+   runInfoTree_temp = (TTree*)fp.Get("runInfoTree");
+   runInfoTree_temp->SetBranchAddress("runRFEventCount", &rfEventCount_temp);
+   runInfoTree_temp->GetEntry(0);
+   //cout<<""<<"runRFEventCount: "<<rfEventCount_temp<<endl;
+   if(rfEventCount_temp<1){
+      cerr<<"Run: "<<runNum<<" has "<<rfEventCount_temp<<" total RF events!"<<endl;
+   }
+
+   delete runInfoTree_temp;
    fp.Close();
 }
 
@@ -298,7 +310,10 @@ for(int run=0; run<runInfoTree->GetEntries(); run++){
    totalCWFilteredEventCount += cwFilteredEventCount;
    totalNchnlFilteredEventCount += nchnlFilteredEventCount;
    totalCorruptFirst3EventCount += corruptFirst3EventCount;
+
 */
+
+
 
    totalRunEventCount                         += runEventCount;
    totalRFEventCount                          += runRFEventCount;
@@ -675,6 +690,7 @@ TH2F *zen_bvEventTime = new TH2F("zen_bvEventTime","zen_bvEventTime", endTimeMax
 
 TH1F *spikeyRatioHist = new TH1F("spikeyRatioHist", "spikeyRatioHist", 100, 0,10);
 
+TH1D *maxPixLayerHist = new TH1D("maxPixLayerHist","maxPixLayerHist",50,-0.5, 49.5);
 
 //for(int entry=0; entry<Nentries; entry++){
 for(int i=4; i<argc; i++){
@@ -742,7 +758,7 @@ for(int i=4; i<argc; i++){
    dataTree->GetEntry(entry);
    //cout<<"eventTrigType: "<<dummyData->eventTrigType<<endl;
    //if(dummyData->eventNumber != 127378) continue;
-
+   //cout<<"eventNumber: "<<dummyData->eventNumber<<endl;
    //Exclude the offset-block events and block-gap events
    /*
    if(runNum==2889 && dummyData->eventNumber==108253) { totalOffsetBlockEventCount++; continue; }
@@ -752,7 +768,7 @@ for(int i=4; i<argc; i++){
    //block-gap
    if(runNum==4429 && dummyData->eventNumber==34200) { totalBlockGapEventCount++; continue; }
    */
-
+   //if (dummyData->eventNumber != 131864) continue;
 
    //Exclude the spikey D1 events
    if( (runNum==850 && dummyData->eventNumber==95159) ||
@@ -1060,12 +1076,14 @@ for(int i=4; i<argc; i++){
       zen_bestHypo = 90.f-dummyData->recoZen;
       azi_bestHypo = dummyData->recoAzi;
       coherence = dummyData->maxPixCoherence;
+      maxPixLayerHist->Fill(onion.getLayerNumber(dummyData->maxPixIdx));
 
    } else {
 
       zen_bestHypo = 90.f-theta;
       azi_bestHypo = phi;
       coherence = dummyData->maxPixCoherence2;
+      maxPixLayerHist->Fill(onion.getLayerNumber(dummyData->maxPixIdx2));
 
    }
 
@@ -1090,6 +1108,7 @@ for(int i=4; i<argc; i++){
    //   else passThermalCut = false;
 
    //}
+   //cout<<"coherence: "<<coherence<<" snr: "<<snr<<endl;
    if(coherence > coherenceCutValue) passThermalCut = true;
    else passThermalCut = false;
       //passThermalCut = true;
@@ -1694,7 +1713,7 @@ for(int i=4; i<argc; i++){
    }   else {
       //outputFile<<coherence<<","<<snr<<endl;
    }
-      outputFile<<coherence<<","<<snr<<","<<inBand<<endl;
+      //outputFile<<coherence<<","<<snr<<","<<inBand<<endl;
 
    }
 
@@ -1714,6 +1733,8 @@ for(int i=4; i<argc; i++){
       zen_nMinusSurface->Fill((passSurfaceCut?zenMaj:90.f-dummyData->constantNZen));
       zen_azi_nMinusSurface->Fill(dummyData->constantNAzi, (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen), dummyData->weight);
       double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
+
+      outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<","<<dummyData->constantNZen<<","<<dummyData->constantNAzi<<endl;
 
       if(inBand){
          //coherence_snr_nMinusSurface->Fill(snr, coherence, dummyData->weight);
@@ -1737,7 +1758,7 @@ for(int i=4; i<argc; i++){
    if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut /*&& passSurfaceCut && passSurfaceCut_2 *//*&& passNoisyRunCut*/ )
    {
    //zen_nMinusSurface->Fill((passSurfaceCut?zenMaj:90.f-dummyData->constantNZen));
-   //zen_azi_nMinusSurface->Fill(dummyData->constantNAzi, (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen), dummyData->weight);
+   zen_azi_nMinusSurface->Fill(dummyData->constantNAzi, (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen), dummyData->weight);
    //double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
    double theta_temp = 90.f-dummyData->constantNZen;
    if(theta_temp > 52 && theta_temp < 57 && dummyData->constantNAzi > 235 && dummyData->constantNAzi < 245){
@@ -2588,6 +2609,10 @@ sprintf(filename,"A3 Config %d Burnsample RF;Spikey Ratio [unitless];Entry", typ
 spikeyRatioHist->SetTitle(filename);
 sprintf(filename, "%s_type%d_spikeyRatio_noCut.C", STATION.c_str(), type);
 //c36.SaveAs(filename);
+
+//TCanvas c37("c37","c37",800,800);
+//maxPixLayerHist->Draw();
+//c37.SaveAs("recoAnalysis_37.C");
 
 return 0;
 }

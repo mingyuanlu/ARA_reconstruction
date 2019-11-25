@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <algorithm>
+#include <map>
 
 #include "RawIcrrStationEvent.h"
 #include "RawAtriStationEvent.h"
@@ -262,7 +263,10 @@ ifstream list;
 //list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_2SurfaceCut_surfaceEvents_noisyRuns.txt");
 //list.open("ARA02_vnchnl3NoMasking_beforeImpCut_noMaskSat_snrMode1_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
 //list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
-list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_fullDataExpoFit_surfaceEvents_noisyRuns_old.txt");
+//list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_fullDataExpoFit_surfaceEvents_noisyRuns_old.txt");
+
+//A3 noisy runs
+list.open("ARA03_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_surfaceEvents_noisyRuns.txt");
 
 //list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEventRuns.txt");
 vector<int> listOfRuns;
@@ -537,7 +541,8 @@ for(int i=0; i<5; i++){
 }
 
 
-ARA02_cutValues *cutValues = new ARA02_cutValues();
+//ARA02_cutValues *cutValues = new ARA02_cutValues();
+ARA03_cutValues *cutValues = new ARA03_cutValues();
 
 cout<<"impCut: "<<cutValues->impCut.val<<endl;
 double postThermalAvgImpulsivityCut = cutValues->impCut.val;
@@ -564,6 +569,9 @@ TH1F *inRangeThetaFracHist = new TH1F("inRangeThetaFracHist","inRangeThetaFracHi
 TH1F *inRangePhiFracHist = new TH1F("inRangePhiFracHist","inRangePhiFracHist",100,0,1);
 TH2F *inRangeThetaPhiFracHist = new TH2F("inRangeThetaPhiFracHist","inRangeThetaPhiFracHist",100,0,1,100,0,1);
 
+std::map<int, int> nSurfMap;
+
+
 //for(int entry=0; entry<Nentries; entry++){
 for(int i=3; i<argc; i++){
 
@@ -575,7 +583,9 @@ for(int i=3; i<argc; i++){
    else        fftRes = 1/(499e-9)/1e6;
 
    //Exclude calibration runs:
-   if( isInCalibrationRun(listOfCalRuns, runNum) ) continue;
+   //if( isInCalibrationRun(listOfCalRuns, runNum) ) continue;
+   if (shouldExclude(STATION, runNum)) continue;
+
    /*
    //Cal sweep
    if(runNum>=3177 && runNum<=3186) continue;
@@ -623,6 +633,15 @@ for(int i=3; i<argc; i++){
 
    numSurfaceEventPerRun = 0;
 
+   char tempName[200];
+   sprintf(tempName, "%s_run%d_surfaceEventList.csv", STATION.c_str(), runNum);
+   ofstream surfaceEventList(tempName,std::ofstream::out|std::ofstream::app);
+
+   sprintf(tempName, "%s_run%d_calpulserEventList.csv", STATION.c_str(), runNum);
+   ofstream calpulserEventList(tempName,std::ofstream::out|std::ofstream::app);
+
+
+
    for(int entry=0; entry<Nentries; entry++){
    //if(Nentries > 100) {  if(  entry % (Nentries/100) == 0  ){ cout<<"Progess: "<<entry / (Nentries/100) <<"%\n"; } }
    dataTree->GetEntry(entry);
@@ -639,6 +658,16 @@ for(int i=3; i<argc; i++){
    if(runNum==4429 && dummyData->eventNumber==34200) continue;
    */
 
+
+   //Exclude the spikey D1 events
+   if( (runNum==850 && dummyData->eventNumber==95159) ||
+       (runNum==1115 && dummyData->eventNumber==76709) ||
+       (runNum==1164 && dummyData->eventNumber==68655) ||
+       (runNum==1169 && dummyData->eventNumber==97563) ||
+       (runNum==1414 && dummyData->eventNumber==66784)
+    ){
+      continue;
+   }
 
 
    if(dummyData->eventTrigType == 0) rfEventCount+=dummyData->weight;
@@ -829,7 +858,6 @@ for(int i=3; i<argc; i++){
 
 
 
-
    bool lowFreqDominance = false;
    int lowFreqCountThres = 4;
    int lowFreqCount_V, lowFreqCount_H;
@@ -938,13 +966,20 @@ for(int i=3; i<argc; i++){
    surfaceCut_1 = cutValues->surfaceCut_constantN[type-1].val;
    passSurfaceCut = !isSurface(dummyData, surfaceCut_1);
 
+   if (!passSurfaceCut){
+      //cout<<"Does not pass surface cut: "<<90.f-dummyData->constantNZen<<endl;
+      surfaceEventList<<dummyData->eventNumber<<","<<90.f-dummyData->constantNZen<<endl;
+   }
    //if(90.f-dummyData->constantNZen < /*SURFACE_CUT*/surfaceCut_1){
    //   passSurfaceCut = true;
    //}
 
    float zenRange = 3.;
    double zenMaj;
-   passSurfaceCut_2 = !isIterSurface(zenMaj, dummyData, onion, settings, zenRange, surfaceCut_2);
+   //passSurfaceCut_2 = !isIterSurface(zenMaj, dummyData, onion, settings, zenRange, surfaceCut_2);
+
+   //ARA03
+   passSurfaceCut_2 = true;
 
    if (!(passSurfaceCut && passSurfaceCut_2)){
 
@@ -1048,8 +1083,18 @@ for(int i=3; i<argc; i++){
 
    float inBoxTheta, inBoxPhi;
    inBoxTheta = inBoxPhi = 0.f;
-   passCalpulserCut = !isCalpulser(inBoxTheta, inBoxPhi, STATION, dummyData, onion, settings, type);
+   //passCalpulserCut = !isCalpulser(inBoxTheta, inBoxPhi, STATION, dummyData, onion, settings, type);
+   passCalpulserCut = true;
 
+   for(int box=0; box<cutValues->nBoxes; box++){
+
+      if( 90.f-dummyData->recoZen > cutValues->zenMin[box].val && 90.f-dummyData->recoZen < cutValues->zenMax[box].val && dummyData->recoAzi > cutValues->aziMin[box].val && dummyData->recoAzi < cutValues->aziMax[box].val ) { /*inBox = true; iterInBox = true;*/ passCalpulserCut = false;}
+
+   }
+
+   if(!passCalpulserCut){
+      calpulserEventList<<dummyData->eventNumber<<endl;
+   }
 //   bool inBox = false;
 //
 //   bool iterInBox = false;
@@ -1129,7 +1174,6 @@ for(int i=3; i<argc; i++){
    //if(runNum >= 4795 && runNum <= 4800) passNoisyRunCut = false; //DP
    //if(runNum >= 3 && runNum <=60 && runNum != 50) passNoisyRunCut = false; //Corrupted wf
    //if(runNum == 4787 || runNum==4785 ) passNoisyRunCut = false; //DP
-
 
    /* Check if CW-tagged event can be recovered by surviving the impulsivity cut */
    /*
@@ -1228,8 +1272,8 @@ for(int i=3; i<argc; i++){
 
    }
    */
-   double impCut = cutValues->cwImpCut[type-1].val; //impulsivityCut[type-1];
-   impCut = 1/*0.2579306*//*0.2384656*/;
+   //double impCut = cutValues->cwImpCut[type-1].val; //impulsivityCut[type-1];
+   //impCut = 1/*0.2579306*//*0.2384656*/;
    //passCWCut = ( !isCW || (isCW && passHighPassFilter && passImpulsivityCut )) && !lowFreqDominance;
    //passCWCut = ( !isCW || (isCW && isRecoverableByImp(isVpolCW, isHpolCW, isXpolCW, dummyData, impCut, highPassFreq) )) && !lowFreqDominance;
    passCWCut = !lowFreqDominance;
@@ -1542,9 +1586,16 @@ for(int i=3; i<argc; i++){
    }
 
    //if(passDeepPulserCut && passThermalCut && passCalpulserCut && passSurfaceCut) runHist->Fill(runNum);
-   if( /*passNumSatChanCut && *//*passCWCut*/!lowFreqDominance && passDeepPulserCut && passThermalCut && passSNRCut && /*passThermalImpulsivityCut &&*/ passCalpulserCut && passCalpulserTimeCut && (!passSurfaceCut || !passSurfaceCut_2)){
+   //if( /*passNumSatChanCut && *//*passCWCut*/!lowFreqDominance && passDeepPulserCut && passThermalCut && passSNRCut && /*passThermalImpulsivityCut &&*/ passCalpulserCut && passCalpulserTimeCut && (!passSurfaceCut || !passSurfaceCut_2)){
+   //    surfaceRunHist->Fill(runNum);
+       //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
+   //    numSurfaceEventPerRun++;
+    //}
+
+    if( /*passNumSatChanCut && *//*passCWCut*/!lowFreqDominance && passDeepPulserCut /*&& passThermalCut */&& passSNRCut && /*passThermalImpulsivityCut &&*/ passCalpulserCut && passCalpulserTimeCut && (!passSurfaceCut)){ //For calpulserFilter+constantNFilter events
        surfaceRunHist->Fill(runNum);
        //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
+       //cout<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
        numSurfaceEventPerRun++;
     }
    //if( /*passNumSatChanCut &&*/ /*passCWCut &&*/ passDeepPulserCut && passThermalCut && passSurfaceCut && passSurfaceCut_2){ impulsivityHist_avg->Fill(avgImpulsivity, dummyData->weight); outputFile<<avgImpulsivity<<","; }
@@ -1766,17 +1817,34 @@ for(int i=3; i<argc; i++){
 
    }//end of entry
 
-   numSurfaceEventsInRun->Fill(numSurfaceEventPerRun);
-   cout<<runNum<<","<<numSurfaceEventPerRun<<endl;
-   if(numSurfaceEventPerRun>=14){ //Expo fit to 100% data numSurfaceEventPerRun, at 0.01 run the numSurfaceEventPerRun is 13.10
-      outputFile<<runNum<<","<<numSurfaceEventPerRun<<endl;
+   if (nSurfMap.find(runNum) != nSurfMap.end()){
+      nSurfMap[runNum] += numSurfaceEventPerRun;
+   } else {
+      nSurfMap[runNum] = numSurfaceEventPerRun;
    }
+   //numSurfaceEventsInRun->Fill(numSurfaceEventPerRun);
+   cout<<runNum<<","<<numSurfaceEventPerRun<<endl;
+   //if(numSurfaceEventPerRun>=14){ //Expo fit to 100% data numSurfaceEventPerRun, at 0.01 run the numSurfaceEventPerRun is 13.10
+   //   outputFile<<runNum<<","<<numSurfaceEventPerRun<<endl;
+   //}
+
+surfaceEventList.close();
+calpulserEventList.close();
 
 delete dataTree;
 delete recoSettingsTree;
 fp1.Close();
 
 }//end of file
+
+
+for (std::map<int, int>::iterator it=nSurfMap.begin(); it!=nSurfMap.end(); it++){
+   cout<<"Run: "<<it->first<<" Nsurf: "<<it->second<<endl;
+   //numSurfaceEventsInRun->Fill(it->second);
+   if(it->second >= 8){ //Expo fit to A3 100% data numSurfaceEventPerRun, at 0.01 run the numSurfaceEventPerRun is 7.525
+      outputFile<<it->first<<","<<it->second<<endl;
+   }
+}
 
 outputFile.close();
 
@@ -1892,17 +1960,27 @@ impulsivityHist_avg->Write();
 fout.Close();
 */
 
-/*
+
 TCanvas c4("c4","c4",1200,800);
 c4.Divide(2,1);
 c4.cd(1);
 surfaceRunHist->Draw();
-surfaceRunHist->SetTitle("A2 Full Data;Run Number;Number of Surface Events");
+//surfaceRunHist->SetTitle("A2 Full Data;Run Number;Number of Surface Events");
+surfaceRunHist->SetTitle("A3 Full Data;Run Number;Number of Surface Events");
 int maxCount = surfaceRunHist->GetBinContent(surfaceRunHist->GetMaximumBin());
-TLine l2013(2792,0.5,2792,maxCount*1.5);
-TLine l2014(4763,0.5,4763,maxCount*1.5);
-TLine l2015(6638,0.5,6638,maxCount*1.5);
-TLine l2016(8246,0.5,8246,maxCount*1.5);
+
+//A2
+//TLine l2013(2792,0.5,2792,maxCount*1.5);
+//TLine l2014(4763,0.5,4763,maxCount*1.5);
+//TLine l2015(6638,0.5,6638,maxCount*1.5);
+//TLine l2016(8246,0.5,8246,maxCount*1.5);
+
+//A3
+TLine l2013(1901,0.5,1901,maxCount*1.5);
+TLine l2014(3683,0.5,3683,maxCount*1.5);
+TLine l2015(6150,0.5,6150,maxCount*1.5);
+TLine l2016(7808,0.5,7808,maxCount*1.5);
+
 l2013.SetLineColor(kRed);
 l2014.SetLineColor(kRed);
 l2015.SetLineColor(kRed);
@@ -1916,18 +1994,29 @@ l2014.Draw("same");
 l2015.Draw("same");
 l2016.Draw("same");
 TLatex latex;
-latex.DrawLatex(900,100,"2013");
-latex.DrawLatex(3400,100,"2014");
-latex.DrawLatex(5200,100,"2015");
-latex.DrawLatex(7000,100,"2016");
+
+//A2
+//latex.DrawLatex(900,100,"2013");
+//latex.DrawLatex(3400,100,"2014");
+//latex.DrawLatex(5200,100,"2015");
+//latex.DrawLatex(7000,100,"2016");
+
+latex.DrawLatex(400,100,"2013");
+latex.DrawLatex(2500,100,"2014");
+latex.DrawLatex(4500,100,"2015");
+latex.DrawLatex(6500,100,"2016");
+
 //gPad->SetLogy();
 
 c4.cd(2);
 numSurfaceEventsInRun->Draw();
-numSurfaceEventsInRun->SetTitle("A2 Full Data;Number of Surface Events in Run;Number of Runs");
-sprintf(filename,"surfaceRunHist_numSurfaceEventsInRun_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_%s_fullData_tunedCut_allTypes.C", STATION.c_str());
-c4.SaveAs(filename);
-*/
+//numSurfaceEventsInRun->SetTitle("A2 Full Data;Number of Surface Events in Run;Number of Runs");
+numSurfaceEventsInRun->SetTitle("A3 Full Data;Number of Surface Events in Run;Number of Runs");
+//sprintf(filename,"surfaceRunHist_numSurfaceEventsInRun_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_%s_fullData_tunedCut_allTypes.C", STATION.c_str());
+sprintf(filename,"surfaceRunHist_numSurfaceEventsInRun_vnchnl3NoMasking_noMaskSat_snrMode1_%s_fullData_tunedCut_allTypes.C", STATION.c_str());
+
+//c4.SaveAs(filename);
+
 
 
 
@@ -2051,6 +2140,7 @@ c20.cd(1);
 zen_nMinusNoisyRunSurface->Draw();
 c20.cd(2);
 sinzen_nMinusNoisyRunSurface->Draw();
+//sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunSurface_zen_sinzen_postCut.C", STATION.c_str());
 sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunSurface_zen_sinzen_postCut.C", STATION.c_str());
 //c20.SaveAs(filename);
 /*
@@ -2088,8 +2178,9 @@ fp.Close();
 
 TCanvas c21("c21","c21",800,800);
 zen_azi_nMinusNoisyRunSurface->Draw("colz");
-zen_azi_nMinusNoisyRunSurface->SetTitle("ARA02 [All Minus Noisy Run & Surface Cut] Events;Azimith [#circ];Zenith [#circ]");
-sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunsSurface_coincidenceCWNoImp_zen_azi.C", STATION.c_str());
+zen_azi_nMinusNoisyRunSurface->SetTitle("ARA03 [All Minus Noisy Run & Surface Cut] Events;Azimith [#circ];Zenith [#circ]");
+//sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunsSurface_coincidenceCWNoImp_zen_azi.C", STATION.c_str());
+sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunsSurface_zen_azi.C", STATION.c_str());
 //c21.SaveAs(filename);
 
 TCanvas c10("c10","c10",800,800);

@@ -266,6 +266,30 @@ int *freqCount_V, *freqCount_H;
 double freqBinWidth_V, freqBinWidth_H;
 
 /*
+ * Variables used in A3 spikey event detection
+ */
+
+double spikeyRatio;
+
+/*
+ * Variables used in settings->calpulserEventListFilter=1 case. Only implemented for A3 now
+ */
+vector<int> listOfCalpulserEvents;
+
+/*
+ * Variables used in settings->surfaceEventListFilter=1 case. Only implemented for A3 now
+ */
+
+vector<int> listOfSurfaceEvents;
+
+/*
+ * Variables used in settings->snrCutFilter=1 case. Only implemented for A3 now
+ */
+
+ARA03_cutValues *cutValues = new ARA03_cutValues();
+int type;
+
+/*
  * Constants used
 
 /* End of conditional variables pre-declaration */
@@ -280,11 +304,12 @@ int mistaggedSoftEventCount, offsetBlockEventCount;
 mistaggedSoftEventCount = offsetBlockEventCount = 0;
 int nchnlFilteredEventCount, cwFilteredEventCount, impulsivityFilteredEventCount;
 nchnlFilteredEventCount = cwFilteredEventCount = impulsivityFilteredEventCount = 0;
-int calpulserFilteredEventCount = 0;
 int cliffEventCount = 0;
 int corruptFirst3EventCount = 0;
 int corruptD1EventCount = 0;
 int blockGapEventCount = 0;
+int calpulserFilteredEventCount, surfaceFilteredEventCount, snrCutEventCount;
+calpulserFilteredEventCount = surfaceFilteredEventCount = snrCutEventCount = 0;
 double weightedTrigEventCount = 0.;
 double weightedRecoEventCount = 0.;
 double weightedOffsetBlockEventCount = 0.;
@@ -292,7 +317,7 @@ double weightedNchnlFilteredEventCount = 0.;
 double weightedCWFilteredEventCount = 0.;
 double weightedImpulsivityFilteredEventCount = 0.;
 double weightedCliffEventCount = 0.;
-double weightedCalpulserFilteredEventCount = 0.;
+double weightedCorruptD1EventCount = 0.;
 runInfoTree->Branch("runEventCount",  &runEventCount);
 runInfoTree->Branch("runRFEventCount", &runRFEventCount);
 runInfoTree->Branch("runCalEventCount", &runCalEventCount);
@@ -320,8 +345,10 @@ runInfoTree->Branch("weightedCWFilteredEventCount", &weightedCWFilteredEventCoun
 runInfoTree->Branch("weightedImpulsivityFilteredEventCount", &weightedImpulsivityFilteredEventCount);
 runInfoTree->Branch("blockGapEventCount", &blockGapEventCount);
 runInfoTree->Branch("weightedCliffEventCount", &weightedCliffEventCount);
+runInfoTree->Branch("weightedCorruptD1EventCount", &weightedCorruptD1EventCount);
 runInfoTree->Branch("calpulserFilteredEventCount", &calpulserFilteredEventCount);
-runInfoTree->Branch("weightedCalpulserFilteredEventCount", &weightedCalpulserFilteredEventCount);
+runInfoTree->Branch("surfaceFilteredEventCount", &surfaceFilteredEventCount);
+runInfoTree->Branch("snrCutEventCount", &snrCutEventCount);
 
 if(settings->dataType == 1)//real events
 {
@@ -367,6 +394,30 @@ if(settings->dataType == 1)//real events
    calib = AraEventCalibrator::Instance();
    calib->setAtriPedFile(dir_char,rawEvPtr->stationId);
    //************END OF LOADING GOOD PED************
+
+   //Start checking for event-list filters. If such filter should be used, make sure the event list file can be read
+   if (rawEvPtr->stationId==3){//list only exists for A3 now
+
+      if(settings->calpulserEventListFilter){
+         err = loadEventListFile("/data/user/mlu27/analysis/ARA03_analysis_event_lists/ARA0"+to_string(rawEvPtr->stationId)+"_run"+runNum+"_calpulserEventList.csv", listOfCalpulserEvents);
+         if (err<0){ cerr<<"Error reading calpulserEventList! Aborting..."<<endl; return -1; }
+         else { cout<<"Loaded calpulserEventList for run "<<runNum<<", Nruns: "<<listOfCalpulserEvents.size()<<endl; }
+      }
+
+      if(settings->surfaceEventListFilter){
+         err = loadEventListFile("/data/user/mlu27/analysis/ARA03_analysis_event_lists/ARA0"+to_string(rawEvPtr->stationId)+"_run"+runNum+"_surfaceEventList.csv", listOfSurfaceEvents);
+         if (err<0){ cerr<<"Error reading surfaceEventList! Aborting..."<<endl; return -1; }
+         else { cout<<"Loaded surfaceEventList for run "<<runNum<<", Nruns: "<<listOfSurfaceEvents.size()<<endl; }
+      }
+      /*
+      if(settings->snrCutEventListFilter){
+         err = loadEventListFile("/data/user/mlu27/analysis/lists/ARA0"+to_string(rawEvPtr->stationId)+"_snrCutEventList_run"+runNum+".txt", listOfSNRCutEvents);
+         if (err<0){ cerr<<"Error reading snrCutEventList! Aborting..."<<endl; return -1; }
+         else { cout<<"Loaded snrCutEventList for run "<<runNum<<", Nruns: "<<listOfSNRCutEvents.size()<<endl; }
+      }
+      */
+   }
+
 }
 else if (settings->dataType == 0)//AraSim events
 {
@@ -494,7 +545,7 @@ if( settings->skymapSearchMode == 0){ //No zoom search
       recoRefracDelays_V= (float*)malloc(nLayer*nDir*(nAnt/2)*sizeof(float));
       recoRefracDelays_H= (float*)malloc(nLayer*nDir*(nAnt/2)*sizeof(float));
    }
-   /*
+
    if(settings->iceModel == 1){
    err = computeRecoDelaysWithConstantN(nAnt, -1.f*stationCenterDepth, antLocation,
                                         //radius, nSideExp,
@@ -511,7 +562,7 @@ if( settings->skymapSearchMode == 0){ //No zoom search
 
    } else { cerr<<"Undefined iceModel parameter\n"; return -1; }
    if( err<0 ){ cerr<<"Error computing reco delays\n"; return -1; }
-   */
+
 } else {// zoom search mode
 
    //Dir = 12 * pow(2, settings->nSideExpEnd) * pow(2, settings->nSideExpEnd);
@@ -540,31 +591,6 @@ if( settings->constantNFilter > 0){
 
 }
 
-
-float *calpulserDelays, *calpulserDelays_V, *calpulserDelays_H;
-Healpix_Onion *onion_temp_2;
-
-//ARA02_cutValues *cutValues = new ARA02_cutValues();
-if(rawEvPtr->stationId==2 && settings->calpulserFilter==1){
-   cerr<<"Calpulser filter is not inplemented for station 2! Aborting....\n";
-   return -1;
-}
-//if (rawEvPtr->stationId==3){
-//   delete cutValues;
-ARA03_cutValues *cutValues = new ARA03_cutValues();
-//}
-
-if( settings->calpulserFilter > 0){
-
-   calpulserDelays   = (float*)malloc(1*nDir*nAnt*sizeof(float));
-   calpulserDelays_V = (float*)malloc(1*nDir*(nAnt/2)*sizeof(float));
-   calpulserDelays_H = (float*)malloc(1*nDir*(nAnt/2)*sizeof(float));
-   onion_temp_2 = new Healpix_Onion(nSideExp, 1, 40, 40);
-
-   err = compute3DRecoDelaysWithRadioSpline(nAnt, -1.f*stationCenterDepth, antLocation,
-                                            onion_temp_2, calpulserDelays, calpulserDelays_V, calpulserDelays_H);
-
-}
 
 //recordTime(tmr,2);
 time_t t_after_recoDelays = time(NULL);
@@ -604,15 +630,15 @@ if(settings->dataType == 1){
 
    int utime, utime_runStart, utime_runEnd;
 */
-
    eventTree->GetEntry(0);
    utime_runStart=utime_runEnd=rawAtriEvPtr->unixTime;
 
-   if(rawAtriEvPtr->isRFTrigger()){
-      if(rawAtriEvPtr->isCalpulserEvent()){ runCalEventCount++; }
-      else { runRFEventCount++; }
-   } else if (rawAtriEvPtr->isSoftwareTrigger()){ runSoftEventCount++; }
-   else { cerr<<"Undefined trigger type!!\n"; /*continue;*/ }
+//   if(rawAtriEvPtr->isRFTrigger()){
+//      if(rawAtriEvPtr->isCalpulserEvent()){ runCalEventCount++; }
+//      else { runRFEventCount++; }
+//   } else if (rawAtriEvPtr->isSoftwareTrigger()){ runSoftEventCount++; }
+//   else { cerr<<"Undefined trigger type!!\n"; /*continue;*/ }
+
 /*
  * Loop over events once to determine run start/end time
  */
@@ -634,7 +660,12 @@ if(settings->dataType == 1){
    cout<<"utime_runStart: "<<utime_runStart<<" dropD4Time: "<<dropD4Time<<endl;
    cout<<"Run time span: "<<utime_runEnd-utime_runStart<<endl;
 
+   type = getRunType("ARA0"+to_string(rawAtriEvPtr->stationId), stoi(runNum));
+   cout<<"Station: "<<rawAtriEvPtr->stationId<<" run: "<<runNum<<" config: "<<type<<endl;
+
 }//end of if dataType = 1
+
+
 /*
  * Start looping events for analysis
  */
@@ -650,7 +681,6 @@ else                                maxPix = (int*)calloc(12*pow(2,settings->nSi
 int maxPixIdx = 0;
 int maxPixIdx2 = 0;
 int constantNMaxPixIdx = 0;
-int calpulserMaxPixIdx = 0;
 float *mapData = (float*)calloc(nDir*nLayer, sizeof(float));
 char histName[200];
 TH1F **mapDataHist = (TH1F**)malloc(nDir*nLayer*sizeof(TH1F*));
@@ -1115,6 +1145,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    // FILTER SECTION
    //****************************************************
 
+
+
    int nonZeroChan = 0;
    double avgImp = 0.;
 
@@ -1136,7 +1168,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          unpaddedEvent.clear();
          cleanEvent.clear();
          delete realAtriEvPtr;
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/}
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ /*delete grFFT[ch];*/}
          continue;
       }
 
@@ -1159,7 +1191,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          unpaddedEvent.clear();
          cleanEvent.clear();
          delete realAtriEvPtr;
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/}
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ /*delete grFFT[ch];*/}
          continue;
       }
       else {
@@ -1274,84 +1306,62 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       }
    }
 
-   /* 40m skymap reco for calpulser filter */
+   /* A3 spikey D1 filter */
+   if (isSpikeyStringEvent(stationId, dropARA03D4, /*snrArray,*/grInt, /*grFFT,*/ spikeyRatio)){
 
-   recoSuccess = false;
-
-   if(settings->calpulserFilter > 0){
-      while( !recoSuccess ){
-
-         //stringstream ss;
-         //ss << /*ev*/rawAtriEvPtr->eventNumber;
-         //evStr = ss.str();
-         //fitsFileStr = fitsFile_tmp /*+ ".ev" + evStr*/ + ".40m.fits";
-         //sprintf(fitsFile, fitsFileStr.c_str());
-         float coherence_temp = 0.f;
-         calpulserMaxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_calpulserFilter(settings, cleanEvent, &clEnv, calpulserDelays, calpulserDelays_V, calpulserDelays_H, goodChan, summary, coherence_temp/*, fitsFile*////*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/
-         );
-
-         if( calpulserMaxPixIdx < 0){ cerr<<"Error reconstructing - calpulser\n"; return -1; }
-         if(coherence_temp/*summary->calpulserMaxPixCoherence*/ > 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
-         else { cout<<"calMaxPixCoherence returns 0!! Re-running reco...\n"; }
-
-      }
-
-      //if(recordConstantNDir(settings, summary) < 0){ cerr<<"Error recording constant N dir\n"; return -1;}
+      corruptD1EventCount+=1;
+      unpaddedEvent.clear();
+      cleanEvent.clear();
+      delete realAtriEvPtr;
+      for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ /*delete grCDF[ch];*/ /*delete grFFT[ch];*/}
+      continue;
 
    }
 
-   float calTheta = 90.f-TMath::RadToDeg()*onion_temp_2->getPointing(calpulserMaxPixIdx).theta;
-   float calPhi   = TMath::RadToDeg()*onion_temp_2->getPointing(calpulserMaxPixIdx).phi;
+   summary->setSpikeyRatio(spikeyRatio);
 
-   summary->setRecoDir(TMath::RadToDeg()*onion_temp_2->getPointing(calpulserMaxPixIdx).theta, TMath::RadToDeg()*onion_temp_2->getPointing(calpulserMaxPixIdx).phi);
+   /* A3: Check if in list of know calpulser/surface/SNR cut events */
+   if(stationId==3){
 
+      if(settings->calpulserEventListFilter){
+         if(isInEventList(listOfCalpulserEvents, realAtriEvPtr->eventNumber)){
+            calpulserFilteredEventCount += 1;
+            unpaddedEvent.clear();
+            cleanEvent.clear();
+            delete realAtriEvPtr;
+            for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ /*delete grCDF[ch];*/ /*delete grFFT[ch];*/}
+            continue;
+         }
+      }
 
-   //bool inBox = false;
-   //bool iterInBox = false;
-   //int type;
-//
-//
-   //if (stationId==2){
-//
-   //   type = getRunType("ARA02",stoi(runNum));
-   //   for(int box=0; box<cutValues->nBoxes; box++){
-//
-   //      // 0: D5BV, 1: D6BV, 2: D5BV Mirror, only for type 5
-   //      if(box<2){
-//
-   //         if( calTheta > cutValues->zenMin[box].val && calTheta < cutValues->zenMax[box].val && calPhi > cutValues->aziMin[box].val && calPhi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
-//
-   //      } else {
-//
-   //         if( type == 5 ){
-   //            if( calTheta > cutValues->zenMin[box].val && calTheta < cutValues->zenMax[box].val && calPhi > cutValues->aziMin[box].val && calPhi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
-   //         }
-   //      }
-   //   }
-//
-   //}
-   //else if(stationId==3){
-//
-   //   cout<<"calTheta: "<<calTheta<<" calPhi: "<<calPhi<<endl;
-   //   for(int box=0; box<cutValues->nBoxes; box++){
-//
-   //      cout<<"box: "<<box<<" zenMin: "<<cutValues->zenMin[box].val<<" zenMax: "<<cutValues->zenMax[box].val<<" aziMin: "<<cutValues->aziMin[box].val<<" aziMax: "<<cutValues->aziMax[box].val <<endl;
-//
-   //      if( calTheta > cutValues->zenMin[box].val && calTheta < cutValues->zenMax[box].val && calPhi > cutValues->aziMin[box].val && calPhi < cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}
-//
-   //   }
-   //   cout<<"inBox: "<<inBox<<endl;
-   //}
-//
-   //if (inBox || iterInBox){
-   //   calpulserFilteredEventCount+=1;
-   //   unpaddedEvent.clear();
-   //   cleanEvent.clear();
-   //   delete realAtriEvPtr;
-   //   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ /*delete grCDF[ch];*/ }
-   //   continue;
-   //}
-   //
+      if(settings->surfaceEventListFilter){
+         if(isInEventList(listOfSurfaceEvents, realAtriEvPtr->eventNumber)){
+            surfaceFilteredEventCount += 1;
+            unpaddedEvent.clear();
+            cleanEvent.clear();
+            delete realAtriEvPtr;
+            for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ /*delete grCDF[ch];*/ /*delete grFFT[ch];*/}
+            continue;
+         }
+      }
+
+      if(settings->snrCutFilter){
+         //if(isInEventList(listOfSNRCutEvents, realAtriEvPtr->eventNumber)){
+         double snr;
+         if(string(settings->recoPolType)=="vpol"){ snr = summary->inWindowSNR_V; }
+         else if(string(settings->recoPolType)=="hpol"){ snr = summary->inWindowSNR_H; }
+
+         if (snr < cutValues->snrCut[type-1].val){
+               snrCutEventCount += 1;
+               unpaddedEvent.clear();
+               cleanEvent.clear();
+               delete realAtriEvPtr;
+               for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ /*delete grCDF[ch];*/ /*delete grFFT[ch];*/}
+               continue;
+            }
+      }
+
+   }
 
    /* Constant N reco for surface filter */
 
@@ -1409,7 +1419,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    /* Reco with radiospline */
 
-   recoSuccess = true;
+   recoSuccess = false;
 
    while( !recoSuccess ){
    if(settings->beamformMethod == 1){
@@ -1457,28 +1467,28 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    //int recoFlag = record3DDiffGetFlag(summary, outputFile);
    //if( recoFlag ) recoFlagCnt++;
-   //if(settings->use2ndRayReco==0){
-   //summary->setFlag( (settings->skymapSearchMode)
-   //                 ? record3DZoomedDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist)
-   //                 : record3DDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist) );
-   //} else {
-   //if(settings->skymapSearchMode){ cerr<<"skymapSearchMode==1 & use2ndRayReco==1 incompatible!\n"; return -1;}
-   //else summary->setFlag(record3DDiffGetFlag_2ndRayReco(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist));
-   //}
-   //if(summary->flag > 0) recoFlagCnt++;
-   //maxPix[maxPixIdx]++;
-//
-   //if(settings->use2ndRayReco==0)
-   //compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
-   //else{
-   //   if(summary->maxPixCoherence >= summary->maxPixCoherence2)
-   //   compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
-   //   else {
-   //   cerr<<"2nd ray angles table not yet build! Angles will be default (-1)\n"; //return -1;
-   //   //compute3DRecoAnglesWithRadioSplineForSinglePixel_2ndRayReco(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx2);
-   //   }
-   //}
-   //summary->setRecoAngles(recoRecAngles, recoLauAngles);
+   if(settings->use2ndRayReco==0){
+   summary->setFlag( (settings->skymapSearchMode)
+                    ? record3DZoomedDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist)
+                    : record3DDiffGetFlag(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist) );
+   } else {
+   if(settings->skymapSearchMode){ cerr<<"skymapSearchMode==1 & use2ndRayReco==1 incompatible!\n"; return -1;}
+   else summary->setFlag(record3DDiffGetFlag_2ndRayReco(settings, summary, dZenDist, dAziDist, recoTrueZenDist, recoTrueAziDist));
+   }
+   if(summary->flag > 0) recoFlagCnt++;
+   maxPix[maxPixIdx]++;
+
+   if(settings->use2ndRayReco==0)
+   compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
+   else{
+      if(summary->maxPixCoherence >= summary->maxPixCoherence2)
+      compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
+      else {
+      cerr<<"2nd ray angles table not yet build! Angles will be default (-1)\n"; //return -1;
+      //compute3DRecoAnglesWithRadioSplineForSinglePixel_2ndRayReco(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx2);
+      }
+   }
+   summary->setRecoAngles(recoRecAngles, recoLauAngles);
 
 
    dataTree->Fill();
@@ -1490,7 +1500,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    treg->clearForNextEvent();
 
-   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ /*if(settings->cwFilter>0)*/ /*delete grFFT[ch];*/ }
+   for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ /*if(settings->cwFilter>0)*//* delete grFFT[ch];*/ }
 
    }//end of ev loop
 
@@ -1856,7 +1866,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
          weightedImpulsivityFilteredEventCount += weight;
          unpaddedEvent.clear();
          cleanEvent.clear();
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/}
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*//*delete grFFT[ch];*/}
          continue;
       }
 
@@ -1880,7 +1890,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
          //cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl;
          unpaddedEvent.clear();
          cleanEvent.clear();
-         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/}
+         for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*/ /*delete grFFT[ch];*/}
          continue;
       }
       else {
@@ -2020,6 +2030,20 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       if(recordConstantNDir(settings, summary) < 0){ cerr<<"Error recording constant N dir\n"; return -1;}
 
    }
+
+   /* A3 spikey D1 filter */
+   if (isSpikeyStringEvent(AraSim_settings->DETECTOR_STATION, dropARA03D4, /*snrArray,*/ grInt, /*grFFT,*/ spikeyRatio)){
+
+      corruptD1EventCount+=1;
+      weightedCorruptD1EventCount += weight;
+      unpaddedEvent.clear();
+      cleanEvent.clear();
+      for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ /*delete grCDF[ch];*/ }
+      continue;
+
+   }
+
+   summary->setSpikeyRatio(spikeyRatio);
 
    /* Track engine object to compute all tracks */
    treg->computeAllTracks(unpaddedEvent);
@@ -2194,7 +2218,8 @@ clock_t c_after_event_loop = clock();
 
 cout<<"runEventCount: "<<runEventCount<<" recoEventCount: "<<recoEventCount<<" trigEventCount: "<<trigEventCount<<endl;
 cout<<"cutWaveEventCount: "<<cutWaveEventCount<<" nonIncreasingSampleTimeEventCount: "<<nonIncreasingSampleTimeEventCount<<" cutWaveAndNonIncreasingEventCount: "<<cutWaveAndNonIncreasingEventCount<<" corruptD1EventCount: "<<corruptD1EventCount<<" corruptFirst3EventCount: "<<corruptFirst3EventCount<<" blockGapEventCount: "<<blockGapEventCount<<endl;
-cout<<"mistaggedSoftEventCount: "<<mistaggedSoftEventCount<<" offsetBlockEventCount: "<<offsetBlockEventCount<<" nchnlFilteredEventCount: "<<nchnlFilteredEventCount<<" cwFilteredEventCount: "<<cwFilteredEventCount<<" impulsivityFilteredEventCount: "<<impulsivityFilteredEventCount<<" calpulserFilteredEventCount: "<<calpulserFilteredEventCount<<endl;
+cout<<"mistaggedSoftEventCount: "<<mistaggedSoftEventCount<<" offsetBlockEventCount: "<<offsetBlockEventCount<<" nchnlFilteredEventCount: "<<nchnlFilteredEventCount<<" cwFilteredEventCount: "<<cwFilteredEventCount<<" impulsivityFilteredEventCount: "<<impulsivityFilteredEventCount<<endl;
+cout<<"calpulserFilteredEventCount: "<<calpulserFilteredEventCount<<" surfaceFilteredEventCount: "<<surfaceFilteredEventCount<<" snrCutEventCount: "<<snrCutEventCount<<endl;
 
 runInfoTree->Fill();
 
@@ -2222,13 +2247,6 @@ if(settings->constantNFilter > 0){
    free(constantNDelays_V);
    free(constantNDelays_H);
 }
-if(settings->calpulserFilter > 0){
-   delete onion_temp_2;
-   free(calpulserDelays);
-   free(calpulserDelays_V);
-   free(calpulserDelays_H);
-}
-
 delete settings;
 free(mapDataHist);
 free(mapData);

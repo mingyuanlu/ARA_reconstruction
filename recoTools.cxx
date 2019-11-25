@@ -17737,7 +17737,7 @@ TGraph * impulsivityMeasure(TGraph * wf, double *impulsivity/*TGraph * distance_
 
 
   double total = /*g->getSumV2()*/FFTtools::sumVoltageSquared(g, 0, g->GetN()-1);
-  if( fabs(total - 0) < 1e-9) { *impulsivity = 0; return distance_cdf; }
+  if( fabs(total - 0) < 1e-9) { *impulsivity = 0; delete g; return distance_cdf; }
   double sumv2 = 0;
 
 
@@ -18125,3 +18125,93 @@ bool isSpikeyStringEvent(int stationId, bool dropARA03D4, /*float *snr, */TGraph
 
    return false;
 }
+
+int loadEventListFile(string filename, vector<int>& eventList){
+
+   ifstream list;
+   //char filename[200]
+   //list.open("ARA0"+to_string(stationId)+"_"+listType+"_run"+runNum+".txt");
+   list.open(filename);
+
+   //vector<int> listOfRuns;
+   //vector<int> listOfEvents;
+   string line;
+   int event;
+   char line_char[200];
+
+   if (list.is_open() ){
+
+      while (list.good()){
+
+         getline(list, line, '\n');
+         if (line == "") break;
+
+         size_t found = line.find(',');
+         if (found == string::npos){
+            event = stoi(line);
+            eventList.push_back(event);
+         } else {
+            event = stoi(line.substr(0,found));
+            eventList.push_back(event);
+         }
+
+         cout<<"event: "<<event<<endl;
+
+      }
+   }  else {
+      cerr<<"No "<<filename<<endl;
+      return -1;
+   }
+
+   list.close();
+   return 1;
+}
+
+bool isInEventList(const vector<int>& eventList, int eventNumber){
+
+   bool isIn = false;
+   for (int i=0; i<(int)eventList.size(); i++){
+      if (eventList[i] == eventNumber){
+         isIn = true;
+         break;
+      }
+   }
+
+   return isIn;
+}
+/*
+int getEventList(ifstream& ifs, vector<int>& vec){
+
+   //vector<int> listOfRuns;
+   //vector<int> listOfEvents;
+   string line;
+   int run, event;
+   char line_char[200];
+
+   if (ifs.is_open() ){
+
+      while (ifs.good()){
+
+         getline(list, line, '\n');
+         if (line == "") break;
+
+         size_t found = line.find(',');
+         if (found == string::npos){
+            run = stoi(line);
+            vec.push_back(run);
+         } else {
+            run = stoi(line.substr(0,found));
+            vec.push_back(run)
+         }
+
+         cout<<"run: "<<run<<endl;
+
+      }
+   }  else {
+      cerr<<"No event list! Aborting...";
+      return -1;
+   }
+
+   return 1;
+}
+*/

@@ -109,6 +109,13 @@ void recoSettings::initialize(){
 
   calpulserFilter = 0;
 
+  split = 1;
+  batchNumber = 0;
+
+  calpulserEventListFilter = 0;
+  surfaceEventListFilter = 0;
+  snrCutFilter = 0;
+
   //remark = "Default.";
   snprintf(remark, sizeof(remark), "Default.");
 
@@ -202,6 +209,14 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
             else if(label == "cliff_threshold_A3_string3")
                cliff_threshold_A3_string3 = atof( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "calpulserFilter") calpulserFilter = atoi( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "split") split = atoi( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "batchNumber") batchNumber = atoi( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "calpulserEventListFilter")
+               calpulserEventListFilter = atoi( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "surfaceEventListFilter")
+               surfaceEventListFilter = atoi( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "snrCutFilter")
+               snrCutFilter = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label != "") cerr<<"Undefined parameter detected. Label: "<<label<<endl;
          }
       }
@@ -286,6 +301,11 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
       if( cliff_threshold_A3_string2 < 0 ){       cerr<<"cliff_threshold_A3_string2: "<<cliff_threshold_A3_string2<<endl; errCnt++; }
       if( cliff_threshold_A3_string3 < 0 ){       cerr<<"cliff_threshold_A3_string3: "<<cliff_threshold_A3_string3<<endl; errCnt++; }
       if( (unsigned)(calpulserFilter-0) > 1){     cerr<<"calpulserFilter: "<<calpulserFilter<<endl; errCnt++; }
+      if( split < 1 ){                            cerr<<"split: "<<split<<endl; errCnt++; }
+      if( batchNumber < 0 || batchNumber >= split ){     cerr<<"batchNumber: "<<batchNumber<<endl; errCnt++; }
+      if( (unsigned)(calpulserEventListFilter-0) > 1){   cerr<<"calpulserEventListFilter: "<<calpulserEventListFilter<<endl; errCnt++; }
+      if( (unsigned)(surfaceEventListFilter-0) > 1){     cerr<<"surfaceEventListFilter: "<<surfaceEventListFilter<<endl; errCnt++; }
+      if( (unsigned)(snrCutFilter-0) > 1){        cerr<<"snrCutFilter: "<<snrCutFilter<<endl; errCnt++; }
       if(errCnt > 0) return false;
 
    } else { cerr<<"Unable to open "<<sf<<endl; return false; }
