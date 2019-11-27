@@ -1506,7 +1506,7 @@ for(int i=3; i<argc; i++){
    }
    if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut /*&& passCalpulserCut*/ && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) {
       zen_azi_nMinusCal->Fill(inBoxPhi, inBoxTheta, dummyData->weight);
-      //outputFile<<inBoxPhi<<",";
+      outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<","<<inBoxTheta<<","<<inBoxPhi<<endl;
    }
    if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut /*&& passSurfaceCut && passSurfaceCut_2 */&& passNoisyRunCut )
    {
@@ -1824,7 +1824,7 @@ for(int i=3; i<argc; i++){
       nSurfMap[runNum] = numSurfaceEventPerRun;
    }
    //numSurfaceEventsInRun->Fill(numSurfaceEventPerRun);
-   cout<<runNum<<","<<numSurfaceEventPerRun<<endl;
+   //cout<<runNum<<","<<numSurfaceEventPerRun<<endl;
    //if(numSurfaceEventPerRun>=14){ //Expo fit to 100% data numSurfaceEventPerRun, at 0.01 run the numSurfaceEventPerRun is 13.10
    //   outputFile<<runNum<<","<<numSurfaceEventPerRun<<endl;
    //}
@@ -1838,7 +1838,7 @@ fp1.Close();
 
 }//end of file
 
-
+/*
 for (std::map<int, int>::iterator it=nSurfMap.begin(); it!=nSurfMap.end(); it++){
    cout<<"Run: "<<it->first<<" Nsurf: "<<it->second<<endl;
    //numSurfaceEventsInRun->Fill(it->second);
@@ -1846,7 +1846,7 @@ for (std::map<int, int>::iterator it=nSurfMap.begin(); it!=nSurfMap.end(); it++)
       outputFile<<it->first<<","<<it->second<<endl;
    }
 }
-
+*/
 outputFile.close();
 
 printf("totalRecoEventCount: %d\trfEventCount: %f\tcalEventCount: %f\tsoftEventCount: %f\n", totalRecoEventCount, rfEventCount, calEventCount, softEventCount);
