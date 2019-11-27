@@ -168,18 +168,18 @@ for(int i=4; i<argc; i++){
 
    if( fp.IsZombie() ){ cerr<<"File "<<argv[i]<<" is zombie. Skipping..."<<endl; continue; }
    if( fp.TestBit(TFile::kRecovered) ){ cerr<<"File "<<argv[i]<<" is recovered file. Skipping..."<<endl; continue; }
-//
-//   if (STATION=="ARA02"){
-//      if (!isNearNoisyRun(listOfRuns, runNum, 0) && !isInCalibrationRun(listOfCalRuns, runNum)){
-//         //recoSettingsTree->Add( argv[i] );
-//         //dataTree->Add( argv[i] );
-//         runInfoTree->Add( argv[i] );
-//      }
-//   } else if (STATION=="ARA03"){
-//      if (!isNearNoisyRun(listOfRuns, runNum, 0) && !shouldExclude(STATION, runNum)){
-//         runInfoTree->Add( argv[i] );
-//      }
-//   }
+
+   if (STATION=="ARA02"){
+      //if (!isNearNoisyRun(listOfRuns, runNum, 0) && !isInCalibrationRun(listOfCalRuns, runNum)){
+         //recoSettingsTree->Add( argv[i] );
+         //dataTree->Add( argv[i] );
+         runInfoTree->Add( argv[i] );
+      //}
+   } else if (STATION=="ARA03"){
+      //if (!isNearNoisyRun(listOfRuns, runNum, 0) && !shouldExclude(STATION, runNum)){
+         runInfoTree->Add( argv[i] );
+      //}
+   }
 
    runInfoTree_temp = (TTree*)fp.Get("runInfoTree");
    runInfoTree_temp->SetBranchAddress("runRFEventCount", &rfEventCount_temp);
