@@ -168,18 +168,18 @@ for(int i=4; i<argc; i++){
 
    if( fp.IsZombie() ){ cerr<<"File "<<argv[i]<<" is zombie. Skipping..."<<endl; continue; }
    if( fp.TestBit(TFile::kRecovered) ){ cerr<<"File "<<argv[i]<<" is recovered file. Skipping..."<<endl; continue; }
-
-   if (STATION=="ARA02"){
-      if (!isNearNoisyRun(listOfRuns, runNum, 0) && !isInCalibrationRun(listOfCalRuns, runNum)){
-         //recoSettingsTree->Add( argv[i] );
-         //dataTree->Add( argv[i] );
-         runInfoTree->Add( argv[i] );
-      }
-   } else if (STATION=="ARA03"){
-      if (!isNearNoisyRun(listOfRuns, runNum, 0) && !shouldExclude(STATION, runNum)){
-         runInfoTree->Add( argv[i] );
-      }
-   }
+//
+//   if (STATION=="ARA02"){
+//      if (!isNearNoisyRun(listOfRuns, runNum, 0) && !isInCalibrationRun(listOfCalRuns, runNum)){
+//         //recoSettingsTree->Add( argv[i] );
+//         //dataTree->Add( argv[i] );
+//         runInfoTree->Add( argv[i] );
+//      }
+//   } else if (STATION=="ARA03"){
+//      if (!isNearNoisyRun(listOfRuns, runNum, 0) && !shouldExclude(STATION, runNum)){
+//         runInfoTree->Add( argv[i] );
+//      }
+//   }
 
    runInfoTree_temp = (TTree*)fp.Get("runInfoTree");
    runInfoTree_temp->SetBranchAddress("runRFEventCount", &rfEventCount_temp);
@@ -461,9 +461,9 @@ rfEventCount = calEventCount = softEventCount = 0.;
 
 bool passThermalCut, passSurfaceCut, passCalpulserCut, passDeepPulserCut, passCorruptionCut, passNoisyRunCut, passThermalImpulsivityCut, passCWCut, passNumSatChanCut, passSurfaceCut_2, passCalpulserTimeCut, passCalRunCut, passSpikeyRatioCut;
 double nPassCorruption, nPassThermalCut, nPassSurfaceCut, nPassDeepPulserCut, nPassNoisyRunCut, nPassCalpulserCut, nPassImpulsivityCut, nPassHighPassFilter, nPassThermalImpulsivityCut, nPassCWCut, nPassNumSatChanCut, nPassSurfaceCut_2, nPassCalpulserTimeCut, nPassCalRunCut, nPassSpikeyRatioCut;
-double nCut0, nCut1, nCut2, nCut3, nCut4, nCut5, nCut6, nCut7, nCut3p5, nCut1p5, nCut0p5, nCut6p5, nCut4p5, nCut7;
+double nCut0, nCut1, nCut2, nCut3, nCut4, nCut5, nCut6, nCut7, nCut3p5, nCut1p5, nCut0p5, nCut6p5, nCut4p5;
 nPassCorruption = nPassThermalCut = nPassSurfaceCut = nPassDeepPulserCut = nPassNoisyRunCut = nPassCalpulserCut = nPassImpulsivityCut = nPassHighPassFilter = nPassThermalImpulsivityCut = nPassCWCut = nPassNumSatChanCut = nPassSurfaceCut_2 = nPassCalpulserTimeCut = nPassCalRunCut = nPassSpikeyRatioCut = 0.;
-nCut0 = nCut1 = nCut2 = nCut3 = nCut4 = nCut5 = nCut6 = nCut7 = nCut3p5 = nCut1p5 = nCut0p5 = nCut6p5 = nCut4p5 = nCut7 = 0.;
+nCut0 = nCut1 = nCut2 = nCut3 = nCut4 = nCut5 = nCut6 = nCut7 = nCut3p5 = nCut1p5 = nCut0p5 = nCut6p5 = nCut4p5 = 0.;
 
 bool passImpulsivityCut;
 double nRecoveredByImp = 0.;
@@ -1550,7 +1550,7 @@ for(int i=4; i<argc; i++){
    //nCut7              += (passCWCut && passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passNoisyRunCut && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
    nCut7              += (passCWCut && passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut/* && passNoisyRunCut*/ && passSurfaceCut /*&& passSurfaceCut_2*/ && passSpikeyRatioCut) * dummyData->weight;
 
-   if !(passCWCut && passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut/* && passNoisyRunCut*/ && passSurfaceCut /*&& passSurfaceCut_2*/ && passSpikeyRatioCut){
+   if (!(passCWCut && passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut/* && passNoisyRunCut*/ && passSurfaceCut /*&& passSurfaceCut_2*/ && passSpikeyRatioCut)){
       outputFile<<type<<","<<runNum<<","<<dummyData->eventNumber<<","<<coherence<<","<<snr<<","<<90.f-dummyData->constantNZen<<","<<dummyData->contantNAzi<<","<<90.f-dummyData->recoZen<<","<<dummyData->recoAzi<<","<<inBoxTheta<<","<<inBoxPhi<<endl;
    }
 
