@@ -850,6 +850,9 @@ bool isCalpulser(float &inBoxTheta, float &inBoxPhi, string STATION, recoData *d
       float theta = 90.f-TMath::RadToDeg()*onion.getPointing(dummyData->maxPixIdxEachLayer.at(0)).theta;
       float phi   = TMath::RadToDeg()*onion.getPointing(dummyData->maxPixIdxEachLayer.at(0)).phi;
 
+      inBoxTheta = theta;
+      inBoxPhi   = phi;
+
       //cout<<"nBoxes: "<<A3_cutValues->nBoxes<<endl;
       for(int box=0; box<A3_cutValues->nBoxes; box++){
 
