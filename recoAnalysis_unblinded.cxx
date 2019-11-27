@@ -1550,7 +1550,7 @@ for(int i=4; i<argc; i++){
    //nCut7              += (passCWCut && passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passNoisyRunCut && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
    nCut7              += (passCWCut && passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut/* && passNoisyRunCut*/ && passSurfaceCut /*&& passSurfaceCut_2*/ && passSpikeyRatioCut) * dummyData->weight;
 
-   if (!(passCWCut && passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut/* && passNoisyRunCut*/ && passSurfaceCut /*&& passSurfaceCut_2*/ && passSpikeyRatioCut)){
+   if (passCWCut && passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut/* && passNoisyRunCut*/ && passSurfaceCut /*&& passSurfaceCut_2*/ && passSpikeyRatioCut){
       outputFile<<type<<","<<runNum<<","<<dummyData->eventNumber<<","<<coherence<<","<<snr<<","<<90.f-dummyData->constantNZen<<","<<dummyData->constantNAzi<<","<<90.f-dummyData->recoZen<<","<<dummyData->recoAzi<<","<<inBoxTheta<<","<<inBoxPhi<<endl;
    }
 
