@@ -781,7 +781,7 @@ for(int i=4; i<argc; i++){
    }
    */
 
-   if (!(runNUm==6697 && dummyData->eventNumber==131864)){
+   if (!(runNum==6697 && dummyData->eventNumber==131864)){
       continue;
    }
 
