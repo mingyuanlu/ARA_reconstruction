@@ -769,7 +769,7 @@ for(int i=4; i<argc; i++){
    if(runNum==4429 && dummyData->eventNumber==34200) { totalBlockGapEventCount++; continue; }
    */
    //if (dummyData->eventNumber != 131864) continue;
-
+   /*
    //Exclude the spikey D1 events
    if( (runNum==850 && dummyData->eventNumber==95159) ||
        (runNum==1115 && dummyData->eventNumber==76709) ||
@@ -779,7 +779,11 @@ for(int i=4; i<argc; i++){
     ){
       continue;
    }
+   */
 
+   if (!(runNUm==6697 && dummyData->eventNumber==131864)){
+      continue;
+   }
 
    /*
    bool toCheck = false;
@@ -1734,7 +1738,7 @@ for(int i=4; i<argc; i++){
       zen_azi_nMinusSurface->Fill(dummyData->constantNAzi, (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen), dummyData->weight);
       double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
 
-      outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<","<<dummyData->constantNZen<<","<<dummyData->constantNAzi<<endl;
+      //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<","<<dummyData->constantNZen<<","<<dummyData->constantNAzi<<endl;
 
       if(inBand){
          //coherence_snr_nMinusSurface->Fill(snr, coherence, dummyData->weight);
