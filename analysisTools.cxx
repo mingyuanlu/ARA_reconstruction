@@ -295,9 +295,12 @@ void ARA03_cutValues::initialize(){
       //no tuning needed due to low-enough background
       setValue(coherenceCut_outOfBand[0], 0.10576148784369732, 0, 0);
       setValue(coherenceCut_outOfBand[1], 0.10543057598952935, 0, 0);
-      setValue(coherenceCut_outOfBand[2], 0.12942327085362615, 0, 0);
+      //setValue(coherenceCut_outOfBand[2], 0.12942327085362615, 0, 0); //pre-tuned
+      setValue(coherenceCut_outOfBand[2], 0.158782, 0, 0);
       setValue(coherenceCut_outOfBand[3], 0.13405305621526215, 0, 0);
-      setValue(coherenceCut_outOfBand[4], 0.1179968361363821, 0, 0);
+      //setValue(coherenceCut_outOfBand[4], 0.1179968361363821, 0, 0); //pre-tuned
+      setValue(coherenceCut_outOfBand[4], 0.119789, 0, 0); 
+
 
       //Pre-tuning
       //setValue(surfaceCut_constantN[0], 33.85936, 0, 0);
