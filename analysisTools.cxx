@@ -295,9 +295,12 @@ void ARA03_cutValues::initialize(){
       //no tuning needed due to low-enough background
       setValue(coherenceCut_outOfBand[0], 0.10576148784369732, 0, 0);
       setValue(coherenceCut_outOfBand[1], 0.10543057598952935, 0, 0);
-      setValue(coherenceCut_outOfBand[2], 0.12942327085362615, 0, 0);
+      //setValue(coherenceCut_outOfBand[2], 0.12942327085362615, 0, 0); //pre-tuned
+      setValue(coherenceCut_outOfBand[2], 0.158782, 0, 0);
       setValue(coherenceCut_outOfBand[3], 0.13405305621526215, 0, 0);
-      setValue(coherenceCut_outOfBand[4], 0.1179968361363821, 0, 0);
+      //setValue(coherenceCut_outOfBand[4], 0.1179968361363821, 0, 0); //pre-tuned
+      setValue(coherenceCut_outOfBand[4], 0.119789, 0, 0); 
+
 
       //Pre-tuning
       //setValue(surfaceCut_constantN[0], 33.85936, 0, 0);
@@ -321,7 +324,7 @@ void ARA03_cutValues::initialize(){
       //setValue(snrCut[4], 8.71564, 0, 0);
 
       //Tuned for background
-      setValue(snrCut[0], 10.4256, 0, 0);
+      setValue(snrCut[0], 10.42562, 0, 0);
       setValue(snrCut[1], 9.004986, 0, 0);
       setValue(snrCut[2], 8.925025, 0, 0);
       setValue(snrCut[3], 8.567176, 0, 0);
@@ -843,13 +846,17 @@ bool isCalpulser(float &inBoxTheta, float &inBoxPhi, string STATION, recoData *d
    }//end of A2
    else if (STATION == "ARA03"){
 
-      cout<<"789\n";
+      //cout<<"789\n";
       ARA03_cutValues *A3_cutValues = new ARA03_cutValues();
-      cout<<"791\n";
+      //cout<<"791\n";
+      //cout<<"maxPix"
       float theta = 90.f-TMath::RadToDeg()*onion.getPointing(dummyData->maxPixIdxEachLayer.at(0)).theta;
       float phi   = TMath::RadToDeg()*onion.getPointing(dummyData->maxPixIdxEachLayer.at(0)).phi;
 
-      cout<<"nBoxes: "<<A3_cutValues->nBoxes<<endl;
+      inBoxTheta = theta;
+      inBoxPhi   = phi;
+
+      //cout<<"nBoxes: "<<A3_cutValues->nBoxes<<endl;
       for(int box=0; box<A3_cutValues->nBoxes; box++){
 
          if( theta > A3_cutValues->zenMin[box].val && theta < A3_cutValues->zenMax[box].val && phi > A3_cutValues->aziMin[box].val && phi < A3_cutValues->aziMax[box].val ) { inBox = true; iterInBox = true;}

@@ -632,14 +632,14 @@ for(int i=3; i<argc; i++){
    int orderedArrayPolType[16];
 
    numSurfaceEventPerRun = 0;
-
+/*
    char tempName[200];
    sprintf(tempName, "%s_run%d_surfaceEventList.csv", STATION.c_str(), runNum);
    ofstream surfaceEventList(tempName,std::ofstream::out|std::ofstream::app);
 
    sprintf(tempName, "%s_run%d_calpulserEventList.csv", STATION.c_str(), runNum);
    ofstream calpulserEventList(tempName,std::ofstream::out|std::ofstream::app);
-
+*/
 
 
    for(int entry=0; entry<Nentries; entry++){
@@ -966,10 +966,10 @@ for(int i=3; i<argc; i++){
    surfaceCut_1 = cutValues->surfaceCut_constantN[type-1].val;
    passSurfaceCut = !isSurface(dummyData, surfaceCut_1);
 
-   if (!passSurfaceCut){
-      //cout<<"Does not pass surface cut: "<<90.f-dummyData->constantNZen<<endl;
-      surfaceEventList<<dummyData->eventNumber<<","<<90.f-dummyData->constantNZen<<endl;
-   }
+   //if (!passSurfaceCut){
+   //   //cout<<"Does not pass surface cut: "<<90.f-dummyData->constantNZen<<endl;
+   //   surfaceEventList<<dummyData->eventNumber<<","<<90.f-dummyData->constantNZen<<endl;
+   //}
    //if(90.f-dummyData->constantNZen < /*SURFACE_CUT*/surfaceCut_1){
    //   passSurfaceCut = true;
    //}
@@ -1083,18 +1083,19 @@ for(int i=3; i<argc; i++){
 
    float inBoxTheta, inBoxPhi;
    inBoxTheta = inBoxPhi = 0.f;
-   //passCalpulserCut = !isCalpulser(inBoxTheta, inBoxPhi, STATION, dummyData, onion, settings, type);
-   passCalpulserCut = true;
-
-   for(int box=0; box<cutValues->nBoxes; box++){
-
-      if( 90.f-dummyData->recoZen > cutValues->zenMin[box].val && 90.f-dummyData->recoZen < cutValues->zenMax[box].val && dummyData->recoAzi > cutValues->aziMin[box].val && dummyData->recoAzi < cutValues->aziMax[box].val ) { /*inBox = true; iterInBox = true;*/ passCalpulserCut = false;}
-
-   }
-
-   if(!passCalpulserCut){
-      calpulserEventList<<dummyData->eventNumber<<endl;
-   }
+   passCalpulserCut = !isCalpulser(inBoxTheta, inBoxPhi, STATION, dummyData, onion, settings, type);
+//
+//   passCalpulserCut = true;
+//
+//   for(int box=0; box<cutValues->nBoxes; box++){
+//
+//      if( 90.f-dummyData->recoZen > cutValues->zenMin[box].val && 90.f-dummyData->recoZen < cutValues->zenMax[box].val && dummyData->recoAzi > cutValues->aziMin[box].val && dummyData->recoAzi < cutValues->aziMax[box].val ) { /*inBox = true; iterInBox = true;*/ passCalpulserCut = false;}
+//
+//   }
+//
+//   if(!passCalpulserCut){
+//      calpulserEventList<<dummyData->eventNumber<<endl;
+//   }
 //   bool inBox = false;
 //
 //   bool iterInBox = false;
@@ -1505,7 +1506,7 @@ for(int i=3; i<argc; i++){
    }
    if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut /*&& passCalpulserCut*/ && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) {
       zen_azi_nMinusCal->Fill(inBoxPhi, inBoxTheta, dummyData->weight);
-      //outputFile<<inBoxPhi<<",";
+      outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<","<<inBoxTheta<<","<<inBoxPhi<<endl;
    }
    if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut /*&& passSurfaceCut && passSurfaceCut_2 */&& passNoisyRunCut )
    {
@@ -1823,13 +1824,13 @@ for(int i=3; i<argc; i++){
       nSurfMap[runNum] = numSurfaceEventPerRun;
    }
    //numSurfaceEventsInRun->Fill(numSurfaceEventPerRun);
-   cout<<runNum<<","<<numSurfaceEventPerRun<<endl;
+   //cout<<runNum<<","<<numSurfaceEventPerRun<<endl;
    //if(numSurfaceEventPerRun>=14){ //Expo fit to 100% data numSurfaceEventPerRun, at 0.01 run the numSurfaceEventPerRun is 13.10
    //   outputFile<<runNum<<","<<numSurfaceEventPerRun<<endl;
    //}
 
-surfaceEventList.close();
-calpulserEventList.close();
+//surfaceEventList.close();
+//calpulserEventList.close();
 
 delete dataTree;
 delete recoSettingsTree;
@@ -1837,7 +1838,7 @@ fp1.Close();
 
 }//end of file
 
-
+/*
 for (std::map<int, int>::iterator it=nSurfMap.begin(); it!=nSurfMap.end(); it++){
    cout<<"Run: "<<it->first<<" Nsurf: "<<it->second<<endl;
    //numSurfaceEventsInRun->Fill(it->second);
@@ -1845,7 +1846,7 @@ for (std::map<int, int>::iterator it=nSurfMap.begin(); it!=nSurfMap.end(); it++)
       outputFile<<it->first<<","<<it->second<<endl;
    }
 }
-
+*/
 outputFile.close();
 
 printf("totalRecoEventCount: %d\trfEventCount: %f\tcalEventCount: %f\tsoftEventCount: %f\n", totalRecoEventCount, rfEventCount, calEventCount, softEventCount);
@@ -2186,8 +2187,8 @@ sprintf(filename, "%s_allTypes_snrMode1_nMinusNoisyRunsSurface_zen_azi.C", STATI
 TCanvas c10("c10","c10",800,800);
 zen_azi_nMinusCal->Draw("colz");
 zen_azi_nMinusCal->SetTitle(";Azimuth [#circ];Zenith [#circ]");
-sprintf(filename, "%s_type%d_snrMode1_nMinusCal_zen_azi.C", STATION.c_str(), type);
-//c10.SaveAs(filename);
+sprintf(filename, "%s_allTypes_snrMode1_nMinusCal_zen_azi.C", STATION.c_str());
+c10.SaveAs(filename);
 
 /*
 TCanvas c11("c11","c11",800,800);

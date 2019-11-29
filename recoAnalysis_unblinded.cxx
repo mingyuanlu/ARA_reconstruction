@@ -85,46 +85,46 @@ ifstream list;
 //
 
 //A3 noisy runs
-list.open("ARA03_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_surfaceEvents_noisyRuns.txt");
-
-vector<int> listOfRuns;
-//vector<int> listOfEvents;
-string line;
-int run, event;
-char line_char[200];
-
-if (list.is_open() ){
-
-   while (list.good()){
-
-      getline(list, line, '\n');
-      if (line == "") break;
-      run = stoi(line);
-
-      /*
-      getline(list, line, ',');
-      if (line=="") break;
-      run = stoi(line);
-      getline(list, line, '\n');
-      if (line=="") break;
-      event = stoi(line);
-      //getline(list, line, '\n');
-      */
-      //if(event >= 10){
-         cout<<"run: "<<run/*<<" event: "<<event*/<<endl;
-         //cout<<"run: "<<run<<" event: "<<event<<endl;
-         listOfRuns.push_back(run);
-      //}
-      //listOfEvents.push_back(event);
-   }
-}  else {
-   cerr<<"No noisy run list! Aborting...";
-   return -1;
-}
-
-list.close();
-
-int numNoisyRuns = listOfRuns.size();
+//list.open("ARA03_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_surfaceEvents_noisyRuns.txt");
+//
+//vector<int> listOfRuns;
+////vector<int> listOfEvents;
+//string line;
+//int run, event;
+//char line_char[200];
+//
+//if (list.is_open() ){
+//
+//   while (list.good()){
+//
+//      getline(list, line, '\n');
+//      if (line == "") break;
+//      run = stoi(line);
+//
+//      /*
+//      getline(list, line, ',');
+//      if (line=="") break;
+//      run = stoi(line);
+//      getline(list, line, '\n');
+//      if (line=="") break;
+//      event = stoi(line);
+//      //getline(list, line, '\n');
+//      */
+//      //if(event >= 10){
+//         cout<<"run: "<<run/*<<" event: "<<event*/<<endl;
+//         //cout<<"run: "<<run<<" event: "<<event<<endl;
+//         listOfRuns.push_back(run);
+//      //}
+//      //listOfEvents.push_back(event);
+//   }
+//}  else {
+//   cerr<<"No noisy run list! Aborting...";
+//   return -1;
+//}
+//
+//list.close();
+//
+//int numNoisyRuns = listOfRuns.size();
 //vector< vector<int> > noisyRun;
 
 //ifstream list2;
@@ -162,7 +162,7 @@ for(int i=4; i<argc; i++){
    string fin(argv[i]);
    int runNum = atoi(  fin.substr(fin.find("run")+3, fin.find(".root")-fin.find("run")-2).c_str() );
 
-   //cout<<"runNum: "<<runNum<<endl;
+   cout<<"runNum: "<<runNum<<endl;
 
    TFile fp( argv[i] );
 
@@ -170,15 +170,15 @@ for(int i=4; i<argc; i++){
    if( fp.TestBit(TFile::kRecovered) ){ cerr<<"File "<<argv[i]<<" is recovered file. Skipping..."<<endl; continue; }
 
    if (STATION=="ARA02"){
-      if (!isNearNoisyRun(listOfRuns, runNum, 0) && !isInCalibrationRun(listOfCalRuns, runNum)){
+      //if (!isNearNoisyRun(listOfRuns, runNum, 0) && !isInCalibrationRun(listOfCalRuns, runNum)){
          //recoSettingsTree->Add( argv[i] );
          //dataTree->Add( argv[i] );
          runInfoTree->Add( argv[i] );
-      }
+      //}
    } else if (STATION=="ARA03"){
-      if (!isNearNoisyRun(listOfRuns, runNum, 0) && !shouldExclude(STATION, runNum)){
+      //if (!isNearNoisyRun(listOfRuns, runNum, 0) && !shouldExclude(STATION, runNum)){
          runInfoTree->Add( argv[i] );
-      }
+      //}
    }
 
    runInfoTree_temp = (TTree*)fp.Get("runInfoTree");
@@ -217,7 +217,7 @@ int runStartTime, runEndTime;
 int runRFEventCount, runCalEventCount, runSoftEventCount;
 double weightedOffsetBlockEventCount, weightedImpulsivityFilteredEventCount, weightedTrigEventCount;
 */
-int runEventCount, runRFEventCount, runCalEventCount, runSoftEventCount, trigEventCount, recoEventCount, utime_runStart, utime_runEnd, cutWaveEventCount, nonIncreasingSampleTimeEventCount, cutWaveAndNonIncreasingEventCount, mistaggedSoftEventCount, offsetBlockEventCount, cwFilteredEventCount, nchnlFilteredEventCount, impulsivityFilteredEventCount, corruptFirst3EventCount, corruptD1EventCount, cliffEventCount;
+int runEventCount, runRFEventCount, runCalEventCount, runSoftEventCount, trigEventCount, recoEventCount, utime_runStart, utime_runEnd, cutWaveEventCount, nonIncreasingSampleTimeEventCount, cutWaveAndNonIncreasingEventCount, mistaggedSoftEventCount, offsetBlockEventCount, cwFilteredEventCount, nchnlFilteredEventCount, impulsivityFilteredEventCount, corruptFirst3EventCount, corruptD1EventCount, cliffEventCount, calpulserFilteredEventCount, surfaceFilteredEventCount, snrCutEventCount;
 
 double weightedTrigEventCount, weightedRecoEventCount, weightedOffsetBlockEventCount, weightedNchnlFilteredEventCount, weightedCWFilteredEventCount, weightedImpulsivityFilteredEventCount, weightedCliffEventCount;
 
@@ -268,6 +268,9 @@ runInfoTree->SetBranchAddress("impulsivityFilteredEventCount", &impulsivityFilte
 runInfoTree->SetBranchAddress("corruptFirst3EventCount", &corruptFirst3EventCount);
 runInfoTree->SetBranchAddress("corruptD1EventCount", &corruptD1EventCount);
 runInfoTree->SetBranchAddress("cliffEventCount", &cliffEventCount);
+runInfoTree->SetBranchAddress("calpulserFilteredEventCount", &calpulserFilteredEventCount);
+runInfoTree->SetBranchAddress("surfaceFilteredEventCount", &surfaceFilteredEventCount);
+runInfoTree->SetBranchAddress("snrCutEventCount", &snrCutEventCount);
 runInfoTree->SetBranchAddress("weightedTrigEventCount", &weightedTrigEventCount);
 runInfoTree->SetBranchAddress("weightedRecoEventCount", &weightedRecoEventCount); //
 runInfoTree->SetBranchAddress("weightedOffsetBlockEventCount", &weightedOffsetBlockEventCount);
@@ -276,9 +279,9 @@ runInfoTree->SetBranchAddress("weightedCWFilteredEventCount", &weightedCWFiltere
 runInfoTree->SetBranchAddress("weightedImpulsivityFilteredEventCount", &weightedImpulsivityFilteredEventCount);
 runInfoTree->SetBranchAddress("weightedCliffEventCount", &weightedCliffEventCount);
 
-int totalRunEventCount, totalRFEventCount, totalCalEventCount, totalSoftEventCount, totalTrigEventCount, totalRecoEventCount, totalCutWaveEventCount, totalNonIncreasingSampleTimeEventCount, totalCutWaveAndNonIncreasingEventCount, totalMistaggedSoftEventCount, totalOffsetBlockEventCount, totalCWFilteredEventCount, totalNchnlFilteredEventCount, totalImpulsivityFilteredEventCount, totalCorruptFirst3EventCount, totalCorruptD1EventCount, totalBlockGapEventCount, totalCliffEventCount;
+int totalRunEventCount, totalRFEventCount, totalCalEventCount, totalSoftEventCount, totalTrigEventCount, totalRecoEventCount, totalCutWaveEventCount, totalNonIncreasingSampleTimeEventCount, totalCutWaveAndNonIncreasingEventCount, totalMistaggedSoftEventCount, totalOffsetBlockEventCount, totalCWFilteredEventCount, totalNchnlFilteredEventCount, totalImpulsivityFilteredEventCount, totalCorruptFirst3EventCount, totalCorruptD1EventCount, totalBlockGapEventCount, totalCliffEventCount, totalCalpulserFilteredEventCount, totalSurfaceFilteredEventCount, totalSNRCutEventCount;
 
-totalRunEventCount = totalRFEventCount = totalCalEventCount = totalSoftEventCount = totalTrigEventCount = totalRecoEventCount = totalCutWaveEventCount = totalNonIncreasingSampleTimeEventCount = totalCutWaveAndNonIncreasingEventCount = totalMistaggedSoftEventCount = totalOffsetBlockEventCount = totalCWFilteredEventCount = totalNchnlFilteredEventCount = totalImpulsivityFilteredEventCount = totalCorruptFirst3EventCount = totalCorruptD1EventCount = totalBlockGapEventCount = totalCliffEventCount = 0;
+totalRunEventCount = totalRFEventCount = totalCalEventCount = totalSoftEventCount = totalTrigEventCount = totalRecoEventCount = totalCutWaveEventCount = totalNonIncreasingSampleTimeEventCount = totalCutWaveAndNonIncreasingEventCount = totalMistaggedSoftEventCount = totalOffsetBlockEventCount = totalCWFilteredEventCount = totalNchnlFilteredEventCount = totalImpulsivityFilteredEventCount = totalCorruptFirst3EventCount = totalCorruptD1EventCount = totalBlockGapEventCount = totalCliffEventCount = totalCalpulserFilteredEventCount = totalSurfaceFilteredEventCount = totalSNRCutEventCount = 0;
 
 double totalWeightedTrigEventCount, totalWeightedRecoEventCount, totalWeightedOffsetBlockEventCount, totalWeightedNchnlFilteredEventCount, totalWeightedCWFilteredEventCount, totalWeightedImpulsivityFilteredEventCount, totalWeightedCliffEventCount;
 
@@ -340,6 +343,9 @@ for(int run=0; run<runInfoTree->GetEntries(); run++){
    if (STATION=="ARA03"){
       totalCliffEventCount                    += cliffEventCount;
       totalWeightedCliffEventCount            += weightedCliffEventCount;
+      totalCalpulserFilteredEventCount        += calpulserFilteredEventCount;
+      totalSurfaceFilteredEventCount          += surfaceFilteredEventCount;
+      totalSNRCutEventCount                   += snrCutEventCount;
    }
    if(runStartTime<startTimeMin) startTimeMin=runStartTime;
    if(runEndTime>endTimeMax)     endTimeMax=runEndTime+1;
@@ -354,6 +360,8 @@ printf("totalRunEventCount: %d\ttotalTrigEventCount: %d\ttotalRecoEventCount: %d
 printf("totalRFEventCount: %d\ttotalCalEventCount: %d\ttotalSoftEventCount: %d\n", totalRFEventCount, totalCalEventCount, totalSoftEventCount);
 printf("totalCutWaveEventCount: %d\ttotalNonIncreasingSampleTimeEventCount: %d\ttotalCutWaveAndNonIncreasingEventCount: %d\ncutWave ratio: %f\tnonIncreasing ratio: %f\tcutWaveAndNonIncreasing ratio: %f\n", totalCutWaveEventCount, totalNonIncreasingSampleTimeEventCount, totalCutWaveAndNonIncreasingEventCount, (float)totalCutWaveEventCount/(float)totalRunEventCount, (float)totalNonIncreasingSampleTimeEventCount/(float)totalRunEventCount, (float)totalCutWaveAndNonIncreasingEventCount/(float)totalRunEventCount);
 printf("totalMistaggedSoftEventCount: %d\ttotalOffsetBlockEventCount: %d\ttotalCWFilteredEventCount: %d\ttotalNchnlFilteredEventCount: %d\ttotalCorruptFirst3EventCount: %d\ttotalCorruptD1EventCount: %d\ttotalCliffEventCount: %d\nmistag soft ratio: %f\toffset ratio: %f\tCW ratio: %f\tnchnl ratio: %f\tfirst3 ratio: %f\tcorupt D1 ratio: %f\n\n", totalMistaggedSoftEventCount, totalOffsetBlockEventCount, totalCWFilteredEventCount, totalNchnlFilteredEventCount, totalCorruptFirst3EventCount, totalCorruptD1EventCount, totalCliffEventCount, (float)totalMistaggedSoftEventCount/(float)totalRunEventCount, (float)totalOffsetBlockEventCount/(float)totalRunEventCount, (float)totalCWFilteredEventCount/(float)totalRunEventCount, (float)totalNchnlFilteredEventCount/(float)totalRunEventCount, (float)totalCorruptFirst3EventCount/(float)totalRunEventCount, (float)totalCorruptD1EventCount/(float)totalRunEventCount);
+printf("totalCalpulserFilteredEventCount: %d\ttotalSurfaceFilteredEventCount: %d\ttotalSNRCutEventCount: %d\ncal ratio: %f\tsurface ratio: %f\tsnr ratio: %f\n",
+totalCalpulserFilteredEventCount, totalSurfaceFilteredEventCount, totalSNRCutEventCount, (float)totalCalpulserFilteredEventCount/(float)totalRunEventCount, (float)totalSurfaceFilteredEventCount/(float)totalRunEventCount, (float)totalSNRCutEventCount/(float)totalRunEventCount);
 
 //int Nentries = dataTree->GetEntries();
 //cout<<"Total number of dataTree events: "<<Nentries<<endl;
@@ -451,10 +459,10 @@ rfEventCount = calEventCount = softEventCount = 0.;
  * Then a list fo remaining events will be produced for iterative reconstruction.
  *******************************************************************************************************************/
 
-bool passThermalCut, passSurfaceCut, passCalpulserCut, passDeepPulserCut, passCorruptionCut, passNoisyRunCut, passThermalImpulsivityCut, passCWCut, passNumSatChanCut, passSurfaceCut_2, passCalpulserTimeCut, passCalRunCut;
-double nPassCorruption, nPassThermalCut, nPassSurfaceCut, nPassDeepPulserCut, nPassNoisyRunCut, nPassCalpulserCut, nPassImpulsivityCut, nPassHighPassFilter, nPassThermalImpulsivityCut, nPassCWCut, nPassNumSatChanCut, nPassSurfaceCut_2, nPassCalpulserTimeCut, nPassCalRunCut;
+bool passThermalCut, passSurfaceCut, passCalpulserCut, passDeepPulserCut, passCorruptionCut, passNoisyRunCut, passThermalImpulsivityCut, passCWCut, passNumSatChanCut, passSurfaceCut_2, passCalpulserTimeCut, passCalRunCut, passSpikeyRatioCut;
+double nPassCorruption, nPassThermalCut, nPassSurfaceCut, nPassDeepPulserCut, nPassNoisyRunCut, nPassCalpulserCut, nPassImpulsivityCut, nPassHighPassFilter, nPassThermalImpulsivityCut, nPassCWCut, nPassNumSatChanCut, nPassSurfaceCut_2, nPassCalpulserTimeCut, nPassCalRunCut, nPassSpikeyRatioCut;
 double nCut0, nCut1, nCut2, nCut3, nCut4, nCut5, nCut6, nCut7, nCut3p5, nCut1p5, nCut0p5, nCut6p5, nCut4p5;
-nPassCorruption = nPassThermalCut = nPassSurfaceCut = nPassDeepPulserCut = nPassNoisyRunCut = nPassCalpulserCut = nPassImpulsivityCut = nPassHighPassFilter = nPassThermalImpulsivityCut = nPassCWCut = nPassNumSatChanCut = nPassSurfaceCut_2 = nPassCalpulserTimeCut = nPassCalRunCut = 0.;
+nPassCorruption = nPassThermalCut = nPassSurfaceCut = nPassDeepPulserCut = nPassNoisyRunCut = nPassCalpulserCut = nPassImpulsivityCut = nPassHighPassFilter = nPassThermalImpulsivityCut = nPassCWCut = nPassNumSatChanCut = nPassSurfaceCut_2 = nPassCalpulserTimeCut = nPassCalRunCut = nPassSpikeyRatioCut = 0.;
 nCut0 = nCut1 = nCut2 = nCut3 = nCut4 = nCut5 = nCut6 = nCut7 = nCut3p5 = nCut1p5 = nCut0p5 = nCut6p5 = nCut4p5 = 0.;
 
 bool passImpulsivityCut;
@@ -698,13 +706,13 @@ for(int i=4; i<argc; i++){
    string fin(argv[i]);
    int runNum = atoi(  fin.substr(fin.find("run")+3, fin.find(".root")-fin.find("run")-2).c_str() );
 
-   //cout<<"runNum: "<<runNum<<endl;
+   cout<<"runNum: "<<runNum<<endl;
    //Exclude calibration runs:
-   if(STATION=="ARA02"){
-      if( isInCalibrationRun(listOfCalRuns, runNum) ) continue;
-   } else if (STATION=="ARA03"){
-      if (shouldExclude(STATION, runNum)) continue;
-   }
+   //if(STATION=="ARA02"){
+   //   if( isInCalibrationRun(listOfCalRuns, runNum) ) continue;
+   //} else if (STATION=="ARA03"){
+   //   if (shouldExclude(STATION, runNum)) continue;
+   //}
    /*
    //Cal sweep
    if(runNum>=3177 && runNum<=3186) continue;
@@ -769,21 +777,17 @@ for(int i=4; i<argc; i++){
    if(runNum==4429 && dummyData->eventNumber==34200) { totalBlockGapEventCount++; continue; }
    */
    //if (dummyData->eventNumber != 131864) continue;
-   /*
-   //Exclude the spikey D1 events
-   if( (runNum==850 && dummyData->eventNumber==95159) ||
-       (runNum==1115 && dummyData->eventNumber==76709) ||
-       (runNum==1164 && dummyData->eventNumber==68655) ||
-       (runNum==1169 && dummyData->eventNumber==97563) ||
-       (runNum==1414 && dummyData->eventNumber==66784)
-    ){
-      continue;
-   }
-   */
 
-   if (!(runNum==2946 && dummyData->eventNumber==144975)){
-      continue;
-   }
+   //Exclude the spikey D1 events
+//   if( (runNum==850 && dummyData->eventNumber==95159) ||
+//       (runNum==1115 && dummyData->eventNumber==76709) ||
+//       (runNum==1164 && dummyData->eventNumber==68655) ||
+//       (runNum==1169 && dummyData->eventNumber==97563) ||
+//       (runNum==1414 && dummyData->eventNumber==66784)
+//    ){
+//      continue;
+//   }
+//
 
    /*
    bool toCheck = false;
@@ -816,6 +820,8 @@ for(int i=4; i<argc; i++){
    //passCalRunCut = false;
 
    passSNRCut = false;
+
+   passSpikeyRatioCut = false;
 
    isCW = false;
    bool isVpolCW, isHpolCW, isXpolCW;
@@ -853,7 +859,10 @@ for(int i=4; i<argc; i++){
    //}
 
 
-   spikeyRatioHist->Fill(dummyData->spikeyRatio);
+   //spikeyRatioHist->Fill(dummyData->spikeyRatio);
+   if (dummyData->spikeyRatio < cutValues->spikeyRatioCut[type-1].val){
+      passSpikeyRatioCut = true;
+   }
 
 
    //isCW = isCW_coincidence(isVpolCW, isHpolCW, maxCountFreqBin_V, maxCountFreqBin_H, dummyData, cwBinThres);
@@ -1325,7 +1334,8 @@ for(int i=4; i<argc; i++){
    }
    */
    int plusMinusRunNum = 0; //an event is considered in noisy period if its run number is +-1 run of a known (listed) noisy run
-   passNoisyRunCut = !(isNearNoisyRun(listOfRuns, runNum, plusMinusRunNum));
+   //passNoisyRunCut = !(isNearNoisyRun(listOfRuns, runNum, plusMinusRunNum));
+   passNoisyRunCut = true;
    //if(runNum >= 4795 && runNum <= 4800) passNoisyRunCut = false; //DP
    //if(runNum >= 3 && runNum <=60 && runNum != 50) passNoisyRunCut = false; //Corrupted wf
    //if(runNum == 4787 || runNum==4785 ) passNoisyRunCut = false; //DP
@@ -1492,6 +1502,7 @@ for(int i=4; i<argc; i++){
    nPassSurfaceCut    += passSurfaceCut * dummyData->weight;
    nPassSurfaceCut_2  += passSurfaceCut_2 * dummyData->weight;
    nPassNoisyRunCut   += passNoisyRunCut * dummyData->weight;
+   nPassSpikeyRatioCut+= passSpikeyRatioCut * dummyData->weight;
 
    //nCut1              += (passCalRunCut) * dummyData->weight;
 
@@ -1537,7 +1548,11 @@ for(int i=4; i<argc; i++){
 
 
    //nCut7              += (passCWCut && passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passNoisyRunCut && passSurfaceCut && passSurfaceCut_2) * dummyData->weight;
-   nCut7              += (passCWCut && passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passNoisyRunCut && passSurfaceCut /*&& passSurfaceCut_2*/) * dummyData->weight;
+   nCut7              += (passCWCut && passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut/* && passNoisyRunCut*/ && passSurfaceCut /*&& passSurfaceCut_2*/ && passSpikeyRatioCut) * dummyData->weight;
+
+   if (passCWCut && passThermalCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut/* && passNoisyRunCut*/ && passSurfaceCut /*&& passSurfaceCut_2*/ && passSpikeyRatioCut){
+      outputFile<<type<<","<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<","<<coherence<<","<<snr<<","<<90.f-dummyData->constantNZen<<","<<dummyData->constantNAzi<<","<<90.f-dummyData->recoZen<<","<<dummyData->recoAzi<<","<<inBoxTheta<<","<<inBoxPhi<<endl;
+   }
 
 //   if(/*passNumSatChanCut &&*//*passHighPassFilter && passImpulsivityCut*/passCWCut && passThermalCut && passThermalImpulsivityCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut/*&& passNoisyRunCut*/ && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut){
 //   //if(passCalpulserCut){
@@ -2143,6 +2158,8 @@ printf("totalRFEventCount: %d\ttotalCalEventCount: %d\ttotalSoftEventCount: %d\n
 printf("totalCutWaveEventCount: %d\ttotalNonIncreasingSampleTimeEventCount: %d\ttotalCutWaveAndNonIncreasingEventCount: %d\ncutWave ratio: %f\tnonIncreasing ratio: %f\tcutWaveAndNonIncreasing ratio: %f\n", totalCutWaveEventCount, totalNonIncreasingSampleTimeEventCount, totalCutWaveAndNonIncreasingEventCount, (float)totalCutWaveEventCount/(float)totalRunEventCount, (float)totalNonIncreasingSampleTimeEventCount/(float)totalRunEventCount, (float)totalCutWaveAndNonIncreasingEventCount/(float)totalRunEventCount);
 printf("totalMistaggedSoftEventCount: %d\ttotalOffsetBlockEventCount: %d\ttotalCWFilteredEventCount: %d\ttotalNchnlFilteredEventCount: %d\ttotalCorruptFirst3EventCount: %d\ttotalCorruptD1EventCount: %d\ttotalBlockGapEventCount: %d\ttotalCliffEventCount: %d\nmistag soft ratio: %f\toffset ratio: %f\tCW ratio: %f\tnchnl ratio: %f\tfirst3 ratio: %f\tcorrupt D1 ratio: %f\tblock-gap ratio: %f\tcliff ratio: %f\n", totalMistaggedSoftEventCount, totalOffsetBlockEventCount, totalCWFilteredEventCount, totalNchnlFilteredEventCount, totalCorruptFirst3EventCount, totalCorruptD1EventCount, totalBlockGapEventCount, totalCliffEventCount, (float)totalMistaggedSoftEventCount/(float)totalRunEventCount, (float)totalOffsetBlockEventCount/(float)totalRunEventCount, (float)totalCWFilteredEventCount/(float)totalRunEventCount, (float)totalNchnlFilteredEventCount/(float)totalRunEventCount, (float)totalCorruptFirst3EventCount/(float)totalRunEventCount, (float)totalCorruptD1EventCount/(float)totalRunEventCount, (float)totalBlockGapEventCount/(float)totalRunEventCount, (float)totalCliffEventCount/(float)totalRunEventCount);
 
+printf("totalCalpulserFilteredEventCount: %d\ttotalSurfaceFilteredEventCount: %d\ttotalSNRCutEventCount: %d\ncal ratio: %f\tsurface ratio: %f\tsnr ratio: %f\n",
+totalCalpulserFilteredEventCount, totalSurfaceFilteredEventCount, totalSNRCutEventCount, (float)totalCalpulserFilteredEventCount/(float)totalRunEventCount, (float)totalSurfaceFilteredEventCount/(float)totalRunEventCount, (float)totalSNRCutEventCount/(float)totalRunEventCount);
 
 printf("totalRecoEventCount: %d\trfEventCount: %f\tcalEventCount: %f\tsoftEventCount: %f\n", totalRecoEventCount, rfEventCount, calEventCount, softEventCount);
 printf("\nnRecoEvent: %d\n\n", nRecoEvent);
@@ -2164,7 +2181,8 @@ printf("nPassSNRCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", 
 //printf("nPassNoisyRunCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassNoisyRunCut, (float)nPassNoisyRunCut/(float)rfEventCount, nCut5, (float)nCut5/(float)rfEventCount);
 printf("nPassCalpulserCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassCalpulserCut, (float)nPassCalpulserCut/(float)rfEventCount, nCut6, (float)nCut6/(float)rfEventCount);
 printf("nPassCalpulserTimeCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassCalpulserTimeCut, (float)nPassCalpulserTimeCut/(float)rfEventCount, nCut6p5, (float)nCut6p5/(float)rfEventCount);
-printf("nPassNoisyRunCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassNoisyRunCut, (float)nPassNoisyRunCut/(float)rfEventCount, nCut7, (float)nCut7/(float)rfEventCount);
+//printf("nPassNoisyRunCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassNoisyRunCut, (float)nPassNoisyRunCut/(float)rfEventCount, nCut7, (float)nCut7/(float)rfEventCount);
+printf("nPassSpikeyRatioCut: %f\tratio: %f\tEvents passed this level: %f\tratio: %f\n", nPassSpikeyRatioCut, (float)nPassSpikeyRatioCut/(float)rfEventCount, nCut7, (float)nCut7/(float)rfEventCount);
 cout<<"rfEventCount: "<<rfEventCount<<" isCWCount: "<<isCWCount<<" ratio: "<<isCWCount/rfEventCount<<" 1e-2 background ratio: "<<1e-2/(isCWCount*10)<<endl;
 cout<<"inBand_all: "<<inBand_all<<" inBand_pass: "<<inBand_pass<<" inBand_cut: "<<inBand_all-inBand_pass<<endl;
 cout<<"outOfBand_all: "<<outOfBand_all<<" outOfBand_pass: "<<outOfBand_pass<<" outOfBand_cut: "<<outOfBand_all-outOfBand_pass<<endl;
