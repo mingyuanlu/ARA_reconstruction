@@ -2526,7 +2526,7 @@ snrCutLine.SetLineWidth(3); snrCutLine.SetLineColor(kBlack); cohCutLine.SetLineW
 snrCutLine.Draw("same"); cohCutLine.Draw("same");
 TLatex latex;
 latex.DrawLatex(2,0.03,"Cut");
-latex.DrawLatex(20,0.25, "Signal");
+latex.DrawLatex(20,0.25, "Pass");
 //pca1.SetLineColor(kRed);
 //pca2.SetLineColor(kBlue);
 ////pca1.Draw("same");
