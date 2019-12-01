@@ -769,7 +769,7 @@ for(int i=4; i<argc; i++){
    if(runNum==4429 && dummyData->eventNumber==34200) { totalBlockGapEventCount++; continue; }
    */
    //if (dummyData->eventNumber != 131864) continue;
-   /*
+
    //Exclude the spikey D1 events
    if( (runNum==850 && dummyData->eventNumber==95159) ||
        (runNum==1115 && dummyData->eventNumber==76709) ||
@@ -779,11 +779,11 @@ for(int i=4; i<argc; i++){
     ){
       continue;
    }
-   */
 
-   if (!(runNum==2946 && dummyData->eventNumber==144975)){
-      continue;
-   }
+
+   //if (!(runNum==2946 && dummyData->eventNumber==144975)){
+   //   continue;
+   //}
 
    /*
    bool toCheck = false;
@@ -1703,7 +1703,7 @@ for(int i=4; i<argc; i++){
 //   if(passCWCut &&/* passThermalCut &&*//* passThermalImpulsivityCut &&*/ passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) //impulsivityHist_nMinusImp->Fill( avgImpulsivity, dummyData->weight);
    if(passCWCut &&/* passThermalCut &&*//* passThermalImpulsivityCut &&*/ passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut /*&& passSurfaceCut_2 */&& passNoisyRunCut ) //impulsivityHist_nMinusImp->Fill( avgImpulsivity, dummyData->weight);
    {
-      if(inBand){
+      if(!inBand){
       //snr_nMinusSNR->Fill(snr, dummyData->weight);
       // cout<<"snr: "<<snr<<endl;
       //outputFile<<snr<<",";
@@ -2510,10 +2510,10 @@ c17.SaveAs(filename);
 //_snrCumuHist->Draw();
 //c18.SaveAs(filename);
 
-//TCanvas c20("c20","c20",800,800);
-//coherence_snr_nMinusCoherenceSNR->Draw("colz");
-//coherence_snr_nMinusCoherenceSNR->SetTitle("All - Thermal Cut - SNR Cut;SNR;Coherence");
-//c20.SetLogz();
+TCanvas c20("c20","c20",800,800);
+coherence_snr_nMinusCoherenceSNR->Draw("colz");
+coherence_snr_nMinusCoherenceSNR->SetTitle("ARA03 Config 3;SNR;Corr");
+c20.SetLogz();
 //pca1.SetLineColor(kRed);
 //pca2.SetLineColor(kBlue);
 ////pca1.Draw("same");
@@ -2522,8 +2522,8 @@ c17.SaveAs(filename);
 ////cutPoint->SetMarkerSize(3);
 //cutPoint->Draw("psame");
 ////sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_pca_outOfBand.C", STATION.c_str(), type);
-//sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_c_snr_inBand.C", STATION.c_str(), type);
-////c20.SaveAs(filename);
+sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_c_snr_outOfBand.C", STATION.c_str(), type);
+c20.SaveAs(filename);
 //sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_c_snr_inBand.pdf", STATION.c_str(), type);
 ////c20.SaveAs(filename);
 //
