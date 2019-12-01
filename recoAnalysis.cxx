@@ -661,7 +661,7 @@ TH1F *inRangePhiFracHist = new TH1F("inRangePhiFracHist","inRangePhiFracHist",10
 TH2F *inRangeThetaPhiFracHist = new TH2F("inRangeThetaPhiFracHist","inRangeThetaPhiFracHist",100,0,1,100,0,1);
 
 //TH2F *coherence_snr_nMinusCoherenceSNR = new TH2F("coherence_snr_nMinusCoherenceSNR","coherence_snr_nMinusCoherenceSNR",400,0,1.2,1000,0,1);
-TH2F *coherence_snr_nMinusCoherenceSNR = new TH2F("coherence_snr_nMinusCoherenceSNR","coherence_snr_nMinusCoherenceSNR",400,0,40,1000,0,1);
+TH2F *coherence_snr_nMinusCoherenceSNR = new TH2F("coherence_snr_nMinusCoherenceSNR","coherence_snr_nMinusCoherenceSNR",25,0,20,125,0,1);
 double snr_mean, c_mean;
 snr_mean = c_mean = 0.;
 double snr_scaling = 1./*40*/;
