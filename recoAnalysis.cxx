@@ -1068,8 +1068,6 @@ for(int i=4; i<argc; i++){
 
    zenHist->Fill(90.f-dummyData->recoZen);
    aziHist->Fill(dummyData->recoAzi);
-   zen_c_hist->Fill(dummyData->maxPixCoherence, 90.f-dummyData->recoZen);
-   zen_azi_rf->Fill(dummyData->recoAzi, 90.f-dummyData->recoZen);
 
 /*
    r     = onion.getLayerRadius(dummyData->maxPixIdx2);
@@ -1092,8 +1090,16 @@ for(int i=4; i<argc; i++){
 
    }
 
+   //Apply correct scaling
+   if (STATION=="ARA03" && type>=3){
+      coherence *= (56./30.);
+   }
+
    //if (zen_bestHypo < ZEN_BAND_MAX && zen_bestHypo > ZEN_BAND_MIN){ snrCutValue = cutValues->snrCut_inBand[type-1].val;    coherenceCutValue = cutValues->coherenceCut_inBand[type-1].val; inBand = true; }
    //else                                                           { snrCutValue = cutValues->snrCut_outOfBand[type-1].val; coherenceCutValue = cutValues->coherenceCut_outOfBand[type-1].val; inBand = false;}
+
+   zen_c_hist->Fill(coherence, 90.f-dummyData->recoZen);
+   zen_azi_rf->Fill(dummyData->recoAzi, 90.f-dummyData->recoZen);
 
    if (zen_bestHypo < ZEN_BAND_MAX && zen_bestHypo > ZEN_BAND_MIN){ coherenceCutValue = cutValues->coherenceCut_inBand[type-1].val; inBand = true; }
    else                                                           { coherenceCutValue = cutValues->coherenceCut_outOfBand[type-1].val; inBand = false;}
