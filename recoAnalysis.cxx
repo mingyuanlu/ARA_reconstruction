@@ -2513,7 +2513,7 @@ c17.SaveAs(filename);
 
 TCanvas c20("c20","c20",800,800);
 coherence_snr_nMinusCoherenceSNR->Draw("colz");
-coherence_snr_nMinusCoherenceSNR->SetTitle("ARA03 Config 3;SNR;C_{sky};Event");
+coherence_snr_nMinusCoherenceSNR->SetTitle("ARA03 Config 3 Data;SNR;C_{sky};Event");
 c20.SetLogz();
 c20.SetLeftMargin(0.12);
 c20.SetRightMargin(0.15);
