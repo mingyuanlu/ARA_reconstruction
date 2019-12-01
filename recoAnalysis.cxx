@@ -13,6 +13,7 @@
 #include "UsefulAtriStationEvent.h"
 #include "AraGeomTool.h"
 
+#include "TLatex.h"
 #include "TChain.h"
 #include "TFile.h"
 #include "TGraph.h"
@@ -661,7 +662,7 @@ TH1F *inRangePhiFracHist = new TH1F("inRangePhiFracHist","inRangePhiFracHist",10
 TH2F *inRangeThetaPhiFracHist = new TH2F("inRangeThetaPhiFracHist","inRangeThetaPhiFracHist",100,0,1,100,0,1);
 
 //TH2F *coherence_snr_nMinusCoherenceSNR = new TH2F("coherence_snr_nMinusCoherenceSNR","coherence_snr_nMinusCoherenceSNR",400,0,1.2,1000,0,1);
-TH2F *coherence_snr_nMinusCoherenceSNR = new TH2F("coherence_snr_nMinusCoherenceSNR","coherence_snr_nMinusCoherenceSNR",25,0,20,125,0,1);
+TH2F *coherence_snr_nMinusCoherenceSNR = new TH2F("coherence_snr_nMinusCoherenceSNR","coherence_snr_nMinusCoherenceSNR",40,0,30,75,0,0.6);
 double snr_mean, c_mean;
 snr_mean = c_mean = 0.;
 double snr_scaling = 1./*40*/;
@@ -2512,8 +2513,19 @@ c17.SaveAs(filename);
 
 TCanvas c20("c20","c20",800,800);
 coherence_snr_nMinusCoherenceSNR->Draw("colz");
-coherence_snr_nMinusCoherenceSNR->SetTitle("ARA03 Config 3;SNR;Corr");
+coherence_snr_nMinusCoherenceSNR->SetTitle("ARA03 Config 3;SNR;C_{sky}");
 c20.SetLogz();
+c20.SetLeftMargin(0.12);
+c20.SetRightMargin(0.15);
+c20.SetBottomMargin(0.1);
+c20.SetTopMargin(0.1);
+c20.SetGrid();
+TLine snrCutLine(8.925025, 0, 8.925025, 0.158782);
+TLine cohCutLine(0, 0.158782, 8.925025, 0.158782);
+snrCutLine.SetLineWidth(3); snrCutLine.SetLineColor(kBlack); cohCutLine.SetLineWidth(3); cohCutLine.SetLineColor(kBlack);
+snrCutLine.Draw("same"); cohCutLine.Draw("same");
+TLatex latex;
+latex.DrawLatex(2,0.03,"Cut");
 //pca1.SetLineColor(kRed);
 //pca2.SetLineColor(kBlue);
 ////pca1.Draw("same");
