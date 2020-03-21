@@ -13,6 +13,7 @@
 #include "UsefulAtriStationEvent.h"
 #include "AraGeomTool.h"
 
+#include "TLatex.h"
 #include "TChain.h"
 #include "TFile.h"
 #include "TGraph.h"
@@ -661,7 +662,7 @@ TH1F *inRangePhiFracHist = new TH1F("inRangePhiFracHist","inRangePhiFracHist",10
 TH2F *inRangeThetaPhiFracHist = new TH2F("inRangeThetaPhiFracHist","inRangeThetaPhiFracHist",100,0,1,100,0,1);
 
 //TH2F *coherence_snr_nMinusCoherenceSNR = new TH2F("coherence_snr_nMinusCoherenceSNR","coherence_snr_nMinusCoherenceSNR",400,0,1.2,1000,0,1);
-TH2F *coherence_snr_nMinusCoherenceSNR = new TH2F("coherence_snr_nMinusCoherenceSNR","coherence_snr_nMinusCoherenceSNR",400,0,40,1000,0,1);
+TH2F *coherence_snr_nMinusCoherenceSNR = new TH2F("coherence_snr_nMinusCoherenceSNR","coherence_snr_nMinusCoherenceSNR",40,0,30,75,0,0.6);
 double snr_mean, c_mean;
 snr_mean = c_mean = 0.;
 double snr_scaling = 1./*40*/;
@@ -769,7 +770,7 @@ for(int i=4; i<argc; i++){
    if(runNum==4429 && dummyData->eventNumber==34200) { totalBlockGapEventCount++; continue; }
    */
    //if (dummyData->eventNumber != 131864) continue;
-   /*
+
    //Exclude the spikey D1 events
    if( (runNum==850 && dummyData->eventNumber==95159) ||
        (runNum==1115 && dummyData->eventNumber==76709) ||
@@ -779,11 +780,11 @@ for(int i=4; i<argc; i++){
     ){
       continue;
    }
-   */
 
-   if (!(runNum==2946 && dummyData->eventNumber==144975)){
-      continue;
-   }
+
+   //if (!(runNum==2946 && dummyData->eventNumber==144975)){
+   //   continue;
+   //}
 
    /*
    bool toCheck = false;
@@ -1067,8 +1068,6 @@ for(int i=4; i<argc; i++){
 
    zenHist->Fill(90.f-dummyData->recoZen);
    aziHist->Fill(dummyData->recoAzi);
-   zen_c_hist->Fill(dummyData->maxPixCoherence, 90.f-dummyData->recoZen);
-   zen_azi_rf->Fill(dummyData->recoAzi, 90.f-dummyData->recoZen);
 
 /*
    r     = onion.getLayerRadius(dummyData->maxPixIdx2);
@@ -1091,8 +1090,16 @@ for(int i=4; i<argc; i++){
 
    }
 
+   //Apply correct scaling
+   if (STATION=="ARA03" && type>=3){
+      coherence *= (56./30.);
+   }
+
    //if (zen_bestHypo < ZEN_BAND_MAX && zen_bestHypo > ZEN_BAND_MIN){ snrCutValue = cutValues->snrCut_inBand[type-1].val;    coherenceCutValue = cutValues->coherenceCut_inBand[type-1].val; inBand = true; }
    //else                                                           { snrCutValue = cutValues->snrCut_outOfBand[type-1].val; coherenceCutValue = cutValues->coherenceCut_outOfBand[type-1].val; inBand = false;}
+
+   zen_c_hist->Fill(coherence, 90.f-dummyData->recoZen);
+   zen_azi_rf->Fill(dummyData->recoAzi, 90.f-dummyData->recoZen);
 
    if (zen_bestHypo < ZEN_BAND_MAX && zen_bestHypo > ZEN_BAND_MIN){ coherenceCutValue = cutValues->coherenceCut_inBand[type-1].val; inBand = true; }
    else                                                           { coherenceCutValue = cutValues->coherenceCut_outOfBand[type-1].val; inBand = false;}
@@ -1703,7 +1710,7 @@ for(int i=4; i<argc; i++){
 //   if(passCWCut &&/* passThermalCut &&*//* passThermalImpulsivityCut &&*/ passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut && passSurfaceCut_2 && passNoisyRunCut ) //impulsivityHist_nMinusImp->Fill( avgImpulsivity, dummyData->weight);
    if(passCWCut &&/* passThermalCut &&*//* passThermalImpulsivityCut &&*/ passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut && passSurfaceCut /*&& passSurfaceCut_2 */&& passNoisyRunCut ) //impulsivityHist_nMinusImp->Fill( avgImpulsivity, dummyData->weight);
    {
-      if(inBand){
+      if(!inBand){
       //snr_nMinusSNR->Fill(snr, dummyData->weight);
       // cout<<"snr: "<<snr<<endl;
       //outputFile<<snr<<",";
@@ -2510,10 +2517,22 @@ c17.SaveAs(filename);
 //_snrCumuHist->Draw();
 //c18.SaveAs(filename);
 
-//TCanvas c20("c20","c20",800,800);
-//coherence_snr_nMinusCoherenceSNR->Draw("colz");
-//coherence_snr_nMinusCoherenceSNR->SetTitle("All - Thermal Cut - SNR Cut;SNR;Coherence");
-//c20.SetLogz();
+TCanvas c20("c20","c20",800,800);
+coherence_snr_nMinusCoherenceSNR->Draw("colz");
+coherence_snr_nMinusCoherenceSNR->SetTitle("A3 Config 3 Data;SNR;C_{sky};Event");
+c20.SetLogz();
+c20.SetLeftMargin(0.12);
+c20.SetRightMargin(0.15);
+c20.SetBottomMargin(0.1);
+c20.SetTopMargin(0.1);
+c20.SetGrid();
+TLine snrCutLine(8.925025, 0.158782, 8.925025, 0.6);
+TLine cohCutLine(8.925025, 0.158782, 30, 0.158782);
+snrCutLine.SetLineWidth(3); snrCutLine.SetLineColor(kBlack); cohCutLine.SetLineWidth(3); cohCutLine.SetLineColor(kBlack);
+snrCutLine.Draw("same"); cohCutLine.Draw("same");
+TLatex latex;
+latex.DrawLatex(2,0.03,"Cut");
+latex.DrawLatex(20,0.25, "Pass");
 //pca1.SetLineColor(kRed);
 //pca2.SetLineColor(kBlue);
 ////pca1.Draw("same");
@@ -2522,8 +2541,8 @@ c17.SaveAs(filename);
 ////cutPoint->SetMarkerSize(3);
 //cutPoint->Draw("psame");
 ////sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_pca_outOfBand.C", STATION.c_str(), type);
-//sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_c_snr_inBand.C", STATION.c_str(), type);
-////c20.SaveAs(filename);
+sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_c_snr_outOfBand.C", STATION.c_str(), type);
+c20.SaveAs(filename);
 //sprintf(filename,"%s_type%d_snrMode1_nMinusCoherenceSNR_c_snr_inBand.pdf", STATION.c_str(), type);
 ////c20.SaveAs(filename);
 //
