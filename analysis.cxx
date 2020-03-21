@@ -297,6 +297,16 @@ double weightedCWFilteredEventCount = 0.;
 double weightedImpulsivityFilteredEventCount = 0.;
 double weightedCliffEventCount = 0.;
 double weightedCorruptD1EventCount = 0.;
+double weightedTrigEventCountW2 = 0.;
+double weightedRecoEventCountW2 = 0.;
+double weightedOffsetBlockEventCountW2 = 0.;
+double weightedNchnlFilteredEventCountW2 = 0.;
+double weightedCWFilteredEventCountW2 = 0.;
+double weightedImpulsivityFilteredEventCountW2 = 0.;
+double weightedCliffEventCountW2 = 0.;
+double weightedCorruptD1EventCountW2 = 0.;
+
+
 runInfoTree->Branch("runEventCount",  &runEventCount);
 runInfoTree->Branch("runRFEventCount", &runRFEventCount);
 runInfoTree->Branch("runCalEventCount", &runCalEventCount);
@@ -325,6 +335,15 @@ runInfoTree->Branch("weightedImpulsivityFilteredEventCount", &weightedImpulsivit
 runInfoTree->Branch("blockGapEventCount", &blockGapEventCount);
 runInfoTree->Branch("weightedCliffEventCount", &weightedCliffEventCount);
 runInfoTree->Branch("weightedCorruptD1EventCount", &weightedCorruptD1EventCount);
+runInfoTree->Branch("weightedTrigEventCountW2",&weightedTrigEventCountW2);
+runInfoTree->Branch("weightedRecoEventCountW2", &weightedRecoEventCountW2);
+runInfoTree->Branch("weightedOffsetBlockEventCountW2", &weightedOffsetBlockEventCountW2);
+runInfoTree->Branch("weightedNchnlFilteredEventCountW2", &weightedNchnlFilteredEventCountW2);
+runInfoTree->Branch("weightedCWFilteredEventCountW2", &weightedCWFilteredEventCountW2);
+runInfoTree->Branch("weightedImpulsivityFilteredEventCountW2", &weightedImpulsivityFilteredEventCountW2);
+runInfoTree->Branch("weightedCliffEventCountW2", &weightedCliffEventCountW2);
+runInfoTree->Branch("weightedCorruptD1EventCountW2", &weightedCorruptD1EventCountW2);
+
 
 if(settings->dataType == 1)//real events
 {
@@ -1436,6 +1455,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
       trigEventCount++;
       weightedTrigEventCount+=weight;
+      weightedTrigEventCountW2+=(weight*weight);
       dx = event->Nu_Interaction[0].posnu.GetX()-detector->stations[0].GetX();
       dy = event->Nu_Interaction[0].posnu.GetY()-detector->stations[0].GetY();
       dz = event->Nu_Interaction[0].posnu.GetZ()-detector->stations[0].GetZ() + stationCenterDepth;
@@ -1586,6 +1606,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
          offsetBlockAlert = 1;
          offsetBlockEventCount += 1;
          weightedOffsetBlockEventCount += weight;
+         weightedOffsetBlockEventCountW2 += (weight*weight);
          unpaddedEvent.clear();
          cleanEvent.clear();
          for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; }
@@ -1639,6 +1660,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
          cliffAlert = 1;
          cliffEventCount += 1;
          weightedCliffEventCount += weight;
+         weightedCliffEventCountW2 += (weight*weight);
          unpaddedEvent.clear();
          cleanEvent.clear();
          for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; }
@@ -1756,6 +1778,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
          impulsivityFilteredEventCount+=1;
          weightedImpulsivityFilteredEventCount += weight;
+         weightedImpulsivityFilteredEventCountW2 += (weight*weight);
          unpaddedEvent.clear();
          cleanEvent.clear();
          for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grCDF[ch];*//*delete grFFT[ch];*/}
@@ -1779,6 +1802,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       {
          nchnlFilteredEventCount+=1;
          weightedNchnlFilteredEventCount += weight;
+         weightedNchnlFilteredEventCountW2 += (weight*weight);
          //cerr<<"Failed nchnl cut. nchnl_tmp: "<<nchnl_tmp<<endl;
          unpaddedEvent.clear();
          cleanEvent.clear();
@@ -1928,6 +1952,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
       corruptD1EventCount+=1;
       weightedCorruptD1EventCount += weight;
+      weightedCorruptD1EventCountW2 += (weight*weight);
       unpaddedEvent.clear();
       cleanEvent.clear();
       for(int ch=0; ch<16; ch++){ delete grInt[ch]; delete grWinPad[ch]; delete grMean[ch]; /*delete grFFT[ch];*/ /*delete grCDF[ch];*/ }
@@ -2018,6 +2043,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 //
    recoEventCount++;
    weightedRecoEventCount += weight;
+   weightedRecoEventCountW2 += (weight*weight);
    /* Reco with radiospline */
 
    recoSuccess = false;
