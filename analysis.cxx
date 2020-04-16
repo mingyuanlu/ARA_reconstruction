@@ -1437,9 +1437,9 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    summary->setRecoAngles(recoRecAngles, recoLauAngles);
 
    /* AraVertex reconstruction */
-   int polarization_of_interest = (string(recoSettings->recoPolType)=="both" ? 2 : (string(recoSettings->recoPolType)=="vpol" ? 0 : 1));
+   int polarization_of_interest = (string(settings->recoPolType)=="both" ? 2 : (string(settings->recoPolType)=="vpol" ? 0 : 1));
 
-   if(recoSettings->AraVertexReco==1){
+   if(settings->AraVertexReco==1){
 
       excluded_channels.clear();
       for(int ch=0; ch<16; ch++){
@@ -1448,7 +1448,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
       RecoHandler->identifyHitsPrepToVertex(antLocation, Reco, stationId, polarization_of_interest,
                    excluded_channels, unpaddedEvent,
-                   recoSettings->AraVertexHitThreshold
+                   settings->AraVertexHitThreshold
                    );
 
       // tell the AraVertex tool to actually run the vertexing algorithm
@@ -2176,9 +2176,9 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    summary->setRecoAngles(recoRecAngles, recoLauAngles);
 
-   int polarization_of_interest = (string(recoSettings->recoPolType)=="both" ? 2 : (string(recoSettings->recoPolType)=="vpol" ? 0 : 1));
+   int polarization_of_interest = (string(settings->recoPolType)=="both" ? 2 : (string(settings->recoPolType)=="vpol" ? 0 : 1));
 
-   if(recoSettings->AraVertexReco==1){
+   if(settings->AraVertexReco==1){
 
       excluded_channels.clear();
       for(int ch=0; ch<16; ch++){
@@ -2188,7 +2188,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       // Ask the reco handler to identify hits
       RecoHandler->identifyHitsPrepToVertex(antLocation, Reco, AraSim_settings->DETECTOR_STATION, polarization_of_interest,
                 excluded_channels, unpaddedEvent,
-                recoSettings->AraVertexHitThreshold
+                settings->AraVertexHitThreshold
                 );
 
       RECOOUT recoVxcorSimple=Reco->doPairFitSpherical();
