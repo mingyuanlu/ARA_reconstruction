@@ -258,3 +258,37 @@ for(int AraRootChan=0; AraRootChan<16; AraRootChan++){
 
 return 0;
 }
+
+//Function left for backward compatibility
+int getAraSimStationGeometry(vector<vector<double> >& ant_loc, Detector *detector, Settings *settings){
+
+double zCenter = -180.;
+vector<double> xyz;
+double stationX = detector->stations[0].GetX();
+double stationY = detector->stations[0].GetY();
+double stationZ = detector->stations[0].GetZ();
+int string_i, antenna_i, AraRootChannel;
+
+for(int AraRootChan=0; AraRootChan<16; AraRootChan++){
+   for(int AraSimChan=0; AraSimChan<16; AraSimChan++){
+
+   string_i = detector->getStringfromArbAntID(0, AraSimChan);
+   antenna_i= detector->getAntennafromArbAntID(0,AraSimChan);
+   AraRootChannel = detector->GetChannelfromStringAntenna(0, string_i, antenna_i, settings) - 1;
+
+   cout<<"AraSimChan: "<<AraSimChan<<" string_i: "<<string_i<<" antenna_i: "<<antenna_i<<" AraRootChannel: "<<AraRootChannel<<endl;
+
+   if( AraRootChannel == AraRootChan ){
+   xyz.push_back(detector->stations[0].strings[string_i].antennas[antenna_i].GetX() - stationX);
+   xyz.push_back(detector->stations[0].strings[string_i].antennas[antenna_i].GetY() - stationY);
+   xyz.push_back(detector->stations[0].strings[string_i].antennas[antenna_i].GetZ() - stationZ - zCenter);
+   cout<<"x: "<<xyz[0]<<" y: "<<xyz[1]<<" z: "<<xyz[2]<<endl;
+   ant_loc.push_back(xyz);
+   xyz.clear();
+   }
+
+   }
+   }
+
+return 0;
+}

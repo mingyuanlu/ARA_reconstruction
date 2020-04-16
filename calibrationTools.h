@@ -69,6 +69,6 @@ int calibrateGeometryAndDelays(const RawAraStationEvent *rawAtriEvPtr,
                                 vector<vector<double> >& ant_loc,
                                 vector<vector<double> >& pul_loc);
 int getAraSimStationGeometry(vector<vector<double> >& ant_loc);
+int getAraSimStationGeometry(vector<vector<double> >& ant_loc, Detector *detector, Settings *settings, double zCenter);
 int getAraSimStationGeometry(vector<vector<double> >& ant_loc, Detector *detector, Settings *settings);
-
 #endif
