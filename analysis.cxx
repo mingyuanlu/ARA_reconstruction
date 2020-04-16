@@ -1437,7 +1437,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    summary->setRecoAngles(recoRecAngles, recoLauAngles);
 
    /* AraVertex reconstruction */
-   int polarization_of_interest = (string(recoSettings->recoPolType)=="both" ? 2 (string(recoSettings->recoPolType)=="vpol" ? 0 : 1));
+   int polarization_of_interest = (string(recoSettings->recoPolType)=="both" ? 2 : (string(recoSettings->recoPolType)=="vpol" ? 0 : 1));
 
    if(recoSettings->AraVertexReco==1){
 
@@ -2176,7 +2176,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    summary->setRecoAngles(recoRecAngles, recoLauAngles);
 
-   int polarization_of_interest = (string(recoSettings->recoPolType)=="both" ? 2 (string(recoSettings->recoPolType)=="vpol" ? 0 : 1));
+   int polarization_of_interest = (string(recoSettings->recoPolType)=="both" ? 2 : (string(recoSettings->recoPolType)=="vpol" ? 0 : 1));
 
    if(recoSettings->AraVertexReco==1){
 
