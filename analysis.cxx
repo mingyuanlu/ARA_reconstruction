@@ -40,6 +40,9 @@
 #include "signal.hh"
 #include "IceModel.h"
 
+#include "AraVertex.h"
+#include "AraRecoHandler.h"
+
 ClassImp(recoSettings);
 ClassImp(recoData);
 
@@ -435,20 +438,48 @@ if(settings->dataType == 1){
 
 } else {
 
-   err = getAraSimStationGeometry(antLocation, detector, AraSim_settings);
+   err = getAraSimStationGeometry(antLocation, detector, AraSim_settings, -1.*stationCenterDepth);
    if( err<0 ){ cerr<<"Error loading AraSim geometry\n"; return -1; }
 
 }
 
-if(settings->applyA2Ch6Correction){
-   /* Add correction from Fit 2 of D5BV+D6BV calpulsers to D3BV (ch6) Z */
-   antLocation[6][2] += (-0.6);
-}
+/* Deprecated with latest sqlite geometry database on CVMFS */
+//if(settings->applyA2Ch6Correction){
+//   /* Add correction from Fit 2 of D5BV+D6BV calpulsers to D3BV (ch6) Z */
+//   antLocation[6][2] += (-0.6);
+//}
 
 /* Initiate a track engine instance, build baseline vectors */
 trackEngine *treg = new trackEngine();
 treg->initialize();
 treg->buildBaselineTracks(antLocation);
+
+/* Compute center of gravity of station and invoke an AraVertex instance */
+
+double antenna_average[3]={0.};
+for(int i=0; i<16; i++){
+   for(int ii=0; ii<3; ii++){
+      antenna_average[ii]+=(antLocation[i][ii]);
+   }
+}
+for(int ii=0; ii<3; ii++){
+   antenna_average[ii]/=16.;
+}
+
+//Put back absolute depth which is used to obtain n(z) in AraVertex
+antenna_average[2] -= stationCenterDepth;
+cout<<"Average depth in AraVertex: "<<antenna_average[2]<<endl;
+
+AraVertex *Reco = new AraVertex();
+Reco -> SetCOG(antenna_average[0], antenna_average[1], antenna_average[2]);
+
+// Also, invoke a RecoHandler tool
+// The point of the RecoHandler is to help with management of the AraVertex tool
+AraRecoHandler *RecoHandler = new AraRecoHandler();
+
+// Define what channels we would like *excluded* from the reconstruction
+// Empty, for now
+vector<int> excluded_channels;
 
 
 /*
@@ -773,6 +804,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       //cout<<"*** Channel "<<a<<"***"<<endl;
       addDelay = 0.0;
       //*** Now we add the cable delays from the file and the forgotten antenna feedthrough (4,8,12 ns). ***//
+      /* //Deprecated with latest sqlite database on WIPAC CVMFS
 	  if(a/4==0){addDelay+=(4.0  + delays[a%4][3]);}
 	  if(a/4==1){addDelay+=(12.0 + delays[a%4][3]);}
 	  if(a/4==2){addDelay+=(0.0  + delays[a%4][3]);}
@@ -781,7 +813,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       //stdDelay= geom->getStationInfo(stationId)->getCableDelay(a);
       //addDelay += stdDelay;
       if(settings->applyA2Ch6Correction) if(a==6) addDelay += 6.8; //Fit 2, ch6 delay+=6.87ns
-
+      */
 	  //*** We put the waveform into a graph. ***//
 	  gr_v_temp[a] = realAtriEvPtr->getGraphFromRFChan(a);
 	  gr_v[a] = new TGraph();
@@ -1404,6 +1436,30 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    }
    summary->setRecoAngles(recoRecAngles, recoLauAngles);
 
+   /* AraVertex reconstruction */
+   int polarization_of_interest = (string(recoSettings->recoPolType)=="both" ? 2 (string(recoSettings->recoPolType)=="vpol" ? 0 : 1));
+
+   if(recoSettings->AraVertexReco==1){
+
+      excluded_channels.clear();
+      for(int ch=0; ch<16; ch++){
+         if(!goodChan[ch]) excluded_channels.push_back(ch);
+      }
+
+      RecoHandler->identifyHitsPrepToVertex(antLocation, Reco, stationId, polarization_of_interest,
+                   excluded_channels, unpaddedEvent,
+                   recoSettings->AraVertexHitThreshold
+                   );
+
+      // tell the AraVertex tool to actually run the vertexing algorithm
+      RECOOUT recoVxcorSimple=Reco->doPairFitSpherical();
+
+      double AraVertexTheta = 90.-recoVxcorSimple.theta*TMath::RadToDeg();
+      double AraVertexPhi   = recoVxcorSimple.phi*TMath::RadToDeg();
+
+      summary->setAraVertexAngles(AraVertexTheta, AraVertexPhi);
+
+   }
 
    dataTree->Fill();
 
@@ -2119,6 +2175,30 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
    //compute3DRecoAnglesWithRadioSplineForSinglePixel(nAnt, -1.f*stationCenterDepth, antLocation, onion, recoLauAngles, recoRecAngles, maxPixIdx);
 
    summary->setRecoAngles(recoRecAngles, recoLauAngles);
+
+   int polarization_of_interest = (string(recoSettings->recoPolType)=="both" ? 2 (string(recoSettings->recoPolType)=="vpol" ? 0 : 1));
+
+   if(recoSettings->AraVertexReco==1){
+
+      excluded_channels.clear();
+      for(int ch=0; ch<16; ch++){
+         if(!goodChan[ch]) excluded_channels.push_back(ch);
+      }
+
+      // Ask the reco handler to identify hits
+      RecoHandler->identifyHitsPrepToVertex(antLocation, Reco, AraSim_settings->DETECTOR_STATION, polarization_of_interest,
+                excluded_channels, unpaddedEvent,
+                recoSettings->AraVertexHitThreshold
+                );
+
+      RECOOUT recoVxcorSimple=Reco->doPairFitSpherical();
+
+      double AraVertexTheta = 90.-recoVxcorSimple.theta*TMath::RadToDeg();
+      double AraVertexPhi = recoVxcorSimple.phi*TMath::RadToDeg();
+
+      summary->setAraVertexAngles(AraVertexTheta, AraVertexPhi);
+
+   }
 
    dataTree->Fill();
    unpaddedEvent.clear();

@@ -116,6 +116,9 @@ void recoSettings::initialize(){
   surfaceEventListFilter = 0;
   snrCutFilter = 0;
 
+  AraVertexReco = 1;
+  AraVertexHitThreshold = 8.;
+
   //remark = "Default.";
   snprintf(remark, sizeof(remark), "Default.");
 
@@ -217,6 +220,10 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
                surfaceEventListFilter = atoi( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label == "snrCutFilter")
                snrCutFilter = atoi( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "AraVertexReco")
+               AraVertexReco = atoi( line.substr(line.find_first_of("=")+1).c_str() );
+            else if(label == "AraVertexHitThreshold")
+               AraVertexHitThreshold = atof( line.substr(line.find_first_of("=")+1).c_str() );
             else if(label != "") cerr<<"Undefined parameter detected. Label: "<<label<<endl;
          }
       }
@@ -306,6 +313,9 @@ bool recoSettings::readRecoSetupFile(string recoSetupFile){
       if( (unsigned)(calpulserEventListFilter-0) > 1){   cerr<<"calpulserEventListFilter: "<<calpulserEventListFilter<<endl; errCnt++; }
       if( (unsigned)(surfaceEventListFilter-0) > 1){     cerr<<"surfaceEventListFilter: "<<surfaceEventListFilter<<endl; errCnt++; }
       if( (unsigned)(snrCutFilter-0) > 1){        cerr<<"snrCutFilter: "<<snrCutFilter<<endl; errCnt++; }
+      if( (unsigned)(AraVertexReco-0) > 1){       cerr<<"AraVertexReco: "<<AraVertexReco<<endl; errCnt++; }
+      if( AraVertexHitThreshold < 0 ){            cerr<<"AraVertexHitThreshold: "<<AraVertexHitThreshold<<endl; errCnt++; }
+
       if(errCnt > 0) return false;
 
    } else { cerr<<"Unable to open "<<sf<<endl; return false; }

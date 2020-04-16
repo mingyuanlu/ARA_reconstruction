@@ -97,6 +97,8 @@ using namespace std;
 
    spikeyRatio = 0.;
 
+   AraVertexTheta = AraVertexPhi = 0.f;
+
    }
 
 
@@ -610,6 +612,11 @@ using namespace std;
       spikeyRatio = _spikeyRatio;
    }
 
+   void recoData::setAraVertexAngles(float _AraVertexTheta, float _AraVertexPhi){
+      AraVertexTheta = _AraVertexTheta;
+      AraVertexPhi   = _AraVertexPhi;
+   }
+
    void recoData::duplicate(recoSettings *settings, recoData *old){
 
    int *_topMaxPixIdx         = (int*)calloc(old->topN, sizeof(int));
@@ -712,6 +719,8 @@ using namespace std;
    }
    setCWIterCount(old->cwIterCount);
    setSpikeyRatio(old->spikeyRatio);
+   setAraVertexAngles(old->AraVertexTheta, old->AraVertexPhi);
+
 /*
    weight = old->weight;
 
@@ -825,5 +834,6 @@ using namespace std;
    std::fill(&totalPowerSNR[0], &totalPowerSNR[16], 0.f);
    cwIterCount = 0;
    spikeyRatio = 0.;
+   AraVertexTheta = AraVertexPhi = 0.f;
 
    }

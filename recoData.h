@@ -219,7 +219,12 @@ public:
    double spikeyRatio;
    void setSpikeyRatio(double _spikeyRatio);
 
-   ClassDef(recoData, 21);
+//ClassDef 22
+   float AraVertexTheta;
+   float AraVertexPhi;
+   void setAraVertexAngles(float _AraVertexTheta, float _AraVertexPhi);
+
+   ClassDef(recoData, 22);
 
 };
 
