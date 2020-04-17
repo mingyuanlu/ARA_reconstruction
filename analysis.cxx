@@ -1453,7 +1453,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 		float hitTimes[16];
 		RecoHandler->getChannelSlidingV2SNR_UW(unpaddedEvent, settings->wInt_V, settings->wInt_H, chanSNRs, hitTimes);
 		for(int i=0; i<16; i++){
-			printf("Chan %d SNR is %.2f \n", i, chanSNRs[i]);
+			printf("Chan %d SNR is %.2f and hit time %.2f \n", i, chanSNRs[i], hitTimes[i]);
 		}
 
       RecoHandler->identifyHitsPrepToVertex(chanLocation, Reco, stationId, polarization_of_interest,
