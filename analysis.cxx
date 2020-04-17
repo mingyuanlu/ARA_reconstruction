@@ -461,7 +461,7 @@ AraRecoHandler *RecoHandler = new AraRecoHandler();
 /* Compute center of gravity of station and invoke an AraVertex instance */
 
 AraGeomTool *araGeom = AraGeomTool::Instance();
-vector< vector<double>> chanLocation =  RecoHandler->getVectorOfChanLocations(araGeom, station);
+vector< vector<double>> chanLocation =  RecoHandler->getVectorOfChanLocations(araGeom, rawAtriEvPtr->stationId);
 
 double antenna_average[3]={0.};
 for(int i=0; i<16; i++){
