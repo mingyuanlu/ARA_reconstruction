@@ -1454,7 +1454,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       // tell the AraVertex tool to actually run the vertexing algorithm
       RECOOUT recoVxcorSimple=Reco->doPairFitSpherical();
 
-      double AraVertexTheta = 90.-recoVxcorSimple.theta*TMath::RadToDeg();
+      double AraVertexTheta = recoVxcorSimple.theta*TMath::RadToDeg();
       double AraVertexPhi   = recoVxcorSimple.phi*TMath::RadToDeg();
 
       summary->setAraVertexAngles(AraVertexTheta, AraVertexPhi);
@@ -2193,7 +2193,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
       RECOOUT recoVxcorSimple=Reco->doPairFitSpherical();
 
-      double AraVertexTheta = 90.-recoVxcorSimple.theta*TMath::RadToDeg();
+      double AraVertexTheta = recoVxcorSimple.theta*TMath::RadToDeg();
       double AraVertexPhi = recoVxcorSimple.phi*TMath::RadToDeg();
 
       summary->setAraVertexAngles(AraVertexTheta, AraVertexPhi);
