@@ -717,6 +717,8 @@ char histname[200];
 //   dtHist[b] = new TH1F(histname, histname, 840*2, 0, 840);
 //}
 
+TCanvas cvs("cvs","cvs",800,800);
+cvs.Divide(4,4);
 
 //recordTime(tmr,3);
 time_t t_before_event_loop = time(NULL);
@@ -1452,8 +1454,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       float chanSNRs[16];
 		float hitTimes[16];
 		RecoHandler->getChannelSlidingV2SNR_UW(unpaddedEvent, settings->wInt_V, settings->wInt_H, chanSNRs, hitTimes);
-      TCanvas cvs("cvs","cvs",800,800);
-      cvs.Divide(4,4);
+
 		for(int i=0; i<16; i++){
          cvs.cd(i+1);
          unpaddedEvent[i]->Draw("AL");
