@@ -870,7 +870,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
             gr_v[a]->GetPoint(pc, times, volts);
 
-            if( (times - previous_times) > 0.)
+            if( (times - previous_times) > 0.){ }
             //gr_v[a]->SetPoint(pc, times, volts-average[a]);
             else {cerr<< "BAD EVENT Non-increasing sample time: " << event << " Channel: " << a << "this sample time: "<< times << "previous sample time: " << previous_times << endl;nonIncreasingSampleTimeAlert=1; /*nonIncreasingSampleTimeEventCount++; if(cutWaveAlert==1){cutWaveAndNonIncreasingEventCount++;}*/}
 
