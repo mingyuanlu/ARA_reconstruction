@@ -1454,7 +1454,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       float chanSNRs[16];
 		float hitTimes[16];
       cout<<"wInt_V: "<<settings->wInt_V<<" wInt_H: "<<settings->wInt_H<<endl;
-		RecoHandler->getChannelSlidingV2SNR_UW(unpaddedEvent, settings->wInt_V, settings->wInt_H, chanSNRs, hitTimes);
+		RecoHandler->getChannelSlidingV2SNR_UW(unpaddedEvent, int(settings->powerEnvIntDuration/settings->wInt_V), int(settings->powerEnvIntDuration/settings->wInt_H), chanSNRs, hitTimes);
 
 		for(int i=0; i<16; i++){
          cvs.cd(i+1);
