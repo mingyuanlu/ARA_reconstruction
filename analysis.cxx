@@ -1452,8 +1452,13 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       float chanSNRs[16];
 		float hitTimes[16];
 		RecoHandler->getChannelSlidingV2SNR_UW(unpaddedEvent, settings->wInt_V, settings->wInt_H, chanSNRs, hitTimes);
+      TCanvas cvs("cvs","cvs",800,800);
+      cvs.Divide(4,4);
 		for(int i=0; i<16; i++){
-         cout<<"chan "<<i<<" rms: "<<unpaddedEvent[i]->GetRMS()<<" peak: "<<unpaddedEvent[i]->GetMaximum()<<endl;
+         cvs.cd(i+1);
+         unpaddedEvent[i]->Draw("AL");
+         cout<<"chan "<<i<<" rms: "<<unpaddedEvent[i]->GetRMS()<<endl;
+
 			printf("Chan %d SNR is %.2f and hit time %.2f \n", i, chanSNRs[i], hitTimes[i]);
 		}
 
@@ -1471,6 +1476,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       summary->setAraVertexAngles(AraVertexTheta, AraVertexPhi);
 
    }
+
+   cvs.SaveAs("test.C");
 
    dataTree->Fill();
 
