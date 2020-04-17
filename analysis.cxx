@@ -454,12 +454,19 @@ trackEngine *treg = new trackEngine();
 treg->initialize();
 treg->buildBaselineTracks(antLocation);
 
+// Invoke a RecoHandler tool
+// The point of the RecoHandler is to help with management of the AraVertex tool
+AraRecoHandler *RecoHandler = new AraRecoHandler();
+
 /* Compute center of gravity of station and invoke an AraVertex instance */
+
+AraGeomTool *araGeom = AraGeomTool::Instance();
+vector< vector<double>> chanLocation =  RecoHandler->getVectorOfChanLocations(araGeom, station);
 
 double antenna_average[3]={0.};
 for(int i=0; i<16; i++){
    for(int ii=0; ii<3; ii++){
-      antenna_average[ii]+=(antLocation[i][ii]);
+      antenna_average[ii]+=(chanLocation[i][ii]);
    }
 }
 for(int ii=0; ii<3; ii++){
@@ -467,15 +474,11 @@ for(int ii=0; ii<3; ii++){
 }
 
 //Put back absolute depth which is used to obtain n(z) in AraVertex
-antenna_average[2] -= stationCenterDepth;
+//antenna_average[2] -= stationCenterDepth;
 cout<<"Average depth in AraVertex: "<<antenna_average[2]<<endl;
 
 AraVertex *Reco = new AraVertex();
 Reco -> SetCOG(antenna_average[0], antenna_average[1], antenna_average[2]);
-
-// Also, invoke a RecoHandler tool
-// The point of the RecoHandler is to help with management of the AraVertex tool
-AraRecoHandler *RecoHandler = new AraRecoHandler();
 
 // Define what channels we would like *excluded* from the reconstruction
 // Empty, for now
@@ -1446,7 +1449,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          if(!goodChan[ch]) excluded_channels.push_back(ch);
       }
 
-      RecoHandler->identifyHitsPrepToVertex(antLocation, Reco, stationId, polarization_of_interest,
+      RecoHandler->identifyHitsPrepToVertex(chanLocation, Reco, stationId, polarization_of_interest,
                    excluded_channels, unpaddedEvent,
                    settings->AraVertexHitThreshold
                    );
@@ -2186,7 +2189,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       }
 
       // Ask the reco handler to identify hits
-      RecoHandler->identifyHitsPrepToVertex(antLocation, Reco, AraSim_settings->DETECTOR_STATION, polarization_of_interest,
+      RecoHandler->identifyHitsPrepToVertex(chanLocation, Reco, AraSim_settings->DETECTOR_STATION, polarization_of_interest,
                 excluded_channels, unpaddedEvent,
                 settings->AraVertexHitThreshold
                 );
