@@ -838,8 +838,8 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
          //cout<<"a: "<<a<<" p: "<<p<<" times: "<<times<<endl;
 
-         if(/*times*/(times - previous_times)>20.0)
-         {
+         //if(/*times*/(times - previous_times)>20.0)
+         //{
          if(stationId==3 && utime_runStart>=dropD4Time && (a%4==3)){
             gr_v[a]->SetPoint(pc, times-addDelay, 0.); //Drop 2014 ARA03 D4
             dropARA03D4 = true;
@@ -855,7 +855,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
             average[a]+=volts;
          }
 		 pc++;
-         }
+         //}
       }
       /*** Zero-mean the waveforms on a channel-by-channel basis ***/
       if( gr_v[a]->GetN() != 0){
@@ -863,7 +863,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          average[a]/=(double)gr_v[a]->GetN();
 
          gr_v[a]->GetPoint(0, times, volts);
-         gr_v[a]->SetPoint(0, times, volts-average[a]);
+         //gr_v[a]->SetPoint(0, times, volts-average[a]);
          previous_times = times;
 
          for(pc=1; pc<gr_v[a]->GetN(); pc++){
@@ -871,7 +871,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
             gr_v[a]->GetPoint(pc, times, volts);
 
             if( (times - previous_times) > 0.)
-            gr_v[a]->SetPoint(pc, times, volts-average[a]);
+            //gr_v[a]->SetPoint(pc, times, volts-average[a]);
             else {cerr<< "BAD EVENT Non-increasing sample time: " << event << " Channel: " << a << "this sample time: "<< times << "previous sample time: " << previous_times << endl;nonIncreasingSampleTimeAlert=1; /*nonIncreasingSampleTimeEventCount++; if(cutWaveAlert==1){cutWaveAndNonIncreasingEventCount++;}*/}
 
             previous_times = times;
