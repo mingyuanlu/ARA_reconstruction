@@ -1449,6 +1449,13 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          if(!goodChan[ch]) excluded_channels.push_back(ch);
       }
 
+      float chanSNRs[16];
+		float hitTimes[16];
+		RecoHandler->getChannelSlidingV2SNR_UW(unpaddedEvent, settings->wInt_V, settings->wInt_H, chanSNRs, hitTimes);
+		for(int i=0; i<16; i++){
+			printf("Chan %d SNR is %.2f \n", i, chanSNRs[i]);
+		}
+
       RecoHandler->identifyHitsPrepToVertex(chanLocation, Reco, stationId, polarization_of_interest,
                    excluded_channels, unpaddedEvent,
                    settings->AraVertexHitThreshold
