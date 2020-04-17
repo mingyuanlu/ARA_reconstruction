@@ -1453,6 +1453,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 		float hitTimes[16];
 		RecoHandler->getChannelSlidingV2SNR_UW(unpaddedEvent, settings->wInt_V, settings->wInt_H, chanSNRs, hitTimes);
 		for(int i=0; i<16; i++){
+         cout<<"chan "<<i<<" rms: "<<unpaddedEvent[i]->GetRMS()<<" peak: "<<unpaddedEvent[i]->GetMaximum()<<endl;
 			printf("Chan %d SNR is %.2f and hit time %.2f \n", i, chanSNRs[i], hitTimes[i]);
 		}
 
