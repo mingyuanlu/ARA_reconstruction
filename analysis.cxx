@@ -1363,6 +1363,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
     //summary->setOnion(onion);
    summary->setTopN(topN);
+   for(int ch=0; ch<16; ch++){cout<<"goodChan "<<ch<<" : "<<goodChan[ch]<<endl;}
    summary->setRecoChan(goodChan);
 
    cout<<"*********************************** inWindowSNR_V: "<<summary->inWindowSNR_V<<"*************************************"<<endl;
