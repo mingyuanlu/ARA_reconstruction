@@ -468,7 +468,7 @@ vector<double> tempXYZ;
 double antenna_average[3]={0.};
 for(int i=0; i<16; i++){
 
-   tempXYZ.clear()
+   tempXYZ.clear();
    for(int ii=0; ii<3; ii++){
       if (ii==2){
          tempXYZ.push_back(antLocation[i][ii]-stationCenterDepth);
