@@ -454,21 +454,33 @@ trackEngine *treg = new trackEngine();
 treg->initialize();
 treg->buildBaselineTracks(antLocation);
 
-// Invoke a RecoHandler tool
+// Invoke AraVertex Reconstruction
+// Invoke a git tool
 // The point of the RecoHandler is to help with management of the AraVertex tool
 AraRecoHandler *RecoHandler = new AraRecoHandler();
 
 /* Compute center of gravity of station and invoke an AraVertex instance */
 
 AraGeomTool *araGeom = AraGeomTool::Instance();
-vector< vector<double>> chanLocation =  RecoHandler->getVectorOfChanLocations(araGeom, rawEvPtr->stationId);
+vector< vector<double>> chanLocation /*=  RecoHandler->getVectorOfChanLocations(araGeom, rawEvPtr->stationId)*/;
+vector<double> tempXYZ;
 
 double antenna_average[3]={0.};
 for(int i=0; i<16; i++){
+
+   tempXYZ.clear()
    for(int ii=0; ii<3; ii++){
-      antenna_average[ii]+=(chanLocation[i][ii]);
-   }
-}
+      if (ii==2){
+         tempXYZ.push_back(antLocation[i][ii]-stationCenterDepth);
+         antenna_average[ii]+=(antLocation[i][ii]-stationCenterDepth);
+      } else {
+         tempXYZ.push_back(antLocation[i][ii]);
+         antenna_average[ii]+=antLocation[i][ii];
+      }
+   }//end of ii
+   chanLocation.push_back(tempXYZ);
+}//end of i
+
 for(int ii=0; ii<3; ii++){
    antenna_average[ii]/=16.;
 }
@@ -717,8 +729,6 @@ char histname[200];
 //   dtHist[b] = new TH1F(histname, histname, 840*2, 0, 840);
 //}
 
-TCanvas cvs("cvs","cvs",800,800);
-cvs.Divide(4,4);
 
 //recordTime(tmr,3);
 time_t t_before_event_loop = time(NULL);
@@ -859,7 +869,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 		 pc++;
          //}
       }
-      /*** Zero-mean the waveforms on a channel-by-channel basis ***/
+      /*** Zero-mean the waveforms on a channel-by-channel basis ***/ /*** Depreacted with AraRoot implementation of AraEventConditioner ! ***/
       if( gr_v[a]->GetN() != 0){
 
          average[a]/=(double)gr_v[a]->GetN();
@@ -1363,7 +1373,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
     //summary->setOnion(onion);
    summary->setTopN(topN);
-   for(int ch=0; ch<16; ch++){cout<<"goodChan "<<ch<<" : "<<goodChan[ch]<<endl;}
+   //for(int ch=0; ch<16; ch++){cout<<"goodChan "<<ch<<" : "<<goodChan[ch]<<endl;}
    summary->setRecoChan(goodChan);
 
    cout<<"*********************************** inWindowSNR_V: "<<summary->inWindowSNR_V<<"*************************************"<<endl;
@@ -1451,20 +1461,17 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       for(int ch=0; ch<16; ch++){
          if(!goodChan[ch]) excluded_channels.push_back(ch);
       }
-
+      /*
       float chanSNRs[16];
 		float hitTimes[16];
-      cout<<"wInt_V: "<<settings->wInt_V<<" wInt_H: "<<settings->wInt_H<<endl;
+
 		RecoHandler->getChannelSlidingV2SNR_UW(unpaddedEvent, int(settings->powerEnvIntDuration/settings->wInt_V), int(settings->powerEnvIntDuration/settings->wInt_H), chanSNRs, hitTimes);
 
 		for(int i=0; i<16; i++){
-         cvs.cd(i+1);
-         unpaddedEvent[i]->Draw("AL");
-         cout<<"chan "<<i<<" rms: "<<unpaddedEvent[i]->GetRMS()<<endl;
 
 			printf("Chan %d SNR is %.2f and hit time %.2f \n", i, chanSNRs[i], hitTimes[i]);
 		}
-
+      */
       RecoHandler->identifyHitsPrepToVertex(chanLocation, Reco, stationId, polarization_of_interest,
                    excluded_channels, unpaddedEvent,
                    settings->AraVertexHitThreshold
@@ -1480,7 +1487,6 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
 
    }
 
-   cvs.SaveAs("test.C");
 
    dataTree->Fill();
 
@@ -2268,6 +2274,9 @@ if(settings->constantNFilter > 0){
 delete settings;
 free(mapDataHist);
 free(mapData);
+delete araGeom;
+delete RecoHandler;
+delete Reco;
 
 //recordTime(tmr,5);
 time_t t_program_end = time(NULL);
