@@ -1353,7 +1353,7 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          evStr = ss.str();
          fitsFileStr = fitsFile_tmp /*+ ".ev" + evStr*/ + ".overThresChan.constantN.fits";
          sprintf(fitsFile, fitsFileStr.c_str());
-         overThresChanConstantNMaxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_constantNFilter(settings, cleanEvent, &clEnv, constantNDelays, constantNDelays_V, constantNDelays_H, overThresChan, summary, fitsFile///*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/
+         overThresChanConstantNMaxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_overThresChanConstantNFilter(settings, cleanEvent, &clEnv, constantNDelays, constantNDelays_V, constantNDelays_H, overThresChan, summary, fitsFile///*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/
          );
 
          if( overThresChanConstantNMaxPixIdx < 0){ cerr<<"Error reconstructing - over-threshold chan contant N\n"; return -1; }
@@ -2077,7 +2077,7 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
          evStr = ss.str();
          fitsFileStr = fitsFile_tmp /*+ ".ev" + evStr*/ + ".overThresChan.constantN.fits";
          sprintf(fitsFile, fitsFileStr.c_str());
-         overThresChanConstantNMaxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_constantNFilter(settings, cleanEvent, &clEnv, constantNDelays, constantNDelays_V, constantNDelays_H, overThresChan, summary, fitsFile///*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/
+         overThresChanConstantNMaxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_overThresChanConstantNFilter(settings, cleanEvent, &clEnv, constantNDelays, constantNDelays_V, constantNDelays_H, overThresChan, summary, fitsFile///*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/
          );
 
          if( overThresChanConstantNMaxPixIdx < 0){ cerr<<"Error reconstructing - over-threshold chan contant N\n"; return -1; }
