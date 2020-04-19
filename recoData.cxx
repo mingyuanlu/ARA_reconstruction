@@ -739,7 +739,7 @@ using namespace std;
    setSpikeyRatio(old->spikeyRatio);
    setAraVertexAngles(old->AraVertexTheta, old->AraVertexPhi);
 
-   setOverThresChanConstantNMaxPixInfo(old->overThresConstantNMaxPixIdx, old->overThresChanConstantNMaxPixCoherence);
+   setOverThresChanConstantNMaxPixInfo(old->overThresChanConstantNMaxPixIdx, old->overThresChanConstantNMaxPixCoherence);
    setOverThresChanConstantNDir(old->overThresChanConstantNZen, old->overThresChanConstantNAzi);
 
 /*
