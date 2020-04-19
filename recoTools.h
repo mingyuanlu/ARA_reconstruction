@@ -344,6 +344,8 @@ int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_2ndRayReco(recoSettings *setti
                     recoData *summary, char *filename, float *mapData);
 int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_constantNFilter(recoSettings *settings, vector<TGraph *>& cleanEvent,
                                                                   recoEnvData *clEnv, float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask, recoData *summary, char *filename/*, float *mapData*/);
+int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_overThresChanConstantNFilter(recoSettings *settings, vector<TGraph *>& cleanEvent,
+                                                                  recoEnvData *clEnv, float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask, recoData *summary, char *filename/*, float *mapData*/);
 int reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_calpulserFilter(recoSettings *settings, vector<TGraph *>& cleanEvent,
                                                                   recoEnvData *clEnv, float *recoDelays, float *recoDelays_V, float *recoDelays_H, const int *chanMask, recoData *summary, float& coherence_temp/*, char *filename*//*, float *mapData*/);
 int reconstruct3DXCorrEnvelopeGetMaxPix_ZoomMode(recoSettings *settings, vector<TGraph *>& cleanEvent, recoEnvData *clEnv,
@@ -453,6 +455,7 @@ int recordDiffGetFlag(int nSideExp, recoData *summary, char *rootFilename);
 int record3DDiffGetFlag(recoSettings *settings, recoData *summary, TH1F *dZenDist, TH1F *dAziDist, TH2F *recoTrueZenDist, TH2F *recoTrueAziDist);
 int record3DDiffGetFlag_2ndRayReco(recoSettings *settings, recoData *summary, TH1F *dZenDist, TH1F *dAziDist, TH2F *recoTrueZenDist, TH2F *recoTrueAziDist);
 int recordConstantNDir(recoSettings *settings, recoData *summary);
+int recordOverThresChanConstantNDir(recoSettings *settings, recoData *summary){
 int record3DZoomedDiffGetFlag(recoSettings *settings, recoData *summary, TH1F *dZenDist, TH1F *dAziDist, TH2F *recoTrueZenDist, TH2F *recoTrueAziDist);
 float getSpaceAngle(float theta1, float phi1, float theta2, float phi2);
 void stackXCorrAroundPeak(const TGraph *gr, TH1F *hist, float plusMinusTime);

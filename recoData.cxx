@@ -99,6 +99,10 @@ using namespace std;
 
    AraVertexTheta = AraVertexPhi = 0.f;
 
+   overThresChanConstantNMaxPixIdx = 0;
+   overThresChanConstantNMaxPixCoherence = 0.f;
+   overThresChanConstantNZen = overThresChanConstantNAzi = 0.f;
+
    }
 
 
@@ -617,6 +621,20 @@ using namespace std;
       AraVertexPhi   = _AraVertexPhi;
    }
 
+   void recoData::setOverThresChanConstantNMaxPixInfo(int _overThresChanConstantNMaxPixIdx, float _overThresChanConstantNMaxPixCoherence){
+
+      overThresChanConstantNMaxPixIdx = _overThresChanConstantNMaxPixIdx;
+      overThresChanConstantNMaxPixCoherence = _overThresChanConstantNMaxPixCoherence;
+
+   }
+
+   void recoData::setOverThresChanConstantNDir(float _overThresChanConstantNZen, float _overThresChanConstantNAzi){
+
+      overThresChanConstantNZen = _overThresChanConstantNZen;
+      overThresChanConstantNAzi = _overThresChanConstantNAzi;
+
+   }
+
    void recoData::duplicate(recoSettings *settings, recoData *old){
 
    int *_topMaxPixIdx         = (int*)calloc(old->topN, sizeof(int));
@@ -720,6 +738,9 @@ using namespace std;
    setCWIterCount(old->cwIterCount);
    setSpikeyRatio(old->spikeyRatio);
    setAraVertexAngles(old->AraVertexTheta, old->AraVertexPhi);
+
+   setOverThresChanConstantNMaxPixInfo(old->overThresConstantNMaxPixIdx, old->overThresChanConstantNMaxPixCoherence);
+   setOverThresChanConstantNDir(old->overThresChanConstantNZen, old->overThresChanConstantNAzi);
 
 /*
    weight = old->weight;
@@ -835,5 +856,8 @@ using namespace std;
    cwIterCount = 0;
    spikeyRatio = 0.;
    AraVertexTheta = AraVertexPhi = 0.f;
+   overThresChanConstantNMaxPixIdx = 0;
+   overThresChanConstantNMaxPixCoherence = 0.f;
+   overThresChanConstantNZen = overThresChanConstantNAzi = 0.f;
 
    }
