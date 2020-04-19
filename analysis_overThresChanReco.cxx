@@ -407,7 +407,7 @@ else if (settings->dataType == 0)//AraSim events
    chain.SetBranchAddress("icemodel", &icemodel);
    chain2.SetBranchAddress("report" ,&report);
    chain2.SetBranchAddress("event"  ,&event);
-
+cout<<"410\n";
    chain.GetEntry(0);
    cout<<"EXPONENT: "<<AraSim_settings->EXPONENT<<endl;
    cout<<"NNU: "<<AraSim_settings->NNU<<endl;
