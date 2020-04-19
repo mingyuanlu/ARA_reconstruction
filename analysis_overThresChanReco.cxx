@@ -400,7 +400,7 @@ else if (settings->dataType == 0)//AraSim events
       chain.Add( argv[i] );
       chain2.Add( argv[i] );
    }
-
+   cout<<"403\n";
    chain.SetBranchAddress("settings",&AraSim_settings);
    chain.SetBranchAddress("detector",&detector);
    chain.SetBranchAddress("trigger" ,&trigger);
