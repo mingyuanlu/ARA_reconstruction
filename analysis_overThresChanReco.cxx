@@ -400,14 +400,14 @@ else if (settings->dataType == 0)//AraSim events
       chain.Add( argv[i] );
       chain2.Add( argv[i] );
    }
-   cout<<"403\n";
+   
    chain.SetBranchAddress("settings",&AraSim_settings);
    chain.SetBranchAddress("detector",&detector);
    chain.SetBranchAddress("trigger" ,&trigger);
    chain.SetBranchAddress("icemodel", &icemodel);
    chain2.SetBranchAddress("report" ,&report);
    chain2.SetBranchAddress("event"  ,&event);
-cout<<"410\n";
+
    chain.GetEntry(0);
    cout<<"EXPONENT: "<<AraSim_settings->EXPONENT<<endl;
    cout<<"NNU: "<<AraSim_settings->NNU<<endl;
