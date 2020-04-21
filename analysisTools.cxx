@@ -299,7 +299,7 @@ void ARA03_cutValues::initialize(){
       setValue(coherenceCut_outOfBand[2], 0.158782, 0, 0);
       setValue(coherenceCut_outOfBand[3], 0.13405305621526215, 0, 0);
       //setValue(coherenceCut_outOfBand[4], 0.1179968361363821, 0, 0); //pre-tuned
-      setValue(coherenceCut_outOfBand[4], 0.119789, 0, 0); 
+      setValue(coherenceCut_outOfBand[4], 0.119789, 0, 0);
 
 
       //Pre-tuning
@@ -1458,4 +1458,15 @@ bool shouldExclude(string STATION, int runNum){
    }
 
    return exclude;
+}
+
+bool isOverThresChanSurface(recoData *dummyData, double surfaceCut_1){
+
+      if(90.f-dummyData->overThresChanConstantNZen < /*SURFACE_CUT*/surfaceCut_1){
+         //passSurfaceCut = true;
+         return false;
+      } else {
+         return true;
+       }
+
 }
