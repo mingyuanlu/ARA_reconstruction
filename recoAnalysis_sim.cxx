@@ -119,6 +119,9 @@ int runEventCount, runRFEventCount, runCalEventCount, runSoftEventCount, trigEve
 
 double weightedTrigEventCount, weightedRecoEventCount, weightedOffsetBlockEventCount, weightedNchnlFilteredEventCount, weightedCWFilteredEventCount, weightedImpulsivityFilteredEventCount;
 
+double weightedTrigEventCountW2, weightedOffsetBlockEventCountW2, weightedNchnlFilteredEventCountW2;
+
+
 int runStartTime, runEndTime;
 
 /*
@@ -172,6 +175,10 @@ runInfoTree->SetBranchAddress("weightedNchnlFilteredEventCount", &weightedNchnlF
 runInfoTree->SetBranchAddress("weightedCWFilteredEventCount", &weightedCWFilteredEventCount);//
 runInfoTree->SetBranchAddress("weightedImpulsivityFilteredEventCount", &weightedImpulsivityFilteredEventCount);
 //runInfoTree->SetBranchAddress("blockGapEventCount", &blockGapEventCount);
+runInfoTree->SetBranchAddress("weightedTrigEventCountW2", &weightedTrigEventCountW2);
+runInfoTree->SetBranchAddress("weightedOffsetBlockEventCountW2", &weightedOffsetBlockEventCountW2);
+runInfoTree->SetBranchAddress("weightedNchnlFilteredEventCountW2", &weightedNchnlFilteredEventCountW2);
+
 
 int totalRunEventCount, totalRFEventCount, totalCalEventCount, totalSoftEventCount, totalTrigEventCount, totalRecoEventCount, totalCutWaveEventCount, totalNonIncreasingSampleTimeEventCount, totalCutWaveAndNonIncreasingEventCount, totalMistaggedSoftEventCount, totalOffsetBlockEventCount, totalCWFilteredEventCount, totalNchnlFilteredEventCount, totalImpulsivityFilteredEventCount, totalCorruptFirst3EventCount, totalCorruptD1EventCount;
 
@@ -235,9 +242,9 @@ for(int run=0; run<runInfoTree->GetEntries(); run++){
    if(runEndTime < runStartTime){ cerr<<"Run "<<run<<" livetime error. Skipping...\n"; continue; }
    else totalLiveTime += (runEndTime - runStartTime);
 
-   totalWeightedTrigEventCountW2 += weightedTrigEventCount;
-   totalWeightedOffsetBlockEventCountW2 += weightedOffsetBlockEventCount;
-   totalWeightedNchnlFilteredEventCountW2 += weightedNchnlFilteredEventCount;
+   totalWeightedTrigEventCountW2 += weightedTrigEventCountW2;
+   totalWeightedOffsetBlockEventCountW2 += weightedOffsetBlockEventCountW2;
+   totalWeightedNchnlFilteredEventCountW2 += weightedNchnlFilteredEventCountW2;
 
 }
 
@@ -447,7 +454,8 @@ int iterIndex[50];
 float iterMaxPixCoherenceEachLayer[50];
 int iterMaxPixIdxEachLayer[50];
 
-TH1F *snrHist_all=new TH1F("hist_all", "hist_all", 1000, 0, 50);
+//TH1F *snrHist_all=new TH1F("hist_all", "hist_all", 1000, 0, 50);
+TH1F *snrHist_all=new TH1F(("hist_all_E"+ENERGY).c_str(), ("hist_all_E"+ENERGY).c_str(), 1000, 0, 50);
 //TH1F *snrHist_all=new TH1F("hist_offsetBlock", "hist_offsetBlock", 1000, 0, 50);
 snrHist_all->Sumw2();
 
@@ -490,6 +498,8 @@ TH2F *inRangeThetaPhiFracHist = new TH2F("inRangeThetaPhiFracHist","inRangeTheta
 
 float channelInWindowSNR[8]; //Vpeak/rms SNR
 int snrRank[8];
+
+double w2 = 0.;
 
 //for(int entry=0; entry<Nentries; entry++){
 for(int i=5; i<argc; i++){
@@ -544,11 +554,13 @@ for(int i=5; i<argc; i++){
    int orderedArrayPolType[16];
 
    for(int entry=0; entry<Nentries; entry++){
-   //if(Nentries > 100) {  if(  entry % (Nentries/100) == 0  ){ cout<<"Progess: "<<entry / (Nentries/100) <<"%\n"; } }
+//   //if(Nentries > 100) {  if(  entry % (Nentries/100) == 0  ){ cout<<"Progess: "<<entry / (Nentries/100) <<"%\n"; } }
    dataTree->GetEntry(entry);
+
+   w2 += dummyData->weight * dummyData->weight;
    //cout<<"eventTrigType: "<<dummyData->eventTrigType<<endl;
    //if(dummyData->eventNumber != 127378) continue;
-   if(dummyData->eventTrigType == 0) rfEventCount+=dummyData->weight;
+ if(dummyData->eventTrigType == 0) rfEventCount+=dummyData->weight;
    else if (dummyData->eventTrigType == 1) calEventCount+=dummyData->weight;
    else if (dummyData->eventTrigType == 2) softEventCount+=dummyData->weight;
    else { cerr<<"Event "<<entry<<" eventTrigType undefined! Skipping...\n"; continue; }
@@ -1590,8 +1602,10 @@ cout<<"outOfBand_all: "<<outOfBand_all<<" outOfBand_pass: "<<outOfBand_pass<<" o
 cout<<"pre-thermal: "<<inBand_all+outOfBand_all<<" post-thermal: "<<inBand_pass+outOfBand_pass<<" ratio: "<<(inBand_pass+outOfBand_pass)/(inBand_all+outOfBand_all)<<endl;
 //outputFile<<ENERGY<<","<<totalWeightedTrigEventCount<<","<<totalWeightedTrigEventCount-totalWeightedOffsetBlockEventCount/*<<","<<totalTrigEventCount-totalOffsetBlockEventCount-totalImpulsivityFilteredEventCount*/<<","<<totalWeightedTrigEventCount-totalWeightedOffsetBlockEventCount-totalWeightedNchnlFilteredEventCount<<",";
 //outputFile/*<<nCut0p5<<","*/<<nCut1p5<<","/*<<nCut2<<*//*","*/<<nCut3<<","<<nCut3p5<</*","<<nCut4<<*/","<<nCut4<<","/*<<nCut6<<*/<<nCut6p5/*<<","<<nCut7*/<<endl;
-outputFile<<ENERGY<<","<<totalWeightedTrigEventCount<<","<<sqrt(totalWeightedTrigEventCountW2)<<","<<totalWeightedTrigEventCount-totalWeightedOffsetBlockEventCount<<","<<sqrt(totalWeightedTrigEventCountW2+totalWeightedOffsetBlockEventCountW2)/*<<","<<totalTrigEventCount-totalOffsetBlockEventCount-totalImpulsivityFilteredEventCount*/<<","<<totalWeightedTrigEventCount-totalWeightedOffsetBlockEventCount-totalWeightedNchnlFilteredEventCount<<","<<sqrt(totalWeightedTrigEventCountW2+totalWeightedOffsetBlockEventCountW2+totalWeightedNchnlFilteredEventCountW2)<<",";
-outputFile/*<<nCut0p5<<","*/<<nCut1p5<<","<<sqrt(nCut1p5W2)<<","/*<<nCut2<<*//*","*/<<nCut3<<","<<sqrt(nCut3W2)<<","<<nCut3p5<<","<<sqrt(nCut3p5W2)<</*","<<nCut4<<*/","<<nCut4<<","<<sqrt(nCut4W2)<<","/*<<nCut6<<*/<<nCut6p5<<","<<sqrt(nCut6p5W2)/*<<","<<nCut7*/<<endl;
+outputFile<<ENERGY<<","<<totalWeightedTrigEventCount<<","<<sqrt(totalWeightedTrigEventCountW2)<<","<<totalWeightedTrigEventCount-totalWeightedOffsetBlockEventCount<<","<<sqrt(totalWeightedTrigEventCountW2-totalWeightedOffsetBlockEventCountW2)/*<<","<<totalTrigEventCount-totalOffsetBlockEventCount-totalImpulsivityFilteredEventCount*/<<","<<totalWeightedTrigEventCount-totalWeightedOffsetBlockEventCount-totalWeightedNchnlFilteredEventCount<<","<<sqrt(totalWeightedTrigEventCountW2-totalWeightedOffsetBlockEventCountW2-totalWeightedNchnlFilteredEventCountW2)<<",";
+outputFile/*<<nCut0p5<<","*/<<nCut1p5<<","<<sqrt(nCut1p5W2)<<","/*<<nCut2<<*//*","*/<<nCut3<<","<<sqrt(nCut3W2)<<","<<nCut3p5<<","<<sqrt(nCut3p5W2)<</*","<<nCut4<<*/","<<nCut4<<","<<sqrt(nCut4W2)<<","/*<<nCut6<<*/<<nCut6p5<<","<<sqrt(nCut6p5W2)/*<<","<<nCut7*/;
+//outputFile<<ENERGY<<","<<rfEventCount<<","<<sqrt(w2)<<",";
+outputFile<<endl;
 outputFile.close();
 
 //cout<<"passCWCut: "<<passCWCut<<endl;
@@ -1724,18 +1738,24 @@ for(int i=1; i<6; i++) snrHist[i]->Draw("same");
 sprintf(filename, "%s_type%d_snrMode1_postCutTunedThermalSNRSurfaceCut_enrichedStat_signalEffiencyVsSNR.C", STATION.c_str(), type);
 //c5.SaveAs(filename);
 */
-//sprintf(filename, "%s_type%d_signalEffiencyVsChannelInWindowSNR.root", STATION.c_str(), type);
-//TFile ff(filename, "update");
-/*
+
+sprintf(filename, "%s_type%d_signalEffiencyVsChannelInWindowSNR_eachEnergy.root", STATION.c_str(), type);
+TFile *ff;
+//if (ENERGY == "16")
+//ff = TFile::Open(filename, "recreate"/*"update"*/);
+//else
+ff = TFile::Open(filename, "update");
+
+
 for(int i=0; i<6; i++) {
    //snrHist[i]->Write();
-   sprintf(filename, "hist_%d_tunedThermalSNRSurfaceCut_enrichedStat", i);
+   sprintf(filename, ("hist_%d_tunedThermalSNRSurfaceCut_enrichedStat_E"+ENERGY).c_str(), i);
    snrHist[i]->SetName(filename);
    snrHist[i]->Write();
 }
-*/
+
 //snrHist_all->Write();
-//ff.Close();
+ff->Close();
 
 /*
 TCanvas c6("c6","c6",800,800);
