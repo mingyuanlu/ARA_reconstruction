@@ -25,7 +25,9 @@ To make use of the software tools:
 
 		$ ar rcs libAraSim.a *.o
 
-4. Modify CMakeLists.txt according to the enclosed CMakeLists_example.txt. Point the include paths to where the softwares tools are installed. In particular, if you set up the common work area for AraRoot and AraSim as in #1, ${ARASIM_INCLUDE_DIR} should be the same as ${CURRENT_WORK_DIR}. Also, make sure the line
+4. Add `FindAraVertex.cmake` to `./cmake/Modules`. This can simply be done by copying and renaming `./cmake/Modules/FindAraEvent.cmake`, and replacing all instances of `ARAEVENT` & `AraEvent` with `ARAVERTEX` & `AraVertex`.
+
+5. Modify CMakeLists.txt according to the enclosed CMakeLists_example.txt. Point the include paths to where the softwares tools are installed. In particular, if you set up the common work area for AraRoot and AraSim as in #1, ${ARASIM_INCLUDE_DIR} should be the same as ${CURRENT_WORK_DIR}. Also, make sure the line
 
 		$ find_package(ROOT REQUIRED COMPONENTS MathMore Gui)
 
@@ -33,14 +35,14 @@ To make use of the software tools:
 
 		$ ROOT_GENERATE_DICTIONARY(...)
 
-5. In CMakeLists.txt, add lines
+6. In CMakeLists.txt, add lines
 
 		$ add_executable(analysis analysis.cxx)
 		$ target_link_libraries(analysis ${ARAEVENT_LIBRARIES} ${ROOT_LIBRARIES} ${ZLIB_LIBRARIES} ${ExtraLibs} ${HealpixLibs})
 
  This enables you to run the analysis.
 
-6. Do
+7. Do
 
 		$ sh INSTALL.sh 0
 
