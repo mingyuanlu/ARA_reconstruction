@@ -63,7 +63,7 @@ find_package(sqlite3 REQUIRED)
 find_package(zlib REQUIRED)
 find_package(AraEvent REQUIRED)
 find_package(AraDisplay REQUIRED)
-
+find_package(AraVertex REQUIRED)
 #Added by Lu
 #find_package(clFFT REQUIRED PATHS /data/user/mlu27/softwares/clFFT-2.2/src/)
 
@@ -88,11 +88,14 @@ set_property( TARGET radiospline PROPERTY IMPORTED_LOCATION
 add_library(libAraSim STATIC IMPORTED)
 set_property( TARGET libAraSim PROPERTY IMPORTED_LOCATION ${ARASIM_INCLUDE_DIR}/libAraSim.a)
 add_library(libRootFftWrapper STATIC IMPORTED)
-set_property(TARGET libRootFftWrapper PROPERTY IMPORTED_LOCATION /home/local/ara/install_dir/AraRoot/trunk/lib/libRootFftwWrapper.so)
+#set_property(TARGET libRootFftWrapper PROPERTY IMPORTED_LOCATION /home/local/ara/install_dir/AraRoot/trunk/lib/libRootFftwWrapper.so)
+set_property(TARGET libRootFftWrapper PROPERTY IMPORTED_LOCATION /cvmfs/ara.opensciencegrid.org/trunk/centos7/build/lib/libRootFftwWrapper.so)
 add_library(cfitsio STATIC IMPORTED)
 set_property(TARGET cfitsio PROPERTY IMPORTED_LOCATION /cvmfs/icecube.opensciencegrid.org/py2-v2/RHEL_6_x86_64/lib/libcfitsio.so.2)
+add_library(libTMVA SHARED IMPORTED)
+set_property(TARGET libTMVA PROPERTY IMPORTED_LOCATION /cvmfs/ara.opensciencegrid.org/trunk/centos7/root_build/lib/libTMVA.so)
 
-set(ExtraLibs ${ExtraLibs} calibrationToolsVs3 evProcessTools calibrationTools trackEngine recoTools OpenCL clFFT radiospline recoSettings Healpix_Onion libAraSim recoData libRootFftWrapper cfitsio analysisTools)
+set(ExtraLibs ${ExtraLibs} calibrationToolsVs3 evProcessTools calibrationTools trackEngine recoTools OpenCL clFFT radiospline recoSettings Healpix_Onion libAraSim recoData libRootFftWrapper cfitsio libTMVA analysisTools ${ARAVERTEX_LIBRARIES})
 
 add_library(healpix_cxx STATIC IMPORTED)
 set_property( TARGET healpix_cxx PROPERTY IMPORTED_LOCATION ${HEALPIX_LIB_DIR}/libhealpix_cxx.a )
