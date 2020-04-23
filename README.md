@@ -25,16 +25,20 @@ To make use of the software tools:
 
       A common issue with AraSim at this stage is a compilation error from `counting.hh`, where
 
+      ```
       $ static const double COSTHETAMAX=1.0;
       $ static const double COSTHETAMIN=0.0;
       $ static const double PHIMAX=2*3.14159;
       $ static const double PHIMIN=0.;
+      ```
 
       and
 
+      ```
       $ static const double MIN_LOGWEIGHT=-3;
       $ static const double MAX_LOGWEIGHT=0;
-
+      ```
+      
       need the `constexpr` keyword added to the beginning to each variable declaration to avoid errors.
 
 3. In this common work area, create libAraSim.a with
