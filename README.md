@@ -2,6 +2,8 @@
 ----------
 Radio Interferometric Neutrino Reconstruction. This is a software that utilizes waveform interferometry and the Radiospline library to attempt the reconstruction of neutrino events from the Askaryan Radio Array (ARA) experiment.
 
+This release (2.0.0) makes RIvR compatible with WIPAC ARA CVMFS.
+
 # Requirements
 ----------
 1. Radiospline. See https://github.com/WIPACrepo/radiospline
@@ -9,8 +11,8 @@ Radio Interferometric Neutrino Reconstruction. This is a software that utilizes 
 3. Healpix
 4. ROOT, required components: MathMore, Gui
 5. clFFT
-6. AraRoot. See http://www.hep.ucl.ac.uk/uhen/ara/araroot/
-7. AraSim. See http://www.physics.ohio-state.edu/~connolly/AraSim/arainstr.html
+6. AraRoot. See https://github.com/ara-software/AraRoot
+7. AraSim. See https://github.com/ara-software/AraSim
 
 # Building
 ----------
@@ -19,7 +21,21 @@ To make use of the software tools:
 
 		$ scl enable devtoolset-2 $SHELL
 
-2. Set up a working AraRoot copy. Set up a working AraSim copy in the same directory, otherwise AraSim events analysis will not run properly. An area containing these (AraRoot analysis + AraSim) can be found at the WIPAC server at /data/user/mlu27/analysis/RIvR_skeleton.
+2. Set up a working AraRoot copy. Set up a working AraSim copy in the same directory, otherwise AraSim events analysis will not run properly. An area containing these (AraRoot analysis + AraSim) can be found at the WIPAC server at /data/user/mlu27/analysis/RIvR_skeleton. A
+
+A common issue with AraSim at this stage is a compilation error from `counting.hh`, where
+
+      $ static const double COSTHETAMAX=1.0;
+      $ static const double COSTHETAMIN=0.0;
+      $ static const double PHIMAX=2*3.14159;
+      $ static const double PHIMIN=0.;
+
+   and
+
+      $ static const double MIN_LOGWEIGHT=-3;
+      $ static const double MAX_LOGWEIGHT=0;
+
+   need the `constexpr` keyword added to the beginning to each variable declaration to avoid errors.
 
 3. In this common work area, create libAraSim.a with
 
