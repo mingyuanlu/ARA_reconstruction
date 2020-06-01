@@ -40,8 +40,8 @@
 #include "signal.hh"
 #include "IceModel.h"
 
-#include "AraVertex.h"
-#include "AraRecoHandler.h"
+//#include "AraVertex.h"
+//#include "AraRecoHandler.h"
 
 ClassImp(recoSettings);
 ClassImp(recoData);
@@ -457,45 +457,45 @@ treg->buildBaselineTracks(antLocation);
 // Invoke AraVertex Reconstruction
 // Invoke a git tool
 // The point of the RecoHandler is to help with management of the AraVertex tool
-AraRecoHandler *RecoHandler = new AraRecoHandler();
-
-/* Compute center of gravity of station and invoke an AraVertex instance */
-
-AraGeomTool *araGeom = AraGeomTool::Instance();
-vector< vector<double>> chanLocation /*=  RecoHandler->getVectorOfChanLocations(araGeom, rawEvPtr->stationId)*/;
-vector<double> tempXYZ;
-
-double antenna_average[3]={0.};
-for(int i=0; i<16; i++){
-
-   tempXYZ.clear();
-   for(int ii=0; ii<3; ii++){
-      if (ii==2){
-         tempXYZ.push_back(antLocation[i][ii]-stationCenterDepth);
-         antenna_average[ii]+=(antLocation[i][ii]-stationCenterDepth);
-      } else {
-         tempXYZ.push_back(antLocation[i][ii]);
-         antenna_average[ii]+=antLocation[i][ii];
-      }
-   }//end of ii
-   chanLocation.push_back(tempXYZ);
-}//end of i
-
-for(int ii=0; ii<3; ii++){
-   antenna_average[ii]/=16.;
-}
-
-//Put back absolute depth which is used to obtain n(z) in AraVertex
-//antenna_average[2] -= stationCenterDepth;
-cout<<"Average depth in AraVertex: "<<antenna_average[2]<<endl;
-
-AraVertex *Reco = new AraVertex();
-Reco -> SetCOG(antenna_average[0], antenna_average[1], antenna_average[2]);
-
-// Define what channels we would like *excluded* from the reconstruction
-// Empty, for now
-vector<int> excluded_channels;
-
+//AraRecoHandler *RecoHandler = new AraRecoHandler();
+//
+///* Compute center of gravity of station and invoke an AraVertex instance */
+//
+//AraGeomTool *araGeom = AraGeomTool::Instance();
+//vector< vector<double>> chanLocation /*=  RecoHandler->getVectorOfChanLocations(araGeom, rawEvPtr->stationId)*/;
+//vector<double> tempXYZ;
+//
+//double antenna_average[3]={0.};
+//for(int i=0; i<16; i++){
+//
+//   tempXYZ.clear();
+//   for(int ii=0; ii<3; ii++){
+//      if (ii==2){
+//         tempXYZ.push_back(antLocation[i][ii]-stationCenterDepth);
+//         antenna_average[ii]+=(antLocation[i][ii]-stationCenterDepth);
+//      } else {
+//         tempXYZ.push_back(antLocation[i][ii]);
+//         antenna_average[ii]+=antLocation[i][ii];
+//      }
+//   }//end of ii
+//   chanLocation.push_back(tempXYZ);
+//}//end of i
+//
+//for(int ii=0; ii<3; ii++){
+//   antenna_average[ii]/=16.;
+//}
+//
+////Put back absolute depth which is used to obtain n(z) in AraVertex
+////antenna_average[2] -= stationCenterDepth;
+//cout<<"Average depth in AraVertex: "<<antenna_average[2]<<endl;
+//
+//AraVertex *Reco = new AraVertex();
+//Reco -> SetCOG(antenna_average[0], antenna_average[1], antenna_average[2]);
+//
+//// Define what channels we would like *excluded* from the reconstruction
+//// Empty, for now
+//vector<int> excluded_channels;
+//
 
 /*
  * Start computing reco delays using RadioSpline
@@ -1452,40 +1452,40 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
    }
    summary->setRecoAngles(recoRecAngles, recoLauAngles);
 
-   /* AraVertex reconstruction */
-   int polarization_of_interest = (string(settings->recoPolType)=="both" ? 2 : (string(settings->recoPolType)=="vpol" ? 0 : 1));
-
-   if(settings->AraVertexReco==1){
-
-      excluded_channels.clear();
-      for(int ch=0; ch<16; ch++){
-         if(!goodChan[ch]) excluded_channels.push_back(ch);
-      }
-      /*
-      float chanSNRs[16];
-		float hitTimes[16];
-
-		RecoHandler->getChannelSlidingV2SNR_UW(unpaddedEvent, int(settings->powerEnvIntDuration/settings->wInt_V), int(settings->powerEnvIntDuration/settings->wInt_H), chanSNRs, hitTimes);
-
-		for(int i=0; i<16; i++){
-
-			printf("Chan %d SNR is %.2f and hit time %.2f \n", i, chanSNRs[i], hitTimes[i]);
-		}
-      */
-      RecoHandler->identifyHitsPrepToVertex(chanLocation, Reco, stationId, polarization_of_interest,
-                   excluded_channels, unpaddedEvent,
-                   settings->AraVertexHitThreshold
-                   );
-
-      // tell the AraVertex tool to actually run the vertexing algorithm
-      RECOOUT recoVxcorSimple=Reco->doPairFitSpherical();
-
-      double AraVertexTheta = recoVxcorSimple.theta*TMath::RadToDeg();
-      double AraVertexPhi   = recoVxcorSimple.phi*TMath::RadToDeg();
-
-      summary->setAraVertexAngles(AraVertexTheta, AraVertexPhi);
-
-   }
+//   /* AraVertex reconstruction */
+//   int polarization_of_interest = (string(settings->recoPolType)=="both" ? 2 : (string(settings->recoPolType)=="vpol" ? 0 : 1));
+//
+//   if(settings->AraVertexReco==1){
+//
+//      excluded_channels.clear();
+//      for(int ch=0; ch<16; ch++){
+//         if(!goodChan[ch]) excluded_channels.push_back(ch);
+//      }
+//      /*
+//      float chanSNRs[16];
+//		float hitTimes[16];
+//
+//		RecoHandler->getChannelSlidingV2SNR_UW(unpaddedEvent, int(settings->powerEnvIntDuration/settings->wInt_V), int(settings->powerEnvIntDuration/settings->wInt_H), chanSNRs, hitTimes);
+//
+//		for(int i=0; i<16; i++){
+//
+//			printf("Chan %d SNR is %.2f and hit time %.2f \n", i, chanSNRs[i], hitTimes[i]);
+//		}
+//      */
+//      RecoHandler->identifyHitsPrepToVertex(chanLocation, Reco, stationId, polarization_of_interest,
+//                   excluded_channels, unpaddedEvent,
+//                   settings->AraVertexHitThreshold
+//                   );
+//
+//      // tell the AraVertex tool to actually run the vertexing algorithm
+//      RECOOUT recoVxcorSimple=Reco->doPairFitSpherical();
+//
+//      double AraVertexTheta = recoVxcorSimple.theta*TMath::RadToDeg();
+//      double AraVertexPhi   = recoVxcorSimple.phi*TMath::RadToDeg();
+//
+//      summary->setAraVertexAngles(AraVertexTheta, AraVertexPhi);
+//
+//   }
 
 
    dataTree->Fill();
@@ -2203,29 +2203,29 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
 
    summary->setRecoAngles(recoRecAngles, recoLauAngles);
 
-   int polarization_of_interest = (string(settings->recoPolType)=="both" ? 2 : (string(settings->recoPolType)=="vpol" ? 0 : 1));
-
-   if(settings->AraVertexReco==1){
-
-      excluded_channels.clear();
-      for(int ch=0; ch<16; ch++){
-         if(!goodChan[ch]) excluded_channels.push_back(ch);
-      }
-
-      // Ask the reco handler to identify hits
-      RecoHandler->identifyHitsPrepToVertex(chanLocation, Reco, AraSim_settings->DETECTOR_STATION, polarization_of_interest,
-                excluded_channels, unpaddedEvent,
-                settings->AraVertexHitThreshold
-                );
-
-      RECOOUT recoVxcorSimple=Reco->doPairFitSpherical();
-
-      double AraVertexTheta = recoVxcorSimple.theta*TMath::RadToDeg();
-      double AraVertexPhi = recoVxcorSimple.phi*TMath::RadToDeg();
-
-      summary->setAraVertexAngles(AraVertexTheta, AraVertexPhi);
-
-   }
+//   int polarization_of_interest = (string(settings->recoPolType)=="both" ? 2 : (string(settings->recoPolType)=="vpol" ? 0 : 1));
+//
+//   if(settings->AraVertexReco==1){
+//
+//      excluded_channels.clear();
+//      for(int ch=0; ch<16; ch++){
+//         if(!goodChan[ch]) excluded_channels.push_back(ch);
+//      }
+//
+//      // Ask the reco handler to identify hits
+//      RecoHandler->identifyHitsPrepToVertex(chanLocation, Reco, AraSim_settings->DETECTOR_STATION, polarization_of_interest,
+//                excluded_channels, unpaddedEvent,
+//                settings->AraVertexHitThreshold
+//                );
+//
+//      RECOOUT recoVxcorSimple=Reco->doPairFitSpherical();
+//
+//      double AraVertexTheta = recoVxcorSimple.theta*TMath::RadToDeg();
+//      double AraVertexPhi = recoVxcorSimple.phi*TMath::RadToDeg();
+//
+//      summary->setAraVertexAngles(AraVertexTheta, AraVertexPhi);
+//
+//   }
 
    dataTree->Fill();
    unpaddedEvent.clear();
@@ -2274,9 +2274,9 @@ if(settings->constantNFilter > 0){
 delete settings;
 free(mapDataHist);
 free(mapData);
-delete araGeom;
-delete RecoHandler;
-delete Reco;
+//delete araGeom;
+//delete RecoHandler;
+//delete Reco;
 
 //recordTime(tmr,5);
 time_t t_program_end = time(NULL);

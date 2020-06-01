@@ -81,12 +81,12 @@ ofstream outputFile(argv[3],std::ofstream::out|std::ofstream::app);
 
 ifstream list;
 ////A2 noisy runs
-////list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
+list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
 //list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_fullDataExpoFit_surfaceEvents_noisyRuns.txt");
-//
+
 
 //A3 noisy runs
-list.open("ARA03_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_surfaceEvents_noisyRuns.txt");
+//list.open("ARA03_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_surfaceEvents_noisyRuns.txt");
 
 vector<int> listOfRuns;
 //vector<int> listOfEvents;
@@ -128,28 +128,28 @@ list.close();
 int numNoisyRuns = listOfRuns.size();
 //vector< vector<int> > noisyRun;
 
-//ifstream list2;
-//list2.open("ARA02_calibrationRuns.txt");
+ifstream list2;
+list2.open("ARA02_calibrationRuns.txt");
 vector<int> listOfCalRuns;
-//if(list2.is_open()){
-//   while(list2.good()){
-//
-//      getline(list2, line, '\n');
-//      if(line == "") break;
-//      run = stoi(line);
-//
-//      cout<<"cal run: "<<run<<endl;
-//      listOfCalRuns.push_back(run);
-//
-//   }
-//}  else {
-//   cerr<<"No calibration run list! Aborting...";
-//   return -1;
-//}
-//
-//list2.close();
-//int numCalRuns = listOfCalRuns.size();
-//
+if(list2.is_open()){
+   while(list2.good()){
+
+      getline(list2, line, '\n');
+      if(line == "") break;
+      run = stoi(line);
+
+      cout<<"cal run: "<<run<<endl;
+      listOfCalRuns.push_back(run);
+
+   }
+}  else {
+   cerr<<"No calibration run list! Aborting...";
+   return -1;
+}
+
+list2.close();
+int numCalRuns = listOfCalRuns.size();
+
 
 /*TChain*/TTree *recoSettingsTree/*=new TChain("recoSettingsTree")*/;
 /*TChain*/TTree *dataTree/*=new TChain("dataTree")*/;
@@ -549,6 +549,8 @@ TH1F *sinzen_nMinusSNRSurface_noSPSEvents = new TH1F("sinzen_nMinusSNRSurface_no
 TH1F *zen_nMinusNoisyRunSNRSurface_noSPSEvents = new TH1F("zen_nMinusNoisyRunSNRSurface_noSPSEvents", "zen_nMinusNoisyRunSNRSurface_noSPSEvents", 180/0.4, -90, 90);
 TH1F *sinzen_nMinusNoisyRunSNRSurface_noSPSEvents = new TH1F("sinzen_nMinusNoisyRunSNRSurface_noSPSEvents", "sinzen_nMinusNoisyRunSNRSurface_noSPSEvents", 500, -1, 1);
 
+TH1F *sinzen_nMinusNoisyRunSurface = new TH1F("sinzen_nMinusNoisyRunSurface","sinzen_nMinusNoisyRunSurface", 500, -1, 1);
+
 TH1F *coherence_nMinusThermal = new TH1F("coherence_nMinusThermal","coherence_nMinusThermal",1000,0,1);
 TH1F *snr_nMinusSNR = new TH1F("snr_nMinusSNR","snr_nMinusSNR",400,0,40);
 
@@ -630,10 +632,10 @@ for(int i=0; i<5; i++){
 }
 
 
-//ARA02_cutValues *cutValues = new ARA02_cutValues();
+ARA02_cutValues *cutValues = new ARA02_cutValues();
 //if (STATION=="ARA03"){
 //   delete cutValues;
-   ARA03_cutValues *cutValues = new ARA03_cutValues();
+   //ARA03_cutValues *cutValues = new ARA03_cutValues();
 //}
 
 cout<<"impCut: "<<cutValues->impCut.val<<endl;
@@ -770,7 +772,7 @@ for(int i=4; i<argc; i++){
    if(runNum==4429 && dummyData->eventNumber==34200) { totalBlockGapEventCount++; continue; }
    */
    //if (dummyData->eventNumber != 131864) continue;
-
+/*
    //Exclude the spikey D1 events
    if( (runNum==850 && dummyData->eventNumber==95159) ||
        (runNum==1115 && dummyData->eventNumber==76709) ||
@@ -780,7 +782,7 @@ for(int i=4; i<argc; i++){
     ){
       continue;
    }
-
+*/
 
    //if (!(runNum==2946 && dummyData->eventNumber==144975)){
    //   continue;
@@ -1772,6 +1774,9 @@ for(int i=4; i<argc; i++){
    zen_azi_nMinusSurface->Fill(dummyData->constantNAzi, (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen), dummyData->weight);
    //double theta_temp = (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen);
    double theta_temp = 90.f-dummyData->constantNZen;
+   
+   sinzen_nMinusNoisyRunSurface->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
+
    if(theta_temp > 52 && theta_temp < 57 && dummyData->constantNAzi > 235 && dummyData->constantNAzi < 245){
       //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
       if(passNoisyRunCut){
@@ -2632,6 +2637,10 @@ sprintf(filename,"A3 Config %d Burnsample RF;Spikey Ratio [unitless];Entry", typ
 spikeyRatioHist->SetTitle(filename);
 sprintf(filename, "%s_type%d_spikeyRatio_noCut.C", STATION.c_str(), type);
 //c36.SaveAs(filename);
+
+TCanvas c37("c37","c37", 800, 800);
+sinzen_nMinusNoisyRunSurface->Draw();
+c37.SaveAs("recoAnalysis_37.C");
 
 //TCanvas c37("c37","c37",800,800);
 //maxPixLayerHist->Draw();

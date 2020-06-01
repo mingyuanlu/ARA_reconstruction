@@ -227,13 +227,13 @@ void ARA02_cutValues::initialize(){
    setValue(surfaceCut_constantN, 35.648,	-0.693,	0.693); // plus: cut region is larger, minus: cut region is smaller
    setValue(surfaceCut_iterReco, 36.77852,	-0.588241,	0.588241);
 */
-/*
+
    setValue(surfaceCut_constantN[0], 35.95705,	-0.749395,	0.749395); // plus: cut region is larger, minus: cut region is smaller
    setValue(surfaceCut_constantN[1], 35.95705,	-0.749395,	0.749395);
    setValue(surfaceCut_constantN[2], 35.95705,	-0.749395,	0.749395);
    setValue(surfaceCut_constantN[3], 35.95705,	-0.749395,	0.749395);
    setValue(surfaceCut_constantN[4], 35.95705,	-0.749395,	0.749395);
-*/
+
 /*
    //Bring combined background of surface + SNR cut to 0.011 for config 1,4,5.
    setValue(surfaceCut_constantN[0], 32.4774546, 0, 0);
@@ -244,12 +244,13 @@ void ARA02_cutValues::initialize(){
 */
 
   //Stat-enriched cut. Bring combined background of surface + SNR cut to 0.011 for config 1,4,5
+  /*
    setValue(surfaceCut_constantN[0], 30.3685667, 0, 0);
    setValue(surfaceCut_constantN[1], 35.95705, -0.749395,	0.749395);
    setValue(surfaceCut_constantN[2], 35.95705, -0.749395,	0.749395);
    setValue(surfaceCut_constantN[3], 31.4034214, 0,	0);
    setValue(surfaceCut_constantN[4], 30.7612353, 0,	0);
-
+*/
    setValue(surfaceCut_iterReco, 31.62731,	-1.217763,	1.217763);
 
 }
@@ -299,7 +300,7 @@ void ARA03_cutValues::initialize(){
       setValue(coherenceCut_outOfBand[2], 0.158782, 0, 0);
       setValue(coherenceCut_outOfBand[3], 0.13405305621526215, 0, 0);
       //setValue(coherenceCut_outOfBand[4], 0.1179968361363821, 0, 0); //pre-tuned
-      setValue(coherenceCut_outOfBand[4], 0.119789, 0, 0); 
+      setValue(coherenceCut_outOfBand[4], 0.119789, 0, 0);
 
 
       //Pre-tuning
@@ -1494,4 +1495,14 @@ void BinLogX_1D(TH1 *h)
    }
    axis->Set(bins, new_bins);
    delete new_bins;
+}
+bool isOverThresChanSurface(recoData *dummyData, double surfaceCut_1){
+
+      if(90.f-dummyData->overThresChanConstantNZen < /*SURFACE_CUT*/surfaceCut_1){
+         //passSurfaceCut = true;
+         return false;
+      } else {
+         return true;
+       }
+
 }

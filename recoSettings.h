@@ -135,7 +135,7 @@ public:
       Default 25ns. Time duration to integrate when using evProcessTools::getSqrtVoltageSquaredSummedWaveform.
    snrMode:
       Default 0. 0: V_peak/RMS (crest factor). 1: sqrt((1/N)*(Sum V^2)) within powerEnvIntDuration of time. 2: E_s+n - E_n / E_n / (1ns/T)
-   applyA2Ch6Correction:
+   applyA2Ch6Correction: **DEPRECATED, LEFT FOR BACKWARD COMPATIBILITY**
       Default: 1. 0: do not apply. 1: apply.
    cliff_threshold_A3_string1:
       Default: 100. The threshold in mV for the absolute difference between the first and last sample of the 64-sample median-filtered waveform in A3 string 1 (ch%4==0), above which the waveform is considered a cliff waveform
@@ -155,6 +155,10 @@ public:
       Default 0. 0: no event filter from list of know surface events. 1. filter  events from that list
    snrCutFilter:
       Default 0. 0: no event filter with analysis level SNR cut. 1. filter  events with SNR below cut value
+   AraVertexReco:
+      Default 1. 0: do not do AraVertex reconstruction. 1: do AraVertex reconstruction
+   AraVertexHitThreshold:
+      Default 8. Sliding V2 SNR (aka root power ratio) threshold for hit-finding to be used in AraVertex
 
    remark:
       Default "". Any remark one wishes to add to the reco setup file. The remarks will then be carried along in the analysis output ROOT file. Note that number of characters should not exceed CSTRING_MAX defined in recoSettings.h
@@ -263,7 +267,7 @@ public:
    int snrMode;
 
    //ClassDef 19
-   int applyA2Ch6Correction;
+   int applyA2Ch6Correction; //Deprecated 2020 Apr 15. With CVMFS on WIPAC servers the correction is already in the sqlite database. This is kept for backward compatibility
 
    //ClassDef 20
    double cliff_threshold_A3_string1;
@@ -280,7 +284,11 @@ public:
    int surfaceEventListFilter;
    int snrCutFilter;
 
-   ClassDef(recoSettings, 22); //2: convert all string parameters to char
+   //ClassDef 23
+   int AraVertexReco;
+   double AraVertexHitThreshold;
+
+   ClassDef(recoSettings, 23); //2: convert all string parameters to char
                               //3: add openCLDeviceType and openCLMaxNumberOfDevices parameters
 };
 

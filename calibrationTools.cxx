@@ -68,6 +68,8 @@ int calibrateGeometryAndDelays(const RawAraStationEvent *rawEvPtr,
 ////***   1 light speed correction
 ////***   4 slack corrections.
 ////*** The last five are not valid!
+
+/*
         ifstream ind;
         char posDelayFile[200];
         int stationId = rawEvPtr->stationId;
@@ -94,7 +96,7 @@ int calibrateGeometryAndDelays(const RawAraStationEvent *rawEvPtr,
         return -1;
         }
         ind.close();
-
+*/
 //***Here the station coordinates are read. the geometry correction is included as well as ***//
 //***two specific reading errors, which were not corrected in araroot. ***********************//
 //***also is the station center set to 180m under the ice. ***********************************//
@@ -111,19 +113,20 @@ int calibrateGeometryAndDelays(const RawAraStationEvent *rawEvPtr,
         for(int a=0;a<16;a++){
                 antloc = geom->getStationInfo(rawEvPtr->stationId)->getAntennaInfo(a)->getLocationXYZ();
                 cout << "The location is then: " << antloc[0] << "  " << antloc[1] << "   " << antloc[2] << endl;
-                if(stationId==2 && a==0)  antloc[2] = antloc[2] + 1.68;
-                if(stationId==3 && a==10) antloc[2] = antloc[2] + 2.01;
+                //if(stationId==2 && a==0)  antloc[2] = antloc[2] + 1.68;
+                //if(stationId==3 && a==10) antloc[2] = antloc[2] + 2.01;
 
-                antl.push_back(antloc[0] + posDelayArray[a%4][0]);
-                antl.push_back(antloc[1] + posDelayArray[a%4][1]);
+                antl.push_back(antloc[0] /*+ posDelayArray[a%4][0]*/);
+                antl.push_back(antloc[1] /*+ posDelayArray[a%4][1]*/);
                 //if((a/4)%2==1)antl.push_back(antloc[2]+180.0 + posDelayArray[a%4][2] + slackArray[a%4]);
                 //else
-                antl.push_back(antloc[2]+ stationCenterDepth + posDelayArray[a%4][2]);
+                antl.push_back(antloc[2]+ stationCenterDepth /*+ posDelayArray[a%4][2]*/);
 
-                cout << "Correcting: " << posDelayArray[a%4][0] << "  " << posDelayArray[a%4][1] << "  " << posDelayArray[a%4][2] << //"  " << slackArray[a%4] <<
-                endl;
+                //cout << "Correcting: " << posDelayArray[a%4][0] << "  " << posDelayArray[a%4][1] << "  " << posDelayArray[a%4][2] << //"  " << slackArray[a%4] <<
+                //endl;
                 cout << "antDepth[1]["<<a<<"] = " << antl[2] << endl;
-                printf("Corrected Rx %d X Y Z: %f %f %f\n", a, antl[0], antl[1], antl[2]);
+                //printf("Corrected Rx %d X Y Z: %f %f %f\n", a, antl[0], antl[1], antl[2]);
+                printf("Rx %d X Y Z: %f %f %f\n", a, antl[0], antl[1], antl[2]);
 
                 ant_loc.push_back(antl);
                 antl.clear();
@@ -141,19 +144,20 @@ int calibrateGeometryAndDelays(const RawAraStationEvent *rawEvPtr,
                  string locName(&geom->getStationInfo(rawEvPtr->stationId)->getCalAntennaInfo(c)->locationName[0]);
                  cout<<"locName: "<<locName<<endl;
                  if( locName[locName.length()-1]  == '5' ){
-                 antl.push_back( antloc[0] + pulserCorr[1] );
-                 antl.push_back( antloc[1] + pulserCorr[2] );
-                 antl.push_back( antloc[2] + stationCenterDepth + pulserCorr[0] );
+                 antl.push_back( antloc[0] /*+ pulserCorr[1] */);
+                 antl.push_back( antloc[1] /*+ pulserCorr[2] */);
+                 antl.push_back( antloc[2] + stationCenterDepth /*+ pulserCorr[0] */);
                  } else if ( locName[locName.length()-1] == '6'){
                  //cout<<"D6 xOrg: "<<antloc[0]<<" yOrg: "<<antloc[1]<<" zOrg: "<<antloc[2]+stationCenterDepth<<" pulserCorr(xy): "<<pulserCorr[4]<<" pulserCorrZ: "<<pulserCorr[3]<<endl;
-                 antl.push_back( (1.+pulserCorr[4]) * antloc[0] );
-                 antl.push_back( (1.+pulserCorr[4]) * antloc[1] );
-                 antl.push_back( antloc[2] + stationCenterDepth + pulserCorr[3] );
+                 antl.push_back( /*(1.+pulserCorr[4]) * */antloc[0] );
+                 antl.push_back( /*(1.+pulserCorr[4]) * */antloc[1] );
+                 antl.push_back( antloc[2] + stationCenterDepth /*+ pulserCorr[3] */);
                  } else {
                  cerr<<"Pulser name undefined\n";
                  //return -1;
                  }
-                 printf("Corrected pulser %d X: %f Y: %f Z: %f\n", c, antl[0], antl[1], antl[2]);
+                 //printf("Corrected pulser %d X: %f Y: %f Z: %f\n", c, antl[0], antl[1], antl[2]);
+                 printf("Pulser %d X: %f Y: %f Z: %f\n", c, antl[0], antl[1], antl[2]);
                  pul_loc.push_back(antl);
                  antl.clear();
          }
@@ -222,6 +226,40 @@ xyz.clear();
 return 0;
 }
 
+int getAraSimStationGeometry(vector<vector<double> >& ant_loc, Detector *detector, Settings *settings, double zCenter){
+
+//double zCenter = -180.;
+vector<double> xyz;
+double stationX = detector->stations[0].GetX();
+double stationY = detector->stations[0].GetY();
+double stationZ = detector->stations[0].GetZ();
+int string_i, antenna_i, AraRootChannel;
+
+for(int AraRootChan=0; AraRootChan<16; AraRootChan++){
+   for(int AraSimChan=0; AraSimChan<16; AraSimChan++){
+
+   string_i = detector->getStringfromArbAntID(0, AraSimChan);
+   antenna_i= detector->getAntennafromArbAntID(0,AraSimChan);
+   AraRootChannel = detector->GetChannelfromStringAntenna(0, string_i, antenna_i, settings) - 1;
+
+   cout<<"AraSimChan: "<<AraSimChan<<" string_i: "<<string_i<<" antenna_i: "<<antenna_i<<" AraRootChannel: "<<AraRootChannel<<endl;
+
+   if( AraRootChannel == AraRootChan ){
+   xyz.push_back(detector->stations[0].strings[string_i].antennas[antenna_i].GetX() - stationX);
+   xyz.push_back(detector->stations[0].strings[string_i].antennas[antenna_i].GetY() - stationY);
+   xyz.push_back(detector->stations[0].strings[string_i].antennas[antenna_i].GetZ() - stationZ - zCenter);
+   cout<<"x: "<<xyz[0]<<" y: "<<xyz[1]<<" z: "<<xyz[2]<<endl;
+   ant_loc.push_back(xyz);
+   xyz.clear();
+   }
+
+   }
+   }
+
+return 0;
+}
+
+//Function left for backward compatibility
 int getAraSimStationGeometry(vector<vector<double> >& ant_loc, Detector *detector, Settings *settings){
 
 double zCenter = -180.;

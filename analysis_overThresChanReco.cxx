@@ -400,7 +400,7 @@ else if (settings->dataType == 0)//AraSim events
       chain.Add( argv[i] );
       chain2.Add( argv[i] );
    }
-
+   
    chain.SetBranchAddress("settings",&AraSim_settings);
    chain.SetBranchAddress("detector",&detector);
    chain.SetBranchAddress("trigger" ,&trigger);
@@ -688,6 +688,7 @@ else                                maxPix = (int*)calloc(12*pow(2,settings->nSi
 int maxPixIdx = 0;
 int maxPixIdx2 = 0;
 int constantNMaxPixIdx = 0;
+int overThresChanConstantNMaxPixIdx = 0;
 float *mapData = (float*)calloc(nDir*nLayer, sizeof(float));
 char histName[200];
 TH1F **mapDataHist = (TH1F**)malloc(nDir*nLayer*sizeof(TH1F*));
@@ -707,6 +708,7 @@ vector<TGraph *> unpaddedEvent;
 TH1F *snrDist = new TH1F("snrDist","snrDist",100,0,50);
 int goodChan[16];
 int satChan[16];
+int overThresChan[16];
 int numSatChan;
 if(settings->nchnlFilter > 0){
    threshold = settings->nchnlThreshold;
@@ -1199,12 +1201,20 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
          continue;
       }
       else {
+
+         //for over-threshold reconstruction, only reconstruct with over-threshold channels regardless of the recoSetting
+         for (int ch=0; ch<16; ch++){
+            if(snrArray[ch] >= threshold) overThresChan[ch] = goodChan[ch];
+            else                          overThresChan[ch] = 0;
+         }
+
          //if the event passes the filter then we consider whether we want to mask sub-threshold channels
          if(settings->maskSubThresholdChannels){
             for(int ch=0; ch<16; ch++){
                if(snrArray[ch] < threshold) goodChan[ch] = 0;
             }
          }
+
 
          //if the events passes the filter, we consider whether it passes another pol as well
          if(settings->nchnlFilter==1){
@@ -1332,6 +1342,28 @@ for (Long64_t ev=0; ev<runEventCount; ev++){
       }
 
       if(recordConstantNDir(settings, summary) < 0){ cerr<<"Error recording constant N dir\n"; return -1;}
+
+      recoSuccess = false;
+
+      //Over-threshold channel only reco
+      while( !recoSuccess ){
+
+         stringstream ss;
+         ss << /*ev*/rawAtriEvPtr->eventNumber;
+         evStr = ss.str();
+         fitsFileStr = fitsFile_tmp /*+ ".ev" + evStr*/ + ".overThresChan.constantN.fits";
+         sprintf(fitsFile, fitsFileStr.c_str());
+         overThresChanConstantNMaxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_overThresChanConstantNFilter(settings, cleanEvent, &clEnv, constantNDelays, constantNDelays_V, constantNDelays_H, overThresChan, summary, fitsFile///*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/
+         );
+
+         if( overThresChanConstantNMaxPixIdx < 0){ cerr<<"Error reconstructing - over-threshold chan contant N\n"; return -1; }
+         if(summary->overThresChanConstantNMaxPixCoherence != 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
+         else { cout<<"over-threshold constantNMaxPixCoherence returns 0!! Re-running reco...\n"; }
+
+      }
+
+      if(recordOverThresChanConstantNDir(settings, summary) < 0){ cerr<<"Error recording over-threshold constant N dir\n"; return -1;}
+
 
    }
 
@@ -1893,6 +1925,13 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
          continue;
       }
       else {
+
+         //for over-threshold reconstruction, only reconstruct with over-threshold channels regardless of the recoSetting
+         for (int ch=0; ch<16; ch++){
+            if(snrArray[ch] >= threshold) overThresChan[ch] = goodChan[ch];
+            else                          overThresChan[ch] = 0;
+         }
+
          //if the event passes the filter then we consider whether we want to mask sub-threshold channels
          if(settings->maskSubThresholdChannels){
             for(int ch=0; ch<16; ch++){
@@ -2027,6 +2066,27 @@ for (Long64_t ev=0; ev<runEventCount/*numEntries*/; ev++){
       }
 
       if(recordConstantNDir(settings, summary) < 0){ cerr<<"Error recording constant N dir\n"; return -1;}
+
+      recoSuccess = false;
+
+      //Over-threshold channel only reco
+      while( !recoSuccess ){
+
+         stringstream ss;
+         ss << ev/*rawAtriEvPtr->eventNumber*/;
+         evStr = ss.str();
+         fitsFileStr = fitsFile_tmp /*+ ".ev" + evStr*/ + ".overThresChan.constantN.fits";
+         sprintf(fitsFile, fitsFileStr.c_str());
+         overThresChanConstantNMaxPixIdx = reconstruct3DXCorrEnvelopeGetMaxPixAndMapData_overThresChanConstantNFilter(settings, cleanEvent, &clEnv, constantNDelays, constantNDelays_V, constantNDelays_H, overThresChan, summary, fitsFile///*argv[5]*/, mapData/*, xCorrAroundPeakHist, sillygr*/
+         );
+
+         if( overThresChanConstantNMaxPixIdx < 0){ cerr<<"Error reconstructing - over-threshold chan contant N\n"; return -1; }
+         if(summary->overThresChanConstantNMaxPixCoherence != 0.f) recoSuccess = true; //To catch cases where GPU reco returns coherence value zero
+         else { cout<<"over-threshold constantNMaxPixCoherence returns 0!! Re-running reco...\n"; }
+
+      }
+
+      if(recordOverThresChanConstantNDir(settings, summary) < 0){ cerr<<"Error recording over-threshold constant N dir\n"; return -1;}
 
    }
 

@@ -219,7 +219,19 @@ public:
    double spikeyRatio;
    void setSpikeyRatio(double _spikeyRatio);
 
-   ClassDef(recoData, 21);
+//ClassDef 22
+   float AraVertexTheta;
+   float AraVertexPhi;
+   void setAraVertexAngles(float _AraVertexTheta, float _AraVertexPhi);
+
+//ClassDef 23
+   int overThresChanConstantNMaxPixIdx;
+   float overThresChanConstantNMaxPixCoherence;
+   float overThresChanConstantNZen, overThresChanConstantNAzi;
+   void setOverThresChanConstantNMaxPixInfo(int _overThresChanConstantNMaxPixIdx, float _overThresChanConstantNMaxPixCoherence);
+   void setOverThresChanConstantNDir(float _overThresChanConstantNZen, float _overThresChanConstantNAzi);
+
+   ClassDef(recoData, 23);
 
 };
 
