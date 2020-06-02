@@ -704,7 +704,7 @@ for(int i=4; i<argc; i++){
    //cout<<"runNum: "<<runNum<<endl;
    //Exclude calibration runs:
    if(STATION=="ARA02"){
-      if( isInCalibrationRun(listOfCalRuns, runNum) ) continue;
+   //   if( isInCalibrationRun(listOfCalRuns, runNum) ) continue;
    } else if (STATION=="ARA03"){
       if (shouldExclude(STATION, runNum)) continue;
    }
@@ -1768,7 +1768,7 @@ for(int i=4; i<argc; i++){
    }
 
 
-   if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut /*&& passSurfaceCut && passSurfaceCut_2 *//*&& passNoisyRunCut*/ )
+   if(passCWCut && passThermalCut && passThermalImpulsivityCut && passSNRCut && passDeepPulserCut && passCalpulserCut && passCalpulserTimeCut /*&& passSurfaceCut && passSurfaceCut_2 *//*&& passNoisyRunCut */)
    {
    //zen_nMinusSurface->Fill((passSurfaceCut?zenMaj:90.f-dummyData->constantNZen));
    zen_azi_nMinusSurface->Fill(dummyData->constantNAzi, (passSurfaceCut?zenMaj:90.f-dummyData->constantNZen), dummyData->weight);
@@ -2077,7 +2077,7 @@ snr_mean /= (double)snr_vec.size();
 c_mean   /= (double)c_vec.size();
 cout<<"snr_mean: "<<snr_mean<<" c_mean: "<<c_mean<<endl;
 
-double sigma_snr, sigma_c;
+double sigma_snr, sigma_c; 
 sigma_snr = sigma_c = 0.;
 for(int i=0; i<(int)snr_vec.size(); i++){
    sigma_snr += snr_vec[i] * snr_vec[i];
