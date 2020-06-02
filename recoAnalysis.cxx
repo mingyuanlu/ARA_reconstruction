@@ -81,8 +81,8 @@ ofstream outputFile(argv[3],std::ofstream::out|std::ofstream::app);
 
 ifstream list;
 ////A2 noisy runs
-list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
-//list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_fullDataExpoFit_surfaceEvents_noisyRuns.txt");
+//list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
+list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_fullDataExpoFit_surfaceEvents_noisyRuns.txt");
 
 
 //A3 noisy runs
@@ -704,7 +704,7 @@ for(int i=4; i<argc; i++){
    //cout<<"runNum: "<<runNum<<endl;
    //Exclude calibration runs:
    if(STATION=="ARA02"){
-   //   if( isInCalibrationRun(listOfCalRuns, runNum) ) continue;
+      if( isInCalibrationRun(listOfCalRuns, runNum) ) continue;
    } else if (STATION=="ARA03"){
       if (shouldExclude(STATION, runNum)) continue;
    }
