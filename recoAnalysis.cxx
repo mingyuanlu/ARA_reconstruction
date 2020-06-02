@@ -2640,7 +2640,7 @@ sprintf(filename, "%s_type%d_spikeyRatio_noCut.C", STATION.c_str(), type);
 
 TCanvas c37("c37","c37", 800, 800);
 sinzen_nMinusNoisyRunSurface->Draw();
-sprintf(filename,"recoAnalysis_37_type%d.C", type)
+sprintf(filename,"recoAnalysis_37_type%d.C", type);
 c37.SaveAs(filename);
 
 //TCanvas c37("c37","c37",800,800);
