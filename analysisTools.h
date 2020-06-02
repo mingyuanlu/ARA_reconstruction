@@ -178,5 +178,7 @@ TH1F *getCumulative(TH1F *hist, bool cdf);
 double getZenithInRangeFraction(recoData* dummyData, recoSettings* settings, Healpix_Onion onion, const double angThres);
 double getAzimuthInRangeFraction(recoData* dummyData, recoSettings* settings, Healpix_Onion onion, const double angThres);
 bool shouldExclude(string STATION, int runNum);
+void BinLogX(TH2F *h);
+void BinLogX_1D(TH1 *h);
 bool isOverThresChanSurface(recoData *dummyData, double surfaceCut_1);
 #endif
