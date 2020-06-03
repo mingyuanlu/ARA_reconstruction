@@ -82,11 +82,11 @@ ofstream outputFile(argv[3],std::ofstream::out|std::ofstream::app);
 ifstream list;
 ////A2 noisy runs
 //list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_surfaceEvents_noisyRuns.txt");
-list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_fullDataExpoFit_surfaceEvents_noisyRuns.txt");
+//list.open("ARA02_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_ch6Fit2Corr_2SurfaceCut_fullDataExpoFit_surfaceEvents_noisyRuns.txt");
 
 
 //A3 noisy runs
-//list.open("ARA03_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_surfaceEvents_noisyRuns.txt");
+list.open("ARA03_vnchnl3NoMasking_noMaskSat_snrMode1_coherenceThermalCut_snrCut_surfaceEvents_noisyRuns.txt");
 
 vector<int> listOfRuns;
 //vector<int> listOfEvents;
@@ -632,10 +632,10 @@ for(int i=0; i<5; i++){
 }
 
 
-ARA02_cutValues *cutValues = new ARA02_cutValues();
+//ARA02_cutValues *cutValues = new ARA02_cutValues();
 //if (STATION=="ARA03"){
 //   delete cutValues;
-   //ARA03_cutValues *cutValues = new ARA03_cutValues();
+   ARA03_cutValues *cutValues = new ARA03_cutValues();
 //}
 
 cout<<"impCut: "<<cutValues->impCut.val<<endl;
@@ -772,7 +772,7 @@ for(int i=4; i<argc; i++){
    if(runNum==4429 && dummyData->eventNumber==34200) { totalBlockGapEventCount++; continue; }
    */
    //if (dummyData->eventNumber != 131864) continue;
-/*
+
    //Exclude the spikey D1 events
    if( (runNum==850 && dummyData->eventNumber==95159) ||
        (runNum==1115 && dummyData->eventNumber==76709) ||
@@ -782,7 +782,7 @@ for(int i=4; i<argc; i++){
     ){
       continue;
    }
-*/
+
 
    //if (!(runNum==2946 && dummyData->eventNumber==144975)){
    //   continue;
