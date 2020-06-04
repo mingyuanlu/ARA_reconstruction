@@ -633,10 +633,10 @@ for(int i=0; i<5; i++){
 }
 
 
-//ARA02_cutValues *cutValues = new ARA02_cutValues();
+ARA02_cutValues *cutValues = new ARA02_cutValues();
 //if (STATION=="ARA03"){
 //   delete cutValues;
-   ARA03_cutValues *cutValues = new ARA03_cutValues();
+//   ARA03_cutValues *cutValues = new ARA03_cutValues();
 //}
 
 cout<<"impCut: "<<cutValues->impCut.val<<endl;
@@ -775,6 +775,7 @@ for(int i=4; i<argc; i++){
    //if (dummyData->eventNumber != 131864) continue;
 
    //Exclude the spikey D1 events
+   /*
    if( (runNum==850 && dummyData->eventNumber==95159) ||
        (runNum==1115 && dummyData->eventNumber==76709) ||
        (runNum==1164 && dummyData->eventNumber==68655) ||
@@ -783,7 +784,7 @@ for(int i=4; i<argc; i++){
     ){
       continue;
    }
-
+*/
 
    //if (!(runNum==2946 && dummyData->eventNumber==144975)){
    //   continue;
