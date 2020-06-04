@@ -1777,7 +1777,7 @@ for(int i=4; i<argc; i++){
    double theta_temp = 90.f-dummyData->constantNZen;
    
    sinzen_nMinusNoisyRunSurface->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
-   if(passSurfaceCutf){
+   if(passSurfaceCut){
       outputFile<<runNum<<","<<dummyData->eventNumber<<","<<theta_temp<<","<<sin(TMath::DegToRad()*theta_temp)<<endl;
    }
 
