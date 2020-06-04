@@ -1777,7 +1777,9 @@ for(int i=4; i<argc; i++){
    double theta_temp = 90.f-dummyData->constantNZen;
    
    sinzen_nMinusNoisyRunSurface->Fill(sin(TMath::DegToRad()*theta_temp), dummyData->weight);
-   outputFile<<runNum<<","<<dummyData->eventNumber<<","<<theta_temp<<","<<sin(TMath::DegToRad()*theta_temp)<<endl;
+   if(passSurfaceCutf){
+      outputFile<<runNum<<","<<dummyData->eventNumber<<","<<theta_temp<<","<<sin(TMath::DegToRad()*theta_temp)<<endl;
+   }
 
    if(theta_temp > 52 && theta_temp < 57 && dummyData->constantNAzi > 235 && dummyData->constantNAzi < 245){
       //outputFile<<runNum<<","<<dummyData->eventNumber<<","<<dummyData->unixTime<<","<<dummyData->timeStamp<<endl;
