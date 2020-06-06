@@ -1,5 +1,7 @@
 # RIvR
 ----------
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 Radio Interferometric Neutrino Reconstruction. This is a software that utilizes waveform interferometry and the Radiospline library to attempt the reconstruction of neutrino events from the Askaryan Radio Array (ARA) experiment.
 
 This release (2.0.0) makes RIvR compatible with WIPAC ARA CVMFS.
